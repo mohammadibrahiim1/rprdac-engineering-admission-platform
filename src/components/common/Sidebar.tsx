@@ -1,164 +1,145 @@
-import React from "react";
+import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Layers,
-  HelpCircle,
-  Settings,
-} from "lucide-react";
+import { GraduationCap, ChevronLeft, X, BookOpen } from "lucide-react";
+import { navigationGroups } from "../../config/routeConfig";
 
-// Nav item-এর জন্য টাইপ ইন্টারফেস
-export interface NavItem {
-  id: string;
-  label: string;
-  hint: string;
-  icon: React.ReactNode;
+interface SidebarProps {
+  isOpen?: boolean;
+  isMobile?: boolean;
+  onToggle?: () => void;
+  onClose?: () => void;
 }
 
-export interface SidebarProps {
-  currentTab: string;
-  onTabChange: (id: string) => void;
-}
-
-// মক ডাটা বা আপনার নেভিগেশন লিস্ট
-const NAV_ITEMS: NavItem[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    hint: "Overview & metrics",
-    icon: <LayoutDashboard className="w-5 h-5" />,
-  },
-  {
-    id: "students",
-    label: "Students",
-    hint: "Manage admissions",
-    icon: <Users className="w-5 h-5" />,
-  },
-  {
-    id: "invoices",
-    label: "Invoices",
-    hint: "Payments & billing",
-    icon: <FileText className="w-5 h-5" />,
-  },
-  {
-    id: "batches",
-    label: "Batches",
-    hint: "Course schedules",
-    icon: <Layers className="w-5 h-5" />,
-  },
-  {
-    id: "exams",
-    label: "MCQ & Exams",
-    hint: "Tests and results",
-    icon: <HelpCircle className="w-5 h-5" />,
-  },
-  {
-    id: "settings",
-    label: "Settings",
-    hint: "System config",
-    icon: <Settings className="w-5 h-5" />,
-  },
-];
-
-export const Sidebar: React.FC<SidebarProps> = ({
-  currentTab,
-  onTabChange,
-}) => {
+const Sidebar = ({
+  isOpen = true,
+  isMobile = false,
+  onToggle,
+  onClose,
+}: SidebarProps) => {
   return (
-    <aside className="sidebar no-print flex flex-col w-72 h-screen bg-slate-950 text-slate-300 border-r border-slate-800 select-none">
-      {/* ── Brand Logo Section ── */}
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-900 bg-slate-900/50">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white font-extrabold text-xl shadow-lg shadow-blue-500/30">
-          R
+    <motion.div
+      animate={{ width: isMobile ? 280 : isOpen ? 270 : 80 }}
+      transition={{ duration: 0.25 }}
+      className={`
+        ${isMobile ? "h-full w-70" : "fixed inset-y-0 left-0"}
+        z-30 flex flex-col border-r border-slate-200 bg-white
+      `}
+    >
+      {/* LOGO */}
+      <div className="flex h-19 shrink-0 items-center justify-between border-b border-slate-100 px-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200">
+            <GraduationCap size={23} />
+          </div>
+
+          {(isOpen || isMobile) && (
+            <div className="min-w-0">
+              <h1 className="truncate text-sm font-extrabold tracking-tight text-slate-900">
+                RPRDAC
+              </h1>
+              <p className="truncate text-[10px] font-semibold uppercase tracking-[1.5px] text-slate-400">
+                Exam Management
+              </p>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col">
-          <strong className="text-base tracking-wide text-white leading-tight">
-            RPR <span className="text-blue-500">DUET</span>
-          </strong>
-          <small className="text-[10px] tracking-widest text-slate-400 font-semibold uppercase mt-0.5">
-            Admission Care
-          </small>
-        </div>
+
+        {isMobile ? (
+          <button
+            onClick={onClose}
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+            aria-label="Close sidebar"
+          >
+            <X size={19} />
+          </button>
+        ) : (
+          <button
+            onClick={onToggle}
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Toggle sidebar"
+          >
+            <ChevronLeft
+              size={18}
+              className={`transition-transform ${!isOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+        )}
       </div>
 
-      {/* ── Overline Title ── */}
-      <div className="px-6 pt-5 pb-2 text-[10px] font-bold tracking-widest text-slate-300 uppercase">
-        MANAGEMENT SYSTEM
-      </div>
+      {/* NAVIGATION */}
+      <nav className="flex-1 space-y-7 overflow-y-auto px-3 py-6">
+        {navigationGroups?.map((group) => (
+          <div key={group.title}>
+            {(isOpen || isMobile) && (
+              <p className="mb-3 px-3 text-[10px] font-bold tracking-[1.6px] text-slate-400">
+                {group.title}
+              </p>
+            )}
 
-      {/* ── Navigation Menu ── */}
-      <nav
-        aria-label="Main menu"
-        className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto"
-      >
-        {NAV_ITEMS.map((n) => {
-          const isActive = currentTab === n.id;
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const Icon = item.icon;
 
-          return (
-            <button
-              key={n.id}
-              onClick={() => onTabChange(n.id)}
-              className={`relative flex items-center w-full px-4 py-3 rounded-xl text-left transition-colors group ${
-                isActive
-                  ? "bg-blue-600/10 text-blue-400 font-medium"
-                  : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
-              }`}
-            >
-              {/* Icon */}
-              <span
-                className={`mr-3.5 transition-transform duration-200 group-hover:scale-110 ${
-                  isActive ? "text-blue-400" : "text-slate-500"
-                }`}
-              >
-                {n.icon}
-              </span>
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    end
+                    onClick={isMobile ? onClose : undefined}
+                    title={!isOpen && !isMobile ? item.label : undefined}
+                    className={({ isActive }) =>
+                      `group relative flex items-center gap-3 rounded-xl px-3 py-3 text-[13px] font-semibold transition-all ${
+                        isActive
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <motion.span
+                            layoutId={isMobile ? undefined : "sidebar-active"}
+                            className="absolute bottom-2 left-0 top-2 w-0.75 rounded-r-full bg-blue-600"
+                          />
+                        )}
 
-              {/* Text & Hint */}
-              <span className="flex flex-col flex-1 min-w-0">
-                <strong
-                  className={`text-sm tracking-wide truncate ${
-                    isActive
-                      ? "text-white font-semibold"
-                      : "text-slate-300 font-normal"
-                  }`}
-                >
-                  {n.label}
-                </strong>
-                <small className="text-[11px] text-slate-500 truncate group-hover:text-slate-400">
-                  {n.hint}
-                </small>
-              </span>
+                        <Icon
+                          size={19}
+                          strokeWidth={isActive ? 2.4 : 1.9}
+                          className="shrink-0"
+                        />
 
-              {/* Framer Motion Active Indicator Dash */}
-              {isActive && (
-                <motion.span
-                  layoutId="activeDash"
-                  className="absolute right-0 w-1 h-6 bg-blue-500 rounded-l-full shadow-lg shadow-blue-500/50"
-                  transition={{ type: "spring", stiffness: 350, damping: 30 }}
-                />
-              )}
-            </button>
-          );
-        })}
+                        {(isOpen || isMobile) && (
+                          <span className="truncate">{item.label}</span>
+                        )}
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      {/* ── Sidebar Bottom Footer / Pulse Indicator ── */}
-      <div className="p-4 mx-4 mb-4 rounded-xl bg-slate-900/80 border border-slate-800/80 flex flex-col gap-1 shadow-inner">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
-          {/* Pulsing Dot */}
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-          </span>
-          Exam Management
+      {/* SIDEBAR FOOTER */}
+      {(isOpen || isMobile) && (
+        <div className="shrink-0 border-t border-slate-100 p-4">
+          <div className="rounded-2xl bg-slate-50 p-3">
+            <div className="flex items-center gap-2">
+              <BookOpen size={17} className="text-blue-600" />
+              <span className="text-xs font-bold text-slate-700">
+                RPR DUET Admission Care
+              </span>
+            </div>
+            <p className="mt-2 text-[10px] text-slate-400">
+              Exam & Result Management
+            </p>
+          </div>
         </div>
-        <small className="text-[11px] text-slate-500 pl-4 font-mono">
-          Version 1.0 (Hybrid Mode)
-        </small>
-      </div>
-    </aside>
+      )}
+    </motion.div>
   );
 };
 
