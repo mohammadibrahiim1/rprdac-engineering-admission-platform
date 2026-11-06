@@ -1,4 +1,4 @@
-export type UserStatus = 'approved' | 'pending' | 'rejected';
+export type UserStatus = "approved" | "pending" | "rejected";
 
 export interface Responsibility {
   panel: string;
@@ -9,7 +9,7 @@ export interface User {
   userName: string;
   email: string;
   phone: string;
-  userType: 'teacher' | 'staff' | 'nursing' | 'admin' | 'all';
+  userType: "teacher" | "staff" | "nursing" | "admin" | "all" | "super-admin";
   role: string;
   department: string;
   status: UserStatus;
@@ -18,6 +18,8 @@ export interface User {
   lastActive: string;
   responsibility?: Responsibility[];
   createdAt: string;
+  allowedPanels: [];
+  panelName: string;
 }
 
 export interface PaginationMeta {

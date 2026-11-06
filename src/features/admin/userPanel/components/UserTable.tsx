@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   ColumnDef,
-} from '@tanstack/react-table';
-import { motion } from 'framer-motion';
-import { Database, Trash2, KeyRound, Lock } from 'lucide-react';
-import { User } from '../types/user.types';
+} from "@tanstack/react-table";
+import { motion } from "framer-motion";
+import { Database, Trash2, KeyRound, Lock } from "lucide-react";
+import { User } from "../types/User.types";
 
 interface UserTableProps {
   users: User[];
@@ -21,7 +21,7 @@ interface UserTableProps {
   handleDelete: (id: string) => void;
 }
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL || '';
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL || "";
 
 export const UserTable: React.FC<UserTableProps> = ({
   users,
@@ -35,7 +35,7 @@ export const UserTable: React.FC<UserTableProps> = ({
   const columns = React.useMemo<ColumnDef<User>[]>(
     () => [
       {
-        id: 'select',
+        id: "select",
         header: ({ table }) => (
           <input
             type="checkbox"
@@ -55,8 +55,8 @@ export const UserTable: React.FC<UserTableProps> = ({
         ),
       },
       {
-        accessorKey: 'userName',
-        header: 'User Profile',
+        accessorKey: "userName",
+        header: "User Profile",
         cell: ({ row }) => {
           const user = row.original;
           return (
@@ -86,14 +86,14 @@ export const UserTable: React.FC<UserTableProps> = ({
         },
       },
       {
-        accessorKey: 'userType',
-        header: 'User Type',
+        accessorKey: "userType",
+        header: "User Type",
         cell: ({ row }) => {
           const user = row.original;
           return (
             <div className="flex items-center gap-1.5 text-xs text-sky-600 font-medium">
               <span>
-                {user.userType === 'staff' ? 'employee' : user?.userType}
+                {user.userType === "staff" ? "employee" : user?.userType}
               </span>
             </div>
           );
@@ -101,8 +101,8 @@ export const UserTable: React.FC<UserTableProps> = ({
       },
 
       {
-        accessorKey: 'status',
-        header: 'Status',
+        accessorKey: "status",
+        header: "Status",
         cell: ({ row }) => {
           const user = row.original;
           return (
@@ -111,11 +111,11 @@ export const UserTable: React.FC<UserTableProps> = ({
               onChange={(e) => handleStatusChange(user._id, e.target.value)}
               className={`text-xs font-bold px-2.5 py-1 rounded-md border-none outline-none cursor-pointer uppercase transition-all
                 ${
-                  user.status === 'approved'
-                    ? 'bg-[#e2f5ea] text-[#0e7043]'
-                    : user.status === 'pending'
-                      ? 'bg-[#fff1d6] text-[#7a4e05]'
-                      : 'bg-[#ffe2e2] text-[#ae2e2e]'
+                  user.status === "approved"
+                    ? "bg-[#e2f5ea] text-[#0e7043]"
+                    : user.status === "pending"
+                      ? "bg-[#fff1d6] text-[#7a4e05]"
+                      : "bg-[#ffe2e2] text-[#ae2e2e]"
                 }`}
             >
               <option value="approved">Approved</option>
@@ -126,8 +126,8 @@ export const UserTable: React.FC<UserTableProps> = ({
         },
       },
       {
-        accessorKey: 'role',
-        header: 'Role & Department',
+        accessorKey: "role",
+        header: "Role & Department",
         cell: ({ row }) => {
           const user = row.original;
           // Check kora hocche user-er responsibility ba access ache kina
@@ -139,8 +139,8 @@ export const UserTable: React.FC<UserTableProps> = ({
               <span
                 className={`text-xs font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1.5 ${
                   hasAccess
-                    ? 'bg-sky-50 text-sky-700 border border-sky-100'
-                    : 'bg-red-50 text-red-600 border border-red-100'
+                    ? "bg-sky-50 text-sky-700 border border-sky-100"
+                    : "bg-red-50 text-red-600 border border-red-100"
                 }`}
               >
                 {hasAccess ? (
@@ -149,30 +149,30 @@ export const UserTable: React.FC<UserTableProps> = ({
                   <Lock className="w-3.5 h-3.5" />
                 )}
                 {hasAccess
-                  ? user.role || user.userType || 'Access Granted'
-                  : 'No Access'}
+                  ? user.role || user.userType || "Access Granted"
+                  : "No Access"}
               </span>
               <span className="text-xs text-gray-400 block mt-1">
                 {hasAccess
                   ? user?.responsibility
                       ?.map((responsible) => responsible?.panel)
-                      .join(', ')
-                  : 'Restricted Access'}
+                      .join(", ")
+                  : "Restricted Access"}
               </span>
             </div>
           );
         },
       },
       {
-        accessorKey: 'lastActive',
-        header: 'Last Active',
+        accessorKey: "lastActive",
+        header: "Last Active",
         cell: () => (
           <span className="text-xs text-gray-500">Just now (US-East)</span>
         ),
       },
       {
-        id: 'actions',
-        header: '',
+        id: "actions",
+        header: "",
         cell: ({ row }) => (
           <div className="text-right">
             <button
@@ -234,7 +234,7 @@ export const UserTable: React.FC<UserTableProps> = ({
                       transition={{
                         repeat: Infinity,
                         duration: 1,
-                        ease: 'linear',
+                        ease: "linear",
                       }}
                       className="w-6 h-6 border-2 border-sky-500 rounded-full border-t-transparent"
                     />

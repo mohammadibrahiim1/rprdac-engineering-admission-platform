@@ -49,7 +49,7 @@
 //       employeeName: '',
 //       phone: '',
 //       nursingId: '',
-//       userType: 'nursing',
+//        'nursing',
 //       messName: '',
 //       dutyStartTime: '',
 //       dutyEndTime: '',
@@ -429,10 +429,10 @@
 //   );
 // }
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   UserCircle,
   Search,
@@ -445,30 +445,30 @@ import {
   X,
   Wallet,
   Loader2,
-} from 'lucide-react';
+} from "lucide-react";
 
 // API Hooks
 import {
   useGetallNursingUserQuery,
   usePostNursingAttendanceMutation,
-} from '../../../../../redux/features/Nursing/NursingApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import MessSelector from '../../../../../components/forms/MessSelector';
-import { useGetBillingRatesQuery } from '../../controlPanel/services/billingRateApi';
+} from "../../../../../redux/features/Nursing/NursingApi";
+import BreadCrumbMenu from "../../../../../components/BreadCrumbMenu";
+import MessSelector from "../../../../../components/forms/MessSelector";
+import { useGetBillingRatesQuery } from "../../controlPanel/services/billingRateApi";
 
 const getBangladeshDateString = () => {
   const options = {
-    timeZone: 'Asia/Dhaka',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   };
-  const formatter = new Intl.DateTimeFormat('en-CA', options);
+  const formatter = new Intl.DateTimeFormat("en-CA", options);
   return formatter.format(new Date());
 };
 
 export default function AddNursingDuty() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
 
@@ -478,24 +478,24 @@ export default function AddNursingDuty() {
   const { register, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       date: getBangladeshDateString(),
-      employeeName: '',
-      phone: '',
-      nursingId: '',
-      userType: 'nursing',
-      messName: '',
-      dutyStartTime: '',
-      dutyEndTime: '',
+      employeeName: "",
+      phone: "",
+      nursingId: "",
+      userType: "nursing",
+      messName: "",
+      dutyStartTime: "",
+      dutyEndTime: "",
       hourlyRate: 0,
-      selectedRateCategory: '',
+      selectedRateCategory: "",
     },
   });
 
   // 3. Watch Fields
-  const startTime = watch('dutyStartTime');
-  const endTime = watch('dutyEndTime');
-  const currentHourlyRate = watch('hourlyRate');
-  const selectedRateCategory = watch('selectedRateCategory');
-  const nursingId = watch('nursingId');
+  const startTime = watch("dutyStartTime");
+  const endTime = watch("dutyEndTime");
+  const currentHourlyRate = watch("hourlyRate");
+  const selectedRateCategory = watch("selectedRateCategory");
+  const nursingId = watch("nursingId");
 
   // 2. Fetch Nursing Users & Billing Rates for Specific Nursing User
   const { data: nursingData } = useGetallNursingUserQuery({ search });
@@ -517,7 +517,7 @@ export default function AddNursingDuty() {
 
     const nursingBillingRecord = allBillingRecords?.find((item) => {
       const recordUserId =
-        typeof item.user === 'object' ? item.user?._id : item.user;
+        typeof item.user === "object" ? item.user?._id : item.user;
 
       return recordUserId === nursingId;
     });
@@ -528,20 +528,20 @@ export default function AddNursingDuty() {
   useEffect(() => {
     if (ratesList?.length > 0) {
       const regularRate =
-        ratesList.find((r) => r.category === 'regular') || ratesList[0];
+        ratesList.find((r) => r.category === "regular") || ratesList[0];
       if (regularRate) {
-        setValue('hourlyRate', Number(regularRate.hourlyRate || 0));
-        setValue('selectedRateCategory', regularRate.category || '');
+        setValue("hourlyRate", Number(regularRate.hourlyRate || 0));
+        setValue("selectedRateCategory", regularRate.category || "");
       }
     } else {
-      setValue('hourlyRate', 0);
-      setValue('selectedRateCategory', '');
+      setValue("hourlyRate", 0);
+      setValue("selectedRateCategory", "");
     }
   }, [ratesList, setValue]);
 
   const calculated = useMemo(() => {
     if (!startTime || !endTime || !currentHourlyRate) {
-      return { duration: '00:00:00', fee: 0, seconds: 0 };
+      return { duration: "00:00:00", fee: 0, seconds: 0 };
     }
 
     const start = new Date(`1970-01-01T${startTime}:00+06:00`);
@@ -550,9 +550,9 @@ export default function AddNursingDuty() {
     if (end < start) end.setDate(end.getDate() + 1); // ওভারনাইট/নাইট ডিউটি হ্যান্ডলিং
 
     const seconds = Math.floor((end - start) / 1000);
-    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
+    const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
 
     const totalFee = (seconds / 3600) * Number(currentHourlyRate);
 
@@ -565,26 +565,26 @@ export default function AddNursingDuty() {
 
   // 6. Handlers
   const handleRateSelect = (rateObj) => {
-    setValue('hourlyRate', Number(rateObj.hourlyRate || 0));
-    setValue('selectedRateCategory', rateObj.category || '');
+    setValue("hourlyRate", Number(rateObj.hourlyRate || 0));
+    setValue("selectedRateCategory", rateObj.category || "");
   };
 
   const handleStaffSelect = (staff) => {
     setSelectedStaff(staff);
-    setValue('nursingId', staff._id);
-    setValue('employeeName', staff.userName);
-    setValue('phone', staff.phone);
-    setValue('hourlyRate', 0);
-    setValue('selectedRateCategory', '');
+    setValue("nursingId", staff._id);
+    setValue("employeeName", staff.userName);
+    setValue("phone", staff.phone);
+    setValue("hourlyRate", 0);
+    setValue("selectedRateCategory", "");
     setSearch(staff.userName);
     setIsDropdownOpen(false);
   };
 
   const onFormSubmit = async (data) => {
-    if (!selectedStaff) return toast.error('Please select a nursing member');
+    if (!selectedStaff) return toast.error("Please select a nursing member");
     if (!data.hourlyRate || data.hourlyRate <= 0)
-      return toast.error('Please select a valid billing rate!');
-    if (calculated.fee <= 0) return toast.error('Invalid duty duration');
+      return toast.error("Please select a valid billing rate!");
+    if (calculated.fee <= 0) return toast.error("Invalid duty duration");
 
     try {
       const payload = {
@@ -600,23 +600,23 @@ export default function AddNursingDuty() {
       };
 
       await postNursingData(payload).unwrap();
-      toast.success('Duty recorded successfully');
+      toast.success("Duty recorded successfully");
 
       reset({
         date: getBangladeshDateString(),
-        dutyStartTime: '',
-        dutyEndTime: '',
-        employeeName: '',
-        phone: '',
-        nursingId: '',
-        messName: '',
+        dutyStartTime: "",
+        dutyEndTime: "",
+        employeeName: "",
+        phone: "",
+        nursingId: "",
+        messName: "",
         hourlyRate: 0,
-        selectedRateCategory: '',
+        selectedRateCategory: "",
       });
       setSelectedStaff(null);
-      setSearch('');
+      setSearch("");
     } catch (err) {
-      toast.error(err?.data?.message || 'Submission failed');
+      toast.error(err?.data?.message || "Submission failed");
     }
   };
 
@@ -625,20 +625,20 @@ export default function AddNursingDuty() {
       if (containerRef.current && !containerRef.current.contains(e.target))
         setIsDropdownOpen(false);
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   // UI Styles
   const inputStyle =
-    'w-full pl-10 pr-4 py-2.5 bg-[#f7f7f5] border border-transparent rounded-lg focus:outline-none focus:bg-white focus:border-blue-500 transition-all text-sm shadow-sm';
+    "w-full pl-10 pr-4 py-2.5 bg-[#f7f7f5] border border-transparent rounded-lg focus:outline-none focus:bg-white focus:border-blue-500 transition-all text-sm shadow-sm";
   const labelStyle =
-    'text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block';
+    "text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block";
 
   const categoryColors = {
-    regular: 'bg-blue-100 text-blue-700',
-    private: 'bg-purple-100 text-purple-700',
-    examDuty: 'bg-orange-100 text-orange-700',
+    regular: "bg-blue-100 text-blue-700",
+    private: "bg-purple-100 text-purple-700",
+    examDuty: "bg-orange-100 text-orange-700",
   };
 
   return (
@@ -732,12 +732,12 @@ export default function AddNursingDuty() {
                   type="button"
                   onClick={() => {
                     setSelectedStaff(null);
-                    setSearch('');
-                    setValue('nursingId', '');
-                    setValue('employeeName', '');
-                    setValue('phone', '');
-                    setValue('hourlyRate', 0);
-                    setValue('selectedRateCategory', '');
+                    setSearch("");
+                    setValue("nursingId", "");
+                    setValue("employeeName", "");
+                    setValue("phone", "");
+                    setValue("hourlyRate", 0);
+                    setValue("selectedRateCategory", "");
                   }}
                   className="text-gray-400 hover:text-red-500"
                 >
@@ -778,7 +778,7 @@ export default function AddNursingDuty() {
                           <tr
                             key={idx}
                             onClick={() => handleRateSelect(rate)}
-                            className={`cursor-pointer transition-colors ${selectedRateCategory === rate.category ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                            className={`cursor-pointer transition-colors ${selectedRateCategory === rate.category ? "bg-blue-50" : "hover:bg-gray-50"}`}
                           >
                             <td className="px-4 py-3">
                               <input
@@ -791,15 +791,15 @@ export default function AddNursingDuty() {
                             </td>
                             <td className="px-4 py-3">
                               <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColors[rate.category] || 'bg-gray-100 text-gray-600'}`}
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColors[rate.category] || "bg-gray-100 text-gray-600"}`}
                               >
                                 {rate?.category}
                               </span>
                             </td>
                             <td className="px-4 py-3 font-mono font-bold text-right text-gray-700">
-                              {rate.hourlyRate?.toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              {rate.hourlyRate?.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </td>
                           </tr>
@@ -833,7 +833,7 @@ export default function AddNursingDuty() {
                   />
                   <input
                     type="date"
-                    {...register('date')}
+                    {...register("date")}
                     className={inputStyle}
                   />
                 </div>
@@ -841,8 +841,8 @@ export default function AddNursingDuty() {
               <MessSelector
                 labelBase={labelStyle}
                 inputBase={inputStyle}
-                value={watch('messName')}
-                onSelect={(mess) => setValue('messName', mess?.name)}
+                value={watch("messName")}
+                onSelect={(mess) => setValue("messName", mess?.name)}
               />
             </div>
 
@@ -856,7 +856,7 @@ export default function AddNursingDuty() {
                   />
                   <input
                     type="time"
-                    {...register('dutyStartTime')}
+                    {...register("dutyStartTime")}
                     className={inputStyle}
                   />
                 </div>
@@ -870,7 +870,7 @@ export default function AddNursingDuty() {
                   />
                   <input
                     type="time"
-                    {...register('dutyEndTime')}
+                    {...register("dutyEndTime")}
                     className={inputStyle}
                   />
                 </div>
@@ -906,9 +906,9 @@ export default function AddNursingDuty() {
                       Net Fee
                     </p>
                     <p className="text-4xl font-black tracking-tight text-emerald-400">
-                      {calculated.fee.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'BDT',
+                      {calculated.fee.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "BDT",
                       })}
                     </p>
                   </div>
@@ -930,8 +930,8 @@ export default function AddNursingDuty() {
               disabled={isSubmitting || !selectedStaff || calculated.fee <= 0}
               className={`w-full h-14 font-bold rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 ${
                 !selectedStaff || calculated.fee <= 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200 active:scale-[0.98]'
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200 active:scale-[0.98]"
               }`}
             >
               {isSubmitting ? (

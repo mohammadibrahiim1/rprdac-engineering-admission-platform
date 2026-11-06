@@ -2025,10 +2025,20 @@
 
 import React from "react";
 import { RouterProvider } from "react-router-dom";
-import { router } from "./routes/appRoutes";
+import { router } from "./routes/router";
+import { AuthInitializer } from "./features/auth/auth-components/AuthInitializer";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <TooltipProvider>
+        <AuthInitializer>
+          <RouterProvider router={router} />
+        </AuthInitializer>
+      </TooltipProvider>
+    </>
+  );
 }
 
 export default App;

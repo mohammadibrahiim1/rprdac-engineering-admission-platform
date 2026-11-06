@@ -1,13 +1,13 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
-import { useAllUsers } from '../hooks/useAllUsers';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import { UserStatsCards } from '../components/UserStatusCards';
-import { UserToolbar } from '../components/UserToolbar';
-import { exportUsersToExcel } from '../utils/user.exportExcel';
-import { UserTable } from '../components/UserTable';
-import { User } from '../types/user.types';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { useAllUsers } from "../hooks/useAllUsers";
+import BreadCrumbMenu from "../../../../../components/BreadCrumbMenu";
+import { UserStatsCards } from "../components/UserStatusCards";
+import { UserToolbar } from "../components/UserToolbar";
+import { exportUsersToExcel } from "../utils/user.exportExcel";
+import { UserTable } from "../components/UserTable";
+import { User } from "../types/User.types";
 
 const AllUsers: React.FC = () => {
   const {
@@ -35,7 +35,7 @@ const AllUsers: React.FC = () => {
 
   const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
-    setLimit(val === 'all' ? 'all' : Number(val));
+    setLimit(val === "all" ? "all" : Number(val));
     setPage(1);
   };
 
@@ -50,12 +50,12 @@ const AllUsers: React.FC = () => {
           <button
             onClick={() => refetch()}
             className={`p-1.5 hover:bg-[#efede8] rounded-md transition-colors text-gray-500 ${
-              isFetching ? 'text-sky-500' : ''
+              isFetching ? "text-sky-500" : ""
             }`}
             title="Refresh Data"
           >
             <RefreshCw
-              className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
+              className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
             />
           </button>
         </div>
@@ -94,44 +94,44 @@ const AllUsers: React.FC = () => {
         {/* Category Filter Pills Bar */}
         <div className="flex items-center gap-2 border-b border-[#37352f]/10 pb-4 mb-6 overflow-x-auto">
           {[
-            { id: 'all', label: 'All Users', count: totalItems },
+            { id: "all", label: "All Users", count: totalItems },
             {
-              id: 'approved',
-              label: 'Approved',
+              id: "approved",
+              label: "Approved",
               count:
-                users?.filter((u: User) => u?.status === 'approved')?.length ||
+                users?.filter((u: User) => u?.status === "approved")?.length ||
                 0,
             },
             {
-              id: 'pending',
-              label: 'Pending',
+              id: "pending",
+              label: "Pending",
               count:
-                users?.filter((u: User) => u?.status === 'pending')?.length ||
+                users?.filter((u: User) => u?.status === "pending")?.length ||
                 0,
             },
             {
-              id: 'rejected',
-              label: 'Rejected',
+              id: "rejected",
+              label: "Rejected",
               count:
-                users?.filter((u: User) => u?.status === 'rejected')?.length ||
+                users?.filter((u: User) => u?.status === "rejected")?.length ||
                 0,
             },
           ]?.map((tab) => (
             <button
               key={tab.id}
               onClick={() => {
-                if (tab.id === 'approved' || tab.id === 'rejected') {
+                if (tab.id === "approved" || tab.id === "rejected") {
                   setStatusFilter(tab.id);
                 } else {
-                  setUserType('all');
-                  setStatusFilter('all');
+                  setUserType("all");
+                  setStatusFilter("all");
                 }
                 setPage(1);
               }}
               className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
                 userType === tab.id || statusFilter === tab.id
-                  ? 'bg-sky-600 text-white shadow-sm'
-                  : 'bg-[#f7f6f3] text-[#37352f]/70 hover:bg-[#efede8]'
+                  ? "bg-sky-600 text-white shadow-sm"
+                  : "bg-[#f7f6f3] text-[#37352f]/70 hover:bg-[#efede8]"
               }`}
             >
               <span>{tab.label}</span>
@@ -170,19 +170,19 @@ const AllUsers: React.FC = () => {
 
         {/* Minimalist Pagination Bar */}
         <AnimatePresence>
-          {!isLoading && users.length > 0 && limit !== 'all' && (
+          {!isLoading && users.length > 0 && limit !== "all" && (
             <div className="flex flex-wrap items-center justify-between pt-6 mx-auto mt-6 border-t border-[#37352f]/10">
               <div className="text-xs text-[#37352f]/50">
-                Showing{' '}
+                Showing{" "}
                 <span className="text-[#37352f] font-medium">
                   {(page - 1) * Number(limit) + 1}
-                </span>{' '}
-                to{' '}
+                </span>{" "}
+                to{" "}
                 <span className="text-[#37352f] font-medium">
                   {Math.min(page * Number(limit), totalItems)}
-                </span>{' '}
-                of{' '}
-                <span className="text-[#37352f] font-medium">{totalItems}</span>{' '}
+                </span>{" "}
+                of{" "}
+                <span className="text-[#37352f] font-medium">{totalItems}</span>{" "}
                 members
               </div>
               <div className="flex items-center gap-2">
@@ -194,8 +194,8 @@ const AllUsers: React.FC = () => {
                   <ChevronLeft className="w-4 h-4" /> Previous
                 </button>
                 <div className="flex items-center px-3.5 py-1.5 bg-[#f7f6f3] rounded-md text-xs font-bold text-[#37352f]">
-                  {page}{' '}
-                  <span className="mx-2 text-gray-300 font-normal">/</span>{' '}
+                  {page}{" "}
+                  <span className="mx-2 text-gray-300 font-normal">/</span>{" "}
                   {totalPages}
                 </div>
                 <button
