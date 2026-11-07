@@ -85,7 +85,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
             )}
 
             <div className="space-y-1">
-              {group.items.map((item) => {
+              {group?.items?.map((item) => {
                 const Icon = item.icon;
 
                 return (

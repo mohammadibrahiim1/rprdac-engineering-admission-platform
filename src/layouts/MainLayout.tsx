@@ -25,14 +25,14 @@ const MainLayoutContent = () => {
       <AppSidebar />
 
       {/* Main Content wrapper with Inset behavior */}
-      <SidebarInset className="flex min-w-0 flex-1 flex-col bg-slate-50 transition-all duration-200">
-        {/* Dynamic Page Outlet */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-[1600px]">
-            <Outlet />
-          </div>
-        </main>
-      </SidebarInset>
+      {/* <SidebarInset className="flex min-w-0 flex-1 flex-col bg-slate-50 transition-all duration-200"> */}
+      {/* Dynamic Page Outlet */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto">
+          <Outlet />
+        </div>
+      </main>
+      {/* </SidebarInset> */}
     </div>
   );
 };

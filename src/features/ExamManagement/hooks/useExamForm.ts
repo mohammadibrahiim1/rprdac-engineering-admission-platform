@@ -31,7 +31,7 @@ const getDefaultExamValues = (): ExamFormValues => ({
   fullMarks: 100,
   examType: "written",
   mcqFullMarks: 0,
-  writtenFullMarks: 100,
+  writtenFullMarks: 0,
 });
 
 export function useExamForm(): UseExamFormReturn {
@@ -143,44 +143,27 @@ export function useExamForm(): UseExamFormReturn {
   }, [examType, calculatedWrittenMarks, writtenFullMarksInput]);
 
   // Exam Type Change Handler
-  const handleExamTypeChange = useCallback(
-    (value: string | null, onChange: (value: ExamType) => void) => {
-      if (value !== "written" && value !== "mcq" && value !== "combined")
-        return;
-      onChange(value);
+  const handleExamTypeChange = (
+    type: string,
+    onChange: (val: string) => void,
+  ) => {
+    onChange(type);
 
-      if (value === "written") {
-        setValue("writtenFullMarks", fullMarks, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        setValue("mcqFullMarks", 0, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-      } else if (value === "mcq") {
-        setValue("mcqFullMarks", fullMarks, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        setValue("writtenFullMarks", 0, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-      } else {
-        const mcqMarks = Math.floor(fullMarks / 2);
-        setValue("mcqFullMarks", mcqMarks, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-        setValue("writtenFullMarks", fullMarks - mcqMarks, {
-          shouldDirty: true,
-          shouldValidate: true,
-        });
-      }
-    },
-    [fullMarks, setValue],
-  );
+    if (type === "mcq") {
+      // MCQ active, Written disabled & calculated
+      setValue("mcqFullMarks", fullMarks, { shouldDirty: true });
+      setValue("writtenFullMarks", 0, { shouldDirty: true });
+    } else if (type === "written") {
+      // Written active, MCQ disabled & calculated
+      setValue("writtenFullMarks", fullMarks, { shouldDirty: true });
+      setValue("mcqFullMarks", 0, { shouldDirty: true });
+    } else if (type === "combined") {
+      // Both active (50/50 split)
+      const half = Math.floor(fullMarks / 2);
+      setValue("mcqFullMarks", half, { shouldDirty: true });
+      setValue("writtenFullMarks", fullMarks - half, { shouldDirty: true });
+    }
+  };
 
   const cancelEdit = useCallback(() => {
     setEditingExamId(null);

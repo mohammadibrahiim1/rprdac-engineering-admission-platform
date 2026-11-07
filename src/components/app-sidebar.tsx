@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useAppSelector } from "@/hooks/storeHooks";
 import { sidebarData } from "@/config/navigationConfig";
+import { Link } from "react-router-dom";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user: authUser } = useAppSelector((state) => state.auth);
@@ -42,12 +43,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<a href="#" />}>
+            <SidebarMenuButton size="lg" render={<Link to="/" />}>
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <TerminalIcon className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Acme Inc</span>
+                <span className="truncate font-medium">RPRDAC</span>
                 <span className="truncate text-xs">Enterprise</span>
               </div>
             </SidebarMenuButton>

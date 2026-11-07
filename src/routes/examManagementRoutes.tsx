@@ -1,10 +1,6 @@
 import { ExamList } from "@/features/ExamManagement/exam-components/ExamList";
 import { PostExamForm } from "@/features/ExamManagement/exam-components/PostExamForm";
 
-const handleNavigate = (tab: string, id?: string) => {
-  console.log("Navigation triggered:", tab, id);
-};
-
 export const examRoutes = [
   {
     path: "all",
