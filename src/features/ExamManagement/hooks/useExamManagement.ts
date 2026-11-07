@@ -12,9 +12,11 @@ const getDefaultExamValues = (): ExamFormValues => ({
   subject: "",
   batchIds: [],
   date: new Date().toISOString().slice(0, 10),
+  session: "",
   fullMarks: 100,
   examType: "written",
   mcqFullMarks: 0,
+  writtenFullMarks: 0,
 });
 
 export function useExamManagement(batches: ExamBatch[]) {
@@ -75,6 +77,7 @@ export function useExamManagement(batches: ExamBatch[]) {
           ...normalizedData,
           id: crypto.randomUUID(),
           status: "draft",
+          _id: "",
         };
 
         setExams((previousExams) => [newExam, ...previousExams]);
@@ -135,7 +138,9 @@ export function useExamManagement(batches: ExamBatch[]) {
 
     if (!search) return batches;
 
-    return batches.filter((batch) => batch.name.toLowerCase().includes(search));
+    return batches.filter((batch) =>
+      batch.title.toLowerCase().includes(search),
+    );
   }, [batches, examBatchSearch]);
 
   const filteredExams = useMemo(() => {

@@ -1,5 +1,5 @@
-// src/routes/examManagementRoutes.tsx
-import ExamManagement from "@/features/ExamManagement/pages/ExamManagement";
+import { ExamList } from "@/features/ExamManagement/exam-components/ExamList";
+import { PostExamForm } from "@/features/ExamManagement/exam-components/PostExamForm";
 
 const handleNavigate = (tab: string, id?: string) => {
   console.log("Navigation triggered:", tab, id);
@@ -8,7 +8,11 @@ const handleNavigate = (tab: string, id?: string) => {
 export const examRoutes = [
   {
     path: "all",
-    element: <ExamManagement batches={[]} onNavigate={handleNavigate} />,
+    element: <ExamList />,
+  },
+  {
+    path: "create",
+    element: <PostExamForm />,
   },
   {
     path: "marks", // Full path: /exam/marks

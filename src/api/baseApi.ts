@@ -25,6 +25,7 @@ export const TAG_TYPES = [
   "Courses",
   "Topic",
   "Chapter",
+  "Exam",
 ] as const;
 
 // Base query for opaque session authentication

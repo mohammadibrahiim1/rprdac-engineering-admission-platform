@@ -20,10 +20,13 @@ const batchApi = baseApi.injectEndpoints({
     // Get Batches
     getBatches: builder.query<BatchRecord[], string | void>({
       query: (search) => ({
-        url: search
-          ? `batch/all?search=${encodeURIComponent(search)}`
-          : "batch/all",
+        url: `batch/all`,
+        params: search ? { q: encodeURIComponent(search) } : undefined,
       }),
+      transformResponse: (response: {
+        success: boolean;
+        data: BatchRecord[];
+      }) => response.data,
       providesTags: ["Batch"],
     }),
 

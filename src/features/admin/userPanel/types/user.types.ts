@@ -9,7 +9,7 @@ export interface User {
   userName: string;
   email: string;
   phone: string;
-  userType: "teacher" | "staff" | "nursing" | "admin" | "all" | "super-admin";
+  userType: "teacher" | "staff" | "nursing" | "admin" | "super-admin";
   role: string;
   department: string;
   status: UserStatus;

@@ -1,5 +1,3 @@
-// src/hooks/useCheckAuth.ts
-
 import { useAppSelector } from "@/hooks/storeHooks";
 
 export const useCheckAuth = () => {

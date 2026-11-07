@@ -34,7 +34,7 @@ export const Welcome: React.FC = () => {
           </div>
           <div>
             <CardTitle className="text-2xl font-extrabold text-slate-900">
-              Welcome back, {user?.fullName || user?.userName || "Valued User"}!
+              Welcome back, {user?.userName || user?.userName || "Valued User"}!
             </CardTitle>
             <CardDescription className="text-sm text-slate-500 mt-1">
               You are successfully authenticated to RPR DUET Admission Care
@@ -48,7 +48,7 @@ export const Welcome: React.FC = () => {
             >
               Role: {user?.userType || "User"}
             </Badge>
-            {user?.isActive && (
+            {user?.status === "approved" && (
               <Badge
                 variant="default"
                 className="bg-emerald-600 text-white font-semibold"
@@ -61,14 +61,6 @@ export const Welcome: React.FC = () => {
 
         <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/60">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-                User ID
-              </span>
-              <p className="font-semibold text-slate-800 mt-0.5">
-                {user?.userId || "N/A"}
-              </p>
-            </div>
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200/60">
               <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
                 Phone

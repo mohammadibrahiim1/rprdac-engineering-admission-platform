@@ -9,6 +9,11 @@ export const store = configureStore({
     auth: authReducer,
     // student: studentReducer,
   },
+
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApi.middleware),
+
+  devTools: import.meta.env.DEV,
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

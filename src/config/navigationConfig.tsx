@@ -67,6 +67,10 @@ export const sidebarData = {
           url: "/exam/all",
         },
         {
+          title: "Create Exam",
+          url: "/exam/create",
+        },
+        {
           title: "Marks Entry",
           url: "/exam/marks",
         },
