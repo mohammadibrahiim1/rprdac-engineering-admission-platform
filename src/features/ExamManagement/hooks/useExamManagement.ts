@@ -5,7 +5,7 @@ import {
   ExamFormValues,
   ExamRecord,
   ExamStatus,
-} from "../types/ExamManagement.types";
+} from "../types/Exam.types";
 
 const getDefaultExamValues = (): ExamFormValues => ({
   title: "",
@@ -13,6 +13,7 @@ const getDefaultExamValues = (): ExamFormValues => ({
   batchIds: [],
   date: new Date().toISOString().slice(0, 10),
   session: "",
+  status: "",
   fullMarks: 100,
   examType: "written",
   mcqFullMarks: 0,
@@ -61,7 +62,7 @@ export function useExamManagement(batches: ExamBatch[]) {
 
       if (editingExamId) {
         setExams((previousExams) =>
-          previousExams.map((exam) =>
+          previousExams?.map((exam) =>
             exam.id === editingExamId
               ? {
                   ...exam,

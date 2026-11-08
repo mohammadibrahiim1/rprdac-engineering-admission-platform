@@ -7,10 +7,9 @@ import type {
   ExamRecord,
   UseExamFormReturn,
   ExamType,
-} from "../types/ExamManagement.types";
+} from "../types/Exam.types";
 
 import { useGetBatchesQuery } from "@/features/control-panel/control-panel-services/batch/batchApi";
-// কন্ট্রোল প্যানেল সার্ভিস থেকে RTK Query মিউটেশন হুকগুলো ইম্পোর্ট করা হলো
 
 import {
   getCurrentSession,
@@ -27,6 +26,7 @@ const getDefaultExamValues = (): ExamFormValues => ({
   subject: "",
   batchIds: [],
   date: getLocalDate(),
+  status: "",
   session: getCurrentSession(),
   fullMarks: 100,
   examType: "written",

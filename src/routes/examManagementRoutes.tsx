@@ -1,10 +1,11 @@
-import { ExamList } from "@/features/ExamManagement/exam-components/ExamList";
+import { ExamMarksEntryForm } from "@/features/ExamManagement/exam-components/ExamMarksEntryForm";
 import { PostExamForm } from "@/features/ExamManagement/exam-components/PostExamForm";
+import { ExamDesk } from "@/features/ExamManagement/pages/ExamDesk";
 
 export const examRoutes = [
   {
     path: "all",
-    element: <ExamList />,
+    element: <ExamDesk />,
   },
   {
     path: "create",
@@ -12,7 +13,7 @@ export const examRoutes = [
   },
   {
     path: "marks", // Full path: /exam/marks
-    element: <div>Student Marks Entry Page</div>,
+    element: <ExamMarksEntryForm />,
   },
   {
     path: "results", // Full path: /exam/results

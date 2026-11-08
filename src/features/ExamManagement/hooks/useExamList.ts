@@ -1,62 +1,118 @@
-import { useState, useMemo } from "react";
-import type { ExamRecord, ExamStatus } from "../types/ExamManagement.types";
+import { useMemo, useState, useCallback } from "react";
+import type { ExamRecord, ExamStatus } from "../types/Exam.types";
 import { useGetExamsQuery } from "../services/examApi";
+import { useGetBatchesQuery } from "@/features/control-panel/control-panel-services/batch/batchApi";
 
 export function useExamList() {
-  const [examDateFilter, setExamDateFilter] = useState<string>("");
+  // ── Filters ──────────────────────────────────────────────
+  const [query, setQuery] = useState("");
+  const [examDateFilter, setExamDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ExamStatus | "">("");
+  const [examBatchSearch, setExamBatchSearch] = useState("");
 
-  const { data: response, isLoading, error } = useGetExamsQuery();
+  // ── Data fetching ────────────────────────────────────────
+  const { data: response, isLoading, error, refetch } = useGetExamsQuery();
+  const { data: batches = [], isLoading: isBatchLoading } =
+    useGetBatchesQuery(examBatchSearch);
 
-  const exams: ExamRecord[] = response?.data || [];
+  // Normalize API response → always have both `id` and `_id` + `batchIds`
+  const exams: ExamRecord[] = useMemo(() => {
+    const raw = response?.data ?? [];
+    return raw.map((exam: any) => ({
+      ...exam,
+      id: exam.id ?? exam._id,
+      _id: exam._id ?? exam.id,
+      batchIds: Array.isArray(exam.batchIds)
+        ? exam.batchIds
+        : exam.batchId
+          ? [exam.batchId]
+          : [],
+    }));
+  }, [response?.data]);
 
-  console.log("exams", exams);
-
-  // const handleDeleteExam = (exam: ExamRecord): void => {
-  //   setExams((prev) => prev.filter((item) => item.id !== exam.id));
-  // };
-
-  // const handleStatus = (exam: ExamRecord): void => {
-  //   const nextStatus: ExamStatus =
-  //     exam.status === "published" ? "draft" : "published";
-
-  //   setExams((prev) =>
-  //     prev.map((item) =>
-  //       item.id === exam.id ? { ...item, status: nextStatus } : item,
-  //     ),
-  //   );
-  // };
-
-  // const upsertExam = (normalizedData: any, editingExamId: string | null) => {
-  //   if (editingExamId) {
-  //     setExams((prev) =>
-  //       prev.map((exam) =>
-  //         exam.id === editingExamId ? { ...exam, ...normalizedData } : exam,
-  //       ),
-  //     );
-  //   } else {
-  //     const newExam: ExamRecord = {
-  //       ...normalizedData,
-  //       id: crypto.randomUUID(),
-  //       status: "draft",
-  //     };
-  //     setExams((prev) => [newExam, ...prev]);
-  //   }
-  // };
-
+  // ── Filtering ────────────────────────────────────────────
   const filteredExams = useMemo(() => {
-    if (!examDateFilter) return exams;
-    return exams?.filter((exam) => exam.date === examDateFilter);
-  }, [exams, examDateFilter]);
+    const needle = query.trim().toLowerCase();
 
+    return exams.filter((exam) => {
+      // Date filter
+      if (examDateFilter && exam.date !== examDateFilter) return false;
+
+      // Status filter
+      if (statusFilter && exam.status !== statusFilter) return false;
+
+      // Text filter
+      if (!needle) return true;
+
+      const haystack = [exam.title, exam.subject, exam.session, exam.examType]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(needle);
+    });
+  }, [exams, examDateFilter, query, statusFilter]);
+
+  // ── Derived counts ───────────────────────────────────────
+  const publishedCount = useMemo(
+    () => filteredExams.filter((e) => e.status === "published").length,
+    [filteredExams],
+  );
+
+  const draftCount = filteredExams.length - publishedCount;
+
+  const filtersActive =
+    query.trim().length > 0 ||
+    examDateFilter.length > 0 ||
+    statusFilter.length > 0;
+
+  // ── Helpers ──────────────────────────────────────────────
+  const clearFilters = useCallback(() => {
+    setQuery("");
+    setExamDateFilter("");
+    setStatusFilter("");
+  }, []);
+
+  const getBatchNames = useCallback(
+    (batchIds: string[] | undefined | null): string => {
+      if (!batchIds || batchIds.length === 0) return "All Batches";
+
+      const names = batches
+        .filter((b) => batchIds.includes(b._id))
+        .map((b) => b.title);
+
+      return names.length > 0 ? names.join(", ") : "—";
+    },
+    [batches],
+  );
+
+  // ── Public API ───────────────────────────────────────────
   return {
+    // data
+    exams,
     filteredExams,
-    allExamsCount: exams?.length,
+    allExamsCount: exams.length,
+    publishedCount,
+    draftCount,
+    batches,
+    isLoading,
+    isBatchLoading,
+    error,
+    refetch,
+
+    // filters
+    query,
+    setQuery,
     examDateFilter,
     setExamDateFilter,
-    // handleDeleteExam,
-    // handleStatus,
-    // upsertExam,
-    isLoading,
-    error,
+    statusFilter,
+    setStatusFilter,
+    examBatchSearch,
+    setExamBatchSearch,
+    filtersActive,
+    clearFilters,
+
+    // helpers
+    getBatchNames,
   };
 }

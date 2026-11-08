@@ -1,333 +1,227 @@
-import { motion } from "framer-motion";
-import type { FC } from "react";
-
+import { useMemo } from "react";
 import {
   createColumnHelper,
+  createCoreRowModel,
+  flexRender,
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-
 import { Edit3 } from "lucide-react";
 
-import type { ExamRecord } from "../types/ExamManagement.types";
-import { useExamList } from "../hooks/useExamList";
-
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-
-// ============================================
-// Types
-// ============================================
-
-interface ExamListPageProps {
-  batches: {
-    id: string;
-    name: string;
-  }[];
-
-  onNavigate: (tab: string, id?: string) => void;
-
-  onEdit: (exam: ExamRecord) => void;
-}
-
-type ExamRecordWithApiFields = ExamRecord & {
-  _id?: string;
-  examId?: string;
-  publishStatus?: string;
-  status?: string;
-  batchIds?: string[] | null;
-  batchId?: string | null;
-};
-
-// ============================================
-// TanStack Table V9 Configuration
-// ============================================
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { ExamBatch, ExamRecord } from "../types/Exam.types";
 
 const features = tableFeatures({});
 
 const columnHelper = createColumnHelper<typeof features, ExamRecord>();
 
-// ============================================
-// Component
-// ============================================
+type ExamListProps = {
+  exams: ExamRecord[];
+  totalCount: number;
+  batches: ExamBatch[];
+  activeId?: string;
+  onEdit: (exam: ExamRecord) => void;
+  onOpen: (mode: "marks" | "results", exam: ExamRecord) => void;
+  onToggleStatus: (exam: ExamRecord) => void;
+  getBatchNames: (ids: string[] | undefined) => string;
+};
 
-export const ExamList: FC<ExamListPageProps> = ({
+export function ExamList({
+  exams,
+  totalCount,
   batches,
-  onNavigate,
+  activeId,
   onEdit,
-}) => {
-  const { filteredExams, allExamsCount, examDateFilter, setExamDateFilter } =
-    useExamList();
+  onOpen,
+  onToggleStatus,
+  getBatchNames,
+}: ExamListProps) {
+  console.log("exams list", exams);
 
-  // ============================================
-  // Safe Data
-  // ============================================
+  const columns = useMemo(
+    () =>
+      columnHelper.columns([
+        columnHelper.accessor("title", {
+          header: "Exam details",
+          cell: ({ row }) => {
+            const exam = row.original;
+            return (
+              <div className="space-y-1">
+                <strong className="block font-semibold text-foreground">
+                  {exam.title || "Untitled Exam"}
+                </strong>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                  <span>{exam.subject || "N/A"}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{exam.date}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="capitalize">{exam.examType}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="tabular-nums">
+                    {exam.fullMarks ?? 0} marks
+                  </span>
+                </div>
+              </div>
+            );
+          },
+        }),
+        columnHelper.accessor("batchIds", {
+          header: "Batch",
+          cell: ({ row }) => (
+            <span className="text-sm font-medium text-foreground">
+              {getBatchNames(row.original.batchIds)}
+            </span>
+          ),
+        }),
+        columnHelper.accessor("status", {
+          header: "Status",
+          cell: ({ row }) => {
+            const status = row.original.status;
+            const isPublished = status === "published";
+            return (
+              <Badge variant={isPublished ? "default" : "secondary"}>
+                {status?.toUpperCase()}
+              </Badge>
+            );
+          },
+        }),
+        columnHelper.display({
+          id: "actions",
+          header: "Action",
+          cell: ({ row }) => {
+            const exam = row.original;
+            const isPublished = exam.status === "published";
+            return (
+              <div className="grid w-full min-w-[9.5rem] grid-cols-2 gap-1.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-auto min-h-11 w-full px-2 py-2 text-xs whitespace-normal"
+                  onClick={() => onOpen("marks", exam)}
+                >
+                  Marks
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-auto min-h-11 w-full px-2 py-2 text-xs whitespace-normal"
+                  onClick={() => onOpen("results", exam)}
+                >
+                  Result
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={isPublished ? "destructive" : "default"}
+                  className="h-auto min-h-11 w-full px-2 py-2 text-xs whitespace-normal"
+                  onClick={() => onToggleStatus(exam)}
+                >
+                  {isPublished ? "Unpublish" : "Publish"}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-auto min-h-11 w-full px-2 py-2 text-xs whitespace-normal"
+                  disabled={isPublished}
+                  title={
+                    isPublished
+                      ? "Unpublish this exam before editing"
+                      : "Edit this exam"
+                  }
+                  onClick={() => onEdit(exam)}
+                >
+                  <Edit3 className="size-3.5" />
+                  Edit
+                </Button>
+              </div>
+            );
+          },
+        }),
+      ]),
+    [getBatchNames, onEdit, onOpen, onToggleStatus],
+  );
 
-  const exams: ExamRecord[] = Array.isArray(filteredExams) ? filteredExams : [];
-
-  // ============================================
-  // Helpers
-  // ============================================
-
-  const getExamId = (exam: ExamRecord): string => {
-    const record = exam as ExamRecordWithApiFields;
-
-    return record.id || record._id || record.examId || "";
-  };
-
-  const getExamStatus = (exam: ExamRecord): string => {
-    const record = exam as ExamRecordWithApiFields;
-
-    return String(
-      record.status ?? record.publishStatus ?? "draft",
-    ).toLowerCase();
-  };
-
-  const getBatchNames = (ids?: string[] | null): string => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-      return "No batch selected";
-    }
-
-    const names = ids
-      .map((id) => batches?.find((batch) => batch.id === id)?.name)
-      .filter((name): name is string => Boolean(name));
-
-    return names.length > 0 ? names.join(", ") : "No batch selected";
-  };
-
-  // ============================================
-  // Columns
-  // ============================================
-
-  const columns = columnHelper.columns([
-    // Exam Details
-    columnHelper.accessor("title", {
-      header: "EXAM DETAILS",
-
-      cell: ({ row }) => {
-        const exam = row.original;
-
-        return (
-          <div className="space-y-1">
-            <strong className="block font-semibold text-slate-900">
-              {exam.title || "Untitled Exam"}
-            </strong>
-
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              <span>{exam.subject || "N/A"}</span>
-
-              <span>·</span>
-
-              <span>{exam.date || "N/A"}</span>
-
-              <span>·</span>
-
-              <span>{exam.fullMarks ?? 0} marks</span>
-            </div>
-          </div>
-        );
-      },
-    }),
-
-    // Batch
-    columnHelper.accessor("batchIds", {
-      header: "BATCH",
-
-      cell: ({ row }) => {
-        const exam = row.original as ExamRecordWithApiFields;
-
-        const ids = Array.isArray(exam.batchIds)
-          ? exam.batchIds
-          : exam.batchId
-            ? [exam.batchId]
-            : [];
-
-        return (
-          <span className="text-sm font-medium text-slate-700">
-            {getBatchNames(ids)}
-          </span>
-        );
-      },
-    }),
-
-    // Status
-    columnHelper.accessor("status", {
-      header: "STATUS",
-
-      cell: ({ row }) => {
-        const status = getExamStatus(row.original);
-
-        const isPublished = status === "published";
-
-        return (
-          <Badge
-            variant={isPublished ? "default" : "secondary"}
-            className={
-              isPublished
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-200 text-slate-700"
-            }
-          >
-            {status.toUpperCase()}
-          </Badge>
-        );
-      },
-    }),
-
-    // Actions
-    columnHelper.display({
-      id: "actions",
-
-      header: "ACTION",
-
-      cell: ({ row }) => {
-        const exam = row.original;
-
-        const examId = getExamId(exam);
-
-        const isPublished = getExamStatus(exam) === "published";
-
-        return (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!examId}
-              onClick={() => onNavigate("marks", examId)}
-            >
-              Marks
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!examId}
-              onClick={() => onNavigate("results", examId)}
-            >
-              Result
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant={isPublished ? "destructive" : "default"}
-              disabled
-              title="Status handler is not connected yet"
-            >
-              {isPublished ? "Unpublish" : "Publish"}
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              variant="secondary"
-              disabled={isPublished}
-              onClick={() => onEdit(exam)}
-            >
-              <Edit3 className="mr-1 h-3.5 w-3.5" />
-              Edit
-            </Button>
-          </div>
-        );
-      },
-    }),
-  ]);
-
-  // ============================================
-  // Table Instance - TanStack V9
-  // ============================================
-
+  // v9-এ useTable ব্যবহার করুন (useReactTable নয়)
   const table = useTable({
     features,
     data: exams,
     columns,
+    getRowId: (row) => row.id || row._id,
   });
 
-  // ============================================
-  // Render
-  // ============================================
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6 pb-12"
-    >
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-            EXAM LISTING
-          </span>
-
-          <h1 className="mt-1 text-2xl font-extrabold text-slate-900">
-            All Exams ({allExamsCount ?? exams.length})
-          </h1>
-        </div>
-
-        <div className="w-full sm:w-auto">
-          <Input
-            type="date"
-            value={examDateFilter}
-            onChange={(e) => setExamDateFilter(e.target.value)}
-            className="w-full sm:w-48 text-sm"
-          />
-        </div>
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6">
+        <h2 className="text-lg">Register</h2>
+        <p className="text-sm text-muted-foreground tabular-nums">
+          Showing {exams?.length} of {totalCount}
+        </p>
       </div>
-
-      {/* Table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            {/* Table Header */}
-            <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="px-6 py-3 font-semibold">
-                      {header.isPlaceholder ? null : (
-                        <table.FlexRender header={header} />
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[44rem] border-collapse text-left xl:min-w-full">
+          <thead className="border-b border-border bg-muted text-xs tracking-wider text-muted-foreground uppercase">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup?.headers?.map((header) => (
+                  <th
+                    key={header.id}
+                    scope="col"
+                    className={cn(
+                      "px-4 py-3 font-semibold sm:px-6",
+                      header.column.id === "title" && "w-[40%]",
+                      header.column.id === "actions" && "w-[11.5rem]",
+                    )}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="divide-y divide-border text-sm text-foreground">
+            {table.getRowModel().rows.length > 0 ? (
+              table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className={cn(
+                    "transition-colors hover:bg-muted/70",
+                    activeId === (row.original.id || row.original._id) &&
+                      "bg-accent",
+                  )}
+                >
+                  {row.getAllCells().map((cell) => (
+                    <td key={cell.id} className="px-4 py-4 align-top sm:px-6">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
                       )}
-                    </th>
+                    </td>
                   ))}
                 </tr>
-              ))}
-            </thead>
-
-            {/* Table Body */}
-            <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
-              {table.getRowModel().rows.length > 0 ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-slate-50/50 transition-colors"
-                  >
-                    {row.getAllCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4">
-                        <table.FlexRender cell={cell} />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="text-center py-8 text-slate-400"
-                  >
-                    No exams found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="px-6 py-16 text-center text-muted-foreground"
+                >
+                  No exams found for this filter.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
-    </motion.div>
+    </div>
   );
-};
+}

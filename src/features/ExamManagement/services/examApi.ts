@@ -1,4 +1,4 @@
-import { ExamFormValues, ExamRecord } from "../types/ExamManagement.types";
+import { ExamFormValues, ExamRecord } from "../types/Exam.types";
 import { baseApi } from "@/api/baseApi";
 
 export const examApi = baseApi.injectEndpoints({

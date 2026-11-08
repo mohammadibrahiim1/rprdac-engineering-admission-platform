@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 
 export type ExamStatus = "draft" | "published";
 
-export type ExamType = "written" | "mcq" | "combined" | null;
+export type ExamType = "written" | "mcq" | "combined";
 
 export interface ExamBatch {
   _id: string;
@@ -15,17 +15,18 @@ export interface ExamFormValues {
   batchIds: string[];
   date: string;
   session: string;
+  status: string;
   fullMarks: number;
   examType: ExamType;
   mcqFullMarks: number;
-  writtenFullMarks: number; // এখানে optional তুলে দিয়ে বাধ্যতামূলক করা হলো যাতে undefined না থাকে
+  writtenFullMarks: number;
 }
 
 export interface ExamRecord extends ExamFormValues {
   _id: string;
   id: string;
   status: ExamStatus;
-  batchId?: string | null;
+  batchId?: string | null | undefined;
 }
 
 export interface ExamManagementState {
@@ -41,14 +42,13 @@ export interface ExamManagementProps {
   batches: ExamBatch[];
 }
 
-// ExamSubmitHandler টাইপ ডিফিনিশন (ডুয়াল প্যারামিটার হ্যান্ডেল করার জন্য)
 export type ExamSubmitHandler = (
   data: ExamFormValues,
   editingExamId: string | null,
 ) => void | Promise<void>;
 
 export interface UseExamFormReturn {
-  form: UseFormReturn<ExamFormValues>;
+  form: UseFormReturn<ExamFormValues, any>; // এখানে Type Argument ঠিক করা হয়েছে
   batches: ExamBatch[];
   filteredBatches: ExamBatch[];
   editingExamId: string | null;
@@ -86,3 +86,16 @@ export interface UseExamFormReturn {
   sessionOptions: string[];
   handleFormSubmit: (data: ExamFormValues) => Promise<void>;
 }
+
+export type MarkRow = {
+  id: string;
+  roll: string;
+  name: string;
+  mcq: number;
+  written: number;
+};
+
+export type SidePanel = {
+  type: "edit" | "marks" | "results";
+  id: string;
+} | null;

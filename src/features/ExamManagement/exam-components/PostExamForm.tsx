@@ -2,10 +2,7 @@ import type { FC } from "react";
 import { Controller } from "react-hook-form";
 import { Search, X } from "lucide-react";
 
-import type {
-  ExamBatch,
-  ExamSubmitHandler,
-} from "../types/ExamManagement.types";
+import type { ExamBatch, ExamSubmitHandler } from "../types/Exam.types";
 
 import { useExamForm } from "../hooks/useExamForm";
 
