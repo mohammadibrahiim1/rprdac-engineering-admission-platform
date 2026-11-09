@@ -36,13 +36,13 @@ export const examApi = baseApi.injectEndpoints({
 
     // ৪. পার্শিয়াল আপডেট বা এডিট করার জন্য (PATCH /api/exams/update/:id)
     updateExam: builder.mutation<
-      { success: boolean; message: string; data: ExamRecord },
-      { id: string; data: Partial<ExamFormValues> }
+      { success: boolean; message: string; patch: ExamRecord },
+      { id: string; patch: Partial<ExamFormValues> }
     >({
-      query: ({ id, data }) => ({
+      query: ({ id, patch }) => ({
         url: `exams/update/${id}`,
         method: "PATCH",
-        body: data,
+        body: patch,
       }),
       invalidatesTags: (_result, _error, { id }) => [
         { type: "Exam", id },

@@ -31,21 +31,28 @@ import {
   labelFor,
   toFormValues,
 } from "../utils/examFormUtils";
+import { useUpdateExamMutation } from "../services/examApi";
 
 type ExamEditFormProps = {
   exam: ExamRecord;
   batches: ExamBatch[];
   onCancel: () => void;
+  onPatch: (id: string, patch: Record<string, any>) => ExamRecord | null;
 };
 
-export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
-  const [saving, setSaving] = useState(false);
+export function ExamEditForm({
+  exam,
+  batches,
+  onCancel,
+  onPatch,
+}: ExamEditFormProps) {
   const [examBatchSearch, setExamBatchSearch] = useState("");
   const [savedLabels, setSavedLabels] = useState<string[] | null>(null);
   const isBatchLoading = false;
-  const isStructureLocked = Boolean(exam.fullMarks);
 
   const sessionOptions = useMemo<string[]>(() => getSessionOptions(), []);
+
+  const [updateExam, { isLoading: saving }] = useUpdateExamMutation();
 
   const {
     control,
@@ -93,7 +100,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
   ).map(labelFor);
 
   function selectAllBatches() {
-    if (isStructureLocked || saving) return;
+    if (saving) return;
     setValue(
       "batchIds",
       batches?.map((batch) => batch._id),
@@ -102,7 +109,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
   }
 
   function clearAllBatches() {
-    if (isStructureLocked || saving) return;
+    if (saving) return;
     setValue("batchIds", [], { shouldDirty: true, shouldValidate: true });
   }
 
@@ -110,7 +117,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
     id: string,
     checked: boolean | "indeterminate",
   ) {
-    if (isStructureLocked || saving) return;
+    if (saving) return;
     const current = getValues("batchIds") ?? [];
     const next =
       checked === true
@@ -123,7 +130,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
     value: string,
     onChange: (next: ExamFormValues["examType"]) => void,
   ) {
-    if (!isExamType(value)) return; // ← exam.isExamType না, শুধু isExamType
+    if (!isExamType(value)) return;
     onChange(value);
     redistribute(getValues("fullMarks"), value);
   }
@@ -145,6 +152,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
         shouldValidate: true,
       });
     } else {
+      // combined
       const half = Math.floor(total / 2);
       setValue("mcqFullMarks", half, {
         shouldDirty: true,
@@ -157,60 +165,39 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
     }
   }
 
-  // function redistribute(total: number, type: ExamFormValues["examType"]) {
-  //   if (type === "written") {
-  //     setValue("writtenFullMarks", total, {
-  //       shouldDirty: true,
-  //       shouldValidate: true,
-  //     });
-  //     setValue("mcqFullMarks", 0, { shouldDirty: true, shouldValidate: true });
-  //   } else if (type === "mcq") {
-  //     setValue("mcqFullMarks", total, {
-  //       shouldDirty: true,
-  //       shouldValidate: true,
-  //     });
-  //     setValue("writtenFullMarks", 0, {
-  //       shouldDirty: true,
-  //       shouldValidate: true,
-  //     });
-  //   } else {
-  //     const half = Math.floor(total / 2);
-  //     setValue("mcqFullMarks", half, {
-  //       shouldDirty: true,
-  //       shouldValidate: true,
-  //     });
-  //     setValue("writtenFullMarks", total - half, {
-  //       shouldDirty: true,
-  //       shouldValidate: true,
-  //     });
-  //   }
-  // }
+  const handleFormSubmit = handleSubmit(async (values) => {
+    if (!values.batchIds.length) return;
 
-  // const handleFormSubmit = handleSubmit((values) => {
-  //   if (!values.batchIds.length) return;
+    const patch = buildExamPatch(values, dirtyFields);
 
-  //   const patch = buildExamPatch(values, dirtyFields);
-  //   if (Object.keys(patch).length === 0) {
-  //     toast("Nothing to update. Change a field first.");
-  //     return;
-  //   }
+    if (Object.keys(patch)?.length === 0) {
+      toast("Nothing to update. Change a field first.");
+      return;
+    }
 
-  //   setSaving(true);
-  //   const updated = onPatch(exam.id, patch);
-  //   if (!updated) {
-  //     setSaving(false);
-  //     toast.error("This exam could not be updated.");
-  //     return;
-  //   }
+    const examId = (exam as any).id || (exam as any)._id;
 
-  //   reset(toFormValues(updated));
-  //   const labels = Object.keys(patch).map(labelFor);
-  //   setSavedLabels(labels);
-  //   setSaving(false);
-  //   toast.success(
-  //     `Updated ${labels.join(", ")}. Other fields were left unchanged.`,
-  //   );
-  // });
+    try {
+      // প্রথমে API কল করুন এবং .unwrap() দিয়ে রেসপন্স বা এরর ধরুন
+      await updateExam({ id: examId, patch }).unwrap();
+
+      const labels = Object.keys(patch).map(labelFor);
+      setSavedLabels(labels);
+      toast.success(`Updated ${labels.join(", ")} successfully.`);
+
+      console.log("Exam ID:", examId);
+      console.log("Sending Patch to Backend:", patch);
+
+      // সফলভাবে সেভ হওয়ার পর চাইলে ফর্ম বন্ধ করতে পারেন:
+      // onCancel();
+    } catch (error: any) {
+      console.log("Update Error:", error);
+      // ব্যাকএন্ড থেকে আসা স্পেসিফিক এরর মেসেজ দেখাতে পারেন
+      const errorMsg =
+        error?.data?.message || "This exam could not be updated.";
+      toast.error(errorMsg);
+    }
+  });
 
   return (
     <Card className="panel-in">
@@ -222,19 +209,16 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
         <CardDescription>
           Current values are filled in. Saving writes a partial update, so any
           field you leave alone stays exactly as it is. This paper is{" "}
-          {exam?.examType.toLowerCase()}
-          {isStructureLocked
-            ? ", and the mark structure is locked because marks already exist."
-            : "."}
+          {exam?.examType?.toLowerCase()}. All fields and mark structures are
+          fully editable.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-6">
-        <form
-        // onSubmit={handleFormSubmit}
-        >
+        <form onSubmit={handleFormSubmit}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-4">
+              {/* Exam Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="exam-title">Exam Name</Label>
                 <Controller
@@ -264,6 +248,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                 />
               </div>
 
+              {/* Subject */}
               <div className="space-y-1.5">
                 <Label htmlFor="exam-subject">Subject</Label>
                 <Controller
@@ -293,6 +278,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                 />
               </div>
 
+              {/* Academic Session */}
               <div className="space-y-1.5">
                 <Label>Academic Session</Label>
                 <Controller
@@ -327,6 +313,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                 />
               </div>
 
+              {/* Exam Date */}
               <div className="space-y-1.5">
                 <Label htmlFor="exam-date">Exam Date</Label>
                 <Controller
@@ -351,6 +338,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                 />
               </div>
 
+              {/* Batch Search & Select Box */}
               <div className="space-y-2 rounded-xl border border-border bg-muted p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Label className="font-semibold">
@@ -359,7 +347,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      disabled={isStructureLocked || saving}
+                      disabled={saving}
                       className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                       onClick={selectAllBatches}
                     >
@@ -367,7 +355,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                     </button>
                     <button
                       type="button"
-                      disabled={isStructureLocked || saving}
+                      disabled={saving}
                       className="text-xs font-semibold text-muted-foreground hover:underline disabled:opacity-50"
                       onClick={clearAllBatches}
                     >
@@ -383,7 +371,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                     className="bg-card pl-9"
                     value={examBatchSearch}
                     onChange={(event) => setExamBatchSearch(event.target.value)}
-                    disabled={isStructureLocked || saving}
+                    disabled={saving}
                   />
                 </div>
 
@@ -399,10 +387,8 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                         className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-sm hover:bg-muted"
                       >
                         <Checkbox
-                          checked={
-                            isAllSelected || batchIds.includes(batch._id)
-                          }
-                          disabled={isStructureLocked || saving}
+                          checked={batchIds.includes(batch._id)}
+                          disabled={saving}
                           onCheckedChange={(checked) =>
                             handleBatchCheckboxChange(batch._id, checked)
                           }
@@ -418,11 +404,10 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                 </div>
 
                 <div className="rounded-lg border border-border bg-accent p-2 text-xs font-medium text-accent-foreground">
-                  Selected Batches:{" "}
-                  {isAllSelected ? batches?.length : batchIds?.length}
+                  Selected Batches: {batchIds?.length}
                 </div>
 
-                {batchIds.length === 0 && !isAllSelected && (
+                {batchIds.length === 0 && (
                   <p className="text-xs text-destructive">
                     Please select at least one batch.
                   </p>
@@ -430,8 +415,10 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
               </div>
             </div>
 
+            {/* Right Column: Marks & Actions */}
             <div className="flex flex-col justify-between space-y-4">
               <div className="space-y-4">
+                {/* Exam Type */}
                 <div className="space-y-1.5">
                   <Label>Exam Type</Label>
                   <Controller
@@ -439,7 +426,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                     control={control}
                     render={({ field }) => (
                       <Select
-                        disabled={isStructureLocked || saving}
+                        disabled={saving}
                         value={field.value ?? ""}
                         onValueChange={(value) =>
                           handleExamTypeChange(value, field.onChange)
@@ -460,6 +447,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                   />
                 </div>
 
+                {/* Full Marks */}
                 <div className="space-y-1.5">
                   <Label htmlFor="full-marks">Full Marks</Label>
                   <Controller
@@ -479,7 +467,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                           type="number"
                           min={1}
                           value={field.value ?? 100}
-                          disabled={isStructureLocked || saving}
+                          disabled={saving}
                           onWheel={(event) => event.currentTarget.blur()}
                           onChange={(event) => {
                             const val =
@@ -504,6 +492,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                   />
                 </div>
 
+                {/* MCQ Full Marks */}
                 <div className="space-y-1.5">
                   <Label htmlFor="mcq-marks">
                     MCQ Full Marks{" "}
@@ -533,11 +522,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                           min={0}
                           max={fullMarks}
                           value={field.value ?? 0}
-                          disabled={
-                            isStructureLocked ||
-                            saving ||
-                            examType === "written"
-                          }
+                          disabled={saving || examType === "written"}
                           className={
                             examType === "written"
                               ? "bg-muted font-semibold text-foreground"
@@ -552,22 +537,15 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                                     0,
                                     Math.round(Number(event.target.value)),
                                   );
+
                             if (!Number.isFinite(mcqVal)) return;
-                            const type = getValues("examType");
-                            if (type === "mcq") {
-                              field.onChange(mcqVal);
-                              setValue("fullMarks", Math.max(1, mcqVal), {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                              setValue("writtenFullMarks", 0, {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                              return;
-                            }
+
+                            // Max limit
                             if (mcqVal > fullMarks) return;
+
                             field.onChange(mcqVal);
+
+                            // ★★★ মূল ফিক্স: সবসময় Full Marks থেকে subtract করবে
                             setValue(
                               "writtenFullMarks",
                               Math.max(0, fullMarks - mcqVal),
@@ -588,88 +566,71 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="written-marks">
-                    Written Full Marks{" "}
-                    {examType === "mcq"
-                      ? "(Auto Calculated)"
-                      : examType === "combined"
-                        ? "(Editable)"
-                        : ""}
-                  </Label>
-                  <Controller
-                    name="writtenFullMarks"
-                    control={control}
-                    rules={{
-                      min: {
-                        value: 0,
-                        message: "Written marks cannot be negative",
-                      },
-                      validate: (value) =>
-                        (value ?? 0) <= getValues("fullMarks") ||
-                        `Written marks cannot exceed full marks (${getValues("fullMarks")})`,
-                    }}
-                    render={({ field }) => (
-                      <div>
-                        <Input
-                          id="written-marks"
-                          type="number"
-                          min={0}
-                          max={fullMarks}
-                          value={field.value ?? 0}
-                          disabled={
-                            isStructureLocked || saving || examType === "mcq"
-                          }
-                          className={
-                            examType === "mcq"
-                              ? "bg-muted font-semibold text-foreground"
-                              : ""
-                          }
-                          onWheel={(event) => event.currentTarget.blur()}
-                          onChange={(event) => {
-                            const writtenVal =
-                              event.target.value === ""
-                                ? 0
-                                : Math.max(
-                                    0,
-                                    Math.round(Number(event.target.value)),
-                                  );
-                            if (!Number.isFinite(writtenVal)) return;
-                            const type = getValues("examType");
-                            if (type === "written") {
-                              field.onChange(writtenVal);
-                              setValue("fullMarks", Math.max(1, writtenVal), {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                              setValue("mcqFullMarks", 0, {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                              return;
-                            }
-                            if (writtenVal > fullMarks) return;
-                            field.onChange(writtenVal);
-                            setValue(
-                              "mcqFullMarks",
-                              Math.max(0, fullMarks - writtenVal),
-                              {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              },
-                            );
-                          }}
-                        />
-                        {errors.writtenFullMarks && (
-                          <p className="mt-1 text-xs text-destructive">
-                            {errors.writtenFullMarks.message}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  />
-                </div>
+                {/* Written Full Marks */}
+                <Controller
+                  name="writtenFullMarks"
+                  control={control}
+                  rules={{
+                    min: {
+                      value: 0,
+                      message: "Written marks cannot be negative",
+                    },
+                    validate: (value) =>
+                      (value ?? 0) <= getValues("fullMarks") ||
+                      `Written marks cannot exceed full marks (${getValues("fullMarks")})`,
+                  }}
+                  render={({ field }) => (
+                    <div>
+                      <Input
+                        id="written-marks"
+                        type="number"
+                        min={0}
+                        max={fullMarks}
+                        value={field.value ?? 0}
+                        disabled={saving || examType === "mcq"}
+                        className={
+                          examType === "mcq"
+                            ? "bg-muted font-semibold text-foreground"
+                            : ""
+                        }
+                        onWheel={(event) => event.currentTarget.blur()}
+                        onChange={(event) => {
+                          const writtenVal =
+                            event.target.value === ""
+                              ? 0
+                              : Math.max(
+                                  0,
+                                  Math.round(Number(event.target.value)),
+                                );
 
+                          if (!Number.isFinite(writtenVal)) return;
+
+                          // Max limit
+                          if (writtenVal > fullMarks) return;
+
+                          field.onChange(writtenVal);
+
+                          // ★★★ মূল ফিক্স: সবসময় Full Marks থেকে subtract করবে
+                          setValue(
+                            "mcqFullMarks",
+                            Math.max(0, fullMarks - writtenVal),
+                            {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            },
+                          );
+                        }}
+                      />
+                      {errors.writtenFullMarks && (
+                        <p className="mt-1 text-xs text-destructive">
+                          {errors.writtenFullMarks.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+
+                {/* Summary Box */}
                 <div className="space-y-1 rounded-xl border border-border bg-accent p-3 text-xs font-semibold text-accent-foreground">
                   <div>MCQ Full Marks: {mcqFullMarks}</div>
                   <div>Written Full Marks: {writtenFullMarksInput}</div>
@@ -679,6 +640,7 @@ export function ExamEditForm({ exam, batches, onCancel }: ExamEditFormProps) {
                 </div>
               </div>
 
+              {/* Submission & Cancel Actions */}
               <div className="space-y-2 pt-4">
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   {pendingLabels?.length === 0

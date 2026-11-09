@@ -10,6 +10,8 @@ export interface IExam {
   _id: string;
   title: string;
   fullMarks: number;
+  mcqFullMarks: number;
+  writtenFullMarks: number;
 }
 
 export interface IStudent {

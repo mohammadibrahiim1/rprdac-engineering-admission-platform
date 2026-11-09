@@ -112,7 +112,7 @@ export function ExamDesk() {
                     <span aria-hidden="true"> · </span>
                     showing{" "}
                     <span className="font-medium text-foreground tabular-nums">
-                      {filteredExams.length}
+                      {filteredExams?.length}
                     </span>
                   </>
                 )}
