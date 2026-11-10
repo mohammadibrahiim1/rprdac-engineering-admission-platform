@@ -1,6 +1,6 @@
 // store/billingRateSlice.js
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -9,7 +9,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // ─────────────────────────────────────────────
 
 export const fetchBillingRates = createAsyncThunk(
-  'billingRate/fetchAll',
+  "billingRate/fetchAll",
   async (userType, { rejectWithValue }) => {
     try {
       const url = userType
@@ -20,28 +20,28 @@ export const fetchBillingRates = createAsyncThunk(
       return data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || 'Failed to fetch billing rates.',
+        err.response?.data?.message || "Failed to fetch billing rates.",
       );
     }
   },
 );
 
 export const createBillingRate = createAsyncThunk(
-  'billingRate/create',
+  "billingRate/create",
   async (payload, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(BASE_URL, payload);
       return data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || 'Failed to create billing rate.',
+        err.response?.data?.message || "Failed to create billing rate.",
       );
     }
   },
 );
 
 export const updateBillingRate = createAsyncThunk(
-  'billingRate/update',
+  "billingRate/update",
   async ({ userType, payload }, { rejectWithValue }) => {
     try {
       const { data } = await axios.patch(
@@ -51,14 +51,14 @@ export const updateBillingRate = createAsyncThunk(
       return data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || 'Failed to update billing rate.',
+        err.response?.data?.message || "Failed to update billing rate.",
       );
     }
   },
 );
 
 export const deleteBillingRate = createAsyncThunk(
-  'billingRate/delete',
+  "billingRate/delete",
   async (userType, { rejectWithValue }) => {
     try {
       const { data } = await axios.delete(
@@ -67,7 +67,7 @@ export const deleteBillingRate = createAsyncThunk(
       return { ...data, deletedUserType: userType };
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || 'Failed to delete billing rate.',
+        err.response?.data?.message || "Failed to delete billing rate.",
       );
     }
   },
@@ -77,7 +77,7 @@ export const deleteBillingRate = createAsyncThunk(
 // Slice
 // ─────────────────────────────────────────────
 const billingRateSlice = createSlice({
-  name: 'billingRate',
+  name: "billingRate",
   initialState: {
     rates: [], // array when fetching all
     selectedRate: null, // single rate when fetching by userType

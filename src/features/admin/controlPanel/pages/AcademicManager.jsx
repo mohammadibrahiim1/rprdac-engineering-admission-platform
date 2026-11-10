@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
   Building,
@@ -14,30 +14,30 @@ import {
   Search,
   Trash2,
   Users,
-} from 'lucide-react';
+} from "lucide-react";
 
 import {
   useCreateBatchMutation,
   useDeleteBatchMutation,
   useGetBatchesQuery,
-} from '../../../../../redux/features/batch/batchApi';
+} from "../../../../../redux/features/batch/batchApi";
 
-import SubjectManagement from '../components/SubjectManagement';
-import InstituteManagement from '../components/InstituteManagement';
-import MessManagement from '../components/MessManagement';
-import AcademicInfo from '../components/AcademicInfo';
+import SubjectManagement from "../components/SubjectManagement";
+import InstituteManagement from "../components/InstituteManagement";
+import MessManagement from "../components/MessManagement";
+import AcademicInfo from "../components/AcademicInfo";
 
 export default function AcademicManager() {
   const [activeTab, setActiveTab] = useState(
-    () => localStorage.getItem('activeTab') || 'batch',
+    () => localStorage.getItem("activeTab") || "batch",
   );
-  const [batches, setBatches] = useState([{ title: '', slug: '' }]);
-  const [search, setSearch] = useState('');
+  const [batches, setBatches] = useState([{ title: "", slug: "" }]);
+  const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
-  const [placeholder, setPlaceholder] = useState('');
+  const [placeholder, setPlaceholder] = useState("");
 
   useEffect(() => {
-    localStorage.setItem('activeTab', activeTab);
+    localStorage.setItem("activeTab", activeTab);
   }, [activeTab]);
 
   /* API Hooks */
@@ -49,7 +49,7 @@ export default function AcademicManager() {
 
   /*   Typing Placeholder Effect  */
   useEffect(() => {
-    const texts = ['Search batches...', 'Find by batch name...'];
+    const texts = ["Search batches...", "Find by batch name..."];
     let textIndex = 0;
     let charIndex = 0;
     let deleting = false;
@@ -81,7 +81,7 @@ export default function AcademicManager() {
   };
 
   const addBatch = () =>
-    setBatches((prev) => [...prev, { title: '', slug: '' }]);
+    setBatches((prev) => [...prev, { title: "", slug: "" }]);
 
   const removeBatch = (i) =>
     setBatches((prev) => prev.filter((_, index) => index !== i));
@@ -89,18 +89,18 @@ export default function AcademicManager() {
   const submitBatch = async (e) => {
     e.preventDefault();
     await createBatch(batches).unwrap();
-    setBatches([{ title: '', slug: '' }]);
+    setBatches([{ title: "", slug: "" }]);
   };
 
   /* -------------------------------------------------------
      Tabs
   ------------------------------------------------------- */
   const tabs = [
-    { key: 'batch', label: 'Batch', icon: Users },
-    { key: 'subject', label: 'Subject', icon: BookOpen },
-    { key: 'institute', label: 'Institute', icon: Building },
-    { key: 'mess', label: 'Mess', icon: House },
-    { key: 'academic', label: 'Academic', icon: GraduationCap },
+    { key: "batch", label: "Batch", icon: Users },
+    { key: "subject", label: "Subject", icon: BookOpen },
+    { key: "institute", label: "Institute", icon: Building },
+    { key: "mess", label: "Mess", icon: House },
+    { key: "academic", label: "Academic", icon: GraduationCap },
   ];
 
   /* -------------------------------------------------------
@@ -144,7 +144,7 @@ export default function AcademicManager() {
                   key={key}
                   onClick={() => setActiveTab(key)}
                   className={`relative flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-colors duration-300 whitespace-nowrap
-                  ${isActive ? 'text-white' : 'text-gray-500 hover:text-gray-900'}
+                  ${isActive ? "text-white" : "text-gray-500 hover:text-gray-900"}
                 `}
                 >
                   {/* The Animated Pill Background */}
@@ -154,7 +154,7 @@ export default function AcademicManager() {
                       className="absolute inset-0 z-0 shadow-lg bg-gradient-to-r from-emerald-500 to-teal-600 shadow-emerald-500/20"
                       style={{ borderRadius: 9999 }}
                       transition={{
-                        type: 'spring',
+                        type: "spring",
                         bounce: 0.2,
                         duration: 0.6,
                       }}
@@ -165,7 +165,7 @@ export default function AcademicManager() {
                   <span className="relative z-10 flex items-center gap-2">
                     <Icon
                       className={`w-4 h-4 transition-transform ${
-                        isActive ? 'scale-110' : 'opacity-70'
+                        isActive ? "scale-110" : "opacity-70"
                       }`}
                     />
                     {label}
@@ -180,7 +180,7 @@ export default function AcademicManager() {
       {/* Content */}
       <main className="px-5 py-10">
         {/* -------- Batch Management -------- */}
-        {activeTab === 'batch' && (
+        {activeTab === "batch" && (
           <div className="w-full px-4 py-8 duration-500 md:px-8 max-w-7xl animate-in fade-in">
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
               {/* Left Column: Form Section (5 Columns wide on LG) */}
@@ -221,7 +221,7 @@ export default function AcademicManager() {
                                   placeholder="e.g. Winter Morning 2024"
                                   value={b.title}
                                   onChange={(e) =>
-                                    handleChange(i, 'title', e.target.value)
+                                    handleChange(i, "title", e.target.value)
                                   }
                                   required
                                 />
@@ -240,7 +240,7 @@ export default function AcademicManager() {
                                     placeholder="winter-morning-2024"
                                     value={b.slug}
                                     onChange={(e) =>
-                                      handleChange(i, 'slug', e.target.value)
+                                      handleChange(i, "slug", e.target.value)
                                     }
                                     required
                                   />
@@ -282,8 +282,8 @@ export default function AcademicManager() {
         text-sm font-medium transition-all duration-200 rounded-lg shadow-sm
         ${
           createState.isLoading
-            ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-            : 'bg-slate-900 text-white hover:bg-slate-800 border border-transparent shadow-md shadow-slate-200'
+            ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+            : "bg-slate-900 text-white hover:bg-slate-800 border border-transparent shadow-md shadow-slate-200"
         }
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2
         disabled:opacity-70 overflow-hidden
@@ -339,7 +339,7 @@ export default function AcademicManager() {
                       <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder={placeholder || 'Search batches...'}
+                        placeholder={placeholder || "Search batches..."}
                         className="flex w-full h-10 py-2 pl-10 pr-3 text-sm bg-white border border-gray-200 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600"
                       />
                     </div>
@@ -415,10 +415,10 @@ export default function AcademicManager() {
           </div>
         )}
 
-        {activeTab === 'subject' && <SubjectManagement />}
-        {activeTab === 'institute' && <InstituteManagement />}
-        {activeTab === 'mess' && <MessManagement />}
-        {activeTab === 'academic' && <AcademicInfo />}
+        {activeTab === "subject" && <SubjectManagement />}
+        {activeTab === "institute" && <InstituteManagement />}
+        {activeTab === "mess" && <MessManagement />}
+        {activeTab === "academic" && <AcademicInfo />}
       </main>
     </div>
   );

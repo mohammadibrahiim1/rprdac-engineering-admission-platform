@@ -1,6 +1,3 @@
-// src/routes/router.tsx
-
-import React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import MainLayout from "@/layouts/MainLayout";
@@ -12,6 +9,9 @@ import { examRoutes } from "./examManagementRoutes";
 import { Unauthorized } from "@/components/common/Unauthorized";
 import { Welcome } from "@/components/common/Welcome";
 import { Dashboard } from "@/components/common/Dashboard";
+import { ControlPanelRoutes } from "./controllPanelRoutes";
+
+const DASHBOARD_PATH = "/console-8xK29mQ";
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -42,12 +42,10 @@ export const router = createBrowserRouter([
       },
 
       {
+        path: DASHBOARD_PATH,
         element: <MainLayout />,
         children: [
-          {
-            path: "dashboard",
-            element: <Dashboard />,
-          },
+          { index: true, element: <Dashboard /> },
 
           {
             path: "exam",
@@ -55,8 +53,8 @@ export const router = createBrowserRouter([
           },
 
           {
-            path: "control/settings",
-            element: <div>System Control Settings</div>,
+            path: "control",
+            children: ControlPanelRoutes,
           },
         ],
       },

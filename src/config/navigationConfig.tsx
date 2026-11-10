@@ -1,4 +1,3 @@
-// src/config/navigationConfig.tsx
 import * as React from "react";
 import {
   LayoutDashboard,
@@ -15,6 +14,7 @@ import {
   Frame,
   PieChart,
   Luggage,
+  UserCheck,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -118,6 +118,23 @@ export const sidebarData = {
       name: "Design Engineering",
       url: "#",
       icon: <Frame />,
+    },
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: <PieChart />,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: <Luggage />,
+    },
+  ],
+  workspaces: [
+    {
+      name: "User Access control",
+      url: "create/admission/staff-account",
+      icon: <UserCheck />,
     },
     {
       name: "Sales & Marketing",

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CloudUpload,
   FileText,
@@ -15,15 +15,15 @@ import {
   AlertCircle,
   Home,
   LayoutDashboard,
-} from 'lucide-react';
-import { useDeleteSolutionCopyMutation } from '../../../../../redux/features/admin/adminApi';
-import { useGetAllSolutionCopyQuery } from '../../../../academics/services/academicServiceApi';
+} from "lucide-react"; 
+import { useDeleteSolutionCopyMutation } from "../../../../../redux/features/admin/adminApi";
+import { useGetAllSolutionCopyQuery } from "../../../../academics/services/academicServiceApi";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
 const UploadSolutionCopy = () => {
   const [file, setFile] = useState(null);
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -46,51 +46,51 @@ const UploadSolutionCopy = () => {
   const downloadSolution = async (id, fileName) => {
     try {
       const res = await axios.get(`${SERVER}/api/solutionCopy/download/${id}`, {
-        responseType: 'blob',
+        responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', `${fileName || 'solution'}.pdf`);
+      link.setAttribute("download", `${fileName || "solution"}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (error) {
-      toast.error('Download failed');
+      toast.error("Download failed");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Permanent delete? This action cannot be undone.'))
+    if (!window.confirm("Permanent delete? This action cannot be undone."))
       return;
     setDeletingId(id);
     try {
       await deleteSolutionCopy(id).unwrap();
-      toast.success('Document deleted');
+      toast.success("Document deleted");
       refetch();
     } catch (err) {
-      toast.error('Delete failed');
+      toast.error("Delete failed");
     } finally {
       setDeletingId(null);
     }
   };
 
   const handleFileSelection = (selectedFile) => {
-    if (selectedFile?.type === 'application/pdf') {
+    if (selectedFile?.type === "application/pdf") {
       setFile(selectedFile);
     } else {
-      toast.error('Only PDF files are accepted');
+      toast.error("Only PDF files are accepted");
     }
   };
 
   const handleUpload = async () => {
     if (!file || !title.trim())
-      return toast.error('Title and File are required');
+      return toast.error("Title and File are required");
 
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('pdfFile', file);
-    formData.append('title', title);
+    formData.append("pdfFile", file);
+    formData.append("title", title);
 
     try {
       await axios.post(`${SERVER}/api/solutionCopy/upload`, formData, {
@@ -102,12 +102,12 @@ const UploadSolutionCopy = () => {
         },
       });
 
-      toast.success('Solution published successfully');
-      setTitle('');
+      toast.success("Solution published successfully");
+      setTitle("");
       setFile(null);
       refetch();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Upload failed');
+      toast.error(error.response?.data?.message || "Upload failed");
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -188,10 +188,10 @@ const UploadSolutionCopy = () => {
                   className={`relative border-2 border-dashed rounded-xl transition-all duration-200 flex flex-col items-center justify-center p-8 text-center cursor-pointer
                     ${
                       isDragging
-                        ? 'border-indigo-500 bg-indigo-50/50'
-                        : 'border-slate-200 hover:border-slate-300 bg-slate-50/50'
+                        ? "border-indigo-500 bg-indigo-50/50"
+                        : "border-slate-200 hover:border-slate-300 bg-slate-50/50"
                     }
-                    ${file ? 'border-emerald-500 bg-emerald-50/30' : ''}`}
+                    ${file ? "border-emerald-500 bg-emerald-50/30" : ""}`}
                 >
                   <input
                     type="file"
@@ -233,7 +233,7 @@ const UploadSolutionCopy = () => {
                   {isUploading && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="space-y-2"
                     >
@@ -337,11 +337,11 @@ const UploadSolutionCopy = () => {
                           </td>
                           <td className="px-6 py-4 text-sm text-slate-500">
                             {new Date(item.createdAt).toLocaleDateString(
-                              'en-US',
+                              "en-US",
                               {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
                               },
                             )}
                           </td>

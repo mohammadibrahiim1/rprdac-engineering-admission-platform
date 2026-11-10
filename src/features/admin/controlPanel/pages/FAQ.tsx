@@ -1,63 +1,99 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ChevronRight,
+  HelpCircle,
+  LayoutDashboard,
+  List,
+  Loader2,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import {
   useDeleteQuestionMutation,
   useGetAllFAQsQuery,
   usePostFAQMutation,
-} from '../../../../../redux/features/FAQ/faqApi';
-import { MdAdd, MdHelpOutline, MdList, MdSearch } from 'react-icons/md';
-import {
-  ChevronRight,
-  Home,
-  LayoutDashboard,
-  Loader2,
-  Trash2,
-} from 'lucide-react';
+} from "../services/faqApi";
+import { toast } from "sonner";
 
-const FAQ = () => {
-  const [formData, setFormData] = useState({ question: '', answer: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+export interface FAQItem {
+  _id: string;
+  question: string;
+  answer: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FAQFormData {
+  question: string;
+  answer: string;
+}
+
+export interface FAQApiResponse {
+  success: boolean;
+  message?: string;
+  data: FAQItem[];
+}
+
+const INITIAL_FORM_STATE: FAQFormData = {
+  question: "",
+  answer: "",
+};
+
+const FAQ: React.FC = () => {
+  const [formData, setFormData] = useState<FAQFormData>(INITIAL_FORM_STATE);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const [postFAQ] = usePostFAQMutation();
   const [deleteQuestion] = useDeleteQuestionMutation();
-  const { data: faqs, isLoading } = useGetAllFAQsQuery();
+  const { data: faqs, isLoading } = useGetAllFAQsQuery(undefined);
 
-  const allFaqs = faqs?.data || [];
+  const allFaqs: FAQItem[] = (faqs as any)?.data || [];
 
   // Search Filter logic
   const filteredFaqs = allFaqs.filter((faq) =>
     faq.question.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this FAQ?')) {
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this FAQ?")) {
       try {
         await deleteQuestion(id).unwrap();
-        toast.success('Question removed');
+        toast.success("Question removed");
       } catch (error) {
-        toast.error('Failed to delete');
+        toast.error("Failed to delete");
       }
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.question.trim() || !formData.answer.trim()) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
     setIsSubmitting(true);
     try {
       await postFAQ(formData).unwrap();
-      toast.success('FAQ added successfully');
-      setFormData({ question: '', answer: '' });
-    } catch (error) {
-      toast.error(error.data?.message || 'Something went wrong');
+      toast.success("FAQ added successfully");
+      setFormData(INITIAL_FORM_STATE);
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -85,7 +121,7 @@ const FAQ = () => {
             </div>
 
             <div className="relative">
-              <MdSearch
+              <Search
                 className="absolute -translate-y-1/2 left-3 top-1/2 text-slate-400"
                 size={18}
               />
@@ -109,7 +145,7 @@ const FAQ = () => {
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 bg-blue-50 text-blue-600 rounded-md">
-                    <MdAdd size={18} />
+                    <Plus size={18} />
                   </div>
                   <h2 className="font-semibold tracking-tight text-slate-800">
                     Add New Question
@@ -126,9 +162,7 @@ const FAQ = () => {
                     type="text"
                     name="question"
                     value={formData.question}
-                    onChange={(e) =>
-                      setFormData({ ...formData, question: e.target.value })
-                    }
+                    onChange={handleInputChange}
                     placeholder="Enter short & clear question"
                     className="w-full px-3 py-2 text-sm font-medium transition-all bg-white border rounded-md outline-none border-slate-200 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"
                   />
@@ -142,24 +176,23 @@ const FAQ = () => {
                     name="answer"
                     rows={6}
                     value={formData.answer}
-                    onChange={(e) =>
-                      setFormData({ ...formData, answer: e.target.value })
-                    }
+                    onChange={handleInputChange}
                     placeholder="Provide a detailed solution..."
                     className="w-full px-3 py-2 text-sm transition-all bg-white border rounded-md outline-none border-slate-200 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"
                   />
                 </div>
 
                 <button
+                  type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-md shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-md shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <Loader2 className="animate-spin" size={18} />
                   ) : (
-                    <MdAdd size={18} />
+                    <Plus size={18} />
                   )}
-                  {isSubmitting ? 'Publishing...' : 'Publish Question'}
+                  {isSubmitting ? "Publishing..." : "Publish Question"}
                 </button>
               </form>
             </div>
@@ -170,7 +203,7 @@ const FAQ = () => {
             <div className="overflow-hidden bg-white border shadow-sm border-slate-200 rounded-xl">
               <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/30">
                 <div className="flex items-center gap-2">
-                  <MdList className="text-slate-400" size={20} />
+                  <List className="text-slate-400" size={20} />
                   <h3 className="font-semibold text-slate-800">
                     Published Questions
                   </h3>
@@ -207,7 +240,7 @@ const FAQ = () => {
                       ))
                     ) : filteredFaqs?.length > 0 ? (
                       <AnimatePresence mode="popLayout">
-                        {filteredFaqs?.map((faq) => (
+                        {filteredFaqs.map((faq) => (
                           <motion.tr
                             layout
                             key={faq._id}
@@ -228,8 +261,9 @@ const FAQ = () => {
                             </td>
                             <td className="px-6 py-5 text-right">
                               <button
+                                type="button"
                                 onClick={() => handleDelete(faq._id)}
-                                className="inline-flex items-center justify-center p-2 transition-all rounded-md opacity-0 text-slate-400 hover:text-red-600 hover:bg-red-50 group-hover:opacity-100"
+                                className="inline-flex items-center justify-center p-2 transition-all rounded-md opacity-0 text-slate-400 hover:text-red-600 hover:bg-red-50 group-hover:opacity-100 cursor-pointer"
                                 title="Delete FAQ"
                               >
                                 <Trash2 size={18} />
@@ -240,12 +274,9 @@ const FAQ = () => {
                       </AnimatePresence>
                     ) : (
                       <tr>
-                        <td colSpan="2" className="py-20 text-center">
+                        <td colSpan={2} className="py-20 text-center">
                           <div className="flex flex-col items-center gap-2">
-                            <MdHelpOutline
-                              className="text-slate-200"
-                              size={48}
-                            />
+                            <HelpCircle className="text-slate-200" size={48} />
                             <p className="font-medium text-slate-400">
                               No results matching your query.
                             </p>

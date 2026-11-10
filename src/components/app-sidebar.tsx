@@ -28,6 +28,7 @@ import {
 import { useAppSelector } from "@/hooks/storeHooks";
 import { sidebarData } from "@/config/navigationConfig";
 import { Link } from "react-router-dom";
+import { NavWorkspaces } from "./nav-wordspaces";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user: authUser } = useAppSelector((state) => state.auth);
@@ -58,6 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={sidebarData?.navMain} />
         <NavProjects projects={sidebarData?.projects} />
+        <NavWorkspaces workspaces={sidebarData?.workspaces} />
         <NavSecondary items={sidebarData?.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
