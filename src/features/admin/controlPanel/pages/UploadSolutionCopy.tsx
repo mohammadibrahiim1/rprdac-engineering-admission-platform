@@ -1,6 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CloudUpload,
@@ -13,37 +12,44 @@ import {
   FileUp,
   Loader2,
   AlertCircle,
-  Home,
   LayoutDashboard,
-} from "lucide-react"; 
-import { useDeleteSolutionCopyMutation } from "../../../../../redux/features/admin/adminApi";
-import { useGetAllSolutionCopyQuery } from "../../../../academics/services/academicServiceApi";
+} from "lucide-react";
+import {
+  useDeleteSolutionCopyMutation,
+  useGetAllSolutionCopyQuery,
+} from "../services/solutionCopyApi";
+import { ISolutionCopy } from "../types/SolutionCopy.types";
+import { toast } from "sonner";
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL as string;
 
-const UploadSolutionCopy = () => {
-  const [file, setFile] = useState(null);
-  const [title, setTitle] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [page, setPage] = useState(0);
-  const [limit, setLimit] = useState(5);
-  const [deletingId, setDeletingId] = useState(null);
+const UploadSolutionCopy: React.FC = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [title, setTitle] = useState<string>("");
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [page, setPage] = useState<number>(0);
+  const [limit, setLimit] = useState<number>(5);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const {
     data,
     refetch,
     isLoading: isListLoading,
   } = useGetAllSolutionCopyQuery({ page, limit });
+
   const [deleteSolutionCopy] = useDeleteSolutionCopyMutation();
 
-  const solutions = data?.data || [];
-  const totalItems = data?.totalItems || 0;
+  const solutions: ISolutionCopy[] = data?.data || [];
+  const totalItems: number = data?.totalItems || 0;
   const totalPages = Math.ceil(totalItems / limit);
 
   // --- Handlers ---
-  const downloadSolution = async (id, fileName) => {
+  const downloadSolution = async (
+    id: string,
+    fileName: string,
+  ): Promise<void> => {
     try {
       const res = await axios.get(`${SERVER}/api/solutionCopy/download/${id}`, {
         responseType: "blob",
@@ -60,7 +66,7 @@ const UploadSolutionCopy = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string): Promise<void> => {
     if (!window.confirm("Permanent delete? This action cannot be undone."))
       return;
     setDeletingId(id);
@@ -75,7 +81,7 @@ const UploadSolutionCopy = () => {
     }
   };
 
-  const handleFileSelection = (selectedFile) => {
+  const handleFileSelection = (selectedFile: File | undefined): void => {
     if (selectedFile?.type === "application/pdf") {
       setFile(selectedFile);
     } else {
@@ -83,9 +89,11 @@ const UploadSolutionCopy = () => {
     }
   };
 
-  const handleUpload = async () => {
-    if (!file || !title.trim())
-      return toast.error("Title and File are required");
+  const handleUpload = async (): Promise<void> => {
+    if (!file || !title.trim()) {
+      toast.error("Title and File are required");
+      return;
+    }
 
     setIsUploading(true);
     const formData = new FormData();
@@ -95,10 +103,12 @@ const UploadSolutionCopy = () => {
     try {
       await axios.post(`${SERVER}/api/solutionCopy/upload`, formData, {
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total,
-          );
-          setUploadProgress(percentCompleted);
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+            setUploadProgress(percentCompleted);
+          }
         },
       });
 
@@ -106,7 +116,7 @@ const UploadSolutionCopy = () => {
       setTitle("");
       setFile(null);
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.response?.data?.message || "Upload failed");
     } finally {
       setIsUploading(false);
@@ -158,7 +168,6 @@ const UploadSolutionCopy = () => {
               </div>
 
               <div className="space-y-5">
-                {/* Title Input */}
                 <div>
                   <label className="text-sm font-medium text-slate-700 block mb-1.5">
                     Document Title
@@ -166,24 +175,25 @@ const UploadSolutionCopy = () => {
                   <input
                     type="text"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setTitle(e.target.value)
+                    }
                     placeholder="Ex: Physics Semester 1 Solutions"
                     className="w-full px-3 py-2 text-sm transition-all bg-white border rounded-md outline-none border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                     disabled={isUploading}
                   />
                 </div>
 
-                {/* Dropzone */}
                 <div
-                  onDragOver={(e) => {
+                  onDragOver={(e: React.DragEvent<HTMLDivElement>) => {
                     e.preventDefault();
                     setIsDragging(true);
                   }}
                   onDragLeave={() => setIsDragging(false)}
-                  onDrop={(e) => {
+                  onDrop={(e: React.DragEvent<HTMLDivElement>) => {
                     e.preventDefault();
                     setIsDragging(false);
-                    handleFileSelection(e.dataTransfer.files[0]);
+                    handleFileSelection(e.dataTransfer.files?.[0]);
                   }}
                   className={`relative border-2 border-dashed rounded-xl transition-all duration-200 flex flex-col items-center justify-center p-8 text-center cursor-pointer
                     ${
@@ -197,7 +207,9 @@ const UploadSolutionCopy = () => {
                     type="file"
                     accept=".pdf"
                     className="absolute inset-0 opacity-0 cursor-pointer"
-                    onChange={(e) => handleFileSelection(e.target.files[0])}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleFileSelection(e.target.files?.[0])
+                    }
                     disabled={isUploading}
                   />
 
@@ -228,7 +240,6 @@ const UploadSolutionCopy = () => {
                   )}
                 </div>
 
-                {/* Progress Bar */}
                 <AnimatePresence>
                   {isUploading && (
                     <motion.div
@@ -254,7 +265,6 @@ const UploadSolutionCopy = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Submit Button */}
                 <button
                   onClick={handleUpload}
                   disabled={!file || !title.trim() || isUploading}
@@ -302,7 +312,7 @@ const UploadSolutionCopy = () => {
                     {isListLoading ? (
                       <tr>
                         <td
-                          colSpan="3"
+                          colSpan={4}
                           className="py-20 text-center text-slate-400"
                         >
                           <Loader2
@@ -312,18 +322,16 @@ const UploadSolutionCopy = () => {
                           <p className="text-sm">Fetching repository...</p>
                         </td>
                       </tr>
-                    ) : solutions?.length > 0 ? (
-                      solutions?.map((item, i) => (
+                    ) : solutions.length > 0 ? (
+                      solutions.map((item: ISolutionCopy, i: number) => (
                         <tr
-                          key={item?._id}
+                          key={item._id}
                           className="transition-colors group hover:bg-slate-50/80"
                         >
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <span className="font-medium text-slate-700 truncate max-w-[200px]">
-                                {i + 1}
-                              </span>
-                            </div>
+                            <span className="font-medium text-slate-700">
+                              {page * limit + i + 1}
+                            </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -374,7 +382,7 @@ const UploadSolutionCopy = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="3" className="py-20 text-center">
+                        <td colSpan={4} className="py-20 text-center">
                           <div className="max-w-[240px] mx-auto text-slate-400">
                             <AlertCircle
                               size={40}
@@ -407,7 +415,7 @@ const UploadSolutionCopy = () => {
                     </button>
                     <button
                       onClick={() => setPage((p) => p + 1)}
-                      disabled={page + 1 === totalPages}
+                      disabled={page + 1 >= totalPages}
                       className="p-1.5 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-30 transition-all"
                     >
                       <ChevronRight size={16} />

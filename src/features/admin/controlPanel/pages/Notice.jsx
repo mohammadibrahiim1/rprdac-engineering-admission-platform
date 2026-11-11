@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
+import React, { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,49 +22,48 @@ import {
   Check,
   LayoutDashboard,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   useDeleteNoticeMutation,
   useGetAllNoticesQuery,
   usePostNoticeMutation,
   useUpdateNoticeMutation,
-} from '../../../../../redux/features/notice/noticeApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
+} from "../../../../../redux/features/notice/noticeApi";
 
 // Helper function to format time ago
 function getTimeAgo(date) {
   const now = new Date();
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diff < 60) return 'Just now';
+  if (diff < 60) return "Just now";
   const mins = Math.floor(diff / 60);
-  if (mins < 60) return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+  if (mins < 60) return `${mins} minute${mins > 1 ? "s" : ""} ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} hour${hrs > 1 ? 's' : ''} ago`;
+  if (hrs < 24) return `${hrs} hour${hrs > 1 ? "s" : ""} ago`;
   const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+  if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
   const weeks = Math.floor(days / 7);
-  return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+  return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
 }
 
 const Notice = () => {
   const user = useSelector((state) => state?.auth?.user);
-  const [viewMode, setViewMode] = useState('inbox'); // 'inbox', 'view', 'add', 'edit'
+  const [viewMode, setViewMode] = useState("inbox"); // 'inbox', 'view', 'add', 'edit'
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [editingNotice, setEditingNotice] = useState(null);
 
   // Form states
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [characterCount, setCharacterCount] = useState(0);
   const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState('');
+  const [tagInput, setTagInput] = useState("");
 
   // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedAuthor, setSelectedAuthor] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedAuthor, setSelectedAuthor] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   // Pagination
@@ -101,7 +100,7 @@ const Notice = () => {
 
   // Reset form when switching modes
   useEffect(() => {
-    if (viewMode === 'add') {
+    if (viewMode === "add") {
       resetForm();
     }
   }, [viewMode]);
@@ -113,10 +112,10 @@ const Notice = () => {
 
   // Reset form function
   const resetForm = () => {
-    setTitle('');
-    setContent('');
+    setTitle("");
+    setContent("");
     setTags([]);
-    setTagInput('');
+    setTagInput("");
     setEditingNotice(null);
   };
 
@@ -125,12 +124,12 @@ const Notice = () => {
     e.preventDefault();
 
     if (!title.trim()) {
-      toast.error('Please enter a notice title');
+      toast.error("Please enter a notice title");
       return;
     }
 
     if (!content.trim()) {
-      toast.error('Please enter notice content');
+      toast.error("Please enter notice content");
       return;
     }
 
@@ -146,23 +145,23 @@ const Notice = () => {
         authorRole: user?.userType,
       };
 
-      if (viewMode === 'edit' && editingNotice) {
+      if (viewMode === "edit" && editingNotice) {
         await updateNotice({
           id: editingNotice._id,
           ...noticeData,
         }).unwrap();
-        toast.success('Notice updated successfully');
-        setViewMode('view');
+        toast.success("Notice updated successfully");
+        setViewMode("view");
         setSelectedNotice({ ...editingNotice, ...noticeData });
       } else {
         await postNotice(noticeData).unwrap();
-        toast.success('Notice created successfully');
-        setViewMode('inbox');
+        toast.success("Notice created successfully");
+        setViewMode("inbox");
       }
       resetForm();
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to save notice');
+      toast.error(error?.data?.message || "Failed to save notice");
     } finally {
       setIsSubmitting(false);
     }
@@ -170,19 +169,19 @@ const Notice = () => {
 
   // Delete notice handler
   const handleDeleteNotice = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this notice?')) return;
+    if (!window.confirm("Are you sure you want to delete this notice?")) return;
 
     setDeletingId(id);
     try {
       await deleteNotice(id).unwrap();
-      toast.success('Notice deleted successfully');
+      toast.success("Notice deleted successfully");
       if (selectedNotice?._id === id) {
         setSelectedNotice(null);
-        setViewMode('inbox');
+        setViewMode("inbox");
       }
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to delete notice');
+      toast.error(error?.data?.message || "Failed to delete notice");
     } finally {
       setDeletingId(null);
     }
@@ -193,7 +192,7 @@ const Notice = () => {
     e.preventDefault();
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       setTags([...tags, tagInput.trim()]);
-      setTagInput('');
+      setTagInput("");
     }
   };
 
@@ -204,7 +203,7 @@ const Notice = () => {
   // Handle notice selection
   const handleSelectNotice = (notice) => {
     setSelectedNotice(notice);
-    setViewMode('view');
+    setViewMode("view");
   };
 
   // Handle edit notice
@@ -213,14 +212,14 @@ const Notice = () => {
     setTitle(notice.title);
     setContent(notice.content);
     setTags(notice.tags || []);
-    setViewMode('edit');
+    setViewMode("edit");
   };
 
   // Clear all filters
   const clearAllFilters = () => {
-    setSearchTerm('');
-    setSelectedDate('');
-    setSelectedAuthor('');
+    setSearchTerm("");
+    setSelectedDate("");
+    setSelectedAuthor("");
     setPage(1);
   };
 
@@ -241,7 +240,7 @@ const Notice = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: 'spring',
+        type: "spring",
         stiffness: 100,
       },
     },
@@ -259,14 +258,6 @@ const Notice = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30">
-      {/* breadcrumb header */}
-      <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
-          </div>
-        </div>
-      </header>
       {/* Main Container */}
       <div className="relative z-10 px-6 py-10 mx-auto lg:py-16 lg:ps-12 lg:pe-6">
         {/* Enhanced Header */}
@@ -292,7 +283,7 @@ const Notice = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setViewMode('add')}
+              onClick={() => setViewMode("add")}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg shadow-sm transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 w-full md:w-auto"
             >
               <Plus size={18} strokeWidth={2.5} />
@@ -322,7 +313,7 @@ const Notice = () => {
                 {
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
+                    animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     className="space-y-4 overflow-hidden"
                   >
@@ -457,7 +448,7 @@ const Notice = () => {
                 </div>
                 {selectedNotice && (
                   <button
-                    onClick={() => setViewMode('view')}
+                    onClick={() => setViewMode("view")}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
                   >
                     <Eye size={16} />
@@ -478,7 +469,7 @@ const Notice = () => {
                       <X size={24} />
                     </div>
                     <p className="text-red-600">
-                      {error?.data?.message || 'Error loading notices'}
+                      {error?.data?.message || "Error loading notices"}
                     </p>
                     <button
                       onClick={() => refetch()}
@@ -502,7 +493,7 @@ const Notice = () => {
                       </button>
                     ) : (
                       <button
-                        onClick={() => setViewMode('add')}
+                        onClick={() => setViewMode("add")}
                         className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800"
                       >
                         Create your first notice
@@ -519,8 +510,8 @@ const Notice = () => {
                         onClick={() => handleSelectNotice(notice)}
                         className={`p-4 cursor-pointer transition-colors ${
                           selectedNotice?._id === notice._id
-                            ? 'bg-blue-50 border-r-4 border-blue-500'
-                            : 'hover:bg-gray-50'
+                            ? "bg-blue-50 border-r-4 border-blue-500"
+                            : "hover:bg-gray-50"
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -595,8 +586,8 @@ const Notice = () => {
                               onClick={() => setPage(pageNum)}
                               className={`inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-lg transition-colors ${
                                 page === pageNum
-                                  ? 'bg-blue-600 text-white'
-                                  : 'text-gray-600 hover:bg-gray-100'
+                                  ? "bg-blue-600 text-white"
+                                  : "text-gray-600 hover:bg-gray-100"
                               }`}
                             >
                               {pageNum}
@@ -624,7 +615,7 @@ const Notice = () => {
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
               {/* View Mode */}
-              {viewMode === 'view' && selectedNotice && (
+              {viewMode === "view" && selectedNotice && (
                 <motion.div
                   key="view"
                   initial={{ opacity: 0, x: 20 }}
@@ -741,7 +732,7 @@ const Notice = () => {
               )}
 
               {/* Add/Edit Form */}
-              {(viewMode === 'add' || viewMode === 'edit') && (
+              {(viewMode === "add" || viewMode === "edit") && (
                 <motion.div
                   key="form"
                   initial={{ opacity: 0, x: 20 }}
@@ -754,7 +745,7 @@ const Notice = () => {
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2">
                         <div className="p-2 bg-blue-100 rounded-lg">
-                          {viewMode === 'edit' ? (
+                          {viewMode === "edit" ? (
                             <Edit2 size={20} className="text-blue-600" />
                           ) : (
                             <Plus size={20} className="text-blue-600" />
@@ -762,23 +753,23 @@ const Notice = () => {
                         </div>
                         <div>
                           <h2 className="text-lg font-semibold text-gray-900">
-                            {viewMode === 'edit'
-                              ? 'Edit Notice'
-                              : 'Create New Notice'}
+                            {viewMode === "edit"
+                              ? "Edit Notice"
+                              : "Create New Notice"}
                           </h2>
                           <p className="mt-1 text-sm text-gray-600">
-                            {viewMode === 'edit'
-                              ? 'Update the notice details'
-                              : 'Share important information with your community'}
+                            {viewMode === "edit"
+                              ? "Update the notice details"
+                              : "Share important information with your community"}
                           </p>
                         </div>
                       </div>
                       <button
                         onClick={() => {
                           if (selectedNotice) {
-                            setViewMode('view');
+                            setViewMode("view");
                           } else {
-                            setViewMode('inbox');
+                            setViewMode("inbox");
                           }
                           resetForm();
                         }}
@@ -815,8 +806,8 @@ const Notice = () => {
                           <span
                             className={`text-sm ${
                               characterCount > 450
-                                ? 'text-red-600'
-                                : 'text-gray-500'
+                                ? "text-red-600"
+                                : "text-gray-500"
                             }`}
                           >
                             {characterCount}/500
@@ -865,7 +856,7 @@ const Notice = () => {
                             placeholder="Add a tag"
                             className="flex-1 px-4 py-2.5 transition-all border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             onKeyDown={(e) =>
-                              e.key === 'Enter' && handleAddTag(e)
+                              e.key === "Enter" && handleAddTag(e)
                             }
                           />
                           <button
@@ -885,9 +876,9 @@ const Notice = () => {
                             type="button"
                             onClick={() => {
                               if (selectedNotice) {
-                                setViewMode('view');
+                                setViewMode("view");
                               } else {
-                                setViewMode('inbox');
+                                setViewMode("inbox");
                               }
                               resetForm();
                             }}
@@ -905,13 +896,13 @@ const Notice = () => {
                             {isSubmitting ? (
                               <div className="flex items-center justify-center gap-2">
                                 <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
-                                {viewMode === 'edit'
-                                  ? 'Updating...'
-                                  : 'Publishing...'}
+                                {viewMode === "edit"
+                                  ? "Updating..."
+                                  : "Publishing..."}
                               </div>
                             ) : (
                               <div className="flex items-center justify-center gap-2">
-                                {viewMode === 'edit' ? (
+                                {viewMode === "edit" ? (
                                   <>
                                     <Check size={18} />
                                     Update Notice
@@ -933,7 +924,7 @@ const Notice = () => {
               )}
 
               {/* Empty State */}
-              {viewMode === 'inbox' && !selectedNotice && (
+              {viewMode === "inbox" && !selectedNotice && (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0 }}

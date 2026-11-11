@@ -30,6 +30,12 @@ export const TAG_TYPES = [
   "MeritList",
   "AdmissionTimeline",
   "FAQ",
+  "SolutionCopy",
+  "Result",
+  "BillingRates",
+  "AdmissionUser",
+  "User",
+  "Notice",
 ] as const;
 
 // Base query for opaque session authentication

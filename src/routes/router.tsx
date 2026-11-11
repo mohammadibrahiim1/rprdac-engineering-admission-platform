@@ -9,7 +9,7 @@ import { examRoutes } from "./examManagementRoutes";
 import { Unauthorized } from "@/components/common/Unauthorized";
 import { Welcome } from "@/components/common/Welcome";
 import { Dashboard } from "@/components/common/Dashboard";
-import { ControlPanelRoutes } from "./controllPanelRoutes";
+import { ControlPanelRoutes } from "./controlPanelRoutes";
 
 const DASHBOARD_PATH = "/console-8xK29mQ";
 

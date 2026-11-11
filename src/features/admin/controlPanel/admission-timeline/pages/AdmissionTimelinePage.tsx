@@ -71,7 +71,7 @@ const AdmissionTimelinePage: React.FC = () => {
         onClose={handleCloseModal}
         onSubmit={handleSubmitForm}
         editingData={editingItem}
-        isLoading={isSubmitting}
+        isLoading={isSubmitting} 
       />
     </div>
   );

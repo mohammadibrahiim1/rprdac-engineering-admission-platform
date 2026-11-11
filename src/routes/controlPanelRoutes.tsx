@@ -1,5 +1,8 @@
 import AdmissionTimelinePage from "@/features/admin/controlPanel/admission-timeline/pages/AdmissionTimelinePage";
+import AddResults from "@/features/admin/controlPanel/pages/AddResults";
+import BillingRateManager from "@/features/admin/controlPanel/pages/BillingRateManager";
 import FAQ from "@/features/admin/controlPanel/pages/FAQ";
+import UploadSolutionCopy from "@/features/admin/controlPanel/pages/UploadSolutionCopy";
 import CombinedMeritPortal from "@/features/meritlist/pages/CombinedMeritPortal";
 import MeritList from "@/features/meritlist/pages/MeritList";
 import MeritRegistryDashboard from "@/features/meritlist/pages/MeritRegistryDashboard";
@@ -43,11 +46,11 @@ export const ControlPanelRoutes = [
   },
   {
     path: "/add/gallery/image",
-    element: (
-      // <AdmissionPrivateRoute panelName="control">
-      <AddGalleryImage />
-      // </AdmissionPrivateRoute>
-    ),
+    // element: (
+    //   <AdmissionPrivateRoute panelName="control">
+    //     <AddGalleryImage />
+    //   </AdmissionPrivateRoute>
+    // ),
     handle: { title: "Media Gallery Control Management" },
   },
   {

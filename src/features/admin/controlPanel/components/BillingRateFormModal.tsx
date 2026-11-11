@@ -1,8 +1,17 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useBillingRateForm } from '../../hooks/useBillingRateForm';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  IBillingRateFormModalProps,
+  IUseBillingRateFormReturn,
+  IUser,
+} from "../types/BillingRate.types";
+import { useBillingRateForm } from "../hooks/useBillingRateForm";
 
-export default function BillingRateFormModal({ open, onClose, onSuccess }) {
+export default function BillingRateFormModal({
+  open,
+  onClose,
+  onSuccess,
+}: IBillingRateFormModalProps) {
   const {
     register,
     handleCreateSubmit,
@@ -21,13 +30,15 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
     selectedUserIds,
     handleToggleUserSelect,
     handleSelectAllToggle,
-  } = useBillingRateForm(onClose, onSuccess);
+  }: IUseBillingRateFormReturn = useBillingRateForm(onClose, onSuccess);
 
   if (!open) return null;
 
   const isAllSelected =
     usersList.length > 0 &&
-    usersList.every((u) => selectedUserIds.includes(u._id || u.id));
+    usersList.every((u: IUser) =>
+      selectedUserIds.includes(u._id || u.id || ""),
+    );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm font-sans">
@@ -69,7 +80,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                 User Type <span className="text-red-500">*</span>
               </label>
               <select
-                {...register('userType', { required: 'User type is required' })}
+                {...register("userType", { required: "User type is required" })}
                 value={userTypeFilter}
                 onChange={(e) => handleUserTypeChange(e.target.value)}
                 className="w-full h-10 px-3 rounded-md border border-neutral-200 text-sm bg-white focus:outline-none focus:border-neutral-900 transition-all"
@@ -81,7 +92,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
               </select>
               {errors.userType && (
                 <p className="text-xs text-red-500">
-                  {errors.userType.message}
+                  {errors.userType.message as string}
                 </p>
               )}
             </div>
@@ -141,8 +152,8 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                   No users found for this type/search.
                 </p>
               ) : (
-                usersList.map((user) => {
-                  const uid = user._id || user.id;
+                usersList.map((user: IUser) => {
+                  const uid = user._id || user.id || "";
                   const isChecked = selectedUserIds.includes(uid);
                   return (
                     <div
@@ -150,8 +161,8 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                       onClick={() => handleToggleUserSelect(uid)}
                       className={`px-3 py-2 text-sm rounded-md cursor-pointer flex justify-between items-center transition-colors ${
                         isChecked
-                          ? 'bg-neutral-900 text-white'
-                          : 'bg-white hover:bg-neutral-100 text-neutral-800'
+                          ? "bg-neutral-900 text-white"
+                          : "bg-white hover:bg-neutral-100 text-neutral-800"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -162,12 +173,16 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                           className="w-4 h-4 rounded cursor-pointer accent-neutral-900"
                         />
                         <span className="font-medium">
-                          {user.userName || user.name || 'Unnamed'} (
-                          {user.phone || 'No Phone'})
+                          {user.userName || user.name || "Unnamed"} (
+                          {user.phone || "No Phone"})
                         </span>
                       </div>
                       <span
-                        className={`text-xs px-2 py-0.5 rounded ${isChecked ? 'bg-neutral-800 text-neutral-200' : 'bg-neutral-100 text-neutral-500'}`}
+                        className={`text-xs px-2 py-0.5 rounded ${
+                          isChecked
+                            ? "bg-neutral-800 text-neutral-200"
+                            : "bg-neutral-100 text-neutral-500"
+                        }`}
                       >
                         {user.userType || userTypeFilter}
                       </span>
@@ -188,11 +203,11 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                 type="button"
                 onClick={() =>
                   append({
-                    category: '',
-                    hourlyRate: '',
-                    secRate: '',
-                    startDate: '',
-                    endDate: '',
+                    category: "",
+                    hourlyRate: "",
+                    secRate: "",
+                    startDate: "",
+                    endDate: "",
                   })
                 }
                 className="text-xs font-medium text-blue-600 hover:underline"
@@ -212,14 +227,14 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                     <input
                       type="text"
                       placeholder="Category (e.g. regular)"
-                      {...register(`rates.${index}.category`, {
-                        required: 'Category is required',
+                      {...register(`rates.${index}.category` as const, {
+                        required: "Category is required",
                       })}
                       className="w-full h-9 px-3 rounded-md border border-neutral-200 text-sm bg-white focus:outline-none focus:border-neutral-900"
                     />
                     {errors.rates?.[index]?.category && (
                       <span className="text-[10px] text-red-500">
-                        {errors.rates[index].category.message}
+                        {errors.rates[index]?.category?.message as string}
                       </span>
                     )}
                   </div>
@@ -229,10 +244,10 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                     <input
                       type="number"
                       placeholder="Hourly Rate (BDT)"
-                      step={'any'}
-                      {...register(`rates.${index}.hourlyRate`, {
-                        required: 'Rate is required',
-                        min: { value: 0.1, message: 'Must be > 0' },
+                      step={"any"}
+                      {...register(`rates.${index}.hourlyRate` as const, {
+                        required: "Rate is required",
+                        min: { value: 0.1, message: "Must be > 0" },
                         onChange: (e) =>
                           handleHourlyRateChange(index, e.target.value),
                       })}
@@ -240,7 +255,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                     />
                     {errors.rates?.[index]?.hourlyRate && (
                       <span className="text-[10px] text-red-500">
-                        {errors.rates[index].hourlyRate.message}
+                        {errors.rates[index]?.hourlyRate?.message as string}
                       </span>
                     )}
                   </div>
@@ -250,7 +265,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                     <input
                       type="text"
                       placeholder="Sec Rate (Auto)"
-                      {...register(`rates.${index}.secRate`)}
+                      {...register(`rates.${index}.secRate` as const)}
                       readOnly
                       className="w-full h-9 px-3 rounded-md border border-neutral-200 text-sm bg-neutral-100 text-neutral-500 cursor-not-allowed"
                     />
@@ -265,7 +280,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                     </label>
                     <input
                       type="date"
-                      {...register(`rates.${index}.startDate`)}
+                      {...register(`rates.${index}.startDate` as const)}
                       className="w-full h-9 px-3 rounded-md border border-neutral-200 text-sm bg-white focus:outline-none"
                     />
                   </div>
@@ -275,7 +290,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
                     </label>
                     <input
                       type="date"
-                      {...register(`rates.${index}.endDate`)}
+                      {...register(`rates.${index}.endDate` as const)}
                       className="w-full h-9 px-3 rounded-md border border-neutral-200 text-sm bg-white focus:outline-none"
                     />
                   </div>
@@ -309,7 +324,7 @@ export default function BillingRateFormModal({ open, onClose, onSuccess }) {
               className="px-5 py-2 text-sm font-medium text-white bg-neutral-900 rounded-md hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isCreating
-                ? 'Saving...'
+                ? "Saving..."
                 : `Save Rate (${selectedUserIds.length} Users)`}
             </button>
           </div>
