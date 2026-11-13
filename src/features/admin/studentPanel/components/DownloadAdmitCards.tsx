@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useCallback,
   useEffect,
-  ReactElement,
 } from "react";
 import { useReactToPrint } from "react-to-print";
 import {
@@ -57,7 +56,7 @@ const chunk = <T,>(arr: T[] = [], size: number = 8): T[][] => {
   );
 };
 
-export default function AdmitCardRegistryPage(): ReactElement {
+export default function DownloadAdmitCards(): React.ReactElement {
   const printRef = useRef<HTMLDivElement | null>(null);
 
   // ─── Local State for Manual Multi-Card Selection ───

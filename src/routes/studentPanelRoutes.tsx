@@ -1,3 +1,4 @@
+import DownloadAdmitCards from "@/features/admin/studentPanel/components/DownloadAdmitCards";
 import AllStudents from "@/features/admin/studentPanel/pages/AllStudents";
 import EditStudentInformation from "@/features/admin/studentPanel/pages/EditStudentInformation";
 import StudentAdmitByAdmin from "@/features/admin/studentPanel/pages/StudentAdmitByAdmin";

@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useRef,
   useCallback,
-} from 'react';
+} from "react";
 import {
   Inbox,
   Send,
@@ -37,92 +37,92 @@ import {
   Eye,
   Edit3,
   Paperclip,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
-import { useGetOnlyTeachersQuery } from '../../../../../redux/features/users/userApi';
-import { useGetBatchesQuery } from '../../../../../redux/features/batch/batchApi';
+import { useGetOnlyTeachersQuery } from "../../../../../redux/features/users/userApi";
+import { useGetBatchesQuery } from "../../../../../redux/features/batch/batchApi";
 import {
   useGetDepartmentsQuery,
   useGetSubjectsQuery,
-} from '../../../../../redux/features/subject/subjectApi';
+} from "../../../../../redux/features/subject/subjectApi";
 import {
   useCreateAnnouncementMutation,
   useDeleteAnnouncementsMutation,
   useGetAnnouncementsQuery,
   useUpdateAnnouncementsMutation,
-} from '../../../../../redux/features/announcement/announcementApi';
-import { useSelector } from 'react-redux';
+} from "../../../../../redux/features/announcement/announcementApi";
+import { useSelector } from "react-redux";
 
 /* ─────────────────────── CONSTANTS ─────────────────────── */
 
 const initialState = {
-  title: '',
-  type: '',
-  date: '',
-  time: '',
-  batch: '',
-  department: '',
-  subject: '',
-  roomNumber: '',
+  title: "",
+  type: "",
+  date: "",
+  time: "",
+  batch: "",
+  department: "",
+  subject: "",
+  roomNumber: "",
   teacher: null,
   sendToStudent: false,
   sendToAllStudent: false,
   sendToTeacher: false,
   sendToAllTeacher: false,
-  content: '',
+  content: "",
   file: null,
   isUrgent: false,
-  status: 'published',
+  status: "published",
 };
 
 const announcementTypes = [
-  { value: 'class', label: 'Class', icon: '📚', color: '#3b82f6' },
-  { value: 'exam', label: 'Exam', icon: '📝', color: '#ef4444' },
-  { value: 'result', label: 'Result', icon: '📊', color: '#10b981' },
-  { value: 'event', label: 'Event', icon: '🎉', color: '#8b5cf6' },
-  { value: 'general', label: 'General Notice', icon: '📢', color: '#6b7280' },
-  { value: 'admission', label: 'Admission', icon: '🎓', color: '#6366f1' },
-  { value: 'holiday', label: 'Holiday', icon: '🏖️', color: '#0ea5e9' },
-  { value: 'meeting', label: 'Meeting', icon: '🤝', color: '#f97316' },
-  { value: 'routine', label: 'Class Routine', icon: '📅', color: '#14b8a6' },
-  { value: 'notice', label: 'Official Notice', icon: '📌', color: '#eab308' },
-  { value: 'admit_card', label: 'Admit Card', icon: '🪪', color: '#f43f5e' },
-  { value: 'fees', label: 'Fees Notice', icon: '💰', color: '#059669' },
-  { value: 'urgent', label: 'Urgent Notice', icon: '🚨', color: '#dc2626' },
+  { value: "class", label: "Class", icon: "📚", color: "#3b82f6" },
+  { value: "exam", label: "Exam", icon: "📝", color: "#ef4444" },
+  { value: "result", label: "Result", icon: "📊", color: "#10b981" },
+  { value: "event", label: "Event", icon: "🎉", color: "#8b5cf6" },
+  { value: "general", label: "General Notice", icon: "📢", color: "#6b7280" },
+  { value: "admission", label: "Admission", icon: "🎓", color: "#6366f1" },
+  { value: "holiday", label: "Holiday", icon: "🏖️", color: "#0ea5e9" },
+  { value: "meeting", label: "Meeting", icon: "🤝", color: "#f97316" },
+  { value: "routine", label: "Class Routine", icon: "📅", color: "#14b8a6" },
+  { value: "notice", label: "Official Notice", icon: "📌", color: "#eab308" },
+  { value: "admit_card", label: "Admit Card", icon: "🪪", color: "#f43f5e" },
+  { value: "fees", label: "Fees Notice", icon: "💰", color: "#059669" },
+  { value: "urgent", label: "Urgent Notice", icon: "🚨", color: "#dc2626" },
 ];
 
 /* ─────────────────────── SMALL COMPONENTS ─────────────────────── */
 
 const NotionDivider = () => (
   <div
-    style={{ height: '1px', background: 'var(--notion-border)', margin: '0' }}
+    style={{ height: "1px", background: "var(--notion-border)", margin: "0" }}
   />
 );
 
-const TypeBadge = ({ type, size = 'sm' }) => {
+const TypeBadge = ({ type, size = "sm" }) => {
   const t = announcementTypes.find((a) => a.value === type) || {
     label: type,
-    icon: '📢',
-    color: '#6b7280',
+    icon: "📢",
+    color: "#6b7280",
   };
-  const pad = size === 'sm' ? '2px 8px' : '3px 10px';
-  const fs = size === 'sm' ? '11px' : '12px';
+  const pad = size === "sm" ? "2px 8px" : "3px 10px";
+  const fs = size === "sm" ? "11px" : "12px";
   return (
     <span
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
+        display: "inline-flex",
+        alignItems: "center",
         gap: 4,
         padding: pad,
         borderRadius: 4,
         fontSize: fs,
         fontWeight: 500,
-        background: t.color + '18',
+        background: t.color + "18",
         color: t.color,
         border: `1px solid ${t.color}30`,
-        whiteSpace: 'nowrap',
+        whiteSpace: "nowrap",
       }}
     >
       <span style={{ fontSize: fs }}>{t.icon}</span>
@@ -133,15 +133,15 @@ const TypeBadge = ({ type, size = 'sm' }) => {
 
 const StatusPill = ({ status }) => {
   const map = {
-    published: { bg: '#d1fae5', color: '#065f46', label: 'Published' },
-    draft: { bg: '#f3f4f6', color: '#374151', label: 'Draft' },
-    scheduled: { bg: '#ede9fe', color: '#5b21b6', label: 'Scheduled' },
+    published: { bg: "#d1fae5", color: "#065f46", label: "Published" },
+    draft: { bg: "#f3f4f6", color: "#374151", label: "Draft" },
+    scheduled: { bg: "#ede9fe", color: "#5b21b6", label: "Scheduled" },
   };
   const s = map[status] || map.draft;
   return (
     <span
       style={{
-        padding: '2px 8px',
+        padding: "2px 8px",
         borderRadius: 12,
         fontSize: 11,
         fontWeight: 500,
@@ -175,31 +175,31 @@ const NotionDropdown = ({
 }) => {
   return (
     <div
-      style={{ display: 'flex', flexDirection: 'column', gap: 6 }}
+      style={{ display: "flex", flexDirection: "column", gap: 6 }}
       ref={dropdownRef}
     >
       <label
         style={{
           fontSize: 13,
           fontWeight: 500,
-          color: 'var(--notion-text-secondary)',
+          color: "var(--notion-text-secondary)",
         }}
       >
-        {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+        {label} {required && <span style={{ color: "#ef4444" }}>*</span>}
       </label>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: "relative" }}>
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 8,
-            border: '1px solid var(--notion-border-strong)',
+            border: "1px solid var(--notion-border-strong)",
             borderRadius: 6,
-            padding: '7px 10px',
-            background: disabled ? 'var(--notion-hover)' : 'var(--notion-bg)',
-            cursor: disabled ? 'not-allowed' : 'pointer',
+            padding: "7px 10px",
+            background: disabled ? "var(--notion-hover)" : "var(--notion-bg)",
+            cursor: disabled ? "not-allowed" : "pointer",
             opacity: disabled ? 0.6 : 1,
-            transition: 'border-color 0.15s',
+            transition: "border-color 0.15s",
           }}
           onFocus={() => !disabled && setShowDropdown(true)}
         >
@@ -219,11 +219,11 @@ const NotionDropdown = ({
             autoComplete="off"
             style={{
               flex: 1,
-              border: 'none',
-              outline: 'none',
-              background: 'transparent',
+              border: "none",
+              outline: "none",
+              background: "transparent",
               fontSize: 13,
-              color: 'var(--notion-text)',
+              color: "var(--notion-text)",
               minWidth: 0,
             }}
           />
@@ -232,12 +232,12 @@ const NotionDropdown = ({
               type="button"
               onClick={clearSelection}
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
+                background: "none",
+                border: "none",
+                cursor: "pointer",
                 padding: 0,
-                display: 'flex',
-                color: 'var(--notion-text-secondary)',
+                display: "flex",
+                color: "var(--notion-text-secondary)",
               }}
             >
               <X size={14} />
@@ -254,17 +254,17 @@ const NotionDropdown = ({
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.12 }}
               style={{
-                position: 'absolute',
-                top: 'calc(100% + 4px)',
+                position: "absolute",
+                top: "calc(100% + 4px)",
                 left: 0,
                 right: 0,
                 zIndex: 100,
-                background: 'var(--notion-bg)',
-                border: '1px solid var(--notion-border-strong)',
+                background: "var(--notion-bg)",
+                border: "1px solid var(--notion-border-strong)",
                 borderRadius: 8,
-                boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+                boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
                 maxHeight: 220,
-                overflowY: 'auto',
+                overflowY: "auto",
               }}
             >
               {filteredItems.map((item, index) => {
@@ -272,7 +272,7 @@ const NotionDropdown = ({
                   ? getItemLabel(item)
                   : item.name ||
                     item.title ||
-                    (typeof item === 'string' ? item : '');
+                    (typeof item === "string" ? item : "");
                 return (
                   <div
                     key={item.id || index}
@@ -281,16 +281,16 @@ const NotionDropdown = ({
                       setShowDropdown(false);
                     }}
                     style={{
-                      padding: '8px 12px',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid var(--notion-border)',
-                      transition: 'background 0.1s',
+                      padding: "8px 12px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid var(--notion-border)",
+                      transition: "background 0.1s",
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = 'var(--notion-hover)')
+                      (e.currentTarget.style.background = "var(--notion-hover)")
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = 'transparent')
+                      (e.currentTarget.style.background = "transparent")
                     }
                   >
                     {renderItem ? (
@@ -299,7 +299,7 @@ const NotionDropdown = ({
                       <div
                         style={{
                           fontSize: 13,
-                          color: 'var(--notion-text)',
+                          color: "var(--notion-text)",
                           fontWeight: 500,
                         }}
                       >
@@ -320,32 +320,32 @@ const NotionDropdown = ({
 /* ─────────────────────── FORM FIELD ─────────────────────── */
 
 const Field = ({ label, required, children }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
     <label
       style={{
         fontSize: 13,
         fontWeight: 500,
-        color: 'var(--notion-text-secondary)',
+        color: "var(--notion-text-secondary)",
       }}
     >
-      {label} {required && <span style={{ color: '#ef4444' }}>*</span>}
+      {label} {required && <span style={{ color: "#ef4444" }}>*</span>}
     </label>
     {children}
   </div>
 );
 
 const notionInputStyle = {
-  width: '100%',
-  border: '1px solid var(--notion-border-strong)',
+  width: "100%",
+  border: "1px solid var(--notion-border-strong)",
   borderRadius: 6,
-  padding: '7px 10px',
+  padding: "7px 10px",
   fontSize: 13,
-  color: 'var(--notion-text)',
-  background: 'var(--notion-bg)',
-  outline: 'none',
-  fontFamily: 'inherit',
-  boxSizing: 'border-box',
-  transition: 'border-color 0.15s',
+  color: "var(--notion-text)",
+  background: "var(--notion-bg)",
+  outline: "none",
+  fontFamily: "inherit",
+  boxSizing: "border-box",
+  transition: "border-color 0.15s",
 };
 
 /* ─────────────────────── AUDIENCE CARD ─────────────────────── */
@@ -353,11 +353,11 @@ const notionInputStyle = {
 const AudienceCard = ({ children, active, accentColor }) => (
   <div
     style={{
-      border: `1px solid ${active ? accentColor + '60' : 'var(--notion-border-strong)'}`,
+      border: `1px solid ${active ? accentColor + "60" : "var(--notion-border-strong)"}`,
       borderRadius: 8,
       padding: 16,
-      background: active ? accentColor + '08' : 'var(--notion-bg)',
-      transition: 'all 0.2s',
+      background: active ? accentColor + "08" : "var(--notion-bg)",
+      transition: "all 0.2s",
     }}
   >
     {children}
@@ -368,16 +368,16 @@ const NotionCheckbox = ({
   checked,
   onChange,
   label,
-  color = '#3b82f6',
+  color = "#3b82f6",
   name,
 }) => (
   <label
     style={{
-      display: 'flex',
-      alignItems: 'center',
+      display: "flex",
+      alignItems: "center",
       gap: 8,
-      cursor: 'pointer',
-      userSelect: 'none',
+      cursor: "pointer",
+      userSelect: "none",
     }}
   >
     <div
@@ -385,17 +385,17 @@ const NotionCheckbox = ({
         width: 16,
         height: 16,
         borderRadius: 4,
-        border: `2px solid ${checked ? color : 'var(--notion-border-strong)'}`,
-        background: checked ? color : 'transparent',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.15s',
+        border: `2px solid ${checked ? color : "var(--notion-border-strong)"}`,
+        background: checked ? color : "transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "all 0.15s",
         flexShrink: 0,
-        cursor: 'pointer',
+        cursor: "pointer",
       }}
       onClick={() =>
-        onChange({ target: { name, checked: !checked, type: 'checkbox' } })
+        onChange({ target: { name, checked: !checked, type: "checkbox" } })
       }
     >
       {checked && (
@@ -415,10 +415,10 @@ const NotionCheckbox = ({
       name={name}
       checked={checked}
       onChange={onChange}
-      style={{ display: 'none' }}
+      style={{ display: "none" }}
     />
     <span
-      style={{ fontSize: 13, fontWeight: 500, color: 'var(--notion-text)' }}
+      style={{ fontSize: 13, fontWeight: 500, color: "var(--notion-text)" }}
     >
       {label}
     </span>
@@ -437,34 +437,34 @@ const AnnouncementItem = ({
   getExpiryColor,
 }) => {
   const t = announcementTypes.find((a) => a.value === announcement.type) || {
-    icon: '📢',
-    color: '#6b7280',
+    icon: "📢",
+    color: "#6b7280",
   };
   return (
     <div
       onClick={onClick}
       style={{
-        padding: '12px 16px',
-        cursor: 'pointer',
+        padding: "12px 16px",
+        cursor: "pointer",
         background:
-          isSelected && !isComposing ? 'var(--notion-selected)' : 'transparent',
-        borderLeft: `3px solid ${announcement.isUrgent ? '#ef4444' : isSelected && !isComposing ? '#3b82f6' : 'transparent'}`,
-        transition: 'all 0.1s',
+          isSelected && !isComposing ? "var(--notion-selected)" : "transparent",
+        borderLeft: `3px solid ${announcement.isUrgent ? "#ef4444" : isSelected && !isComposing ? "#3b82f6" : "transparent"}`,
+        transition: "all 0.1s",
       }}
       onMouseEnter={(e) => {
         if (!(isSelected && !isComposing))
-          e.currentTarget.style.background = 'var(--notion-hover)';
+          e.currentTarget.style.background = "var(--notion-hover)";
       }}
       onMouseLeave={(e) => {
         if (!(isSelected && !isComposing))
-          e.currentTarget.style.background = 'transparent';
+          e.currentTarget.style.background = "transparent";
       }}
     >
       <div
         style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
           marginBottom: 6,
           gap: 8,
         }}
@@ -473,8 +473,8 @@ const AnnouncementItem = ({
         <span
           style={{
             fontSize: 11,
-            color: 'var(--notion-text-secondary)',
-            whiteSpace: 'nowrap',
+            color: "var(--notion-text-secondary)",
+            whiteSpace: "nowrap",
             flexShrink: 0,
             marginTop: 2,
           }}
@@ -486,11 +486,11 @@ const AnnouncementItem = ({
         style={{
           fontSize: 14,
           fontWeight: 600,
-          color: 'var(--notion-text)',
+          color: "var(--notion-text)",
           marginBottom: 4,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
         }}
       >
         {announcement.title}
@@ -499,12 +499,12 @@ const AnnouncementItem = ({
         <div
           style={{
             fontSize: 12,
-            color: 'var(--notion-text-secondary)',
-            overflow: 'hidden',
-            display: '-webkit-box',
+            color: "var(--notion-text-secondary)",
+            overflow: "hidden",
+            display: "-webkit-box",
             WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            lineHeight: '1.5',
+            WebkitBoxOrient: "vertical",
+            lineHeight: "1.5",
             marginBottom: 8,
           }}
         >
@@ -513,20 +513,20 @@ const AnnouncementItem = ({
       )}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
           gap: 12,
-          flexWrap: 'wrap',
+          flexWrap: "wrap",
         }}
       >
         {announcement.time && (
           <span
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 4,
               fontSize: 11,
-              color: 'var(--notion-text-secondary)',
+              color: "var(--notion-text-secondary)",
             }}
           >
             <Clock size={11} /> {formatTime(announcement.time)}
@@ -535,24 +535,24 @@ const AnnouncementItem = ({
         {announcement.roomNumber && (
           <span
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 4,
               fontSize: 11,
-              color: 'var(--notion-text-secondary)',
+              color: "var(--notion-text-secondary)",
             }}
           >
             <MapPin size={11} /> {announcement.roomNumber}
           </span>
         )}
         {announcement.isUrgent && (
-          <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>
+          <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 600 }}>
             🔴 Urgent
           </span>
         )}
       </div>
       <div
-        style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}
+        style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 4 }}
       >
         <AlertTriangle size={10} color="#f59e0b" />
         <span
@@ -574,10 +574,10 @@ const AnnouncementItem = ({
 const Announcement = () => {
   const [formData, setFormData] = useState(initialState);
   const [editingId, setEditingId] = useState(null); // null = create mode, id = edit mode
-  const [teacherSearchTerm, setTeacherSearchTerm] = useState('');
-  const [batchSearchTerm, setBatchSearchTerm] = useState('');
-  const [deptSearchTerm, setDeptSearchTerm] = useState('');
-  const [subSearchTerm, setSubSearchTerm] = useState('');
+  const [teacherSearchTerm, setTeacherSearchTerm] = useState("");
+  const [batchSearchTerm, setBatchSearchTerm] = useState("");
+  const [deptSearchTerm, setDeptSearchTerm] = useState("");
+  const [subSearchTerm, setSubSearchTerm] = useState("");
   const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
   const [showBatchDropdown, setShowBatchDropdown] = useState(false);
   const [showDeptDropdown, setShowDeptDropdown] = useState(false);
@@ -589,9 +589,9 @@ const Announcement = () => {
   const [query] = useState({
     page: 1,
     limit: 50,
-    type: '',
-    date: '',
-    batch: '',
+    type: "",
+    date: "",
+    batch: "",
   });
 
   const [createAnnouncement, { isLoading: isCreating }] =
@@ -635,9 +635,9 @@ const Announcement = () => {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [isComposing, setIsComposing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMobileDetailView, setIsMobileDetailView] = useState(false);
-  const [activeNav, setActiveNav] = useState('All Announcements');
+  const [activeNav, setActiveNav] = useState("All Announcements");
 
   const teacherDropdownRef = useRef(null);
   const batchDropdownRef = useRef(null);
@@ -662,8 +662,8 @@ const Announcement = () => {
         setIsMobileDetailView(false);
       }
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -677,8 +677,8 @@ const Announcement = () => {
         if (ref.current && !ref.current.contains(event.target)) setter(false);
       });
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const filteredAnnouncements = useMemo(() => {
@@ -718,41 +718,41 @@ const Announcement = () => {
     if (!subSearchTerm.trim()) return subjects;
     const term = subSearchTerm.toLowerCase();
     return subjects.filter((s) => {
-      const name = typeof s === 'string' ? s : s?.name || s?.title || '';
+      const name = typeof s === "string" ? s : s?.name || s?.title || "";
       return name.toLowerCase().includes(term);
     });
   }, [subSearchTerm, subjects]);
 
   const formatDate = (ds) => {
-    if (!ds) return '';
-    return new Date(ds).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    if (!ds) return "";
+    return new Date(ds).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const formatTime = (ts) => {
-    if (!ts) return '';
-    const [h, m] = ts.split(':');
+    if (!ts) return "";
+    const [h, m] = ts.split(":");
     const hour = parseInt(h, 10);
-    return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
+    return `${hour % 12 || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`;
   };
 
   const getExpiryColor = (days) => {
     const d = parseInt(days);
-    if (d <= 2) return '#ef4444';
-    if (d <= 4) return '#f59e0b';
-    return '#10b981';
+    if (d <= 2) return "#ef4444";
+    if (d <= 4) return "#f59e0b";
+    return "#10b981";
   };
 
   const resetForm = useCallback(() => {
     setFormData(initialState);
     setEditingId(null);
-    setTeacherSearchTerm('');
-    setBatchSearchTerm('');
-    setDeptSearchTerm('');
-    setSubSearchTerm('');
+    setTeacherSearchTerm("");
+    setBatchSearchTerm("");
+    setDeptSearchTerm("");
+    setSubSearchTerm("");
     setSelectedBatch(null);
     setSelectedDept(null);
     setSelectedSubject(null);
@@ -764,51 +764,51 @@ const Announcement = () => {
 
   const clearTeacherSelection = () => {
     setFormData((p) => ({ ...p, teacher: null }));
-    setTeacherSearchTerm('');
+    setTeacherSearchTerm("");
   };
   const clearBatchSelection = () => {
     setSelectedBatch(null);
-    setFormData((p) => ({ ...p, batch: '' }));
-    setBatchSearchTerm('');
+    setFormData((p) => ({ ...p, batch: "" }));
+    setBatchSearchTerm("");
   };
   const clearDeptSelection = () => {
     setSelectedDept(null);
-    setFormData((p) => ({ ...p, department: '' }));
-    setDeptSearchTerm('');
+    setFormData((p) => ({ ...p, department: "" }));
+    setDeptSearchTerm("");
   };
   const clearSubjectSelection = () => {
     setSelectedSubject(null);
-    setFormData((p) => ({ ...p, subject: '' }));
-    setSubSearchTerm('');
+    setFormData((p) => ({ ...p, subject: "" }));
+    setSubSearchTerm("");
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => {
       const next = { ...prev };
-      if (type === 'checkbox') {
+      if (type === "checkbox") {
         next[name] = checked;
-        if (name === 'sendToStudent' && !checked) {
+        if (name === "sendToStudent" && !checked) {
           next.sendToAllStudent = false;
           clearBatchSelection();
           clearDeptSelection();
           clearSubjectSelection();
         }
-        if (name === 'sendToAllStudent' && checked) {
+        if (name === "sendToAllStudent" && checked) {
           clearBatchSelection();
           clearDeptSelection();
           clearSubjectSelection();
         }
-        if (name === 'sendToTeacher' && !checked) {
+        if (name === "sendToTeacher" && !checked) {
           next.sendToAllTeacher = false;
           clearTeacherSelection();
         }
-        if (name === 'sendToAllTeacher' && checked) {
+        if (name === "sendToAllTeacher" && checked) {
           clearTeacherSelection();
         }
       } else {
         next[name] = value;
-        if (name === 'type' && value !== 'result') next.file = null;
+        if (name === "type" && value !== "result") next.file = null;
       }
       return next;
     });
@@ -820,13 +820,13 @@ const Announcement = () => {
       setFormData((p) => ({ ...p, file: null }));
       return;
     }
-    const allowed = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    const allowed = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
     if (!allowed.includes(file.type)) {
-      toast.error('Only PDF, JPG, JPEG, PNG allowed.');
+      toast.error("Only PDF, JPG, JPEG, PNG allowed.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Max file size is 5MB.');
+      toast.error("Max file size is 5MB.");
       return;
     }
     setFormData((p) => ({ ...p, file }));
@@ -861,7 +861,7 @@ const Announcement = () => {
 
   const handleSubjectSelect = (subject) => {
     const name =
-      typeof subject === 'string'
+      typeof subject === "string"
         ? subject
         : subject?.name || subject?.title || subject;
     setSelectedSubject(name);
@@ -876,28 +876,28 @@ const Announcement = () => {
       e.stopPropagation();
     }
     if (!attachment?.url) {
-      toast.error('File not found!');
+      toast.error("File not found!");
       return;
     }
     const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
     let filePath = attachment.url;
-    if (attachment.type === 'pdf' && !filePath.includes('/pdfs/'))
-      filePath = filePath.replace('/uploads/', '/uploads/pdfs/');
+    if (attachment.type === "pdf" && !filePath.includes("/pdfs/"))
+      filePath = filePath.replace("/uploads/", "/uploads/pdfs/");
     const fullUrl = `${SERVER}${filePath}`;
     try {
       const response = await fetch(fullUrl);
       if (!response.ok) throw new Error();
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', attachment.name || 'file');
+      link.setAttribute("download", attachment.name || "file");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch {
-      window.open(fullUrl, '_blank');
+      window.open(fullUrl, "_blank");
     }
   };
 
@@ -905,7 +905,7 @@ const Announcement = () => {
   const handleSubmit = async (e, overrideStatus) => {
     if (e?.preventDefault) e.preventDefault();
 
-    const status = overrideStatus || formData.status || 'draft';
+    const status = overrideStatus || formData.status || "draft";
 
     if (
       !formData.title.trim() ||
@@ -913,7 +913,7 @@ const Announcement = () => {
       !formData.date ||
       !formData.time
     ) {
-      toast.error('Title, Type, Date, and Time are required');
+      toast.error("Title, Type, Date, and Time are required");
       return;
     }
 
@@ -921,50 +921,50 @@ const Announcement = () => {
     const hasTeacher = formData.sendToTeacher;
 
     if (!hasStudent && !hasTeacher) {
-      toast.error('Select at least one audience (Student or Teacher)');
+      toast.error("Select at least one audience (Student or Teacher)");
       return;
     }
 
     if (hasStudent && !formData.sendToAllStudent) {
       if (!formData.batch || !formData.department) {
         toast.error(
-          'Batch and Department are required for students (or check Send to All Students)',
+          "Batch and Department are required for students (or check Send to All Students)",
         );
         return;
       }
     }
 
     if (hasTeacher && !formData.sendToAllTeacher && !formData.teacher?.id) {
-      toast.error('Select a teacher or check Send to All Teachers');
+      toast.error("Select a teacher or check Send to All Teachers");
       return;
     }
 
-    if (formData.type === 'result' && !formData.file && !isEditMode) {
-      toast.error('Upload a result file');
+    if (formData.type === "result" && !formData.file && !isEditMode) {
+      toast.error("Upload a result file");
       return;
     }
 
     try {
       const fd = new FormData();
-      fd.append('title', formData.title);
-      fd.append('content', formData.content);
-      fd.append('type', formData.type);
-      fd.append('status', status);
-      fd.append('date', formData.date);
-      fd.append('time', formData.time);
-      fd.append('roomNumber', formData.roomNumber || '');
-      fd.append('isUrgent', formData.isUrgent);
-      if (formData.file) fd.append('file', formData.file);
+      fd.append("title", formData.title);
+      fd.append("content", formData.content);
+      fd.append("type", formData.type);
+      fd.append("status", status);
+      fd.append("date", formData.date);
+      fd.append("time", formData.time);
+      fd.append("roomNumber", formData.roomNumber || "");
+      fd.append("isUrgent", formData.isUrgent);
+      if (formData.file) fd.append("file", formData.file);
 
       const audienceData = {
         student: {
           enabled: hasStudent,
           sendToAll: formData.sendToAllStudent,
-          batch: hasStudent && !formData.sendToAllStudent ? formData.batch : '',
+          batch: hasStudent && !formData.sendToAllStudent ? formData.batch : "",
           department:
-            hasStudent && !formData.sendToAllStudent ? formData.department : '',
+            hasStudent && !formData.sendToAllStudent ? formData.department : "",
           subject:
-            hasStudent && !formData.sendToAllStudent ? formData.subject : '',
+            hasStudent && !formData.sendToAllStudent ? formData.subject : "",
         },
         teacher: {
           enabled: hasTeacher,
@@ -976,15 +976,15 @@ const Announcement = () => {
           name:
             hasTeacher && !formData.sendToAllTeacher
               ? formData.teacher?.name
-              : '',
+              : "",
           phone:
             hasTeacher && !formData.sendToAllTeacher
               ? formData.teacher?.phone
-              : '',
+              : "",
         },
       };
 
-      fd.append('audience', JSON.stringify(audienceData));
+      fd.append("audience", JSON.stringify(audienceData));
 
       if (isEditMode) {
         // ── UPDATE ──
@@ -995,41 +995,41 @@ const Announcement = () => {
 
         if (result.success) {
           await refetchAnnouncements();
-          toast.success('Announcement updated!');
+          toast.success("Announcement updated!");
           resetForm();
           setIsComposing(false);
           setIsMobileDetailView(false);
         } else {
-          toast.error(result.message || 'Failed to update');
+          toast.error(result.message || "Failed to update");
         }
       } else {
         // ── CREATE ──
         const result = await createAnnouncement(fd).unwrap();
         if (result.success) {
           await refetchAnnouncements();
-          toast.success('Announcement created!');
+          toast.success("Announcement created!");
           resetForm();
           setIsComposing(false);
           setIsMobileDetailView(false);
         } else {
-          toast.error(result.message || 'Failed to create');
+          toast.error(result.message || "Failed to create");
         }
       }
     } catch (error) {
       toast.error(
         error?.data?.message ||
           (isEditMode
-            ? 'Failed to update announcement'
-            : 'Failed to create announcement'),
+            ? "Failed to update announcement"
+            : "Failed to create announcement"),
       );
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this announcement?')) return;
+    if (!window.confirm("Delete this announcement?")) return;
     try {
       await deleteAnnouncement(id).unwrap();
-      toast.success('Deleted successfully!');
+      toast.success("Deleted successfully!");
       const updated = announcements.filter((a) => a._id !== id);
       setAnnouncements(updated);
       if (selectedAnnouncement?._id === id) {
@@ -1038,7 +1038,7 @@ const Announcement = () => {
       }
       refetchAnnouncements();
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to delete announcement');
+      toast.error(error?.data?.message || "Failed to delete announcement");
     }
   };
 
@@ -1058,15 +1058,15 @@ const Announcement = () => {
       type: ann.type,
       date: ann.date,
       time: ann.time,
-      roomNumber: ann.roomNumber || '',
+      roomNumber: ann.roomNumber || "",
       content: ann.content,
       sendToStudent: ann.audience?.student?.enabled || false,
       sendToAllStudent: ann.audience?.student?.sendToAll || false,
       sendToTeacher: ann.audience?.teacher?.enabled || false,
       sendToAllTeacher: ann.audience?.teacher?.sendToAll || false,
-      batch: ann.audience?.student?.batch || '',
-      department: ann.audience?.student?.department || '',
-      subject: ann.audience?.student?.subject || '',
+      batch: ann.audience?.student?.batch || "",
+      department: ann.audience?.student?.department || "",
+      subject: ann.audience?.student?.subject || "",
       teacher: ann.audience?.teacher?.name
         ? {
             id: ann.audience.teacher.teacherId,
@@ -1115,7 +1115,7 @@ const Announcement = () => {
     setIsComposing(false);
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   /* ─────────────────────── CSS VARS ─────────────────────── */
   const cssVars = `
@@ -1175,41 +1175,41 @@ const Announcement = () => {
 
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100vh',
-          background: 'var(--notion-bg)',
-          color: 'var(--notion-text)',
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          background: "var(--notion-bg)",
+          color: "var(--notion-text)",
           fontFamily: "'Inter', 'Segoe UI', -apple-system, sans-serif",
           fontSize: 14,
-          overflow: 'hidden',
+          overflow: "hidden",
         }}
       >
         {/* ── BREADCRUMB / TOPBAR ── */}
         <div
           style={{
             height: 48,
-            borderBottom: '1px solid var(--notion-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 16px',
-            background: 'var(--notion-bg)',
+            borderBottom: "1px solid var(--notion-border)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 16px",
+            background: "var(--notion-bg)",
             flexShrink: 0,
             zIndex: 20,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <button
               onClick={() => setSidebarOpen(true)}
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
+                background: "none",
+                border: "none",
+                cursor: "pointer",
                 padding: 6,
                 borderRadius: 6,
-                display: 'none',
-                color: 'var(--notion-text-secondary)',
+                display: "none",
+                color: "var(--notion-text-secondary)",
               }}
               className="lg-hide"
             >
@@ -1219,14 +1219,14 @@ const Announcement = () => {
               <button
                 onClick={handleBackToInbox}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
                   padding: 6,
                   borderRadius: 6,
-                  color: 'var(--notion-text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
+                  color: "var(--notion-text-secondary)",
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
                 <ChevronLeft size={18} />
@@ -1234,11 +1234,11 @@ const Announcement = () => {
             )}
             <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 gap: 4,
                 fontSize: 13,
-                color: 'var(--notion-text-secondary)',
+                color: "var(--notion-text-secondary)",
               }}
             >
               <Home size={14} />
@@ -1247,10 +1247,10 @@ const Announcement = () => {
               <ChevronRight size={13} />
               <span
                 style={{
-                  color: 'var(--notion-text)',
+                  color: "var(--notion-text)",
                   fontWeight: 500,
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   gap: 5,
                 }}
               >
@@ -1261,9 +1261,9 @@ const Announcement = () => {
                 <>
                   <ChevronRight size={13} />
                   <span
-                    style={{ color: 'var(--notion-accent)', fontWeight: 500 }}
+                    style={{ color: "var(--notion-accent)", fontWeight: 500 }}
                   >
-                    {isEditMode ? 'Edit' : 'New'}
+                    {isEditMode ? "Edit" : "New"}
                   </span>
                 </>
               )}
@@ -1273,10 +1273,10 @@ const Announcement = () => {
                   <span
                     style={{
                       maxWidth: 180,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      color: 'var(--notion-text)',
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      color: "var(--notion-text)",
                     }}
                   >
                     {selectedAnnouncement.title}
@@ -1290,16 +1290,16 @@ const Announcement = () => {
         {/* ── PAGE HEADER ── */}
         <div
           style={{
-            padding: '24px 24px 0 24px',
+            padding: "24px 24px 0 24px",
             flexShrink: 0,
-            borderBottom: '1px solid var(--notion-border)',
-            background: 'var(--notion-bg)',
+            borderBottom: "1px solid var(--notion-border)",
+            background: "var(--notion-bg)",
           }}
         >
           <div
             style={{
-              display: 'flex',
-              alignItems: 'flex-start',
+              display: "flex",
+              alignItems: "flex-start",
               gap: 12,
               marginBottom: 16,
             }}
@@ -1309,10 +1309,10 @@ const Announcement = () => {
                 width: 36,
                 height: 36,
                 borderRadius: 8,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 flexShrink: 0,
               }}
             >
@@ -1325,7 +1325,7 @@ const Announcement = () => {
                   fontWeight: 700,
                   margin: 0,
                   lineHeight: 1.2,
-                  color: 'var(--notion-text)',
+                  color: "var(--notion-text)",
                 }}
               >
                 Announcements
@@ -1333,8 +1333,8 @@ const Announcement = () => {
               <p
                 style={{
                   fontSize: 13,
-                  color: 'var(--notion-text-secondary)',
-                  margin: '4px 0 0 0',
+                  color: "var(--notion-text-secondary)",
+                  margin: "4px 0 0 0",
                 }}
               >
                 Manage and broadcast announcements to students and teachers
@@ -1344,26 +1344,26 @@ const Announcement = () => {
 
           {/* Tabs */}
           <div
-            style={{ display: 'flex', justifyContent: 'space-between', gap: 4 }}
+            style={{ display: "flex", justifyContent: "space-between", gap: 4 }}
           >
             <div className="flex items-center">
               {[
                 {
-                  label: 'All Announcements',
+                  label: "All Announcements",
                   icon: Inbox,
                   count: allAnnouncements.length,
                 },
                 {
-                  label: 'Published',
+                  label: "Published",
                   icon: Send,
                   count: allAnnouncements.filter(
-                    (a) => a.status === 'published',
+                    (a) => a.status === "published",
                   ).length,
                 },
                 {
-                  label: 'Drafts',
+                  label: "Drafts",
                   icon: FileText,
-                  count: allAnnouncements.filter((a) => a.status === 'draft')
+                  count: allAnnouncements.filter((a) => a.status === "draft")
                     .length,
                 },
               ]?.map((tab) => (
@@ -1372,39 +1372,39 @@ const Announcement = () => {
                     key={tab.label}
                     onClick={() => {
                       setActiveNav(tab.label);
-                      if (tab.label === 'All Announcements')
+                      if (tab.label === "All Announcements")
                         setAnnouncements(allAnnouncements);
-                      else if (tab.label === 'Published')
+                      else if (tab.label === "Published")
                         setAnnouncements(
                           allAnnouncements.filter(
-                            (a) => a.status === 'published',
+                            (a) => a.status === "published",
                           ),
                         );
-                      else if (tab.label === 'Drafts')
+                      else if (tab.label === "Drafts")
                         setAnnouncements(
-                          allAnnouncements.filter((a) => a.status === 'draft'),
+                          allAnnouncements.filter((a) => a.status === "draft"),
                         );
                     }}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
+                      display: "flex",
+                      alignItems: "center",
                       gap: 6,
-                      padding: '8px 14px',
-                      border: 'none',
+                      padding: "8px 14px",
+                      border: "none",
                       borderBottom:
                         activeNav === tab.label
-                          ? '2px solid var(--notion-accent)'
-                          : '2px solid transparent',
-                      background: 'transparent',
-                      cursor: 'pointer',
+                          ? "2px solid var(--notion-accent)"
+                          : "2px solid transparent",
+                      background: "transparent",
+                      cursor: "pointer",
                       fontSize: 13,
                       fontWeight: activeNav === tab.label ? 600 : 400,
                       color:
                         activeNav === tab.label
-                          ? 'var(--notion-accent)'
-                          : 'var(--notion-text-secondary)',
-                      borderRadius: '0',
-                      transition: 'all 0.15s',
+                          ? "var(--notion-accent)"
+                          : "var(--notion-text-secondary)",
+                      borderRadius: "0",
+                      transition: "all 0.15s",
                       marginBottom: -1,
                     }}
                   >
@@ -1412,17 +1412,17 @@ const Announcement = () => {
                     {tab.label}
                     <span
                       style={{
-                        padding: '1px 6px',
+                        padding: "1px 6px",
                         borderRadius: 10,
                         fontSize: 11,
                         background:
                           activeNav === tab.label
-                            ? 'var(--notion-accent)'
-                            : 'var(--notion-border)',
+                            ? "var(--notion-accent)"
+                            : "var(--notion-border)",
                         color:
                           activeNav === tab.label
-                            ? 'white'
-                            : 'var(--notion-text-secondary)',
+                            ? "white"
+                            : "var(--notion-text-secondary)",
                         fontWeight: 500,
                       }}
                     >
@@ -1433,19 +1433,19 @@ const Announcement = () => {
               ))}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button
                 onClick={startComposing}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   gap: 6,
-                  padding: '6px 12px',
+                  padding: "6px 12px",
                   borderRadius: 6,
-                  background: 'var(--notion-accent)',
-                  color: 'white',
-                  border: 'none',
-                  cursor: 'pointer',
+                  background: "var(--notion-accent)",
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
                   fontSize: 13,
                   fontWeight: 500,
                 }}
@@ -1456,14 +1456,14 @@ const Announcement = () => {
               <button
                 onClick={refetchAnnouncements}
                 style={{
-                  background: 'none',
-                  border: '1px solid var(--notion-border-strong)',
+                  background: "none",
+                  border: "1px solid var(--notion-border-strong)",
                   borderRadius: 6,
-                  padding: '6px 8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: 'var(--notion-text-secondary)',
+                  padding: "6px 8px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  color: "var(--notion-text-secondary)",
                 }}
               >
                 <RefreshCw size={14} />
@@ -1473,38 +1473,38 @@ const Announcement = () => {
         </div>
 
         {/* ── MAIN BODY ── */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
           {/* ── LEFT PANEL: Announcement List ── */}
           <div
             style={{
-              width: isMobileDetailView ? '0' : '100%',
+              width: isMobileDetailView ? "0" : "100%",
               maxWidth: isMobileDetailView ? 0 : undefined,
-              overflow: isMobileDetailView ? 'hidden' : 'hidden',
-              borderRight: '1px solid var(--notion-border)',
-              display: 'flex',
-              flexDirection: 'column',
-              background: 'var(--notion-bg)',
-              transition: 'width 0.2s',
+              overflow: isMobileDetailView ? "hidden" : "hidden",
+              borderRight: "1px solid var(--notion-border)",
+              display: "flex",
+              flexDirection: "column",
+              background: "var(--notion-bg)",
+              transition: "width 0.2s",
             }}
             className="list-panel"
           >
             {/* Search Bar */}
             <div
               style={{
-                padding: '12px 16px',
-                borderBottom: '1px solid var(--notion-border)',
+                padding: "12px 16px",
+                borderBottom: "1px solid var(--notion-border)",
                 flexShrink: 0,
               }}
             >
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   gap: 8,
-                  border: '1px solid var(--notion-border-strong)',
+                  border: "1px solid var(--notion-border-strong)",
                   borderRadius: 6,
-                  padding: '7px 10px',
-                  background: 'var(--notion-hover)',
+                  padding: "7px 10px",
+                  background: "var(--notion-hover)",
                 }}
               >
                 <Search size={14} color="var(--notion-text-secondary)" />
@@ -1515,21 +1515,21 @@ const Announcement = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
                     flex: 1,
-                    border: 'none',
-                    outline: 'none',
-                    background: 'transparent',
+                    border: "none",
+                    outline: "none",
+                    background: "transparent",
                     fontSize: 13,
-                    color: 'var(--notion-text)',
+                    color: "var(--notion-text)",
                   }}
                 />
                 {searchQuery && (
                   <button
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => setSearchQuery("")}
                     style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'var(--notion-text-secondary)',
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "var(--notion-text-secondary)",
                     }}
                   >
                     <X size={13} />
@@ -1541,12 +1541,12 @@ const Announcement = () => {
             {/* Count */}
             <div
               style={{
-                padding: '8px 16px 6px',
+                padding: "8px 16px 6px",
                 fontSize: 11,
-                color: 'var(--notion-text-secondary)',
+                color: "var(--notion-text-secondary)",
                 fontWeight: 500,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
                 flexShrink: 0,
               }}
             >
@@ -1554,18 +1554,18 @@ const Announcement = () => {
             </div>
 
             {/* List */}
-            <div style={{ flex: 1, overflowY: 'auto' }}>
+            <div style={{ flex: 1, overflowY: "auto" }}>
               {isAnnouncementsLoading ? (
                 <div
                   style={{
                     padding: 40,
-                    textAlign: 'center',
-                    color: 'var(--notion-text-secondary)',
+                    textAlign: "center",
+                    color: "var(--notion-text-secondary)",
                   }}
                 >
                   <RefreshCw
                     size={20}
-                    style={{ animation: 'spin 1s linear infinite' }}
+                    style={{ animation: "spin 1s linear infinite" }}
                   />
                   <div style={{ marginTop: 8, fontSize: 13 }}>Loading...</div>
                 </div>
@@ -1573,33 +1573,33 @@ const Announcement = () => {
                 <div
                   style={{
                     padding: 40,
-                    textAlign: 'center',
-                    color: 'var(--notion-text-secondary)',
+                    textAlign: "center",
+                    color: "var(--notion-text-secondary)",
                   }}
                 >
                   <Inbox
                     size={32}
-                    style={{ opacity: 0.4, margin: '0 auto 12px' }}
+                    style={{ opacity: 0.4, margin: "0 auto 12px" }}
                   />
                   <div style={{ fontSize: 14, fontWeight: 500 }}>
                     No announcements
                   </div>
                   <div style={{ fontSize: 12, marginTop: 4 }}>
                     {searchQuery
-                      ? 'Try a different search'
-                      : 'Create one to get started'}
+                      ? "Try a different search"
+                      : "Create one to get started"}
                   </div>
                   {!searchQuery && (
                     <button
                       onClick={startComposing}
                       style={{
                         marginTop: 16,
-                        padding: '8px 16px',
-                        background: 'var(--notion-accent)',
-                        color: 'white',
-                        border: 'none',
+                        padding: "8px 16px",
+                        background: "var(--notion-accent)",
+                        color: "white",
+                        border: "none",
                         borderRadius: 6,
-                        cursor: 'pointer',
+                        cursor: "pointer",
                         fontSize: 13,
                         fontWeight: 500,
                       }}
@@ -1622,8 +1622,8 @@ const Announcement = () => {
                     />
                     <div
                       style={{
-                        height: '1px',
-                        background: 'var(--notion-border)',
+                        height: "1px",
+                        background: "var(--notion-border)",
                       }}
                     />
                   </React.Fragment>
@@ -1636,33 +1636,33 @@ const Announcement = () => {
           <div
             style={{
               flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              background: 'var(--notion-bg)',
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              background: "var(--notion-bg)",
               minWidth: 0,
             }}
           >
             {isComposing ? (
               /* ═══ CREATE / EDIT FORM ═══ */
-              <div style={{ flex: 1, overflowY: 'auto' }}>
+              <div style={{ flex: 1, overflowY: "auto" }}>
                 {/* Form Header */}
                 <div
                   style={{
-                    padding: '20px 32px 16px',
-                    borderBottom: '1px solid var(--notion-border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+                    padding: "20px 32px 16px",
+                    borderBottom: "1px solid var(--notion-border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                     flexShrink: 0,
-                    background: 'var(--notion-bg)',
-                    position: 'sticky',
+                    background: "var(--notion-bg)",
+                    position: "sticky",
                     top: 0,
                     zIndex: 10,
                   }}
                 >
                   <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
                   >
                     <div
                       style={{
@@ -1670,11 +1670,11 @@ const Announcement = () => {
                         height: 28,
                         borderRadius: 6,
                         background: isEditMode
-                          ? '#f97316'
-                          : 'var(--notion-accent)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                          ? "#f97316"
+                          : "var(--notion-accent)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
                       <Edit3 size={14} color="white" />
@@ -1684,20 +1684,20 @@ const Announcement = () => {
                         style={{
                           fontSize: 15,
                           fontWeight: 600,
-                          color: 'var(--notion-text)',
+                          color: "var(--notion-text)",
                         }}
                       >
-                        {isEditMode ? 'Edit Announcement' : 'New Announcement'}
+                        {isEditMode ? "Edit Announcement" : "New Announcement"}
                       </div>
                       <div
                         style={{
                           fontSize: 11,
-                          color: 'var(--notion-text-secondary)',
+                          color: "var(--notion-text-secondary)",
                         }}
                       >
                         {isEditMode
-                          ? 'Update the details below'
-                          : 'Fill in the details below'}
+                          ? "Update the details below"
+                          : "Fill in the details below"}
                       </div>
                     </div>
                   </div>
@@ -1708,15 +1708,15 @@ const Announcement = () => {
                       resetForm();
                     }}
                     style={{
-                      background: 'none',
-                      border: '1px solid var(--notion-border-strong)',
+                      background: "none",
+                      border: "1px solid var(--notion-border-strong)",
                       borderRadius: 6,
-                      padding: '5px 10px',
-                      cursor: 'pointer',
+                      padding: "5px 10px",
+                      cursor: "pointer",
                       fontSize: 13,
-                      color: 'var(--notion-text-secondary)',
-                      display: 'flex',
-                      alignItems: 'center',
+                      color: "var(--notion-text-secondary)",
+                      display: "flex",
+                      alignItems: "center",
                       gap: 4,
                     }}
                   >
@@ -1727,7 +1727,7 @@ const Announcement = () => {
                 {/* Form Body */}
                 <form
                   onSubmit={handleSubmit}
-                  style={{ padding: '24px 32px', maxWidth: 800 }}
+                  style={{ padding: "24px 32px", maxWidth: 800 }}
                 >
                   {/* Title */}
                   <Field label="Title" required>
@@ -1741,7 +1741,7 @@ const Announcement = () => {
                         ...notionInputStyle,
                         fontSize: 16,
                         fontWeight: 600,
-                        padding: '10px 12px',
+                        padding: "10px 12px",
                       }}
                       required
                     />
@@ -1750,8 +1750,8 @@ const Announcement = () => {
                   <div
                     style={{
                       marginTop: 20,
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
                       gap: 16,
                     }}
                   >
@@ -1793,8 +1793,8 @@ const Announcement = () => {
                   <div
                     style={{
                       marginTop: 16,
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr 1fr',
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr",
                       gap: 16,
                     }}
                   >
@@ -1852,33 +1852,33 @@ const Announcement = () => {
                   </div>
 
                   {/* Result File Upload */}
-                  {formData.type === 'result' && (
+                  {formData.type === "result" && (
                     <div
                       style={{
                         marginTop: 16,
                         padding: 16,
-                        border: '1px solid #fbbf24',
+                        border: "1px solid #fbbf24",
                         borderRadius: 8,
-                        background: '#fffbeb',
+                        background: "#fffbeb",
                       }}
                     >
                       <label
                         style={{
                           fontSize: 13,
                           fontWeight: 500,
-                          color: '#92400e',
-                          display: 'block',
+                          color: "#92400e",
+                          display: "block",
                           marginBottom: 10,
                         }}
                       >
                         <Paperclip size={13} style={{ marginRight: 6 }} />
-                        Upload Result File{' '}
+                        Upload Result File{" "}
                         {!isEditMode && (
-                          <span style={{ color: '#ef4444' }}>*</span>
+                          <span style={{ color: "#ef4444" }}>*</span>
                         )}
                         {isEditMode && (
-                          <span style={{ color: '#92400e', fontWeight: 400 }}>
-                            {' '}
+                          <span style={{ color: "#92400e", fontWeight: 400 }}>
+                            {" "}
                             (leave empty to keep existing)
                           </span>
                         )}
@@ -1890,7 +1890,7 @@ const Announcement = () => {
                         style={{ fontSize: 13 }}
                       />
                       <div
-                        style={{ fontSize: 11, color: '#78716c', marginTop: 6 }}
+                        style={{ fontSize: 11, color: "#78716c", marginTop: 6 }}
                       >
                         PDF, JPG, JPEG, PNG — max 5MB
                       </div>
@@ -1899,7 +1899,7 @@ const Announcement = () => {
                           style={{
                             marginTop: 8,
                             fontSize: 12,
-                            color: '#059669',
+                            color: "#059669",
                             fontWeight: 500,
                           }}
                         >
@@ -1914,13 +1914,13 @@ const Announcement = () => {
                     style={{
                       marginTop: 24,
                       paddingTop: 20,
-                      borderTop: '1px solid var(--notion-border)',
+                      borderTop: "1px solid var(--notion-border)",
                     }}
                   >
                     <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 8,
                         marginBottom: 16,
                       }}
@@ -1930,7 +1930,7 @@ const Announcement = () => {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: 'var(--notion-text)',
+                          color: "var(--notion-text)",
                         }}
                       >
                         Audience
@@ -1938,7 +1938,7 @@ const Announcement = () => {
                       <span
                         style={{
                           fontSize: 12,
-                          color: 'var(--notion-text-secondary)',
+                          color: "var(--notion-text-secondary)",
                         }}
                       >
                         — Select who receives this
@@ -1947,8 +1947,8 @@ const Announcement = () => {
 
                     <div
                       style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
                         gap: 16,
                       }}
                     >
@@ -1970,9 +1970,9 @@ const Announcement = () => {
                             style={{
                               marginTop: 12,
                               paddingTop: 12,
-                              borderTop: '1px solid var(--notion-border)',
-                              display: 'flex',
-                              flexDirection: 'column',
+                              borderTop: "1px solid var(--notion-border)",
+                              display: "flex",
+                              flexDirection: "column",
                               gap: 10,
                             }}
                           >
@@ -2006,7 +2006,7 @@ const Announcement = () => {
                                         style={{
                                           fontSize: 13,
                                           fontWeight: 500,
-                                          color: 'var(--notion-text)',
+                                          color: "var(--notion-text)",
                                         }}
                                       >
                                         {i.title}
@@ -2016,7 +2016,7 @@ const Announcement = () => {
                                           style={{
                                             fontSize: 11,
                                             color:
-                                              'var(--notion-text-secondary)',
+                                              "var(--notion-text-secondary)",
                                           }}
                                         >
                                           {i.code}
@@ -2053,9 +2053,9 @@ const Announcement = () => {
                                   clearSelection={clearSubjectSelection}
                                   placeholder="Search subjects..."
                                   getItemLabel={(i) =>
-                                    typeof i === 'string'
+                                    typeof i === "string"
                                       ? i
-                                      : i?.name || i?.title || ''
+                                      : i?.name || i?.title || ""
                                   }
                                 />
                               </>
@@ -2082,9 +2082,9 @@ const Announcement = () => {
                             style={{
                               marginTop: 12,
                               paddingTop: 12,
-                              borderTop: '1px solid var(--notion-border)',
-                              display: 'flex',
-                              flexDirection: 'column',
+                              borderTop: "1px solid var(--notion-border)",
+                              display: "flex",
+                              flexDirection: "column",
                               gap: 10,
                             }}
                           >
@@ -2118,7 +2118,7 @@ const Announcement = () => {
                                         style={{
                                           fontSize: 13,
                                           fontWeight: 500,
-                                          color: 'var(--notion-text)',
+                                          color: "var(--notion-text)",
                                         }}
                                       >
                                         {i.userName}
@@ -2126,7 +2126,7 @@ const Announcement = () => {
                                       <div
                                         style={{
                                           fontSize: 11,
-                                          color: 'var(--notion-text-secondary)',
+                                          color: "var(--notion-text-secondary)",
                                         }}
                                       >
                                         {i.phone}
@@ -2137,11 +2137,11 @@ const Announcement = () => {
                                 {formData.teacher && (
                                   <div
                                     style={{
-                                      padding: '6px 10px',
+                                      padding: "6px 10px",
                                       borderRadius: 6,
-                                      background: '#d1fae5',
+                                      background: "#d1fae5",
                                       fontSize: 12,
-                                      color: '#065f46',
+                                      color: "#065f46",
                                       fontWeight: 500,
                                     }}
                                   >
@@ -2160,12 +2160,12 @@ const Announcement = () => {
                   <div
                     style={{
                       marginTop: 16,
-                      padding: '12px 16px',
-                      border: '1px solid #fca5a5',
+                      padding: "12px 16px",
+                      border: "1px solid #fca5a5",
                       borderRadius: 8,
-                      background: '#fff5f5',
-                      display: 'flex',
-                      alignItems: 'center',
+                      background: "#fff5f5",
+                      display: "flex",
+                      alignItems: "center",
                       gap: 10,
                     }}
                   >
@@ -2176,7 +2176,7 @@ const Announcement = () => {
                       label="Mark as Urgent"
                       color="#ef4444"
                     />
-                    <span style={{ fontSize: 12, color: '#7f1d1d' }}>
+                    <span style={{ fontSize: 12, color: "#7f1d1d" }}>
                       Urgent announcements are highlighted with a red indicator
                     </span>
                   </div>
@@ -2186,10 +2186,10 @@ const Announcement = () => {
                     style={{
                       marginTop: 28,
                       paddingTop: 20,
-                      borderTop: '1px solid var(--notion-border)',
-                      display: 'flex',
+                      borderTop: "1px solid var(--notion-border)",
+                      display: "flex",
                       gap: 10,
-                      flexWrap: 'wrap',
+                      flexWrap: "wrap",
                     }}
                   >
                     {/* Primary button: "Save Changes" for edit, "Publish Now" for create */}
@@ -2197,17 +2197,17 @@ const Announcement = () => {
                       type="submit"
                       disabled={isMutating}
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 6,
-                        padding: '9px 20px',
+                        padding: "9px 20px",
                         background: isEditMode
-                          ? '#f97316'
-                          : 'var(--notion-accent)',
-                        color: 'white',
-                        border: 'none',
+                          ? "#f97316"
+                          : "var(--notion-accent)",
+                        color: "white",
+                        border: "none",
                         borderRadius: 6,
-                        cursor: isMutating ? 'not-allowed' : 'pointer',
+                        cursor: isMutating ? "not-allowed" : "pointer",
                         fontSize: 13,
                         fontWeight: 500,
                         opacity: isMutating ? 0.7 : 1,
@@ -2216,11 +2216,11 @@ const Announcement = () => {
                       <CheckCircle2 size={14} />
                       {isEditMode
                         ? isUpdating
-                          ? 'Saving...'
-                          : 'Save Changes'
+                          ? "Saving..."
+                          : "Save Changes"
                         : isCreating
-                          ? 'Publishing...'
-                          : 'Publish Now'}
+                          ? "Publishing..."
+                          : "Publish Now"}
                     </button>
 
                     {/* Save as Draft: hidden in edit mode (already has a status selector) */}
@@ -2228,17 +2228,17 @@ const Announcement = () => {
                       <button
                         type="button"
                         disabled={isMutating}
-                        onClick={() => handleSubmit(null, 'draft')}
+                        onClick={() => handleSubmit(null, "draft")}
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 6,
-                          padding: '9px 16px',
-                          background: 'transparent',
-                          color: 'var(--notion-text)',
-                          border: '1px solid var(--notion-border-strong)',
+                          padding: "9px 16px",
+                          background: "transparent",
+                          color: "var(--notion-text)",
+                          border: "1px solid var(--notion-border-strong)",
                           borderRadius: 6,
-                          cursor: isMutating ? 'not-allowed' : 'pointer',
+                          cursor: isMutating ? "not-allowed" : "pointer",
                           fontSize: 13,
                           fontWeight: 500,
                           opacity: isMutating ? 0.6 : 1,
@@ -2258,12 +2258,12 @@ const Announcement = () => {
                       }}
                       disabled={isMutating}
                       style={{
-                        padding: '9px 14px',
-                        background: 'transparent',
-                        color: 'var(--notion-text-secondary)',
-                        border: 'none',
+                        padding: "9px 14px",
+                        background: "transparent",
+                        color: "var(--notion-text-secondary)",
+                        border: "none",
                         borderRadius: 6,
-                        cursor: 'pointer',
+                        cursor: "pointer",
                         fontSize: 13,
                       }}
                     >
@@ -2274,32 +2274,32 @@ const Announcement = () => {
               </div>
             ) : selectedAnnouncement ? (
               /* ═══ DETAIL VIEW ═══ */
-              <div style={{ flex: 1, overflowY: 'auto' }}>
+              <div style={{ flex: 1, overflowY: "auto" }}>
                 {/* Detail Header */}
                 <div
                   style={{
-                    padding: '20px 32px 16px',
-                    borderBottom: '1px solid var(--notion-border)',
-                    background: 'var(--notion-bg)',
-                    position: 'sticky',
+                    padding: "20px 32px 16px",
+                    borderBottom: "1px solid var(--notion-border)",
+                    background: "var(--notion-bg)",
+                    position: "sticky",
                     top: 0,
                     zIndex: 10,
                   }}
                 >
                   <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "space-between",
                       gap: 12,
                     }}
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          alignItems: 'center',
+                          display: "flex",
+                          flexWrap: "wrap",
+                          alignItems: "center",
                           gap: 8,
                           marginBottom: 8,
                         }}
@@ -2310,10 +2310,10 @@ const Announcement = () => {
                           <span
                             style={{
                               fontSize: 11,
-                              color: '#ef4444',
+                              color: "#ef4444",
                               fontWeight: 700,
-                              padding: '2px 8px',
-                              background: '#fee2e2',
+                              padding: "2px 8px",
+                              background: "#fee2e2",
                               borderRadius: 12,
                             }}
                           >
@@ -2325,7 +2325,7 @@ const Announcement = () => {
                         style={{
                           fontSize: 22,
                           fontWeight: 700,
-                          color: 'var(--notion-text)',
+                          color: "var(--notion-text)",
                           margin: 0,
                           lineHeight: 1.3,
                         }}
@@ -2333,20 +2333,20 @@ const Announcement = () => {
                         {selectedAnnouncement.title}
                       </h2>
                     </div>
-                    <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                       <button
                         onClick={() => startEditing(selectedAnnouncement)}
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 5,
-                          padding: '6px 12px',
-                          background: 'none',
-                          border: '1px solid var(--notion-border-strong)',
+                          padding: "6px 12px",
+                          background: "none",
+                          border: "1px solid var(--notion-border-strong)",
                           borderRadius: 6,
-                          cursor: 'pointer',
+                          cursor: "pointer",
                           fontSize: 12,
-                          color: 'var(--notion-text)',
+                          color: "var(--notion-text)",
                         }}
                       >
                         <Edit3 size={12} /> Edit
@@ -2354,16 +2354,16 @@ const Announcement = () => {
                       <button
                         onClick={() => handleDelete(selectedAnnouncement?._id)}
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 5,
-                          padding: '6px 12px',
-                          background: 'none',
-                          border: '1px solid #fca5a5',
+                          padding: "6px 12px",
+                          background: "none",
+                          border: "1px solid #fca5a5",
                           borderRadius: 6,
-                          cursor: 'pointer',
+                          cursor: "pointer",
                           fontSize: 12,
-                          color: '#ef4444',
+                          color: "#ef4444",
                         }}
                       >
                         <Trash2 size={12} /> Delete
@@ -2373,48 +2373,48 @@ const Announcement = () => {
                 </div>
 
                 {/* Detail Body */}
-                <div style={{ padding: '24px 32px', maxWidth: 800 }}>
+                <div style={{ padding: "24px 32px", maxWidth: 800 }}>
                   {/* Meta info */}
                   <div
                     style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
+                      display: "flex",
+                      flexWrap: "wrap",
                       gap: 20,
-                      padding: '14px 16px',
-                      border: '1px solid var(--notion-border)',
+                      padding: "14px 16px",
+                      border: "1px solid var(--notion-border)",
                       borderRadius: 8,
-                      background: 'var(--notion-hover)',
+                      background: "var(--notion-hover)",
                       marginBottom: 24,
                     }}
                   >
                     <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 6,
                         fontSize: 13,
-                        color: 'var(--notion-text-secondary)',
+                        color: "var(--notion-text-secondary)",
                       }}
                     >
                       <Calendar size={14} />
                       <span
-                        style={{ color: 'var(--notion-text)', fontWeight: 500 }}
+                        style={{ color: "var(--notion-text)", fontWeight: 500 }}
                       >
                         {formatDate(selectedAnnouncement.date)}
                       </span>
                     </div>
                     <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
+                        display: "flex",
+                        alignItems: "center",
                         gap: 6,
                         fontSize: 13,
-                        color: 'var(--notion-text-secondary)',
+                        color: "var(--notion-text-secondary)",
                       }}
                     >
                       <Clock size={14} />
                       <span
-                        style={{ color: 'var(--notion-text)', fontWeight: 500 }}
+                        style={{ color: "var(--notion-text)", fontWeight: 500 }}
                       >
                         {formatTime(selectedAnnouncement.time)}
                       </span>
@@ -2422,17 +2422,17 @@ const Announcement = () => {
                     {selectedAnnouncement.roomNumber && (
                       <div
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 6,
                           fontSize: 13,
-                          color: 'var(--notion-text-secondary)',
+                          color: "var(--notion-text-secondary)",
                         }}
                       >
                         <MapPin size={14} />
                         <span
                           style={{
-                            color: 'var(--notion-text)',
+                            color: "var(--notion-text)",
                             fontWeight: 500,
                           }}
                         >
@@ -2445,19 +2445,19 @@ const Announcement = () => {
                   {/* Expiry Warning */}
                   <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
+                      display: "flex",
+                      alignItems: "center",
                       gap: 8,
-                      padding: '10px 14px',
-                      border: '1px solid #fde68a',
+                      padding: "10px 14px",
+                      border: "1px solid #fde68a",
                       borderRadius: 8,
-                      background: '#fffbeb',
+                      background: "#fffbeb",
                       marginBottom: 24,
                     }}
                   >
                     <AlertTriangle size={14} color="#d97706" />
-                    <span style={{ fontSize: 13, color: '#92400e' }}>
-                      Auto-deletes in:{' '}
+                    <span style={{ fontSize: 13, color: "#92400e" }}>
+                      Auto-deletes in:{" "}
                       <strong>{selectedAnnouncement?.remainingDays}</strong>
                     </span>
                   </div>
@@ -2467,9 +2467,9 @@ const Announcement = () => {
                     style={{
                       fontSize: 15,
                       lineHeight: 1.75,
-                      color: 'var(--notion-text)',
+                      color: "var(--notion-text)",
                       marginBottom: 24,
-                      whiteSpace: 'pre-wrap',
+                      whiteSpace: "pre-wrap",
                     }}
                   >
                     {selectedAnnouncement?.content}
@@ -2483,22 +2483,22 @@ const Announcement = () => {
                           handleDownload(e, selectedAnnouncement.attachment)
                         }
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
+                          display: "inline-flex",
+                          alignItems: "center",
                           gap: 8,
-                          padding: '10px 18px',
-                          background: 'var(--notion-accent)',
-                          color: 'white',
-                          border: 'none',
+                          padding: "10px 18px",
+                          background: "var(--notion-accent)",
+                          color: "white",
+                          border: "none",
                           borderRadius: 6,
-                          cursor: 'pointer',
+                          cursor: "pointer",
                           fontSize: 13,
                           fontWeight: 500,
                         }}
                       >
                         <Download size={14} />
-                        Download{' '}
-                        {selectedAnnouncement.attachment.name || 'Attachment'}
+                        Download{" "}
+                        {selectedAnnouncement.attachment.name || "Attachment"}
                       </button>
                     </div>
                   )}
@@ -2509,20 +2509,20 @@ const Announcement = () => {
                     <div
                       style={{
                         padding: 16,
-                        border: '1px solid var(--notion-border)',
+                        border: "1px solid var(--notion-border)",
                         borderRadius: 8,
-                        background: 'var(--notion-hover)',
+                        background: "var(--notion-hover)",
                         marginBottom: 24,
                       }}
                     >
                       <div
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 6,
                           fontSize: 13,
                           fontWeight: 600,
-                          color: 'var(--notion-text)',
+                          color: "var(--notion-text)",
                           marginBottom: 12,
                         }}
                       >
@@ -2530,44 +2530,44 @@ const Announcement = () => {
                         Sent To
                       </div>
                       <div
-                        style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}
+                        style={{ display: "flex", flexWrap: "wrap", gap: 8 }}
                       >
                         {selectedAnnouncement.audience?.student?.enabled && (
                           <span
                             style={{
-                              padding: '5px 12px',
+                              padding: "5px 12px",
                               borderRadius: 20,
                               fontSize: 12,
                               fontWeight: 500,
-                              background: '#dbeafe',
-                              color: '#1e40af',
+                              background: "#dbeafe",
+                              color: "#1e40af",
                             }}
                           >
                             🎓 Students
                             {selectedAnnouncement.audience.student.sendToAll
-                              ? ' — All'
+                              ? " — All"
                               : selectedAnnouncement.audience.student.batch
                                 ? ` — ${selectedAnnouncement.audience.student.batch}`
-                                : ''}
+                                : ""}
                           </span>
                         )}
                         {selectedAnnouncement.audience?.teacher?.enabled && (
                           <span
                             style={{
-                              padding: '5px 12px',
+                              padding: "5px 12px",
                               borderRadius: 20,
                               fontSize: 12,
                               fontWeight: 500,
-                              background: '#d1fae5',
-                              color: '#065f46',
+                              background: "#d1fae5",
+                              color: "#065f46",
                             }}
                           >
                             👨‍🏫 Teachers
                             {selectedAnnouncement.audience.teacher.sendToAll
-                              ? ' — All'
+                              ? " — All"
                               : selectedAnnouncement.audience.teacher.name
                                 ? ` — ${selectedAnnouncement.audience.teacher.name}`
-                                : ''}
+                                : ""}
                           </span>
                         )}
                       </div>
@@ -2575,11 +2575,11 @@ const Announcement = () => {
                         <div
                           style={{
                             fontSize: 12,
-                            color: 'var(--notion-text-secondary)',
+                            color: "var(--notion-text-secondary)",
                             marginTop: 8,
                           }}
                         >
-                          Dept:{' '}
+                          Dept:{" "}
                           {selectedAnnouncement.audience.student.department}
                           {selectedAnnouncement.audience?.student?.subject &&
                             ` • Subject: ${selectedAnnouncement.audience.student.subject}`}
@@ -2593,9 +2593,9 @@ const Announcement = () => {
                     <div
                       style={{
                         fontSize: 12,
-                        color: 'var(--notion-text-secondary)',
+                        color: "var(--notion-text-secondary)",
                         paddingTop: 16,
-                        borderTop: '1px solid var(--notion-border)',
+                        borderTop: "1px solid var(--notion-border)",
                       }}
                     >
                       Created {formatDate(selectedAnnouncement.createdAt)}
@@ -2608,13 +2608,13 @@ const Announcement = () => {
               <div
                 style={{
                   flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--notion-text-secondary)',
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--notion-text-secondary)",
                   padding: 40,
-                  textAlign: 'center',
+                  textAlign: "center",
                 }}
               >
                 <Inbox size={40} style={{ opacity: 0.3, marginBottom: 16 }} />
@@ -2623,7 +2623,7 @@ const Announcement = () => {
                     fontSize: 16,
                     fontWeight: 500,
                     marginBottom: 6,
-                    color: 'var(--notion-text)',
+                    color: "var(--notion-text)",
                   }}
                 >
                   No announcement selected
@@ -2635,15 +2635,15 @@ const Announcement = () => {
                   onClick={startComposing}
                   style={{
                     marginTop: 20,
-                    display: 'flex',
-                    alignItems: 'center',
+                    display: "flex",
+                    alignItems: "center",
                     gap: 6,
-                    padding: '9px 18px',
-                    background: 'var(--notion-accent)',
-                    color: 'white',
-                    border: 'none',
+                    padding: "9px 18px",
+                    background: "var(--notion-accent)",
+                    color: "white",
+                    border: "none",
                     borderRadius: 6,
-                    cursor: 'pointer',
+                    cursor: "pointer",
                     fontSize: 13,
                     fontWeight: 500,
                   }}
