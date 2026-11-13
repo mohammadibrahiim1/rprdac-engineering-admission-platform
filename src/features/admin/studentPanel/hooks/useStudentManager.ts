@@ -1,24 +1,26 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import toast from 'react-hot-toast';
-import { useSearchParams } from 'react-router-dom';
-import { useGetBatchesQuery } from '../../../../../redux/features/batch/batchApi';
-import { computeStudentStats } from '../components/Studentstats';
-import {
-  exportStudentsToExcel,
-  getAllExportableFields,
-} from '../components/Exporttoexcel';
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+
 import {
   Student,
   StudentMeta,
   StudentStats,
   Batch,
-} from '../types/allStudents.types';
+} from "../types/allStudents.types";
+import { toast } from "sonner";
 import {
   useDeleteStudentsByIdsMutation,
   useGetSessionFoldersQuery,
   useGetStudentsQuery,
   useUpdateStudentInformationMutation,
-} from '../../../../../redux/features/student/studentApi';
+} from "../services/api/studentApi";
+import {
+  exportStudentsToExcel,
+  getAllExportableFields,
+} from "../components/Exporttoexcel";
+import { useGetBatchesQuery } from "@/features/control-panel/control-panel-services/batch/batchApi";
+import { computeStudentStats } from "../components/Studentstats";
+import { BatchRecord } from "@/features/control-panel/control-panel-types/batch/Batch.types";
 
 interface UseStudentManagerOptions {
   initialLimit?: number | string;
@@ -31,17 +33,17 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [limit, setLimit] = useState<number | string>(initialLimit);
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentPhone = searchParams.get('phone');
+  const currentPhone = searchParams.get("phone");
 
   // ─── Filters ──────────────────────────────────────────────
-  const [searchTerm, setSearchTerm] = useState<string>(currentPhone || '');
+  const [searchTerm, setSearchTerm] = useState<string>(currentPhone || "");
   const [debouncedSearch, setDebouncedSearch] = useState<string>(
-    currentPhone || '',
+    currentPhone || "",
   );
-  const [selectedBatch, setSelectedBatch] = useState<string>('');
-  const [batchQuery, setBatchQuery] = useState<string>('');
-  const [selectedSession, setSelectedSession] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [selectedBatch, setSelectedBatch] = useState<string>("");
+  const [batchQuery, setBatchQuery] = useState<string>("");
+  const [selectedSession, setSelectedSession] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
 
   // ─── UI State ─────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -58,10 +60,10 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   // ─── Debounce Search ──────────────────────────────────────
   useEffect(() => {
     const timer = setTimeout(() => {
-      const value = searchTerm?.trim() || '';
+      const value = searchTerm?.trim() || "";
       setDebouncedSearch(value);
 
-      const currentPhoneInUrl = searchParams.get('phone') || '';
+      const currentPhoneInUrl = searchParams.get("phone") || "";
       if (value !== currentPhoneInUrl) {
         setCurrentPage(1);
         if (value) {
@@ -117,7 +119,7 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
     [studentsResponse],
   );
 
-  const allBatches: Batch[] = useMemo(
+  const allBatches: BatchRecord[] = useMemo(
     () => batchesResponse?.data || [],
     [batchesResponse],
   );
@@ -165,18 +167,18 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   }, []);
 
   const handleClearBatch = useCallback(() => {
-    setSelectedBatch('');
-    setBatchQuery('');
+    setSelectedBatch("");
+    setBatchQuery("");
     setCurrentPage(1);
   }, []);
 
   const handleClearAll = useCallback(() => {
-    setSearchTerm('');
-    setDebouncedSearch('');
-    setSelectedBatch('');
-    setBatchQuery('');
-    setSelectedSession('');
-    setSelectedStatus('');
+    setSearchTerm("");
+    setDebouncedSearch("");
+    setSelectedBatch("");
+    setBatchQuery("");
+    setSelectedSession("");
+    setSelectedStatus("");
     setCurrentPage(1);
     setLimit(10);
     setSelectedIds([]);
@@ -193,7 +195,7 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   }, []);
 
   const handleLimitChange = useCallback((newLimit: string | number) => {
-    const parsedLimit = newLimit === 'all' ? 'all' : Number(newLimit);
+    const parsedLimit = newLimit === "all" ? "all" : Number(newLimit);
     setLimit(parsedLimit);
     setCurrentPage(1);
   }, []);
@@ -201,42 +203,29 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   // ─── CRUD Handlers ────────────────────────────────────────
   const handleDeleteSelected = useCallback(async () => {
     if (!selectedIds.length) {
-      toast.error('No students selected');
+      toast.error("No students selected");
       return;
     }
     try {
       const res = await deleteStudents(selectedIds).unwrap();
-      toast.success(res?.message || 'Deleted successfully');
+      toast.success(res?.message || "Deleted successfully");
       setSelectedIds([]);
       refetch();
     } catch (err: any) {
       console.log(err);
-      toast.error(err?.data?.message || 'Delete failed');
+      toast.error(err?.data?.message || "Delete failed");
     }
   }, [selectedIds, deleteStudents, refetch]);
-
-  // const handleDeleteOne = useCallback(
-  //   async (ids: string[]) => {
-  //     try {
-  //       const res = await deleteStudents(ids).unwrap();
-  //       toast.success(res?.message || 'Student deleted');
-  //       refetch();
-  //     } catch (err: any) {
-  //       toast.error(err?.data?.message || 'Delete failed');
-  //     }
-  //   },
-  //   [deleteStudents, refetch],
-  // );
 
   const handleUpdateStudent = useCallback(
     async ({ id, data: formData }: { id: string; data: any }) => {
       try {
         await updateStudentInformation({ id, data: formData }).unwrap();
-        toast.success('Student updated successfully!');
+        toast.success("Student updated successfully!");
         refetch();
         setEditingStudent(null);
       } catch (err: any) {
-        toast.error(err?.data?.message || 'Update failed');
+        toast.error(err?.data?.message || "Update failed");
       }
     },
     [updateStudentInformation, refetch],
@@ -244,7 +233,7 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
 
   const handleOpenModal = () => {
     if (!students.length) {
-      toast.error('No student data available to export.');
+      toast.error("No student data available to export.");
       return;
     }
     setSelectedFields([]);
@@ -266,7 +255,7 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   };
 
   const formatLabel = (str: string) =>
-    str.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+    str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
   const handleExportToExcel = useCallback(async () => {
     let targetStudents: Student[] = [];
@@ -278,20 +267,20 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
     }
 
     if (targetStudents.length === 0) {
-      toast.error('No students selected or found to export!');
+      toast.error("No students selected or found to export!");
       return;
     }
 
     const result = await exportStudentsToExcel(
       targetStudents,
-      'students_report',
+      "students_report",
       selectedFields,
     );
 
     if (!result?.success) {
-      toast.error(result?.message || 'Export failed');
+      toast.error(result?.message || "Export failed");
     } else {
-      toast.success('Excel exported successfully!');
+      toast.success("Excel exported successfully!");
     }
   }, [selectedFields, selectedIds, students]);
 
@@ -308,9 +297,9 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
 
     if (targetStudents.length === 0) {
       if (selectedIds.length > 0) {
-        toast.error('Selected student-der moddhe karo payment clear nai!');
+        toast.error("Selected student-der moddhe karo payment clear nai!");
       } else {
-        toast.error('No paid students to generate admit cards for');
+        toast.error("No paid students to generate admit cards for");
       }
       return;
     }

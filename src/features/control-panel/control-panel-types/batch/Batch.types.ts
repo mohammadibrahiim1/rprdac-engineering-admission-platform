@@ -3,6 +3,7 @@ export interface BatchRecord {
   title: string;
   createdAt?: string;
   updatedAt?: string;
+  [key: string]: unknown;
 }
 
 export interface CreateBatchRequest {

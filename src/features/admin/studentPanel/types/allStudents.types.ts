@@ -62,6 +62,7 @@ export type ExportableField =
 export interface Batch {
   _id: string;
   title: string;
+  [key: string]: unknown;
 }
 
 // ────────────────────────────────────────────────

@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm, UseFormReturn, SubmitHandler } from "react-hook-form";
 
-import { useStudentData } from "./useStudentData";
 import { toast } from "sonner";
 import {
   useGetStudentByIdQuery,
   useUpdateStudentInformationMutation,
 } from "../services/api/studentApi";
+import { useStudentData } from "./useStudentData";
 
 /* ── TypeScript Interfaces ──────────────────────────────── */
 export interface StudentRecord {

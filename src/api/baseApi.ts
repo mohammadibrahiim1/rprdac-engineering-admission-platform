@@ -6,6 +6,7 @@ import type { FetchArgs, BaseQueryFn } from "@reduxjs/toolkit/query/react";
 // Central tag types
 export const TAG_TYPES = [
   "Batch",
+  "Student",
   "Panels",
   "PanelAccess",
   "SingleAdmitCard",
@@ -36,6 +37,9 @@ export const TAG_TYPES = [
   "AdmissionUser",
   "User",
   "Notice",
+  "Institute",
+  "AcademicInfo",
+  "StudentInvoices",
 ] as const;
 
 // Base query for opaque session authentication
