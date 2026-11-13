@@ -63,6 +63,7 @@ export const useEditStudentInformation =
     const [isEditMode, setIsEditMode] = useState<boolean>(true);
 
     const [updateStudentInformation] = useUpdateStudentInformationMutation();
+
     const { data: studentData, isLoading: isStudentLoading } =
       useGetStudentByIdQuery(id, { skip: !id });
 

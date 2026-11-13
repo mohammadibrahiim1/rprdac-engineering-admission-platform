@@ -4,9 +4,9 @@ import React, {
   useMemo,
   useCallback,
   useEffect,
-} from 'react';
-import PropTypes from 'prop-types';
-import { useReactToPrint } from 'react-to-print';
+  ReactElement,
+} from "react";
+import { useReactToPrint } from "react-to-print";
 import {
   Printer,
   Search,
@@ -20,29 +20,48 @@ import {
   Loader2,
   RefreshCw,
   XCircle,
-} from 'lucide-react';
+} from "lucide-react";
 
-import logo from '../../../../../assets/img/log-rpr.png';
-import signature from '../../../../../assets/img/rpr-director-sign.png';
+import logo from "../../../../../assets/img/log-rpr.png";
+import signature from "../../../../../assets/img/rpr-director-sign.png";
 
 // Hook Import
-import useStudentManager from '../hooks/useStudentManager';
+import useStudentManager from "../hooks/useStudentManager";
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL || '';
+const SERVER: string = import.meta.env.VITE_SERVER_BASE_URL || "";
+
+// ─── Interfaces ───
+export interface StudentRecord {
+  _id?: string;
+  studentId?: string;
+  name?: string;
+  department?: string;
+  batch?: string;
+  phone?: string;
+  paymentStatus?: string;
+  studentPhoto?: string;
+  [key: string]: unknown;
+}
+
+export interface BatchItem {
+  _id?: string;
+  title?: string;
+  [key: string]: unknown;
+}
 
 /**************** Utility: Chunk Helper ****************/
-const chunk = (arr = [], size = 8) => {
+const chunk = <T,>(arr: T[] = [], size: number = 8): T[][] => {
   if (!Array.isArray(arr)) return [];
   return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
     arr.slice(i * size, i * size + size),
   );
 };
 
-export default function AdmitCardRegistryPage() {
-  const printRef = useRef(null);
+export default function AdmitCardRegistryPage(): ReactElement {
+  const printRef = useRef<HTMLDivElement | null>(null);
 
   // ─── Local State for Manual Multi-Card Selection ───
-  const [selectedCardIds, setSelectedCardIds] = useState([]);
+  const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
 
   // ─── Destructuring from useStudentManager Hook ───
   const {
@@ -63,51 +82,74 @@ export default function AdmitCardRegistryPage() {
     handleClearAll,
     handleLimitChange,
     refetch,
-  } = useStudentManager({ initialLimit: 'all' });
+  } = useStudentManager({ initialLimit: "all" }) as {
+    students: StudentRecord[];
+    meta: { page?: number; totalPages?: number; totalItems?: number };
+    filteredBatches: BatchItem[];
+    isLoading: boolean;
+    isFetching: boolean;
+    currentPage: number;
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+    limit: number | string;
+    searchTerm: string;
+    setSearchTerm: (term: string) => void;
+    selectedBatch: string;
+    hasActiveFilters: boolean;
+    handleBatchSelect: (batch: string) => void;
+    handleClearBatch: () => void;
+    handleClearAll: () => void;
+    handleLimitChange: (lim: number | string) => void;
+    refetch: () => void;
+  };
 
   useEffect(() => {
-    handleLimitChange('all');
+    handleLimitChange("all");
   }, [handleLimitChange]);
 
   // ─── Filter Paid Students Only ───
-  const paidStudents = useMemo(() => {
+  const paidStudents: StudentRecord[] = useMemo(() => {
     return students.filter((stu) => {
-      const isPaid = stu.paymentStatus === 'paid';
+      const isPaid = stu.paymentStatus === "paid";
       return isPaid;
     });
   }, [students]);
 
   // ─── Target Cards for Printing ───
-  const printList = useMemo(() => {
+  const printList: StudentRecord[] = useMemo(() => {
     if (selectedCardIds.length === 0) return paidStudents;
     return paidStudents.filter((stu) =>
-      selectedCardIds.includes(stu._id || stu.studentId),
+      selectedCardIds.includes(stu._id || stu.studentId || ""),
     );
   }, [paidStudents, selectedCardIds]);
 
-  // ─── 💡 FIX 1: Chunking for Screen and Print Separately ───
+  // ─── Chunking for Screen and Print Separately ───
+  const screenPages: StudentRecord[][] = useMemo(
+    () => chunk(paidStudents, 8),
+    [paidStudents],
+  );
 
-  const screenPages = useMemo(() => chunk(paidStudents, 8), [paidStudents]);
-
-  const printPages = useMemo(() => chunk(printList, 8), [printList]);
+  const printPages: StudentRecord[][] = useMemo(
+    () => chunk(printList, 8),
+    [printList],
+  );
 
   // ─── React-To-Print Integration ───
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef,
     documentTitle: `RPR_Green_Cards_Page_${currentPage}_${new Date().toISOString().slice(0, 8)}`,
   });
 
-  const triggerPrint = () => {
+  const triggerPrint = (): void => {
     if (!printRef.current || printList.length === 0) {
-      alert('প্রিন্ট করার মতো কোনো পেইড স্টুডেন্টের কার্ড পাওয়া যায়নি!');
+      alert("প্রিন্ট করার মতো কোনো পেইড স্টুডেন্টের কার্ড পাওয়া যায়নি!");
       return;
     }
     handlePrint();
   };
 
   // ─── Card Selection Handlers ───
-  const handleToggleSelectAllCards = () => {
-    const currentPaidIds = paidStudents.map((s) => s?._id || s.studentId);
+  const handleToggleSelectAllCards = (): void => {
+    const currentPaidIds = paidStudents.map((s) => s?._id || s.studentId || "");
     const isAllCurrentSelected = currentPaidIds.every((id) =>
       selectedCardIds.includes(id),
     );
@@ -122,21 +164,21 @@ export default function AdmitCardRegistryPage() {
     }
   };
 
-  const toggleSelectCard = useCallback((id) => {
+  const toggleSelectCard = useCallback((id: string): void => {
     if (!id) return;
     setSelectedCardIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   }, []);
 
-  const onClearFilters = () => {
+  const onClearFilters = (): void => {
     handleClearAll();
     setSelectedCardIds([]);
   };
 
-  const currentDateTime = new Date().toLocaleString('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  const currentDateTime: string = new Date().toLocaleString("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
   });
 
   return (
@@ -165,7 +207,7 @@ export default function AdmitCardRegistryPage() {
                 className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md transition-all cursor-pointer"
               >
                 <RefreshCw
-                  className={`w-4 h-4 ${isFetching ? 'animate-spin text-emerald-600' : ''}`}
+                  className={`w-4 h-4 ${isFetching ? "animate-spin text-emerald-600" : ""}`}
                 />
               </button>
 
@@ -177,7 +219,7 @@ export default function AdmitCardRegistryPage() {
               >
                 <Printer className="w-4 h-4" />
                 <span>
-                  Print{' '}
+                  Print{" "}
                   {selectedCardIds?.length > 0
                     ? `Selected (${selectedCardIds?.length})`
                     : `All Paid (${printList?.length})`}
@@ -229,12 +271,12 @@ export default function AdmitCardRegistryPage() {
                   onChange={(e) => handleLimitChange(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer"
                 >
-                  <option value={8}>8 cards </option>
-                  <option value={16}>16 cards </option>
-                  <option value={24}>24 cards </option>
-                  <option value={32}>32 cards </option>
-                  <option value={40}>40 cards </option>
-                  <option value={'all'}>All cards</option>
+                  <option value={8}>8 cards</option>
+                  <option value={16}>16 cards</option>
+                  <option value={24}>24 cards</option>
+                  <option value={32}>32 cards</option>
+                  <option value={40}>40 cards</option>
+                  <option value={"all"}>All cards</option>
                 </select>
               </div>
 
@@ -278,7 +320,7 @@ export default function AdmitCardRegistryPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-50 border border-slate-200/80 px-4 py-2 rounded-md text-sm">
               <div className="flex items-center gap-2 font-medium text-slate-600">
                 <span>
-                  Page <strong>{meta.page || currentPage}</strong> of{' '}
+                  Page <strong>{meta.page || currentPage}</strong> of{" "}
                   <strong>{meta.totalPages || 1}</strong>
                 </span>
                 <span className="text-slate-300">•</span>
@@ -292,7 +334,7 @@ export default function AdmitCardRegistryPage() {
                   type="button"
                   disabled={currentPage <= 1 || isFetching}
                   onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    setCurrentPage((prev: number) => Math.max(prev - 1, 1))
                   }
                   className="px-3 py-1 bg-white border border-slate-200 rounded-md hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer"
                 >
@@ -302,7 +344,7 @@ export default function AdmitCardRegistryPage() {
                 <button
                   type="button"
                   disabled={currentPage >= (meta.totalPages || 1) || isFetching}
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  onClick={() => setCurrentPage((prev: number) => prev + 1)}
                   className="px-3 py-1 bg-white border border-slate-200 rounded-md hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer"
                 >
                   Next <ChevronRight className="w-3.5 h-3.5" />
@@ -329,7 +371,7 @@ export default function AdmitCardRegistryPage() {
           )}
         </div>
 
-        {/* ── 💡 FIX 2: SCREEN DISPLAY ── */}
+        {/* SCREEN DISPLAY */}
         <div className="flex flex-col gap-10 items-center w-full print:hidden">
           {isLoading ? (
             <div className="py-20 text-center w-full max-w-md my-10">
@@ -341,7 +383,7 @@ export default function AdmitCardRegistryPage() {
               <A4Page key={idx}>
                 <div className="grid grid-cols-2 content-start gap-[3mm] h-full w-full box-border">
                   {grp?.map((stu) => {
-                    const stId = stu._id || stu.studentId;
+                    const stId = stu._id || stu.studentId || "";
                     const isChecked = selectedCardIds.includes(stId);
 
                     return (
@@ -361,12 +403,12 @@ export default function AdmitCardRegistryPage() {
                           </button>
                         </div>
 
-                        {/* Card UI (Non-selected will blur/grayscale) */}
+                        {/* Card UI */}
                         <div
                           className={`${
                             selectedCardIds.length > 0 && !isChecked
-                              ? 'opacity-40 grayscale'
-                              : ''
+                              ? "opacity-40 grayscale"
+                              : ""
                           } transition-all h-full w-full`}
                         >
                           <AdmitCard student={stu} />
@@ -398,14 +440,14 @@ export default function AdmitCardRegistryPage() {
           )}
         </div>
 
-        {/* ── 💡 FIX 3: DEDICATED PRINT CONTAINER ── */}
+        {/* DEDICATED PRINT CONTAINER */}
         <div className="hidden print:block">
           <div ref={printRef} className="flex flex-col items-center w-full">
             {printPages.map((grp, idx) => (
               <A4Page key={idx}>
                 <div className="grid grid-cols-2 content-start gap-[3mm] h-full w-full box-border">
                   {grp?.map((stu) => {
-                    const stId = stu._id || stu.studentId;
+                    const stId = stu._id || stu.studentId || "";
                     return (
                       <div key={stId} className="h-full w-full">
                         <AdmitCard student={stu} />
@@ -484,25 +526,29 @@ export default function AdmitCardRegistryPage() {
 }
 
 /**************** A4 PAGE CONTAINER ****************/
-const A4Page = ({ children }) => (
+interface A4PageProps {
+  children: React.ReactNode;
+}
+
+const A4Page: React.FC<A4PageProps> = ({ children }) => (
   <div
     className="a4-page-break relative flex flex-col justify-between shadow-xl border border-slate-200 bg-white print:shadow-none print:border-none p-[6mm] pb-[8mm] box-border my-4 print:my-0"
     style={{
-      width: '210mm',
-      height: '297mm',
-      boxSizing: 'border-box',
+      width: "210mm",
+      height: "297mm",
+      boxSizing: "border-box",
     }}
   >
     {children}
   </div>
 );
 
-A4Page.propTypes = {
-  children: PropTypes.node,
-};
-
 /**************** PIXEL PERFECT ADMIT CARD ITEM ****************/
-const AdmitCard = ({ student }) => {
+interface AdmitCardProps {
+  student: StudentRecord;
+}
+
+const AdmitCard: React.FC<AdmitCardProps> = ({ student }) => {
   return (
     <div className="force-gradient flex flex-col justify-between border-[1.5px] border-emerald-600 rounded-md overflow-hidden p-3 relative shadow-xs print:shadow-none font-sans-print h-full w-full box-border bg-white">
       {/* 1. Header Area */}
@@ -534,7 +580,7 @@ const AdmitCard = ({ student }) => {
               STUDENT NAME
             </span>
             <span className="text-[12px] font-extrabold text-slate-900 capitalize truncate border-b border-slate-300 pb-0.5">
-              {student?.name || '—'}
+              {student?.name || "—"}
             </span>
           </div>
 
@@ -545,7 +591,7 @@ const AdmitCard = ({ student }) => {
                 DEPARTMENT
               </span>
               <span className="text-[11px] font-extrabold text-slate-900 uppercase truncate border-b border-slate-300 pb-0.5">
-                {student?.department || '—'}
+                {student?.department || "—"}
               </span>
             </div>
             <div className="flex flex-col">
@@ -553,7 +599,7 @@ const AdmitCard = ({ student }) => {
                 STUDENT ID
               </span>
               <span className="text-[11px] font-extrabold text-slate-900 truncate border-b border-slate-300 pb-0.5">
-                {student?.studentId || '—'}
+                {student?.studentId || "—"}
               </span>
             </div>
           </div>
@@ -565,7 +611,7 @@ const AdmitCard = ({ student }) => {
                 BATCH
               </span>
               <span className="text-[11px] font-extrabold text-slate-900 truncate border-b border-slate-300 pb-0.5">
-                {student?.batch || '—'}
+                {student?.batch || "—"}
               </span>
             </div>
             <div className="flex flex-col">
@@ -573,7 +619,7 @@ const AdmitCard = ({ student }) => {
                 MOBILE NO
               </span>
               <span className="text-[11px] font-extrabold text-slate-900 truncate border-b border-slate-300 pb-0.5">
-                {student?.phone || '—'}
+                {student?.phone || "—"}
               </span>
             </div>
           </div>
@@ -585,7 +631,7 @@ const AdmitCard = ({ student }) => {
             {student?.studentPhoto ? (
               <img
                 src={`${SERVER}${student?.studentPhoto}`}
-                alt={student?.name}
+                alt={student?.name || "Student Photo"}
                 className="object-cover w-full h-full rounded-xs"
               />
             ) : (
@@ -604,7 +650,6 @@ const AdmitCard = ({ student }) => {
             একজনের গ্রীন কার্ড দিয়ে অন্যজন পরীক্ষায় অংশগ্রহণ করতে পারবে না।
           </p>
           <p className="text-[11px] font-medium tracking-wide font-sans text-emerald-200 mt-0.5">
-            {/* যোগাযোগ: ০১৭৪২-৫৯০১২৮, ০১৭২৯-৮৭০৫৩৬ */}
             Call or WhatsApp: +880 1742-590128
           </p>
         </div>
@@ -615,8 +660,8 @@ const AdmitCard = ({ student }) => {
               src={signature}
               alt="Director_Sign"
               className="absolute z-10 object-contain w-16 h-auto pointer-events-none select-none bottom-2.5"
-              onError={(e) => {
-                e.target.style.display = 'none';
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                (e.target as HTMLElement).style.display = "none";
               }}
             />
           )}
@@ -627,8 +672,4 @@ const AdmitCard = ({ student }) => {
       </div>
     </div>
   );
-};
-
-AdmitCard.propTypes = {
-  student: PropTypes.object.isRequired,
 };

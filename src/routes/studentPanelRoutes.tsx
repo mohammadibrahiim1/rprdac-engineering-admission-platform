@@ -1,5 +1,6 @@
 import AllStudents from "@/features/admin/studentPanel/pages/AllStudents";
 import EditStudentInformation from "@/features/admin/studentPanel/pages/EditStudentInformation";
+import StudentAdmitByAdmin from "@/features/admin/studentPanel/pages/StudentAdmitByAdmin";
 import StudentsDetails from "@/features/admin/studentPanel/pages/StudentsDetails";
 import StudentTransactions from "@/features/admin/studentPanel/pages/StudentTransactions";
 

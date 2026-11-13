@@ -168,7 +168,7 @@ export const useAddress = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement> | string,
   ) => {
     const value =
-      typeof e === "object" && e !== "target" in e && e.target
+      typeof e === "object" && e !== null && "target" in e && e.target
         ? (e.target as HTMLInputElement | HTMLSelectElement).value
         : (e as string);
 
@@ -181,7 +181,7 @@ export const useAddress = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement> | string,
   ) => {
     const value =
-      typeof e === "object" && e !== "target" in e && e.target
+      typeof e === "object" && e !== null && "target" in e && e.target
         ? (e.target as HTMLInputElement | HTMLSelectElement).value
         : (e as string);
 
