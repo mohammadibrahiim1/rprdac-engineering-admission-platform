@@ -1,38 +1,58 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Save,
-  Loader2,
-  User,
-  MapPin,
-  GraduationCap,
-  CreditCard,
-  AlertCircle,
-  CheckCircle2,
-  Calendar,
-  BookOpen,
-  Mail,
-  Edit3,
-  Eye,
-  Users,
-  TrendingUp,
-  X,
-  Sparkles,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useParams, useNavigate } from 'react-router-dom';
-import {
-  useGetStudentByIdQuery,
-  useUpdateStudentInformationMutation,
-} from '../../../../../redux/features/student/studentApi';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Save, Loader2 } from "lucide-react";
+import type {
+  UseFormRegister,
+  Control,
+  FieldErrors,
+  UseFormWatch,
+  UseFormSetValue,
+  SubmitHandler,
+} from "react-hook-form";
 
-import EditStudentAddressSection from '../components/editStudentInformation/EditStudentAddressSection';
-import EditStudentAcademicSection from '../components/editStudentInformation/EditStudentAcademicSection';
-import { useStudentData } from '../hooks/useStudentData';
-import { useEditStudentInformation } from '../hooks/useEditStudentInformation';
-import { EditStudentHeader } from '../components/editStudentInformation/EditStudentHeader';
-import EditStudentPersonalDetails from '../components/editStudentInformation/EditStudentPersonalDetails';
+import EditStudentAddressSection from "../components/editStudentInformation/EditStudentAddressSection";
+import EditStudentAcademicSection from "../components/editStudentInformation/EditStudentAcademicSection";
+import { EditStudentHeader } from "../components/editStudentInformation/EditStudentHeader";
+import EditStudentPersonalDetails from "../components/editStudentInformation/EditStudentPersonalDetails";
+import useEditStudentInformation from "../hooks/useEditStudentInformation";
+
+/* ── TypeScript Interfaces ──────────────────────────────── */
+export interface StudentInfo {
+  _id: string;
+  name?: string;
+  email?: string;
+  studentId?: string;
+  avatar?: string;
+  [key: string]: unknown;
+}
+
+export interface UseEditStudentInformationReturn {
+  navigate: (path: string) => void;
+  student: StudentInfo | null;
+  isStudentLoading: boolean;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  photoFile: File | null;
+  setPhotoFile: React.Dispatch<React.SetStateAction<File | null>>;
+  isSaving: boolean;
+  isEditMode: boolean;
+  setIsEditMode: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleEditMode: () => void;
+  institutes: unknown[];
+  messes: unknown[];
+  academicData: unknown[];
+  register: UseFormRegister<any>;
+  handleSubmit: (
+    onValid: SubmitHandler<any>,
+  ) => (e?: React.BaseSyntheticEvent) => Promise<void>;
+  control: Control<any>;
+  watch: UseFormWatch<any>;
+  setValue: UseFormSetValue<any>;
+  errors: FieldErrors<any>;
+  isDirty: boolean;
+  onSubmit: SubmitHandler<any>;
+  handleCancel: () => void;
+}
 
 /* ── Animation Variants ─────────────────────────────────── */
 const containerVariants = {
@@ -40,15 +60,6 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -62,27 +73,19 @@ const fadeInUp = {
   exit: { opacity: 0, y: -20, transition: { duration: 0.25 } },
 };
 
-/* ── Input Styles (Stripe Glow) ─────────────────────────── */
-const inputCls =
-  'w-full px-4 py-2.5 text-sm backdrop-blur-sm border border-slate-200/90 rounded-md outline-none placeholder-slate-400 text-slate-800 transition-all duration-300 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 hover:border-slate-300 disabled:bg-slate-50/80 disabled:cursor-not-allowed shadow-sm';
-
 /* ══════════════════════════════════════════════════════════ */
-export default function EditStudentInformation() {
+export default function EditStudentInformation(): React.JSX.Element {
   const {
     navigate,
     student,
     isStudentLoading,
-    activeTab,
-    setActiveTab,
     photoFile,
     setPhotoFile,
     isSaving,
     isEditMode,
-    setIsEditMode,
-    toggleEditMode,
-    institutes,
     messes,
     academicData,
+    institutes,
     register,
     handleSubmit,
     control,
@@ -91,21 +94,20 @@ export default function EditStudentInformation() {
     errors,
     isDirty,
     onSubmit,
-    handleCancel,
-  } = useEditStudentInformation();
+  } = useEditStudentInformation() as unknown as UseEditStudentInformationReturn;
 
   /* ── Skeleton Loading Screen ───────────────────────────── */
   if (isStudentLoading) {
     return (
-      <div className="min-h-screen relative flex flex-col items-center justify-center font-sans">
-        <p className="text-sm font-semibold text-slate-300 tracking-wide">
-          Please wait...
+      <div className="min-h-screen relative flex flex-col items-center justify-center font-sans bg-white">
+        <p className="text-sm font-semibold text-slate-400 tracking-wide">
+          Loading student information...
         </p>
       </div>
     );
   }
 
-  if (!student) return null;
+  if (!student) return <></>;
 
   return (
     <div className="min-h-screen relative bg-white font-sans selection:bg-indigo-500 selection:text-white pb-12 overflow-hidden">
@@ -122,7 +124,7 @@ export default function EditStudentInformation() {
 
           {/* ── Form Body ───────────────────────────────────── */}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="">
+            <div>
               <AnimatePresence mode="wait">
                 {/* Personal Section */}
                 <EditStudentPersonalDetails
@@ -150,10 +152,9 @@ export default function EditStudentInformation() {
                     student={student}
                     register={register}
                     control={control}
-                    messData={messes}
+                    messes={messes}
                     errors={errors}
                     watch={watch}
-                    setValue={setValue}
                     isEditMode={isEditMode}
                   />
                 </motion.div>
@@ -197,7 +198,7 @@ export default function EditStudentInformation() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       type="button"
-                      onClick={() => navigate('/dashboard/admin/student/all')}
+                      onClick={() => navigate("/dashboard/admin/student/all")}
                       className="flex-1 sm:flex-initial px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200 rounded-md transition-all duration-200 cursor-pointer"
                     >
                       Cancel

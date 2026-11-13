@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, FC } from 'react';
-import { Controller, Control, FieldErrors } from 'react-hook-form';
+import React, { useState, useRef, useEffect, FC } from "react";
+import { Controller, Control, FieldErrors } from "react-hook-form";
 import {
   ChevronDown,
   Check,
@@ -8,7 +8,7 @@ import {
   BookOpen,
   Sparkles,
   Hash,
-} from 'lucide-react';
+} from "lucide-react";
 
 // ==================== INTERFACES & TYPES ====================
 export type OptionItem =
@@ -54,7 +54,7 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
   options = [],
   value,
   onChange,
-  placeholder = 'Select option',
+  placeholder = "Select option",
   error,
   disabled = false,
 }) => {
@@ -69,8 +69,8 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
         setOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
   // Smart positioning: check if dropdown fits below, otherwise open upwards
@@ -91,10 +91,10 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
 
   // Format option display text safely
   const getOptionLabel = (option: OptionItem): string => {
-    if (typeof option === 'object' && option !== null) {
-      return String(option.name || option.year || option.title || '');
+    if (typeof option === "object" && option !== null) {
+      return String(option.name || option.year || option.title || "");
     }
-    return String(option ?? '');
+    return String(option ?? "");
   };
 
   const selectedLabel = getOptionLabel(value);
@@ -114,17 +114,17 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
         onClick={handleToggle}
         className={`flex items-center justify-between w-full px-3.5 h-10 text-xs bg-white border rounded-md outline-none transition-all duration-200 ${
           error
-            ? 'border-red-500 ring-2 ring-red-100'
+            ? "border-red-500 ring-2 ring-red-100"
             : open
-              ? 'border-indigo-500 ring-2 ring-indigo-100'
-              : 'border-zinc-200 hover:border-zinc-300'
-        } ${disabled ? 'bg-zinc-100 cursor-not-allowed text-zinc-400' : 'text-zinc-900 font-medium'}`}
+              ? "border-indigo-500 ring-2 ring-indigo-100"
+              : "border-zinc-200 hover:border-zinc-300"
+        } ${disabled ? "bg-zinc-100 cursor-not-allowed text-zinc-400" : "text-zinc-900 font-medium"}`}
       >
         <span
           className={
             selectedLabel
-              ? 'text-zinc-900 font-medium'
-              : 'text-zinc-400 font-normal'
+              ? "text-zinc-900 font-medium"
+              : "text-zinc-400 font-normal"
           }
         >
           {selectedLabel || placeholder}
@@ -132,7 +132,7 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
         <ChevronDown
           size={15}
           className={`text-zinc-400 transition-transform duration-200 ${
-            open ? 'rotate-180 text-indigo-600' : ''
+            open ? "rotate-180 text-indigo-600" : ""
           }`}
         />
       </button>
@@ -141,7 +141,7 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
       {open && !disabled && (
         <div
           className={`absolute z-50 left-0 right-0 overflow-y-auto bg-white border rounded-md shadow-xl max-h-52 border-zinc-200/80 py-1.5 focus:outline-none ${
-            dropUp ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
+            dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
           }`}
         >
           {options?.length > 0 ? (
@@ -158,8 +158,8 @@ const EditAcademicSelector: FC<EditAcademicSelectorProps> = ({
                   }}
                   className={`flex items-center justify-between px-3.5 py-2.5 text-xs cursor-pointer transition-colors ${
                     isSelected
-                      ? 'bg-indigo-50/80 text-indigo-700 font-semibold'
-                      : 'text-zinc-700 hover:bg-zinc-50'
+                      ? "bg-indigo-50/80 text-indigo-700 font-semibold"
+                      : "text-zinc-700 hover:bg-zinc-50"
                   }`}
                 >
                   <span>{itemLabel}</span>
@@ -408,12 +408,12 @@ export default function EditStudentAcademicSection({
                       disabled={!isEditMode}
                       className={`w-full h-10 px-3.5 text-xs bg-white border rounded-md outline-none transition-all ${
                         errors?.diplomaGpa
-                          ? 'border-red-500 ring-2 ring-red-100'
-                          : 'border-zinc-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
+                          ? "border-red-500 ring-2 ring-red-100"
+                          : "border-zinc-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                       } ${
                         !isEditMode
-                          ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
-                          : 'text-zinc-900 font-medium'
+                          ? "bg-zinc-100 text-zinc-400 cursor-not-allowed"
+                          : "text-zinc-900 font-medium"
                       }`}
                     />
                   )}

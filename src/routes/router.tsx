@@ -10,8 +10,9 @@ import { Unauthorized } from "@/components/common/Unauthorized";
 import { Welcome } from "@/components/common/Welcome";
 import { Dashboard } from "@/components/common/Dashboard";
 import { ControlPanelRoutes } from "./controlPanelRoutes";
+import { StudentPanelRoutes } from "./studentPanelRoutes";
 
-const DASHBOARD_PATH = "/console-8xK29mQ";
+const DASHBOARD_PATH = "/dashboard";
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -56,6 +57,10 @@ export const router = createBrowserRouter([
             path: "control",
             children: ControlPanelRoutes,
           },
+          // {
+          //   path: "student",
+          //   children: StudentPanelRoutes,
+          // },
         ],
       },
     ],

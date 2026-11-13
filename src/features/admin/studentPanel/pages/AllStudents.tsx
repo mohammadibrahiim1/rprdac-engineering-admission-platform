@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import ExcelJS from 'exceljs';
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import ExcelJS from "exceljs";
 import {
   Users,
   CheckCircle2,
@@ -14,16 +14,17 @@ import {
   FileText,
   Printer,
   X,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import useStudentManager from '../hooks/useStudentManager';
-import { generatePhoneSheetPDF } from '../utils/generatePhoneSheetPDF';
-import StudentTable from '../components/AllStudents/StudentTable';
-import { StudentStatCard } from '../components/AllStudents/StudentStatCard';
-import { StudentSessionCard } from '../components/AllStudents/StudentSessionCard';
-import { StudentFilterBar } from '../components/AllStudents/StudentFilterBar';
-import toast from 'react-hot-toast';
-import { generateAttendanceSheetPDF } from '../utils/generateAttendanceSheetPDF';
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import useStudentManager from "../hooks/useStudentManager";
+import { generatePhoneSheetPDF } from "../utils/generatePhoneSheetPDF";
+import StudentTable from "../components/AllStudents/StudentTable";
+import { StudentStatCard } from "../components/AllStudents/StudentStatCard";
+import { StudentSessionCard } from "../components/AllStudents/StudentSessionCard";
+import { StudentFilterBar } from "../components/AllStudents/StudentFilterBar";
+
+import { generateAttendanceSheetPDF } from "../utils/generateAttendanceSheetPDF";
+import { toast } from "sonner";
 
 const pageVariants = {
   hidden: { opacity: 0 },
@@ -38,133 +39,133 @@ const itemVariants = {
 // Grouped and sorted Export Columns
 const EXPORT_COLUMNS = [
   // --- Student Information ---
-  { key: 'serial', label: 'Serial' },
-  { key: 'studentId', label: 'Student Id' },
-  { key: 'sid', label: 'Sid' },
-  { key: 'userType', label: 'User Type' },
-  { key: 'admissionStatus', label: 'Admission Status' },
-  { key: 'trackingId', label: 'Tracking Id' },
-  { key: 'admissionSource', label: 'Admission Source' },
-  { key: 'name', label: 'Name' },
-  { key: 'nameInBangla', label: 'Name In Bangla' },
-  { key: 'phone', label: 'Phone' },
-  { key: 'studentWhatsAppNum', label: 'Student Whats App Num' },
-  { key: 'bloodGroup', label: 'Blood Group' },
-  { key: 'instituteName', label: 'Institute Name' },
-  { key: 'session', label: 'Session' },
-  { key: 'batch', label: 'Batch' },
-  { key: 'newBatch', label: 'New Batch' },
-  { key: 'oldBatch', label: 'Old Batch' },
-  { key: 'department', label: 'Department' },
-  { key: 'sscBoard', label: 'Ssc Board' },
-  { key: 'sscGpa', label: 'Ssc Gpa' },
-  { key: 'sscGroup', label: 'Ssc Group' },
-  { key: 'sscPassingYear', label: 'Ssc Passing Year' },
-  { key: 'diplomaBoard', label: 'Diploma Board' },
-  { key: 'diplomaGpa', label: 'Diploma Gpa' },
-  { key: 'diplomaGroup', label: 'Diploma Group' },
-  { key: 'diplomaPassingYear', label: 'Diploma Passing Year' },
-  { key: 'cgpa', label: 'Cgpa' },
+  { key: "serial", label: "Serial" },
+  { key: "studentId", label: "Student Id" },
+  { key: "sid", label: "Sid" },
+  { key: "userType", label: "User Type" },
+  { key: "admissionStatus", label: "Admission Status" },
+  { key: "trackingId", label: "Tracking Id" },
+  { key: "admissionSource", label: "Admission Source" },
+  { key: "name", label: "Name" },
+  { key: "nameInBangla", label: "Name In Bangla" },
+  { key: "phone", label: "Phone" },
+  { key: "studentWhatsAppNum", label: "Student Whats App Num" },
+  { key: "bloodGroup", label: "Blood Group" },
+  { key: "instituteName", label: "Institute Name" },
+  { key: "session", label: "Session" },
+  { key: "batch", label: "Batch" },
+  { key: "newBatch", label: "New Batch" },
+  { key: "oldBatch", label: "Old Batch" },
+  { key: "department", label: "Department" },
+  { key: "sscBoard", label: "Ssc Board" },
+  { key: "sscGpa", label: "Ssc Gpa" },
+  { key: "sscGroup", label: "Ssc Group" },
+  { key: "sscPassingYear", label: "Ssc Passing Year" },
+  { key: "diplomaBoard", label: "Diploma Board" },
+  { key: "diplomaGpa", label: "Diploma Gpa" },
+  { key: "diplomaGroup", label: "Diploma Group" },
+  { key: "diplomaPassingYear", label: "Diploma Passing Year" },
+  { key: "cgpa", label: "Cgpa" },
 
   // --- Guardian Information ---
-  { key: 'guardianName', label: 'Guardian Name' },
-  { key: 'relationWithGuardian', label: 'Relation With Guardian' },
-  { key: 'guardianPhone', label: 'Guardian Phone' },
-  { key: 'guardianWhatsAppNum', label: 'Guardian Whats App Num' },
+  { key: "guardianName", label: "Guardian Name" },
+  { key: "relationWithGuardian", label: "Relation With Guardian" },
+  { key: "guardianPhone", label: "Guardian Phone" },
+  { key: "guardianWhatsAppNum", label: "Guardian Whats App Num" },
 
   // --- Address Information ---
-  { key: 'permanentZilla', label: 'Permanent Zilla' },
-  { key: 'permanentUpozilla', label: 'Permanent Upozilla' },
-  { key: 'permanentVillage', label: 'Permanent Village' },
-  { key: 'permanentPostcode', label: 'Permanent Postcode' },
-  { key: 'presentZilla', label: 'Present Zilla' },
-  { key: 'presentUpozilla', label: 'Present Upozilla' },
-  { key: 'presentVillage', label: 'Present Village' },
-  { key: 'presentPostcode', label: 'Present Postcode' },
+  { key: "permanentZilla", label: "Permanent Zilla" },
+  { key: "permanentUpozilla", label: "Permanent Upozilla" },
+  { key: "permanentVillage", label: "Permanent Village" },
+  { key: "permanentPostcode", label: "Permanent Postcode" },
+  { key: "presentZilla", label: "Present Zilla" },
+  { key: "presentUpozilla", label: "Present Upozilla" },
+  { key: "presentVillage", label: "Present Village" },
+  { key: "presentPostcode", label: "Present Postcode" },
 
   // --- Payment & Financial Information ---
-  { key: 'paymentStatus', label: 'Payment Status' },
-  { key: 'receiptNo', label: 'Receipt No' },
-  { key: 'invoiceNo', label: 'Invoice No' },
-  { key: 'amount', label: 'Amount' },
-  { key: 'paymentType', label: 'Payment Type' },
-  { key: 'paymentMethod', label: 'Payment Method' },
-  { key: 'transactionId', label: 'Transaction Id' },
-  { key: 'accountNumber', label: 'Account Number' },
-  { key: 'paymentDate', label: 'Payment Date' },
-  { key: 'courseFee', label: 'Course Fee' },
-  { key: 'admissionFee', label: 'Admission Fee' },
-  { key: 'referenceDiscount', label: 'Reference Discount' },
-  { key: 'cgpaDiscount', label: 'Cgpa Discount' },
-  { key: 'netDiscount', label: 'Net Discount' },
-  { key: 'totalAfterDiscount', label: 'Total After Discount' },
-  { key: 'studentPaid', label: 'Student Paid' },
-  { key: 'admissionFeePaid', label: 'Admission Fee Paid' },
-  { key: 'dueAmount', label: 'Due Amount' },
-  { key: 'admissionFeeDue', label: 'Admission Fee Due' },
-  { key: 'previousDueAmount', label: 'Previous Due Amount' },
-  { key: 'updatedDueAmount', label: 'Updated Due Amount' },
-  { key: 'studentReturnAmount', label: 'Student Return Amount' },
-  { key: 'deductMoney', label: 'Deduct Money' },
-  { key: 'cashback', label: 'Cashback' },
-  { key: 'messServiceCharge', label: 'Mess Service Charge' },
-  { key: 'messServiceChargePaid', label: 'Mess Service Charge Paid' },
-  { key: 'messServiceChargeDue', label: 'Mess Service Charge Due' },
-  { key: 'paymentHistory', label: 'Payment History' },
+  { key: "paymentStatus", label: "Payment Status" },
+  { key: "receiptNo", label: "Receipt No" },
+  { key: "invoiceNo", label: "Invoice No" },
+  { key: "amount", label: "Amount" },
+  { key: "paymentType", label: "Payment Type" },
+  { key: "paymentMethod", label: "Payment Method" },
+  { key: "transactionId", label: "Transaction Id" },
+  { key: "accountNumber", label: "Account Number" },
+  { key: "paymentDate", label: "Payment Date" },
+  { key: "courseFee", label: "Course Fee" },
+  { key: "admissionFee", label: "Admission Fee" },
+  { key: "referenceDiscount", label: "Reference Discount" },
+  { key: "cgpaDiscount", label: "Cgpa Discount" },
+  { key: "netDiscount", label: "Net Discount" },
+  { key: "totalAfterDiscount", label: "Total After Discount" },
+  { key: "studentPaid", label: "Student Paid" },
+  { key: "admissionFeePaid", label: "Admission Fee Paid" },
+  { key: "dueAmount", label: "Due Amount" },
+  { key: "admissionFeeDue", label: "Admission Fee Due" },
+  { key: "previousDueAmount", label: "Previous Due Amount" },
+  { key: "updatedDueAmount", label: "Updated Due Amount" },
+  { key: "studentReturnAmount", label: "Student Return Amount" },
+  { key: "deductMoney", label: "Deduct Money" },
+  { key: "cashback", label: "Cashback" },
+  { key: "messServiceCharge", label: "Mess Service Charge" },
+  { key: "messServiceChargePaid", label: "Mess Service Charge Paid" },
+  { key: "messServiceChargeDue", label: "Mess Service Charge Due" },
+  { key: "paymentHistory", label: "Payment History" },
 
   // --- Payment Audit Details ---
-  { key: 'paymentAudit_receivedAt', label: 'Payment Audit Received At' },
-  { key: 'paymentAudit_receivedBy_name', label: 'Payment Received By Name' },
-  { key: 'paymentAudit_receivedBy_phone', label: 'Payment Received By Phone' },
-  { key: 'paymentAudit_receivedBy_role', label: 'Payment Received By Role' },
+  { key: "paymentAudit_receivedAt", label: "Payment Audit Received At" },
+  { key: "paymentAudit_receivedBy_name", label: "Payment Received By Name" },
+  { key: "paymentAudit_receivedBy_phone", label: "Payment Received By Phone" },
+  { key: "paymentAudit_receivedBy_role", label: "Payment Received By Role" },
   {
-    key: 'paymentAudit_receivedBy_userId',
-    label: 'Payment Received By User ID',
+    key: "paymentAudit_receivedBy_userId",
+    label: "Payment Received By User ID",
   },
 
-  { key: 'paymentAudit_submittedAt', label: 'Payment Audit Submitted At' },
-  { key: 'paymentAudit_submittedBy_name', label: 'Payment Submitted By Name' },
+  { key: "paymentAudit_submittedAt", label: "Payment Audit Submitted At" },
+  { key: "paymentAudit_submittedBy_name", label: "Payment Submitted By Name" },
   {
-    key: 'paymentAudit_submittedBy_phone',
-    label: 'Payment Submitted By Phone',
+    key: "paymentAudit_submittedBy_phone",
+    label: "Payment Submitted By Phone",
   },
-  { key: 'paymentAudit_submittedBy_role', label: 'Payment Submitted By Role' },
+  { key: "paymentAudit_submittedBy_role", label: "Payment Submitted By Role" },
   {
-    key: 'paymentAudit_submittedBy_userId',
-    label: 'Payment Submitted By User ID',
+    key: "paymentAudit_submittedBy_userId",
+    label: "Payment Submitted By User ID",
   },
 
-  { key: 'paymentAudit_lastUpdatedAt', label: 'Payment Audit Last Updated At' },
+  { key: "paymentAudit_lastUpdatedAt", label: "Payment Audit Last Updated At" },
   {
-    key: 'paymentAudit_lastUpdatedBy_name',
-    label: 'Payment Last Updated By Name',
+    key: "paymentAudit_lastUpdatedBy_name",
+    label: "Payment Last Updated By Name",
   },
   {
-    key: 'paymentAudit_lastUpdatedBy_phone',
-    label: 'Payment Last Updated By Phone',
+    key: "paymentAudit_lastUpdatedBy_phone",
+    label: "Payment Last Updated By Phone",
   },
   {
-    key: 'paymentAudit_lastUpdatedBy_role',
-    label: 'Payment Last Updated By Role',
+    key: "paymentAudit_lastUpdatedBy_role",
+    label: "Payment Last Updated By Role",
   },
   {
-    key: 'paymentAudit_lastUpdatedBy_userId',
-    label: 'Payment Last Updated By User ID',
+    key: "paymentAudit_lastUpdatedBy_userId",
+    label: "Payment Last Updated By User ID",
   },
 
   // --- Other & System Details ---
-  { key: 'mess', label: 'Mess' },
-  { key: 'room', label: 'Room' },
-  { key: 'comment', label: 'Comment' },
-  { key: 'note', label: 'Note' },
-  { key: 'activityLogs', label: 'Activity Logs' },
-  { key: 'notifications', label: 'Notifications' },
+  { key: "mess", label: "Mess" },
+  { key: "room", label: "Room" },
+  { key: "comment", label: "Comment" },
+  { key: "note", label: "Note" },
+  { key: "activityLogs", label: "Activity Logs" },
+  { key: "notifications", label: "Notifications" },
 
   // --- General Audit Details ---
-  { key: 'audit_submittedBy', label: 'Audit Submitted By' },
-  { key: 'audit_submittedAt', label: 'Audit Submitted At' },
-  { key: 'audit_lastUpdatedBy', label: 'Audit Last Updated By' },
-  { key: 'audit_lastUpdatedAt', label: 'Audit Last Updated At' },
+  { key: "audit_submittedBy", label: "Audit Submitted By" },
+  { key: "audit_submittedAt", label: "Audit Submitted At" },
+  { key: "audit_lastUpdatedBy", label: "Audit Last Updated By" },
+  { key: "audit_lastUpdatedAt", label: "Audit Last Updated At" },
 ];
 
 const AllStudents = () => {
@@ -213,27 +214,27 @@ const AllStudents = () => {
     if (!folders || !Array.isArray(folders)) return [];
 
     return folders.map((item: any) => {
-      let badge = 'Active';
-      let badgeColor: 'purple' | 'blue' | 'sky' | 'amber' = 'blue';
-      let subtitle = 'Regular Academic Session';
+      let badge = "Active";
+      let badgeColor: "purple" | "blue" | "sky" | "amber" = "blue";
+      let subtitle = "Regular Academic Session";
 
-      const sessionName = item.session || '';
+      const sessionName = item.session || "";
 
-      if (sessionName.toLowerCase().includes('crash')) {
-        badge = 'Crash Batch';
-        badgeColor = 'amber';
-        subtitle = 'High-Intensity Problem Solving Sprint';
+      if (sessionName.toLowerCase().includes("crash")) {
+        badge = "Crash Batch";
+        badgeColor = "amber";
+        subtitle = "High-Intensity Problem Solving Sprint";
       } else if (
-        sessionName.startsWith('2029') ||
-        sessionName.startsWith('2030')
+        sessionName.startsWith("2029") ||
+        sessionName.startsWith("2030")
       ) {
-        badge = 'Pre-Registration';
-        badgeColor = 'purple';
-        subtitle = 'Foundational Diploma Bridge Intake';
-      } else if (sessionName.startsWith('2025')) {
-        badge = 'Model Tests';
-        badgeColor = 'sky';
-        subtitle = 'Graduating Batch Revision & Mock Exam';
+        badge = "Pre-Registration";
+        badgeColor = "purple";
+        subtitle = "Foundational Diploma Bridge Intake";
+      } else if (sessionName.startsWith("2025")) {
+        badge = "Model Tests";
+        badgeColor = "sky";
+        subtitle = "Graduating Batch Revision & Mock Exam";
       }
 
       return {
@@ -242,7 +243,7 @@ const AllStudents = () => {
         subtitle,
         badge,
         badgeColor,
-        progressLabel: 'Enrolled Students',
+        progressLabel: "Enrolled Students",
         progressValue: item.totalStudents || 0,
         progressMax: Math.max((item.totalStudents || 0) + 100, 100),
         footerLeft: `${item.paidStudents || 0} Paid • ${item.dueStudents || 0} Due`,
@@ -252,26 +253,26 @@ const AllStudents = () => {
 
   const handleDownloadPhoneSheet = () => {
     if (!students.length) {
-      toast.error('No students available for the selected batch!');
+      toast.error("No students available for the selected batch!");
       return;
     }
     generatePhoneSheetPDF(
       students,
-      selectedBatch || 'All_Batches',
-      selectedSession || '2026-2027',
+      selectedBatch || "All_Batches",
+      selectedSession || "2026-2027",
     );
   };
 
   // download student attendance sheet
   const handleDownloadAttendanceSheet = () => {
     if (!students.length) {
-      toast.error('No students available for the selected batch!');
+      toast.error("No students available for the selected batch!");
       return;
     }
     generateAttendanceSheetPDF(
       students,
-      selectedBatch || 'All_Batches',
-      selectedSession || '2026-2027',
+      selectedBatch || "All_Batches",
+      selectedSession || "2026-2027",
     );
   };
 
@@ -292,66 +293,66 @@ const AllStudents = () => {
   // Excel Export Handler using exceljs
   const handleExportExcel = async () => {
     if (!students.length) {
-      toast.error('No students available to export!');
+      toast.error("No students available to export!");
       return;
     }
     if (selectedColumnKeys.length === 0) {
-      toast.error('Please select at least one column to export!');
+      toast.error("Please select at least one column to export!");
       return;
     }
 
     try {
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Students Report');
+      const worksheet = workbook.addWorksheet("Students Report");
 
       // Row 1: Title
-      worksheet.mergeCells('A1:E1');
-      const titleCell = worksheet.getCell('A1');
-      titleCell.value = 'RPR DUET Admission Care';
+      worksheet.mergeCells("A1:E1");
+      const titleCell = worksheet.getCell("A1");
+      titleCell.value = "RPR DUET Admission Care";
       titleCell.font = {
-        name: 'Arial',
+        name: "Arial",
         size: 16,
         bold: true,
-        color: { argb: 'FFFFFFFF' },
+        color: { argb: "FFFFFFFF" },
       };
       titleCell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF4F46E5' }, // Indigo-600
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF4F46E5" }, // Indigo-600
       };
-      titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+      titleCell.alignment = { horizontal: "center", vertical: "middle" };
       worksheet.getRow(1).height = 30;
 
       // Row 2: Subtitle
-      worksheet.mergeCells('A2:E2');
-      const subCell1 = worksheet.getCell('A2');
-      subCell1.value = 'Phone: +880 1700-000000 | Address: Dhaka, Bangladesh';
+      worksheet.mergeCells("A2:E2");
+      const subCell1 = worksheet.getCell("A2");
+      subCell1.value = "Phone: +880 1700-000000 | Address: Dhaka, Bangladesh";
       subCell1.font = {
-        name: 'Arial',
+        name: "Arial",
         size: 10,
         italic: true,
-        color: { argb: 'FF334155' },
+        color: { argb: "FF334155" },
       };
-      subCell1.alignment = { horizontal: 'center', vertical: 'middle' };
+      subCell1.alignment = { horizontal: "center", vertical: "middle" };
       worksheet.getRow(2).height = 20;
 
       // Row 3: Session & Batch
-      worksheet.mergeCells('A3:E3');
+      worksheet.mergeCells("A3:E3");
       const sessionText = selectedSession
         ? `Session: ${selectedSession}`
-        : 'All Sessions';
+        : "All Sessions";
       const batchText = selectedBatch
         ? `Batch: ${selectedBatch}`
-        : 'All Batches';
-      const subCell2 = worksheet.getCell('A3');
+        : "All Batches";
+      const subCell2 = worksheet.getCell("A3");
       subCell2.value = `${sessionText}  |  ${batchText}`;
       subCell2.font = {
-        name: 'Arial',
+        name: "Arial",
         size: 10,
         bold: true,
-        color: { argb: 'FF0F172A' },
+        color: { argb: "FF0F172A" },
       };
-      subCell2.alignment = { horizontal: 'center', vertical: 'middle' };
+      subCell2.alignment = { horizontal: "center", vertical: "middle" };
       worksheet.getRow(3).height = 20;
 
       // Blank Row spacer
@@ -365,48 +366,48 @@ const AllStudents = () => {
       // Table Header Row
       const headerRow = worksheet.addRow(activeColumns.map((col) => col.label));
       headerRow.font = {
-        name: 'Arial',
+        name: "Arial",
         size: 10,
         bold: true,
-        color: { argb: 'FFFFFFFF' },
+        color: { argb: "FFFFFFFF" },
       };
       headerRow.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF1E293B' }, // Slate-800
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1E293B" }, // Slate-800
       };
-      headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+      headerRow.alignment = { horizontal: "center", vertical: "middle" };
       headerRow.height = 24;
 
       // Table Data Rows
       students.forEach((student: any, index: number) => {
         const rowData = activeColumns.map((col) => {
-          if (col.key === 'serial') return index + 1;
+          if (col.key === "serial") return index + 1;
 
           // Handle paymentAudit nested objects (e.g., paymentAudit_receivedBy_name)
-          if (col.key.startsWith('paymentAudit_')) {
-            const parts = col.key.replace('paymentAudit_', '').split('_');
+          if (col.key.startsWith("paymentAudit_")) {
+            const parts = col.key.replace("paymentAudit_", "").split("_");
             if (parts.length === 1) {
               const part = parts[0];
               if (part !== undefined) {
                 const val = student.paymentAudit?.[part];
-                return val !== undefined && val !== null ? String(val) : '';
+                return val !== undefined && val !== null ? String(val) : "";
               }
-              return '';
+              return "";
             } else if (parts.length === 2) {
               const [parentKey, childKey] = parts;
               if (parentKey !== undefined && childKey !== undefined) {
                 const val = student.paymentAudit?.[parentKey]?.[childKey];
-                return val !== undefined && val !== null ? String(val) : '';
+                return val !== undefined && val !== null ? String(val) : "";
               }
             }
           }
 
           // Handle general audit nested objects
-          if (col.key.startsWith('audit_')) {
-            const subKey = col.key.replace('audit_', '');
+          if (col.key.startsWith("audit_")) {
+            const subKey = col.key.replace("audit_", "");
             const val = student.audit?.[subKey];
-            return val !== undefined && val !== null ? String(val) : '';
+            return val !== undefined && val !== null ? String(val) : "";
           }
 
           // Direct property or fallback
@@ -417,12 +418,12 @@ const AllStudents = () => {
 
           return directVal !== undefined && directVal !== null
             ? String(directVal)
-            : '';
+            : "";
         });
 
         const dataRow = worksheet.addRow(rowData);
-        dataRow.font = { name: 'Arial', size: 9, color: { argb: 'FF1E293B' } };
-        dataRow.alignment = { horizontal: 'left', vertical: 'middle' };
+        dataRow.font = { name: "Arial", size: 9, color: { argb: "FF1E293B" } };
+        dataRow.alignment = { horizontal: "left", vertical: "middle" };
         dataRow.height = 20;
       });
 
@@ -431,10 +432,10 @@ const AllStudents = () => {
         if (rowNumber >= 5) {
           row.eachCell((cell) => {
             cell.border = {
-              top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-              left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-              bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-              right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+              top: { style: "thin", color: { argb: "FFCBD5E1" } },
+              left: { style: "thin", color: { argb: "FFCBD5E1" } },
+              bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
+              right: { style: "thin", color: { argb: "FFCBD5E1" } },
             };
           });
         }
@@ -444,7 +445,7 @@ const AllStudents = () => {
       worksheet.columns.forEach((column) => {
         let maxLength = 10;
         column.eachCell?.({ includeEmpty: true }, (cell) => {
-          const columnValue = cell.value ? String(cell.value) : '';
+          const columnValue = cell.value ? String(cell.value) : "";
           if (columnValue.length > maxLength) {
             maxLength = columnValue.length;
           }
@@ -455,19 +456,19 @@ const AllStudents = () => {
       // Write and Download File
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `Students_Report_${selectedBatch || 'All_Batches'}_${selectedSession || 'All_Sessions'}.xlsx`;
+      anchor.download = `Students_Report_${selectedBatch || "All_Batches"}_${selectedSession || "All_Sessions"}.xlsx`;
       anchor.click();
       window.URL.revokeObjectURL(url);
 
       setIsExcelModalOpen(false);
-      toast.success('Excel sheet exported successfully!');
+      toast.success("Excel sheet exported successfully!");
     } catch (err) {
-      toast.error('Failed to export Excel sheet.');
+      toast.error("Failed to export Excel sheet.");
     }
   };
 
@@ -755,8 +756,8 @@ const AllStudents = () => {
                       onClick={() => handleToggleColumn(col.key)}
                       className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border transition-all cursor-pointer select-none ${
                         isChecked
-                          ? 'border-indigo-200 bg-indigo-50/30 text-indigo-950 font-medium'
-                          : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
+                          ? "border-indigo-200 bg-indigo-50/30 text-indigo-950 font-medium"
+                          : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
                       }`}
                     >
                       <input

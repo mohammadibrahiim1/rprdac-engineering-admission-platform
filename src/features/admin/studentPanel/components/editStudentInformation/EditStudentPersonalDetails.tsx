@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Controller } from 'react-hook-form';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { Controller } from "react-hook-form";
+import { motion } from "framer-motion";
 import {
   Building2,
   Copy,
@@ -9,15 +9,48 @@ import {
   X,
   AlertCircle,
   ChevronDown,
-} from 'lucide-react';
-import { BLOOD_GROUPS } from '../../constants/bloodGroups';
-import { DEPARTMENTS } from '../../constants/departments';
-import BatchSelector from '../../../../../../components/forms/BatchSelector';
-import SessionSelector from '../../../../../../components/forms/SessionSelector';
-import RelationshipSelector from '../../../../../../components/forms/RelationShipSelector';
-import CapturePhoto from '../../../../../../components/CapturePhoto';
+} from "lucide-react";
+import SessionSelector from "@/components/common/SessionSelector";
+import BatchSelector from "@/components/common/BatchSelector";
+import RelationshipSelector from "@/components/common/RelationShipSelector";
+import CapturePhoto from "@/components/common/CapturePhoto";
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL || '';
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL || "";
+
+export const BLOOD_GROUPS = [
+  // Common ABO & Rh Systems
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+
+  // Rare & Special Blood Systems
+  "Bombay (h/h)",
+  "INRA / Rhnull",
+  "Lu(a-b-)",
+  "Diego",
+  "Duffy-negative",
+  "Kidd-null",
+  "Kell-null (K0)",
+  "MNS-null",
+  "P-null",
+  "Colton-null",
+];
+
+export const DEPARTMENTS = [
+  "ARCH",
+  "CE",
+  "CHE",
+  "CSE",
+  "EEE",
+  "FE",
+  "ME/IPE/MME",
+  "TE",
+];
 
 interface Props {
   register: any;
@@ -32,7 +65,7 @@ interface Props {
 }
 
 const inputBase =
-  'w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-md outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed';
+  "w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-md outline-none transition-all duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed";
 
 const EditStudentPersonalDetails = ({
   register,
@@ -45,19 +78,19 @@ const EditStudentPersonalDetails = ({
   watch,
 }: Props) => {
   const [preview, setPreview] = useState<string | null>(null);
-  const [photoError, setPhotoError] = useState('');
+  const [photoError, setPhotoError] = useState("");
 
   // Cleanup blob URLs
   useEffect(() => {
     return () => {
-      if (preview?.startsWith('blob:')) {
+      if (preview?.startsWith("blob:")) {
         URL.revokeObjectURL(preview);
       }
     };
   }, [preview]);
 
   const previousPhoto =
-    student?.studentPhoto && student.studentPhoto !== 'N/A'
+    student?.studentPhoto && student.studentPhoto !== "N/A"
       ? `${SERVER}${student.studentPhoto}`
       : null;
 
@@ -67,14 +100,14 @@ const EditStudentPersonalDetails = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setPhotoError('');
+    setPhotoError("");
 
-    if (!file.type.startsWith('image/')) {
-      setPhotoError('Only image files are allowed.');
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Only image files are allowed.");
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      setPhotoError('Image must be below 2MB.');
+      setPhotoError("Image must be below 2MB.");
       return;
     }
 
@@ -86,7 +119,7 @@ const EditStudentPersonalDetails = ({
     if (!file) return;
     setPhotoFile(file);
     setPreview(URL.createObjectURL(file));
-    setPhotoError('');
+    setPhotoError("");
   };
 
   const removeNewImage = () => {
@@ -141,14 +174,14 @@ const EditStudentPersonalDetails = ({
                   </label>
                   <button
                     type="button"
-                    onClick={() => copyToClipboard(watch?.('receiptNo'))}
+                    onClick={() => copyToClipboard(watch?.("receiptNo"))}
                     className="text-xs text-indigo-600 font-medium flex items-center gap-1 hover:underline"
                   >
                     <Copy className="w-3.5 h-3.5" /> Copy
                   </button>
                 </div>
                 <input
-                  {...register('receiptNo')}
+                  {...register("receiptNo")}
                   className={inputBase}
                   disabled={!isEditMode}
                   placeholder="RPR-8513528"
@@ -161,7 +194,7 @@ const EditStudentPersonalDetails = ({
                   Student ID
                 </label>
                 <input
-                  {...register('studentId')}
+                  {...register("studentId")}
                   className={inputBase}
                   disabled={!isEditMode}
                   placeholder="STD-001 / RPR-2029-0842"
@@ -174,7 +207,7 @@ const EditStudentPersonalDetails = ({
                   Full Name (English) <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  {...register('name', { required: 'Full name is required' })}
+                  {...register("name", { required: "Full name is required" })}
                   className={`${inputBase} font-sans`}
                   disabled={!isEditMode}
                   placeholder="Bangladeshi Student"
@@ -190,11 +223,11 @@ const EditStudentPersonalDetails = ({
               {/* Full Name Bangla */}
               <div className="space-y-1.5">
                 <label className="text-[13px] font-semibold text-slate-700">
-                  Full Name (Bengali Script){' '}
+                  Full Name (Bengali Script){" "}
                   <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  {...register('nameInBangla')}
+                  {...register("nameInBangla")}
                   className={`${inputBase} font-serifbn`}
                   disabled={!isEditMode}
                   placeholder="বাংলাদেশী স্টুডেন্ট"
@@ -208,7 +241,7 @@ const EditStudentPersonalDetails = ({
                 </label>
                 <div className="relative">
                   <select
-                    {...register('bloodGroup')}
+                    {...register("bloodGroup")}
                     disabled={!isEditMode}
                     className={`${inputBase} appearance-none pr-10`}
                   >
@@ -229,7 +262,7 @@ const EditStudentPersonalDetails = ({
                   Phone Number <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  {...register('phone', { required: 'Phone is required' })}
+                  {...register("phone", { required: "Phone is required" })}
                   className={inputBase}
                   disabled={!isEditMode}
                   placeholder="01XXXXXXXXX"
@@ -243,7 +276,7 @@ const EditStudentPersonalDetails = ({
                   WhatsApp Number
                 </label>
                 <input
-                  {...register('studentWhatsAppNum')}
+                  {...register("studentWhatsAppNum")}
                   className={inputBase}
                   disabled={!isEditMode}
                   placeholder="01XXXXXXXXX"
@@ -258,7 +291,7 @@ const EditStudentPersonalDetails = ({
                 </label>
                 <div className="relative">
                   <select
-                    {...register('department')}
+                    {...register("department")}
                     disabled={!isEditMode}
                     className={`${inputBase} appearance-none pr-10`}
                   >
@@ -314,8 +347,8 @@ const EditStudentPersonalDetails = ({
                   Guardian Name <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  {...register('guardianName', {
-                    required: 'Guardian name is required',
+                  {...register("guardianName", {
+                    required: "Guardian name is required",
                   })}
                   className={inputBase}
                   disabled={!isEditMode}
@@ -329,8 +362,8 @@ const EditStudentPersonalDetails = ({
                   Guardian Phone <span className="text-rose-500">*</span>
                 </label>
                 <input
-                  {...register('guardianPhone', {
-                    required: 'Guardian phone is required',
+                  {...register("guardianPhone", {
+                    required: "Guardian phone is required",
                   })}
                   className={inputBase}
                   disabled={!isEditMode}
@@ -364,7 +397,7 @@ const EditStudentPersonalDetails = ({
                   Guardian WhatsApp
                 </label>
                 <input
-                  {...register('guardianWhatsAppNum')}
+                  {...register("guardianWhatsAppNum")}
                   className={inputBase}
                   disabled={!isEditMode}
                   placeholder="01XXXXXXXXX"
@@ -424,8 +457,8 @@ const EditStudentPersonalDetails = ({
                 <p className="mt-2 text-[11px] text-slate-500 text-center truncate max-w-[200px]">
                   {photoFile?.name ||
                     (student?.studentPhoto
-                      ? 'Current photo'
-                      : 'No photo uploaded')}
+                      ? "Current photo"
+                      : "No photo uploaded")}
                 </p>
 
                 {/* Upload File Button */}

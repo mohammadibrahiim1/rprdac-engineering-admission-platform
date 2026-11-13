@@ -1,5 +1,5 @@
-import React, { useState, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Printer,
@@ -17,79 +17,79 @@ import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   flexRender,
   createColumnHelper,
-} from '@tanstack/react-table';
-import { PiInvoice } from 'react-icons/pi';
-import { useStudentInvoices } from '../hooks/useStudentInvoices';
+} from "@tanstack/react-table";
+import { PiInvoice } from "react-icons/pi";
+import { useStudentInvoices } from "../hooks/useStudentInvoices";
 
-import logo from '../../../../../assets/img/log-rpr.png';
+import logo from "../../../../../assets/img/log-rpr.png";
 
 // ─── FORMATTERS ───────────────────────────────────────────────────────────────
 const fmtBDT = (n) =>
-  new Intl.NumberFormat('en-BD', {
-    style: 'currency',
-    currency: 'BDT',
+  new Intl.NumberFormat("en-BD", {
+    style: "currency",
+    currency: "BDT",
     minimumFractionDigits: 0,
   }).format(n || 0);
 
 const fmtDate = (d) =>
   d
-    ? new Date(d).toLocaleDateString('en-BD', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
+    ? new Date(d).toLocaleDateString("en-BD", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       })
-    : '—';
+    : "—";
 
-const shortId = (id = '') => (id.length > 12 ? `${id.slice(0, 8)}…` : id);
+const shortId = (id = "") => (id.length > 12 ? `${id.slice(0, 8)}…` : id);
 
 const safeFmtDate = (dateStr) => {
-  if (!dateStr) return 'N/A';
+  if (!dateStr) return "N/A";
   const d = new Date(dateStr);
   return Number.isNaN(d.getTime())
     ? dateStr
-    : d.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
+    : d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       });
 };
 
 const safeFmtBDT = (amt) => {
   const val = Number(amt) || 0;
-  return `৳${val.toLocaleString('en-BD')}`;
+  return `৳${val.toLocaleString("en-BD")}`;
 };
 
 // ─── STATUS CONFIG ────────────────────────────────────────────────────────────
 const STATUS = {
   paid: {
-    label: 'Paid',
-    dot: 'bg-emerald-500',
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
+    label: "Paid",
+    dot: "bg-emerald-500",
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
     Icon: Check,
   },
   partial: {
-    label: 'Partial',
-    dot: 'bg-amber-500',
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
+    label: "Partial",
+    dot: "bg-amber-500",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
     Icon: Clock,
   },
   pending: {
-    label: 'Pending',
-    dot: 'bg-red-500',
-    bg: 'bg-red-50',
-    text: 'text-red-700',
-    border: 'border-red-200',
+    label: "Pending",
+    dot: "bg-red-500",
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
     Icon: AlertCircle,
   },
 };
@@ -138,8 +138,8 @@ function SelectionCell({ isSelected, onToggle }) {
       type="button"
       className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer transition-all ${
         isSelected
-          ? 'bg-indigo-600 border-indigo-600'
-          : 'border-gray-300 hover:border-indigo-400'
+          ? "bg-indigo-600 border-indigo-600"
+          : "border-gray-300 hover:border-indigo-400"
       }`}
       onClick={onToggle}
     >
@@ -154,8 +154,8 @@ function SelectionHeader({ allRowsSelected, onToggle }) {
       type="button"
       className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer transition-all ${
         allRowsSelected
-          ? 'bg-indigo-600 border-indigo-600'
-          : 'border-gray-300 hover:border-indigo-400'
+          ? "bg-indigo-600 border-indigo-600"
+          : "border-gray-300 hover:border-indigo-400"
       }`}
       onClick={onToggle}
     >
@@ -173,7 +173,7 @@ function EmptyState({ search }) {
         <Receipt size={24} className="text-gray-300" />
       </div>
       <p className="text-xs text-gray-700">
-        {search ? `No results for "${search}"` : 'No invoices available'}
+        {search ? `No results for "${search}"` : "No invoices available"}
       </p>
     </div>
   );
@@ -203,101 +203,101 @@ const InvoiceCard = ({ invoice, copyType }) => {
 
   // Extract createdBy name/username/email flexibly
   const createdByName =
-    typeof invoice?.createdBy === 'object' && invoice?.createdBy !== null
+    typeof invoice?.createdBy === "object" && invoice?.createdBy !== null
       ? invoice.createdBy.name ||
         invoice.createdBy.username ||
         invoice.createdBy.email ||
-        'N/A'
-      : invoice?.createdBy || invoice?.createdByName || 'N/A';
+        "N/A"
+      : invoice?.createdBy || invoice?.createdByName || "N/A";
 
   // Determine Payment Status Badge
-  let statusText = 'UNPAID';
-  let statusBg = '#fef2f2';
-  let statusColor = '#dc2626';
+  let statusText = "UNPAID";
+  let statusBg = "#fef2f2";
+  let statusColor = "#dc2626";
 
   if (
     finalDue === 0 &&
-    (paidAmount > 0 || invoice?.invoiceType === 'payment_update')
+    (paidAmount > 0 || invoice?.invoiceType === "payment_update")
   ) {
-    statusText = 'PAID';
-    statusBg = '#f0fdf4';
-    statusColor = '#16a34a';
+    statusText = "PAID";
+    statusBg = "#f0fdf4";
+    statusColor = "#16a34a";
   } else if (paidAmount > 0 && finalDue > 0) {
-    statusText = 'PARTIAL PAID';
-    statusBg = '#fffbebe1';
-    statusColor = '#d97706';
+    statusText = "PARTIAL PAID";
+    statusBg = "#fffbebe1";
+    statusColor = "#d97706";
   }
 
   return (
     <div
       style={{
-        padding: '6mm 10mm',
-        boxSizing: 'border-box',
-        height: '140mm',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative',
-        overflow: 'hidden',
+        padding: "6mm 10mm",
+        boxSizing: "border-box",
+        height: "140mm",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
       {/* WATERMARK BACKGROUND LOGO */}
       <div
         style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '60%',
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "60%",
           opacity: 0.08,
-          pointerEvents: 'none',
+          pointerEvents: "none",
           zIndex: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <img
           src={logo}
           alt="RPR Watermark"
           style={{
-            width: '100%',
-            maxHeight: '100mm',
-            objectFit: 'contain',
+            width: "100%",
+            maxHeight: "100mm",
+            objectFit: "contain",
           }}
         />
       </div>
 
       {/* HEADER SECTION */}
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: "relative", zIndex: 1 }}>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            width: '100%',
-            borderBottom: '2px solid #1e293b',
-            paddingBottom: '6px',
-            marginBottom: '8px',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            width: "100%",
+            borderBottom: "2px solid #1e293b",
+            paddingBottom: "6px",
+            marginBottom: "8px",
           }}
         >
           <div>
             <h1
               style={{
-                fontSize: '13pt',
+                fontSize: "13pt",
                 fontWeight: 800,
                 margin: 0,
-                color: '#0f172a',
-                textTransform: 'uppercase',
+                color: "#0f172a",
+                textTransform: "uppercase",
               }}
             >
               RPR DUET Admission Care
             </h1>
             <p
               style={{
-                fontSize: '7.5pt',
-                color: '#475569',
-                margin: '2px 0 0 0',
+                fontSize: "7.5pt",
+                color: "#475569",
+                margin: "2px 0 0 0",
                 lineHeight: 1.3,
               }}
             >
@@ -307,38 +307,38 @@ const InvoiceCard = ({ invoice, copyType }) => {
             </p>
           </div>
 
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: "right" }}>
             <div
               style={{
-                display: 'flex',
-                gap: '6px',
-                justifyContent: 'flex-end',
-                marginBottom: '4px',
+                display: "flex",
+                gap: "6px",
+                justifyContent: "flex-end",
+                marginBottom: "4px",
               }}
             >
               <span
                 style={{
-                  fontSize: '7.5pt',
+                  fontSize: "7.5pt",
                   fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: '4px',
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                   background: statusBg,
                   color: statusColor,
                   border: `1px solid ${statusColor}`,
-                  textTransform: 'uppercase',
+                  textTransform: "uppercase",
                 }}
               >
                 {statusText}
               </span>
               <span
                 style={{
-                  fontSize: '7.5pt',
+                  fontSize: "7.5pt",
                   fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  background: '#e2e8f0',
-                  color: '#1e293b',
-                  textTransform: 'uppercase',
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  background: "#e2e8f0",
+                  color: "#1e293b",
+                  textTransform: "uppercase",
                 }}
               >
                 {copyType}
@@ -346,19 +346,19 @@ const InvoiceCard = ({ invoice, copyType }) => {
             </div>
             <p
               style={{
-                fontSize: '11pt',
+                fontSize: "11pt",
                 fontWeight: 800,
                 margin: 0,
-                color: '#0f172a',
+                color: "#0f172a",
               }}
             >
-              #{invoice?.invoiceNumber || 'N/A'}
+              #{invoice?.invoiceNumber || "N/A"}
             </p>
             <p
               style={{
-                fontSize: '7.5pt',
-                color: '#64748b',
-                margin: '2px 0 0 0',
+                fontSize: "7.5pt",
+                color: "#64748b",
+                margin: "2px 0 0 0",
               }}
             >
               Date: {safeFmtDate(invoice?.paymentDate || invoice?.createdAt)}
@@ -369,99 +369,99 @@ const InvoiceCard = ({ invoice, copyType }) => {
         {/* STUDENT & PAYMENT META */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 85px',
-            gap: '8px',
-            marginBottom: '8px',
-            background: '#f8fafc',
-            padding: '6px 10px',
-            borderRadius: '6px',
-            border: '1px solid #e2e8f0',
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 85px",
+            gap: "8px",
+            marginBottom: "8px",
+            background: "#f8fafc",
+            padding: "6px 10px",
+            borderRadius: "6px",
+            border: "1px solid #e2e8f0",
           }}
         >
           <div>
             <p
               style={{
-                fontSize: '6pt',
-                color: '#64748b',
-                textTransform: 'uppercase',
+                fontSize: "6pt",
+                color: "#64748b",
+                textTransform: "uppercase",
                 fontWeight: 700,
-                margin: '0 0 2px 0',
+                margin: "0 0 2px 0",
               }}
             >
               Student Details
             </p>
             <p
               style={{
-                fontSize: '8.5pt',
+                fontSize: "8.5pt",
                 fontWeight: 700,
                 margin: 0,
-                color: '#0f172a',
-                textTransform: 'capitalize',
+                color: "#0f172a",
+                textTransform: "capitalize",
               }}
             >
-              {invoice?.studentName || invoice?.student?.name || 'N/A'}
+              {invoice?.studentName || invoice?.student?.name || "N/A"}
             </p>
             <p
-              style={{ fontSize: '7pt', color: '#334155', margin: '1px 0 0 0' }}
+              style={{ fontSize: "7pt", color: "#334155", margin: "1px 0 0 0" }}
             >
-              ID:{' '}
+              ID:{" "}
               <strong>
                 {invoice?.studentUniqueId ||
                   invoice?.student?.studentId ||
-                  'N/A'}
+                  "N/A"}
               </strong>
               {invoice?.cgpa && ` | CGPA: ${invoice.cgpa}`}
             </p>
             <p
-              style={{ fontSize: '7pt', color: '#334155', margin: '1px 0 0 0' }}
+              style={{ fontSize: "7pt", color: "#334155", margin: "1px 0 0 0" }}
             >
-              Phone: {invoice?.studentPhone || invoice?.student?.phone || 'N/A'}
+              Phone: {invoice?.studentPhone || invoice?.student?.phone || "N/A"}
             </p>
           </div>
 
           <div>
             <p
               style={{
-                fontSize: '6pt',
-                color: '#64748b',
-                textTransform: 'uppercase',
+                fontSize: "6pt",
+                color: "#64748b",
+                textTransform: "uppercase",
                 fontWeight: 700,
-                margin: '0 0 2px 0',
+                margin: "0 0 2px 0",
               }}
             >
               Payment Information
             </p>
-            <p style={{ fontSize: '7pt', color: '#334155', margin: 0 }}>
-              Method:{' '}
-              <strong style={{ textTransform: 'uppercase' }}>
-                {invoice?.paymentMethod || 'Cash'}
+            <p style={{ fontSize: "7pt", color: "#334155", margin: 0 }}>
+              Method:{" "}
+              <strong style={{ textTransform: "uppercase" }}>
+                {invoice?.paymentMethod || "Cash"}
               </strong>
             </p>
             <p
-              style={{ fontSize: '7pt', color: '#334155', margin: '1px 0 0 0' }}
+              style={{ fontSize: "7pt", color: "#334155", margin: "1px 0 0 0" }}
             >
-              Type:{' '}
-              <span style={{ textTransform: 'capitalize' }}>
-                {invoice?.invoiceType?.replace('_', ' ') || 'Payment Update'}
+              Type:{" "}
+              <span style={{ textTransform: "capitalize" }}>
+                {invoice?.invoiceType?.replace("_", " ") || "Payment Update"}
               </span>
             </p>
             {invoice?.hasMessInfo && (
               <p
                 style={{
-                  fontSize: '7pt',
-                  color: '#334155',
-                  margin: '1px 0 0 0',
+                  fontSize: "7pt",
+                  color: "#334155",
+                  margin: "1px 0 0 0",
                 }}
               >
                 Mess: {invoice?.messName} (Room: {invoice?.roomNo})
               </p>
             )}
             <p
-              style={{ fontSize: '7pt', color: '#334155', margin: '1px 0 0 0' }}
+              style={{ fontSize: "7pt", color: "#334155", margin: "1px 0 0 0" }}
             >
-              By:{' '}
-              <span style={{ textTransform: 'capitalize' }}>
+              By:{" "}
+              <span style={{ textTransform: "capitalize" }}>
                 {createdByName}
               </span>
             </p>
@@ -469,25 +469,25 @@ const InvoiceCard = ({ invoice, copyType }) => {
 
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <img
               src={
-                'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' +
+                "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" +
                 encodeURIComponent(
-                  'https://rprduet.com/verify-invoice/' +
-                    (invoice?.invoiceNumber || ''),
+                  "https://rprduet.com/verify-invoice/" +
+                    (invoice?.invoiceNumber || ""),
                 )
               }
               alt="QR Code"
               style={{
-                width: '15mm',
-                height: '15mm',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e1',
+                width: "15mm",
+                height: "15mm",
+                borderRadius: "4px",
+                border: "1px solid #cbd5e1",
               }}
             />
           </div>
@@ -496,35 +496,35 @@ const InvoiceCard = ({ invoice, copyType }) => {
         {/* FINANCIAL ACCOUNTS TABLE */}
         <table
           style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '8pt',
-            marginBottom: '6px',
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: "8pt",
+            marginBottom: "6px",
           }}
         >
           <thead>
             <tr
               style={{
-                borderBottom: '1.5px solid #0f172a',
-                background: '#f1f5f9',
+                borderBottom: "1.5px solid #0f172a",
+                background: "#f1f5f9",
               }}
             >
               <th
                 style={{
-                  textAlign: 'left',
-                  padding: '4px 6px',
-                  color: '#0f172a',
-                  textTransform: 'uppercase',
+                  textAlign: "left",
+                  padding: "4px 6px",
+                  color: "#0f172a",
+                  textTransform: "uppercase",
                 }}
               >
                 Fee Description / Particulars
               </th>
               <th
                 style={{
-                  textAlign: 'right',
-                  padding: '4px 6px',
-                  color: '#0f172a',
-                  textTransform: 'uppercase',
+                  textAlign: "right",
+                  padding: "4px 6px",
+                  color: "#0f172a",
+                  textTransform: "uppercase",
                 }}
               >
                 Amount
@@ -533,15 +533,15 @@ const InvoiceCard = ({ invoice, copyType }) => {
           </thead>
           <tbody>
             {courseFee > 0 && (
-              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '4px 6px', color: '#334155' }}>
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <td style={{ padding: "4px 6px", color: "#334155" }}>
                   Course Fee
                 </td>
                 <td
                   style={{
-                    padding: '4px 6px',
-                    textAlign: 'right',
-                    fontFamily: 'monospace',
+                    padding: "4px 6px",
+                    textAlign: "right",
+                    fontFamily: "monospace",
                     fontWeight: 600,
                   }}
                 >
@@ -551,15 +551,15 @@ const InvoiceCard = ({ invoice, copyType }) => {
             )}
 
             {admissionFee > 0 && (
-              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '4px 6px', color: '#334155' }}>
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <td style={{ padding: "4px 6px", color: "#334155" }}>
                   Admission Fee
                 </td>
                 <td
                   style={{
-                    padding: '4px 6px',
-                    textAlign: 'right',
-                    fontFamily: 'monospace',
+                    padding: "4px 6px",
+                    textAlign: "right",
+                    fontFamily: "monospace",
                     fontWeight: 600,
                   }}
                 >
@@ -569,21 +569,21 @@ const InvoiceCard = ({ invoice, copyType }) => {
             )}
 
             {totalDiscountOffered > 0 && (
-              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '4px 6px', color: '#d97706' }}>
-                  Total Discount Offered{' '}
-                  {cgpaDiscount > 0 ? `(CGPA: ${safeFmtBDT(cgpaDiscount)}` : ''}
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <td style={{ padding: "4px 6px", color: "#d97706" }}>
+                  Total Discount Offered{" "}
+                  {cgpaDiscount > 0 ? `(CGPA: ${safeFmtBDT(cgpaDiscount)}` : ""}
                   {referenceDiscount > 0
                     ? `, Ref: ${safeFmtBDT(referenceDiscount)}`
-                    : ''}
+                    : ""}
                   )
                 </td>
                 <td
                   style={{
-                    padding: '4px 6px',
-                    textAlign: 'right',
-                    fontFamily: 'monospace',
-                    color: '#d97706',
+                    padding: "4px 6px",
+                    textAlign: "right",
+                    fontFamily: "monospace",
+                    color: "#d97706",
                     fontWeight: 600,
                   }}
                 >
@@ -593,15 +593,15 @@ const InvoiceCard = ({ invoice, copyType }) => {
             )}
 
             {messServiceCharge > 0 && (
-              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '4px 6px', color: '#334155' }}>
-                  Mess Service Charge ({invoice?.messName || 'Mess'})
+              <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <td style={{ padding: "4px 6px", color: "#334155" }}>
+                  Mess Service Charge ({invoice?.messName || "Mess"})
                 </td>
                 <td
                   style={{
-                    padding: '4px 6px',
-                    textAlign: 'right',
-                    fontFamily: 'monospace',
+                    padding: "4px 6px",
+                    textAlign: "right",
+                    fontFamily: "monospace",
                     fontWeight: 600,
                   }}
                 >
@@ -613,26 +613,26 @@ const InvoiceCard = ({ invoice, copyType }) => {
             {returnedAmount > 0 && (
               <tr
                 style={{
-                  borderBottom: '1px solid #e2e8f0',
-                  background: '#eff6ff',
+                  borderBottom: "1px solid #e2e8f0",
+                  background: "#eff6ff",
                 }}
               >
                 <td
                   style={{
-                    padding: '4px 6px',
+                    padding: "4px 6px",
                     fontWeight: 700,
-                    color: '#2563eb',
+                    color: "#2563eb",
                   }}
                 >
                   Returned Amount / Cash Back
                 </td>
                 <td
                   style={{
-                    padding: '4px 6px',
-                    textAlign: 'right',
-                    fontFamily: 'monospace',
+                    padding: "4px 6px",
+                    textAlign: "right",
+                    fontFamily: "monospace",
                     fontWeight: 700,
-                    color: '#2563eb',
+                    color: "#2563eb",
                   }}
                 >
                   {safeFmtBDT(returnedAmount)}
@@ -642,27 +642,27 @@ const InvoiceCard = ({ invoice, copyType }) => {
 
             <tr
               style={{
-                borderBottom: '1.5px solid #16a34a',
-                background: '#f0fdf4',
+                borderBottom: "1.5px solid #16a34a",
+                background: "#f0fdf4",
               }}
             >
               <td
                 style={{
-                  padding: '5px 6px',
+                  padding: "5px 6px",
                   fontWeight: 700,
-                  color: '#16a34a',
+                  color: "#16a34a",
                 }}
               >
                 Net Paid / Adjusted Amount
               </td>
               <td
                 style={{
-                  padding: '5px 6px',
-                  textAlign: 'right',
-                  fontFamily: 'monospace',
+                  padding: "5px 6px",
+                  textAlign: "right",
+                  fontFamily: "monospace",
                   fontWeight: 800,
-                  color: '#16a34a',
-                  fontSize: '9pt',
+                  color: "#16a34a",
+                  fontSize: "9pt",
                 }}
               >
                 {safeFmtBDT(paidAmount || returnedAmount)}
@@ -674,26 +674,26 @@ const InvoiceCard = ({ invoice, copyType }) => {
         {/* SUMMARY HIGHLIGHT BOX */}
         <div
           style={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            padding: '5px 10px',
-            borderRadius: '6px',
-            background: finalDue === 0 ? '#f0fdf4' : '#fef2f2',
-            border: `1px solid ${finalDue === 0 ? '#bbf7d0' : '#fecaca'}`,
-            marginTop: '4px',
-            boxSizing: 'border-box',
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            padding: "5px 10px",
+            borderRadius: "6px",
+            background: finalDue === 0 ? "#f0fdf4" : "#fef2f2",
+            border: `1px solid ${finalDue === 0 ? "#bbf7d0" : "#fecaca"}`,
+            marginTop: "4px",
+            boxSizing: "border-box",
           }}
         >
           <div>
             <p
               style={{
                 margin: 0,
-                fontSize: '6.5pt',
-                textTransform: 'uppercase',
+                fontSize: "6.5pt",
+                textTransform: "uppercase",
                 fontWeight: 700,
-                color: finalDue === 0 ? '#166534' : '#991b1b',
+                color: finalDue === 0 ? "#166534" : "#991b1b",
               }}
             >
               Account Balance Status
@@ -701,53 +701,53 @@ const InvoiceCard = ({ invoice, copyType }) => {
             <p
               style={{
                 margin: 0,
-                fontSize: '7.5pt',
-                color: '#334155',
-                textAlign: 'left',
+                fontSize: "7.5pt",
+                color: "#334155",
+                textAlign: "left",
               }}
             >
               {finalDue === 0
-                ? 'All accounts and dues are fully settled.'
-                : 'Outstanding balance remaining.'}
+                ? "All accounts and dues are fully settled."
+                : "Outstanding balance remaining."}
             </p>
           </div>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ textAlign: "right" }}>
             <p
               style={{
                 margin: 0,
-                fontSize: '6.5pt',
-                textTransform: 'uppercase',
-                textAlign: 'right',
+                fontSize: "6.5pt",
+                textTransform: "uppercase",
+                textAlign: "right",
                 fontWeight: 700,
-                color: finalDue === 0 ? '#166534' : '#991b1b',
+                color: finalDue === 0 ? "#166534" : "#991b1b",
               }}
             >
-              {finalDue === 0 ? 'Status' : 'Remaining Due'}
+              {finalDue === 0 ? "Status" : "Remaining Due"}
             </p>
             <p
               style={{
                 margin: 0,
-                fontSize: '10pt',
-                textAlign: 'right',
+                fontSize: "10pt",
+                textAlign: "right",
                 fontWeight: 800,
-                fontFamily: 'monospace',
-                color: finalDue === 0 ? '#16a34a' : '#dc2626',
+                fontFamily: "monospace",
+                color: finalDue === 0 ? "#16a34a" : "#dc2626",
               }}
             >
-              {finalDue === 0 ? 'PAID' : safeFmtBDT(finalDue)}
+              {finalDue === 0 ? "PAID" : safeFmtBDT(finalDue)}
             </p>
           </div>
         </div>
       </div>
 
       {/* FOOTER SIGNATURES */}
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: "relative", zIndex: 1 }}>
         <p
           style={{
-            fontSize: '7.5pt',
-            color: '#9a2010',
-            fontStyle: 'italic',
-            margin: '0 0 4px 0',
+            fontSize: "7.5pt",
+            color: "#9a2010",
+            fontStyle: "italic",
+            margin: "0 0 4px 0",
           }}
         >
           * Payment is non-refundable. This is an official computer-generated
@@ -756,49 +756,49 @@ const InvoiceCard = ({ invoice, copyType }) => {
 
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            width: '100%',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            width: "100%",
           }}
         >
-          <div style={{ textAlign: 'center', width: '120px', marginTop: '6%' }}>
+          <div style={{ textAlign: "center", width: "120px", marginTop: "6%" }}>
             <div
               style={{
-                borderBottom: '1px dashed #64748b',
-                marginBottom: '2px',
+                borderBottom: "1px dashed #64748b",
+                marginBottom: "2px",
               }}
             />
             <p
               style={{
                 margin: 0,
-                fontSize: '7.5pt',
+                fontSize: "7.5pt",
                 fontWeight: 600,
-                color: '#475569',
+                color: "#475569",
               }}
             >
               Student Signature
             </p>
           </div>
 
-          <div style={{ textAlign: 'center', width: '120px' }}>
+          <div style={{ textAlign: "center", width: "120px" }}>
             <span
-              style={{ fontSize: '7.5pt', fontWeight: 600, color: '#475569' }}
+              style={{ fontSize: "7.5pt", fontWeight: 600, color: "#475569" }}
             >
               ({createdByName})
             </span>
             <div
               style={{
-                borderBottom: '1px dashed #64748b',
-                marginBottom: '2px',
+                borderBottom: "1px dashed #64748b",
+                marginBottom: "2px",
               }}
             />
             <p
               style={{
                 margin: 0,
-                fontSize: '7.5pt',
+                fontSize: "7.5pt",
                 fontWeight: 600,
-                color: '#475569',
+                color: "#475569",
               }}
             >
               Authorized Signature
@@ -815,12 +815,12 @@ const A4FullPrint = React.forwardRef(({ invoice }, ref) => (
   <div
     ref={ref}
     style={{
-      width: '210mm',
-      height: '297mm',
-      background: '#fff',
-      boxSizing: 'border-box',
-      margin: '0 auto',
-      position: 'relative',
+      width: "210mm",
+      height: "297mm",
+      background: "#fff",
+      boxSizing: "border-box",
+      margin: "0 auto",
+      position: "relative",
     }}
     className="shadow-md"
   >
@@ -828,24 +828,24 @@ const A4FullPrint = React.forwardRef(({ invoice }, ref) => (
 
     <div
       style={{
-        width: '100%',
-        borderTop: '2px dashed #94a3b8',
-        position: 'relative',
-        margin: '2mm 0',
+        width: "100%",
+        borderTop: "2px dashed #94a3b8",
+        position: "relative",
+        margin: "2mm 0",
       }}
     >
       <span
         style={{
-          position: 'absolute',
-          top: '-9px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#fff',
-          padding: '0 10px',
-          fontSize: '7pt',
-          color: '#64748b',
+          position: "absolute",
+          top: "-9px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#fff",
+          padding: "0 10px",
+          fontSize: "7pt",
+          color: "#64748b",
           fontWeight: 600,
-          letterSpacing: '0.05em',
+          letterSpacing: "0.05em",
         }}
       >
         ✂ CUT HERE FOR OFFICE COPY
@@ -855,7 +855,7 @@ const A4FullPrint = React.forwardRef(({ invoice }, ref) => (
     <InvoiceCard invoice={invoice} copyType="Office Copy" />
   </div>
 ));
-A4FullPrint.displayName = 'A4FullPrint';
+A4FullPrint.displayName = "A4FullPrint";
 
 // ─── POS THERMAL RECEIPT PRINT ────────────────────────────────────────────────
 const POSPrint = React.forwardRef(({ invoice }, ref) => {
@@ -868,59 +868,59 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
   const finalDue = invoice?.finalDue || 0;
 
   const createdByName =
-    typeof invoice?.createdBy === 'object' && invoice?.createdBy !== null
+    typeof invoice?.createdBy === "object" && invoice?.createdBy !== null
       ? invoice.createdBy.name ||
         invoice.createdBy.username ||
         invoice.createdBy.email ||
-        'N/A'
-      : invoice?.createdBy || invoice?.createdByName || 'N/A';
+        "N/A"
+      : invoice?.createdBy || invoice?.createdByName || "N/A";
 
   const qrData = encodeURIComponent(
-    `https://rprduet.com/verify-invoice/${invoice?.invoiceNumber || invoice?._id || ''}`,
+    `https://rprduet.com/verify-invoice/${invoice?.invoiceNumber || invoice?._id || ""}`,
   );
 
   return (
     <div
       ref={ref}
       style={{
-        width: '80mm',
-        padding: '5mm 4mm',
-        background: '#fff',
-        boxSizing: 'border-box',
+        width: "80mm",
+        padding: "5mm 4mm",
+        background: "#fff",
+        boxSizing: "border-box",
         fontFamily: "'Courier New', Courier, monospace",
-        fontSize: '9pt',
-        color: '#000',
-        lineHeight: '1.2',
+        fontSize: "9pt",
+        color: "#000",
+        lineHeight: "1.2",
       }}
       className="mx-auto border border-gray-200"
     >
       {/* HEADER */}
       <div
         style={{
-          textAlign: 'center',
-          marginBottom: '3mm',
-          borderBottom: '1px solid #000',
-          paddingBottom: '2.5mm',
+          textAlign: "center",
+          marginBottom: "3mm",
+          borderBottom: "1px solid #000",
+          paddingBottom: "2.5mm",
         }}
       >
-        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '10pt' }}>
+        <p style={{ margin: 0, fontWeight: "bold", fontSize: "10pt" }}>
           RPR DUET - Admission Care
         </p>
-        <p style={{ margin: '1mm 0 0', fontSize: '8.5pt' }}>
+        <p style={{ margin: "1mm 0 0", fontSize: "8.5pt" }}>
           Phone: +880 1742 590 128
         </p>
-        <p style={{ margin: '0.5mm 0 0', fontSize: '7pt' }}>
+        <p style={{ margin: "0.5mm 0 0", fontSize: "7pt" }}>
           Gazipur Campus, Bangladesh
         </p>
       </div>
 
       {/* META */}
-      <div style={{ marginBottom: '2mm', fontSize: '8.5pt' }}>
+      <div style={{ marginBottom: "2mm", fontSize: "8.5pt" }}>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1mm',
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1mm",
           }}
         >
           <span>Invoice:</span>
@@ -928,9 +928,9 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
         </div>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1mm',
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1mm",
           }}
         >
           <span>Date:</span>
@@ -938,35 +938,35 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
         </div>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1mm',
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1mm",
           }}
         >
           <span>By:</span>
-          <span style={{ textTransform: 'capitalize' }}>{createdByName}</span>
+          <span style={{ textTransform: "capitalize" }}>{createdByName}</span>
         </div>
-        <div style={{ borderBottom: '1px dotted #888', margin: '1.5mm 0' }} />
-        <p style={{ margin: '0 0 1mm 0', textTransform: 'capitalize' }}>
-          <strong>Student:</strong>{' '}
-          {invoice?.studentName || invoice?.student?.name || 'N/A'}
+        <div style={{ borderBottom: "1px dotted #888", margin: "1.5mm 0" }} />
+        <p style={{ margin: "0 0 1mm 0", textTransform: "capitalize" }}>
+          <strong>Student:</strong>{" "}
+          {invoice?.studentName || invoice?.student?.name || "N/A"}
         </p>
-        <p style={{ margin: '0 0 1mm 0' }}>
-          <strong>ID:</strong>{' '}
-          {invoice?.studentUniqueId || invoice?.student?.studentId || 'N/A'}
+        <p style={{ margin: "0 0 1mm 0" }}>
+          <strong>ID:</strong>{" "}
+          {invoice?.studentUniqueId || invoice?.student?.studentId || "N/A"}
         </p>
       </div>
 
-      <div style={{ borderBottom: '1px dashed #000', margin: '2.5mm 0' }} />
+      <div style={{ borderBottom: "1px dashed #000", margin: "2.5mm 0" }} />
 
       {/* BREAKDOWN */}
-      <div style={{ fontSize: '8.5pt' }}>
+      <div style={{ fontSize: "8.5pt" }}>
         {courseFee > 0 && (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1mm',
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "1mm",
             }}
           >
             <span>Course Fee:</span>
@@ -977,9 +977,9 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
         {admissionFee > 0 && (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1mm',
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "1mm",
             }}
           >
             <span>Admission Fee:</span>
@@ -990,9 +990,9 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
         {totalDiscountOffered > 0 && (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1mm',
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "1mm",
             }}
           >
             <span>Total Discount:</span>
@@ -1003,9 +1003,9 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
         {messServiceCharge > 0 && (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1mm',
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "1mm",
             }}
           >
             <span>Mess Charge:</span>
@@ -1016,9 +1016,9 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
         {returnedAmount > 0 && (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '1mm',
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "1mm",
             }}
           >
             <span>Returned Amount:</span>
@@ -1026,14 +1026,14 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
           </div>
         )}
 
-        <div style={{ borderBottom: '1px dotted #888', margin: '1.5mm 0' }} />
+        <div style={{ borderBottom: "1px dotted #888", margin: "1.5mm 0" }} />
 
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1mm',
-            fontWeight: 'bold',
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1mm",
+            fontWeight: "bold",
           }}
         >
           <span>PAID / ADJUSTED:</span>
@@ -1042,68 +1042,68 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
 
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '1mm',
-            fontWeight: 'bold',
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: "1mm",
+            fontWeight: "bold",
           }}
         >
           <span>REMAINING DUE:</span>
-          <span>{finalDue === 0 ? '0 (PAID)' : safeFmtBDT(finalDue)}</span>
+          <span>{finalDue === 0 ? "0 (PAID)" : safeFmtBDT(finalDue)}</span>
         </div>
 
         <div
           style={{
-            border: '1px solid #000',
-            padding: '2mm',
-            marginTop: '2.5mm',
-            textAlign: 'center',
-            backgroundColor: '#fafafa',
+            border: "1px solid #000",
+            padding: "2mm",
+            marginTop: "2.5mm",
+            textAlign: "center",
+            backgroundColor: "#fafafa",
           }}
         >
           <p
             style={{
               margin: 0,
-              fontSize: '7pt',
-              fontWeight: 'bold',
-              letterSpacing: '0.05em',
+              fontSize: "7pt",
+              fontWeight: "bold",
+              letterSpacing: "0.05em",
             }}
           >
             PAYMENT STATUS
           </p>
           <p
             style={{
-              margin: '0.5mm 0 0',
-              fontWeight: 'bold',
-              fontSize: '10pt',
+              margin: "0.5mm 0 0",
+              fontWeight: "bold",
+              fontSize: "10pt",
             }}
           >
-            {finalDue === 0 ? 'FULLY PAID' : 'PARTIAL PAYMENT'}
+            {finalDue === 0 ? "FULLY PAID" : "PARTIAL PAYMENT"}
           </p>
         </div>
       </div>
 
-      <div style={{ borderBottom: '1px dashed #000', margin: '3mm 0' }} />
+      <div style={{ borderBottom: "1px dashed #000", margin: "3mm 0" }} />
 
       {/* FOOTER + QR */}
-      <div style={{ textAlign: 'center', fontSize: '8pt' }}>
-        <p style={{ margin: '0 0 1mm', fontWeight: 'bold' }}>Thank You!</p>
-        <p style={{ margin: 0, color: '#333' }}>Non-refundable receipt.</p>
+      <div style={{ textAlign: "center", fontSize: "8pt" }}>
+        <p style={{ margin: "0 0 1mm", fontWeight: "bold" }}>Thank You!</p>
+        <p style={{ margin: 0, color: "#333" }}>Non-refundable receipt.</p>
 
         <div
           style={{
-            marginTop: '2.5mm',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            marginTop: "2.5mm",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
           <img
             src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrData}`}
             alt="QR Code"
-            style={{ width: '16mm', height: '16mm' }}
+            style={{ width: "16mm", height: "16mm" }}
           />
-          <span style={{ fontSize: '6pt', color: '#555', marginTop: '1mm' }}>
+          <span style={{ fontSize: "6pt", color: "#555", marginTop: "1mm" }}>
             Scan to Verify
           </span>
         </div>
@@ -1111,20 +1111,20 @@ const POSPrint = React.forwardRef(({ invoice }, ref) => {
     </div>
   );
 });
-POSPrint.displayName = 'POSPrint';
+POSPrint.displayName = "POSPrint";
 
 // ─── PRINT MODAL ──────────────────────────────────────────────────────────────
 export function PrintModal({ invoice, onClose }) {
-  const [printType, setPrintType] = useState('a4full');
+  const [printType, setPrintType] = useState("a4full");
   const printRef = useRef();
 
   const handlePrint = () => {
-    const win = window.open('', '', 'width=900,height=700');
+    const win = window.open("", "", "width=900,height=700");
     const content = printRef.current.innerHTML;
     const pageCss =
-      printType === 'a4full'
-        ? '@page { size: A4 portrait; margin: 0; }'
-        : '@page { size: 80mm 200mm; margin: 0; }';
+      printType === "a4full"
+        ? "@page { size: A4 portrait; margin: 0; }"
+        : "@page { size: 80mm 200mm; margin: 0; }";
 
     const styles = `
       <style>
@@ -1176,7 +1176,7 @@ export function PrintModal({ invoice, onClose }) {
                 Print Invoice
               </p>
               <p className="text-sm font-bold text-gray-800">
-                #{invoice?.invoiceNumber || 'N/A'}
+                #{invoice?.invoiceNumber || "N/A"}
               </p>
             </div>
           </div>
@@ -1195,8 +1195,8 @@ export function PrintModal({ invoice, onClose }) {
             Page Size:
           </p>
           {[
-            { val: 'a4full', label: 'A4 Full Page (Student + Office Copy)' },
-            { val: 'pos', label: 'POS Receipt (80mm Thermal)' },
+            { val: "a4full", label: "A4 Full Page (Student + Office Copy)" },
+            { val: "pos", label: "POS Receipt (80mm Thermal)" },
           ].map((opt) => (
             <label
               key={opt.val}
@@ -1218,7 +1218,7 @@ export function PrintModal({ invoice, onClose }) {
 
         {/* Preview */}
         <div className="flex-1 p-6 overflow-y-auto bg-[#F1F5F9]">
-          {printType === 'a4full' ? (
+          {printType === "a4full" ? (
             <A4FullPrint ref={printRef} invoice={invoice} />
           ) : (
             <POSPrint ref={printRef} invoice={invoice} />
@@ -1294,7 +1294,7 @@ export default function StudentAllInvoices() {
   const columns = useMemo(
     () => [
       columnHelper.display({
-        id: 'select',
+        id: "select",
         header: ({ table }) => (
           <SelectionHeader
             allRowsSelected={table.getIsAllRowsSelected()}
@@ -1309,8 +1309,8 @@ export default function StudentAllInvoices() {
         ),
         enableSorting: false,
       }),
-      columnHelper.accessor('invoiceNumber', {
-        header: 'Invoice',
+      columnHelper.accessor("invoiceNumber", {
+        header: "Invoice",
         cell: (info) => (
           <div className="flex items-center gap-2">
             <div className="flex items-center justify-center flex-shrink-0 w-6 h-6 bg-gray-100 rounded-md">
@@ -1330,12 +1330,12 @@ export default function StudentAllInvoices() {
           </div>
         ),
       }),
-      columnHelper.accessor('studentName', {
-        header: 'Student',
+      columnHelper.accessor("studentName", {
+        header: "Student",
         cell: (info) => (
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-700 to-indigo-800 flex items-center justify-center flex-shrink-0 text-white text-[10px] font-bold uppercase">
-              {(info.getValue() || '?').charAt(0)}
+              {(info.getValue() || "?").charAt(0)}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-gray-800 capitalize truncate">
@@ -1351,18 +1351,18 @@ export default function StudentAllInvoices() {
       columnHelper.accessor(
         (row) => row.dueAmountBeforePayment ?? row.previousDue ?? 0,
         {
-          id: 'dueBefore',
-          header: 'Due Before',
+          id: "dueBefore",
+          header: "Due Before",
           cell: (info) => (
             <span className="text-xs text-gray-600 font-sans">
               {fmtBDT(info.getValue())}
             </span>
           ),
-          sortingFn: 'alphanumeric',
+          sortingFn: "alphanumeric",
         },
       ),
-      columnHelper.accessor('paidAmount', {
-        header: 'Paid',
+      columnHelper.accessor("paidAmount", {
+        header: "Paid",
         cell: (info) => (
           <span className="text-xs font-bold font-sans text-emerald-600">
             {fmtBDT(info.getValue())}
@@ -1372,15 +1372,15 @@ export default function StudentAllInvoices() {
       columnHelper.accessor(
         (row) => row.dueAmountAfterPayment ?? row.finalDue ?? 0,
         {
-          id: 'remaining',
-          header: 'Remaining',
+          id: "remaining",
+          header: "Remaining",
           cell: (info) => {
             const value = info.getValue();
             const isDue = Number(value) > 0;
             return (
               <span
                 className={`text-xs font-sans font-bold ${
-                  isDue ? 'text-red-500' : 'text-emerald-500'
+                  isDue ? "text-red-500" : "text-emerald-500"
                 }`}
               >
                 {fmtBDT(value)}
@@ -1389,8 +1389,8 @@ export default function StudentAllInvoices() {
           },
         },
       ),
-      columnHelper.accessor('paymentMethod', {
-        header: 'Method',
+      columnHelper.accessor("paymentMethod", {
+        header: "Method",
         cell: (info) => (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-[10px] font-semibold text-gray-600 uppercase tracking-wide">
             <CreditCard size={9} />
@@ -1399,8 +1399,8 @@ export default function StudentAllInvoices() {
         ),
       }),
       columnHelper.display({
-        id: 'status',
-        header: 'Status',
+        id: "status",
+        header: "Status",
         cell: ({ row }) => {
           const inv = row.original;
           const remainingDue = Number(
@@ -1408,15 +1408,15 @@ export default function StudentAllInvoices() {
           );
           const paidAmount = Number(inv.paidAmount ?? 0);
 
-          let status = 'pending';
-          if (remainingDue === 0) status = 'paid';
-          else if (paidAmount > 0) status = 'partial';
+          let status = "pending";
+          if (remainingDue === 0) status = "paid";
+          else if (paidAmount > 0) status = "partial";
 
           return <StatusBadge status={status} />;
         },
       }),
-      columnHelper.accessor('paymentDate', {
-        header: 'Date',
+      columnHelper.accessor("paymentDate", {
+        header: "Date",
         cell: (info) => (
           <span className="text-[11px] text-gray-500 whitespace-nowrap">
             {fmtDate(info.getValue() || info.row.original.createdAt)}
@@ -1424,8 +1424,8 @@ export default function StudentAllInvoices() {
         ),
       }),
       columnHelper.display({
-        id: 'actions',
-        header: 'Print',
+        id: "actions",
+        header: "Print",
         cell: ({ row }) => (
           <div className="flex items-center justify-center gap-1">
             <button
@@ -1441,8 +1441,8 @@ export default function StudentAllInvoices() {
         enableSorting: false,
       }),
       columnHelper.display({
-        id: 'remove',
-        header: 'Remove',
+        id: "remove",
+        header: "Remove",
         cell: ({ row }) => (
           <div className="flex items-center justify-center gap-1">
             <button
@@ -1498,7 +1498,7 @@ export default function StudentAllInvoices() {
   };
 
   const thClass =
-    'px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap';
+    "px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap";
 
   let tableContent;
   if (isLoading) {
@@ -1523,7 +1523,7 @@ export default function StudentAllInvoices() {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={`${thClass} ${header.id === 'select' ? 'w-8 pl-4 pr-2' : ''}`}
+                    className={`${thClass} ${header.id === "select" ? "w-8 pl-4 pr-2" : ""}`}
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <span className="flex items-center gap-1">
@@ -1550,16 +1550,16 @@ export default function StudentAllInvoices() {
                 transition={{ delay: row.index * 0.025 }}
                 className={`group border-b border-gray-100 last:border-0 transition-colors ${
                   row.getIsSelected()
-                    ? 'bg-indigo-50/60'
-                    : 'hover:bg-gray-50/80'
+                    ? "bg-indigo-50/60"
+                    : "hover:bg-gray-50/80"
                 }`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
                     className={`px-3 py-3 ${
-                      cell.column.id === 'select' ? 'pl-4 pr-2' : ''
-                    } ${cell.column.id === 'actions' ? 'pr-4 text-right' : ''}`}
+                      cell.column.id === "select" ? "pl-4 pr-2" : ""
+                    } ${cell.column.id === "actions" ? "pr-4 text-right" : ""}`}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -1592,7 +1592,7 @@ export default function StudentAllInvoices() {
               animate={{ scale: 1, opacity: 1 }}
               transition={{
                 delay: 0.05,
-                type: 'spring',
+                type: "spring",
                 stiffness: 200,
                 damping: 18,
               }}
@@ -1610,7 +1610,7 @@ export default function StudentAllInvoices() {
 
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#7A7A75] font-medium">
                 <span className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />{' '}
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />{" "}
                   Payment Records
                 </span>
                 <span className="hidden sm:inline text-[#E8E8E5]">|</span>
@@ -1626,37 +1626,6 @@ export default function StudentAllInvoices() {
               </p>
             </div>
           </div>
-
-          {/* <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <MetricCard
-              label="Total Due"
-              value={fmtBDT(stats.total)}
-              icon={Wallet}
-              color="bg-slate-600"
-              delay={0.1}
-            />
-            <MetricCard
-              label="Total Paid"
-              value={fmtBDT(stats.paid)}
-              icon={TrendingUp}
-              color="bg-emerald-600"
-              delay={0.15}
-            />
-            <MetricCard
-              label="Outstanding"
-              value={fmtBDT(stats.pending)}
-              icon={AlertTriangle}
-              color="bg-red-500"
-              delay={0.2}
-            />
-            <MetricCard
-              label="Invoices"
-              value={stats.count}
-              icon={Receipt}
-              color="bg-indigo-600"
-              delay={0.25}
-            />
-          </div> */}
         </div>
       </motion.header>
 
@@ -1756,12 +1725,12 @@ export default function StudentAllInvoices() {
             <div className="flex flex-col gap-4 px-4 py-3 border-t border-gray-100 bg-gray-50/40 sm:flex-row sm:items-center sm:justify-start">
               <div className="flex flex-wrap items-center gap-4">
                 <p className="text-[14px] text-gray-500">
-                  Showing{' '}
+                  Showing{" "}
                   <strong className="text-gray-700">
                     {(page - 1) * limit + 1}–
                     {Math.min(page * limit, totalInvoices)}
-                  </strong>{' '}
-                  of <strong className="text-gray-700">{totalInvoices}</strong>{' '}
+                  </strong>{" "}
+                  of <strong className="text-gray-700">{totalInvoices}</strong>{" "}
                   invoices
                   {selectedRowIds.length > 0 && (
                     <span className="ml-2 font-semibold text-indigo-600">
@@ -1789,7 +1758,7 @@ export default function StudentAllInvoices() {
 
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-gray-500">
-                  Page <strong className="text-gray-700">{page}</strong> of{' '}
+                  Page <strong className="text-gray-700">{page}</strong> of{" "}
                   <strong className="text-gray-700">{totalPages}</strong>
                 </span>
 

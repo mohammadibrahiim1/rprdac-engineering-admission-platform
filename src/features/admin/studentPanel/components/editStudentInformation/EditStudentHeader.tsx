@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -6,8 +6,7 @@ import {
   Receipt,
   Building2,
   Calendar,
-} from 'lucide-react';
-import BreadCrumbMenu from '../../../../../../components/BreadCrumbMenu';
+} from "lucide-react";
 
 interface Props {
   student: any;
@@ -50,7 +49,7 @@ export const EditStudentHeader = ({ student }: Props) => {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-slate-400 text-xl font-bold">
-                  {student?.name?.[0]?.toUpperCase() || 'S'}
+                  {student?.name?.[0]?.toUpperCase() || "S"}
                 </div>
               )}
             </div>
@@ -58,7 +57,7 @@ export const EditStudentHeader = ({ student }: Props) => {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-                  {student.name || '—'}
+                  {student.name || "—"}
                 </h1>
                 {student?.nameInBangla && (
                   <span className="text-slate-500 text-lg font-serifbn">
@@ -74,22 +73,22 @@ export const EditStudentHeader = ({ student }: Props) => {
                 </span>
                 <span className="flex items-center gap-1 text-slate-600">
                   <IdCard className="w-3.5 h-3.5" />
-                  ID: {student.studentId || '—'}
+                  ID: {student.studentId || "—"}
                 </span>
                 <span className="flex items-center gap-1 text-slate-600">
                   <Receipt className="w-3.5 h-3.5" />
-                  Receipt: {student.receiptNo || '—'}
+                  Receipt: {student.receiptNo || "—"}
                 </span>
               </div>
 
               <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
                 <span className="flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5" />
-                  {student.department || '—'}
+                  {student.department || "—"}
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />
-                  Session {student.session || '—'} ({student.batch || '—'})
+                  Session {student.session || "—"} ({student.batch || "—"})
                 </span>
               </div>
             </div>

@@ -45,19 +45,19 @@ export interface StudentStats {
 }
 
 export type ExportableField =
-  | 'name'
-  | 'studentId'
-  | 'phone'
-  | 'session'
-  | 'batch'
-  | 'department'
-  | 'instituteName'
-  | 'mess'
-  | 'dueAmount'
-  | 'paymentStatus'
-  | 'fatherName'
-  | 'motherName'
-  | 'guardianPhone';
+  | "name"
+  | "studentId"
+  | "phone"
+  | "session"
+  | "batch"
+  | "department"
+  | "instituteName"
+  | "mess"
+  | "dueAmount"
+  | "paymentStatus"
+  | "fatherName"
+  | "motherName"
+  | "guardianPhone";
 
 export interface Batch {
   _id: string;

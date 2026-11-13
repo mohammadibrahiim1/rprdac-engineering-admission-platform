@@ -4,9 +4,9 @@ import {
   getSortedRowModel,
   useReactTable,
   SortingState,
-} from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "@tanstack/react-table";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
   ChevronDown,
@@ -17,11 +17,11 @@ import {
   Trash2,
   Users,
   MoreHorizontal,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Student } from '../../types/allStudents.types';
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Student } from "../../types/allStudents.types";
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL || '';
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL || "";
 
 interface StudentTableProps {
   students: Student[];
@@ -44,12 +44,12 @@ interface StudentTableProps {
 const Avatar = ({ src, name }: { src?: string; name?: string }) => {
   const initials =
     name
-      ?.split(' ')
+      ?.split(" ")
       .filter(Boolean)
       .slice(0, 2)
       .map((n) => n[0])
-      .join('')
-      .toUpperCase() || '??';
+      .join("")
+      .toUpperCase() || "??";
 
   return (
     <div className="relative w-9 h-9 flex-shrink-0">
@@ -59,14 +59,14 @@ const Avatar = ({ src, name }: { src?: string; name?: string }) => {
           alt={name}
           className="w-full h-full rounded-full object-cover ring-2 ring-white shadow-sm"
           onError={(e) => {
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            e.currentTarget.style.display = "none";
+            e.currentTarget.nextElementSibling?.classList.remove("hidden");
           }}
         />
       ) : null}
       <div
         className={`absolute inset-0 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-slate-100 text-indigo-700 text-xs font-bold ring-2 ring-white ${
-          src ? 'hidden' : ''
+          src ? "hidden" : ""
         }`}
       >
         {initials}
@@ -92,7 +92,7 @@ const FeeBadge = ({
 
   const due = updatedDueAmount ?? dueAmount ?? admissionFeeDue ?? 0;
 
-  if (status === 'paid') {
+  if (status === "paid") {
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 btn btn-xs font-semibold text-emerald-700">
         <span className="rounded-full bg-emerald-500" />
@@ -105,7 +105,7 @@ const FeeBadge = ({
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 btn btn-xs  font-semibold text-rose-700">
         <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-        Due ৳{due.toLocaleString('en-BD')}
+        Due ৳{due.toLocaleString("en-BD")}
       </span>
     );
   }
@@ -121,15 +121,15 @@ const FeeBadge = ({
 const DeptBadge = ({ dept }: { dept?: string }) => {
   if (!dept) return <span className="text-slate-400">—</span>;
   const colors: Record<string, string> = {
-    CSE: 'bg-violet-50 text-violet-700 border-violet-200',
-    EEE: 'bg-sky-50 text-sky-700 border-sky-200',
-    ME: 'bg-amber-50 text-amber-700 border-amber-200',
-    CE: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    CSE: "bg-violet-50 text-violet-700 border-violet-200",
+    EEE: "bg-sky-50 text-sky-700 border-sky-200",
+    ME: "bg-amber-50 text-amber-700 border-amber-200",
+    CE: "bg-emerald-50 text-emerald-700 border-emerald-200",
   };
   const key =
     Object.keys(colors).find((k) => dept.toUpperCase().includes(k)) ||
-    'default';
-  const cls = colors[key] || 'bg-slate-50 text-slate-700 border-slate-200';
+    "default";
+  const cls = colors[key] || "bg-slate-50 text-slate-700 border-slate-200";
 
   return (
     <span
@@ -148,7 +148,7 @@ export default function StudentTable({
   selectedIds,
   onSelectId,
   onSelectAll,
-  onDelete,
+  // onDelete,
   isDeleting,
   currentPage,
   totalPages,
@@ -162,7 +162,7 @@ export default function StudentTable({
   const columns = useMemo(
     () => [
       {
-        id: 'select',
+        id: "select",
         header: () => {
           const allSelected =
             students.length > 0 && selectedIds.length === students.length;
@@ -186,8 +186,8 @@ export default function StudentTable({
         size: 40,
       },
       {
-        id: 'profile',
-        header: 'STUDENT PROFILE',
+        id: "profile",
+        header: "STUDENT PROFILE",
         cell: ({ row }: any) => {
           const s = row.original;
           return (
@@ -198,7 +198,7 @@ export default function StudentTable({
                   {s.name}
                 </p>
                 <p className="text-[11px] text-slate-500 truncate">
-                  {s.instituteName || '—'}
+                  {s.instituteName || "—"}
                 </p>
               </div>
             </div>
@@ -206,60 +206,60 @@ export default function StudentTable({
         },
       },
       {
-        id: 'roll',
-        header: 'ROLL / REGISTRY ID',
+        id: "roll",
+        header: "ROLL / REGISTRY ID",
         cell: ({ row }: any) => (
           <div className="text-sm">
             <p className="font-medium text-slate-800">
-              {row.original.studentId || row.original.rollNo || '—'}
+              {row.original.studentId || row.original.rollNo || "—"}
             </p>
             <p className="text-[11px] text-slate-400">
-              {row.original.registryId || ''}
+              {row.original.registryId || ""}
             </p>
           </div>
         ),
       },
       {
-        id: 'sessionBatch',
-        header: 'SESSION & BATCH',
+        id: "sessionBatch",
+        header: "SESSION & BATCH",
         cell: ({ row }: any) => (
           <div className="text-sm">
             <p className="font-medium text-slate-800">
-              {row.original.session || '—'}
+              {row.original.session || "—"}
             </p>
             <p className="text-[11px] text-slate-500">
-              {row.original.batch || '—'}
+              {row.original.batch || "—"}
             </p>
           </div>
         ),
       },
       {
-        id: 'dept',
-        header: 'DEPARTMENT',
+        id: "dept",
+        header: "DEPARTMENT",
         cell: ({ row }: any) => <DeptBadge dept={row.original.department} />,
       },
       {
-        id: 'contact',
-        header: 'CONTACT & GUARDIAN',
+        id: "contact",
+        header: "CONTACT & GUARDIAN",
         cell: ({ row }: any) => {
           const s = row.original;
           return (
             <div className="text-sm min-w-[140px]">
               <p className="font-medium text-slate-800">
-                {s.phone || s.mobile || '—'}
+                {s.phone || s.mobile || "—"}
               </p>
               <p className="text-[11px] text-slate-500 truncate">
                 {s.fatherName || s.guardianName || s.motherName
                   ? `F: ${s.fatherName || s.guardianName || s.motherName}`
-                  : '—'}
+                  : "—"}
               </p>
             </div>
           );
         },
       },
       {
-        id: 'paymentStatus',
-        header: 'Payment Status',
+        id: "paymentStatus",
+        header: "Payment Status",
         cell: ({ row }: any) => (
           <FeeBadge
             paymentStatus={row.original.paymentStatus}
@@ -270,30 +270,30 @@ export default function StudentTable({
         ),
       },
       {
-        id: 'admissionStatus',
-        header: 'Status',
+        id: "admissionStatus",
+        header: "Status",
         cell: ({ row }: any) => {
           const statusStyles: Record<string, string> = {
-            pending: 'bg-amber-100 text-amber-700 border-amber-200',
-            approved: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-            rejected: 'bg-red-100 text-red-700 border-red-200',
+            pending: "bg-amber-100 text-amber-700 border-amber-200",
+            approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
+            rejected: "bg-red-100 text-red-700 border-red-200",
           };
           const status = row.original.admissionStatus?.toLowerCase();
           return (
             <span
               className={`btn btn-xs rounded-full border font-sans font-medium capitalize ${
                 statusStyles[status] ||
-                'bg-slate-100 text-slate-600 border-slate-200'
+                "bg-slate-100 text-slate-600 border-slate-200"
               }`}
             >
-              {row.original.admissionStatus || '—'}
+              {row.original.admissionStatus || "—"}
             </span>
           );
         },
       },
       {
-        id: 'actions',
-        header: 'QUICK ACTIONS',
+        id: "actions",
+        header: "QUICK ACTIONS",
         cell: ({ row }: any) => (
           <div className="flex items-center gap-1">
             <Link
@@ -312,7 +312,7 @@ export default function StudentTable({
             </Link>
             <button
               type="button"
-              onClick={() => onDelete([row.original._id])}
+              // onClick={() => onDelete([row.original._id])}
               disabled={isDeleting}
               className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40"
               title="Delete"
@@ -330,7 +330,7 @@ export default function StudentTable({
         ),
       },
     ],
-    [students, selectedIds, isDeleting, onSelectAll, onSelectId, onDelete],
+    [students, selectedIds, isDeleting, onSelectAll, onSelectId],
   );
 
   const table = useReactTable({
@@ -359,7 +359,7 @@ export default function StudentTable({
         <AlertCircle className="w-10 h-10" />
         <p className="font-semibold">Failed to load data</p>
         <p className="text-sm text-rose-500/80">
-          {error?.data?.message || 'Please try again'}
+          {error?.data?.message || "Please try again"}
         </p>
       </div>
     );
@@ -379,7 +379,7 @@ export default function StudentTable({
 
   // At the top of the component (or inside the render)
   const page = Number(currentPage) || 1;
-  const perPage = typeof limit === 'number' ? limit : Number(limit) || 10;
+  const perPage = typeof limit === "number" ? limit : Number(limit) || 10;
   const totalItems = Number(meta?.totalItems) || 0;
   const totalPagesSafe = Number(totalPages) || 1;
 
@@ -391,12 +391,12 @@ export default function StudentTable({
       <div className="overflow-x-auto rounded-md border border-slate-200">
         <table className="w-full text-left">
           <thead>
-            {table.getHeaderGroups()?.map((hg) => (
+            {table.getHeaderGroups()?.map((hg: any) => (
               <tr
                 key={hg.id}
                 className="bg-slate-50/80 border-b border-slate-200"
               >
-                {hg.headers.map((header) => (
+                {hg.headers.map((header: any) => (
                   <th
                     key={header.id}
                     className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap"
@@ -405,8 +405,8 @@ export default function StudentTable({
                       <div
                         className={
                           header.column.getCanSort()
-                            ? 'flex items-center gap-1 cursor-pointer select-none hover:text-slate-700'
-                            : ''
+                            ? "flex items-center gap-1 cursor-pointer select-none hover:text-slate-700"
+                            : ""
                         }
                         onClick={header.column.getToggleSortingHandler()}
                       >
@@ -431,7 +431,7 @@ export default function StudentTable({
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
             <AnimatePresence mode="popLayout">
-              {rows.map((row, i) => (
+              {rows.map((row: any, i: any) => (
                 <motion.tr
                   key={row.original._id}
                   initial={{ opacity: 0, y: 6 }}
@@ -443,11 +443,11 @@ export default function StudentTable({
                   }}
                   className={`hover:bg-slate-50/70 transition-colors ${
                     selectedIds.includes(row.original._id)
-                      ? 'bg-indigo-50/40'
-                      : ''
+                      ? "bg-indigo-50/40"
+                      : ""
                   }`}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map((cell: any) => (
                     <td key={cell.id} className="px-4 py-3 align-middle">
                       {flexRender(
                         cell.column.columnDef.cell,
