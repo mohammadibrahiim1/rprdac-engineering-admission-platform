@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { usePostNursingAttendanceMutation } from '../../../../redux/features/Nursing/NursingApi';
-import toast from 'react-hot-toast';
-import BreadCrumbMenu from '../../../../components/BreadCrumbMenu';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { usePostNursingAttendanceMutation } from "@/redux/features/Nursing/NursingApi";
 
 const Attendance = () => {
   // Form state
   const [formData, setFormData] = useState({
-    date: '',
-    employeeName: '',
-    phone: '',
-    nursingId: '',
-    messName: '',
-    dutyStartTime: '',
-    dutyEndTime: '',
-    totalDutyTime: '',
+    date: "",
+    employeeName: "",
+    phone: "",
+    nursingId: "",
+    messName: "",
+    dutyStartTime: "",
+    dutyEndTime: "",
+    totalDutyTime: "",
     totalDutyFee: 0,
     messDutyFee: 100,
   });
@@ -26,17 +26,17 @@ const Attendance = () => {
     usePostNursingAttendanceMutation();
 
   const user = useSelector((state) => state?.auth?.user || null);
-  const [currentDate, setCurrentDate] = useState('');
+  const [currentDate, setCurrentDate] = useState("");
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     setCurrentDate(today);
     setFormData((prev) => ({
       ...prev,
       date: today,
-      employeeName: user?.userName || '',
-      phone: user?.phone || '',
-      nursingId: user?._id || '',
+      employeeName: user?.userName || "",
+      phone: user?.phone || "",
+      nursingId: user?._id || "",
     }));
   }, [user]);
 
@@ -47,7 +47,7 @@ const Attendance = () => {
       const updatedFormData = { ...prev, [name]: value };
 
       // Calculate totalDutyTime and totalDutyFee when dutyStartTime or dutyEndTime changes
-      if (name === 'dutyStartTime' || name === 'dutyEndTime') {
+      if (name === "dutyStartTime" || name === "dutyEndTime") {
         const { dutyStartTime, dutyEndTime } = updatedFormData;
         if (dutyStartTime && dutyEndTime) {
           const start = new Date(`1970-01-01T${dutyStartTime}:00`);
@@ -89,17 +89,17 @@ const Attendance = () => {
       // Reset form after successful submission
       setFormData({
         date: currentDate,
-        employeeName: user?.userName || '',
-        phone: user?.phone || '',
-        nursingId: user?._id || '',
-        messName: '',
-        dutyStartTime: '',
-        dutyEndTime: '',
+        employeeName: user?.userName || "",
+        phone: user?.phone || "",
+        nursingId: user?._id || "",
+        messName: "",
+        dutyStartTime: "",
+        dutyEndTime: "",
         totalDutyTime: 0,
         totalDutyFee: 0,
       });
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to save data');
+      toast.error(error?.data?.message || "Failed to save data");
     }
   };
 
@@ -107,7 +107,7 @@ const Attendance = () => {
     <div>
       <div className="lg:text-3xl text-2xl tracking-tight font-semibold capitalize text-center py-5 bg-[#EFF6FF] text-[#1B3764] leading-tight">
         <h1 className="text-[#1B3764] leading-tight">Nursing Attendance</h1>
-        <BreadCrumbMenu />
+        <Breadcrumb />
       </div>
 
       <section className="lg:p-6 text-gray-900">

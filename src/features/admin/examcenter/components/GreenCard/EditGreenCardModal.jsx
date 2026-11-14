@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   Camera,
   Loader2,
@@ -8,11 +7,12 @@ import {
   CalendarDays,
   School,
   CheckCircle2,
-} from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import Webcam from 'react-webcam';
-import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import Webcam from "react-webcam";
 
 const EditGreenCardModal = ({
   isOpen,
@@ -33,7 +33,7 @@ const EditGreenCardModal = ({
 }) => {
   // Local state exclusively for the custom searchable dropdown
   const [isInsDropdownOpen, setIsInsDropdownOpen] = useState(false);
-  const [searchIns, setSearchIns] = useState('');
+  const [searchIns, setSearchIns] = useState("");
   const webcamRef = useRef(null);
   const [useCamera, setUseCamera] = useState(false);
   const [newPhotoFile, setNewPhotoFile] = useState(null);
@@ -48,32 +48,32 @@ const EditGreenCardModal = ({
   // React Hook Form Setup
   const { register, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: {
-      studentName: formData?.studentName || '',
-      studentId: formData?.studentId || '',
-      studentPhone: formData?.studentPhone || '',
-      examType: formData?.examType || 'Short',
-      department: formData?.department || '',
-      academicYear: formData?.academicYear || '',
-      amount: formData?.amount || '',
-      polytechnicName: formData?.polytechnicName || '',
+      studentName: formData?.studentName || "",
+      studentId: formData?.studentId || "",
+      studentPhone: formData?.studentPhone || "",
+      examType: formData?.examType || "Short",
+      department: formData?.department || "",
+      academicYear: formData?.academicYear || "",
+      amount: formData?.amount || "",
+      polytechnicName: formData?.polytechnicName || "",
     },
   });
 
   // Watch polytechnic name for custom dropdown
-  const watchedPolytechnicName = watch('polytechnicName');
+  const watchedPolytechnicName = watch("polytechnicName");
 
   // Reset form if formData changes (e.g., opening modal for a different student)
   useEffect(() => {
     if (formData) {
       reset({
-        studentName: formData?.studentName || '',
-        studentId: formData?.studentId || '',
-        studentPhone: formData?.studentPhone || '',
-        examType: formData?.examType || 'Short',
-        department: formData?.department || '',
-        academicYear: formData?.academicYear || '',
-        amount: formData?.amount || '',
-        polytechnicName: formData?.polytechnicName || '',
+        studentName: formData?.studentName || "",
+        studentId: formData?.studentId || "",
+        studentPhone: formData?.studentPhone || "",
+        examType: formData?.examType || "Short",
+        department: formData?.department || "",
+        academicYear: formData?.academicYear || "",
+        amount: formData?.amount || "",
+        polytechnicName: formData?.polytechnicName || "",
       });
       setNewPhotoFile(null);
       setPreviewUrl(null);
@@ -86,8 +86,8 @@ const EditGreenCardModal = ({
     const file = e.target.files[0];
     if (file) {
       if (file.size > 100 * 1024) {
-        alert('Max 100KB allowed');
-        e.target.value = '';
+        alert("Max 100KB allowed");
+        e.target.value = "";
         return;
       }
       setNewPhotoFile(file);
@@ -102,8 +102,8 @@ const EditGreenCardModal = ({
       fetch(imageSrc)
         .then((res) => res.blob())
         .then((blob) => {
-          const file = new File([blob], 'captured_photo.jpg', {
-            type: 'image/jpeg',
+          const file = new File([blob], "captured_photo.jpg", {
+            type: "image/jpeg",
           });
           setNewPhotoFile(file);
           setPreviewUrl(imageSrc);
@@ -119,8 +119,8 @@ const EditGreenCardModal = ({
 
     // 1. Text Data Append
     Object.keys(data).forEach((key) => {
-      if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
-        if (key === 'amount') {
+      if (data[key] !== undefined && data[key] !== null && data[key] !== "") {
+        if (key === "amount") {
           formDataToSend.append(key, Number(data[key]));
         } else {
           formDataToSend.append(key, data[key]);
@@ -130,7 +130,7 @@ const EditGreenCardModal = ({
 
     // 2. Photo Append (Only if a NEW photo is captured/selected)
     if (newPhotoFile) {
-      formDataToSend.append('studentPhoto', newPhotoFile);
+      formDataToSend.append("studentPhoto", newPhotoFile);
     }
 
     handleUpdateCard(formDataToSend);
@@ -204,8 +204,8 @@ const EditGreenCardModal = ({
                   onClick={() => setUseCamera(false)}
                   className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all rounded-md shadow-sm border ${
                     !useCamera
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      ? "bg-slate-900 text-white border-slate-900"
+                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                   }`}
                 >
                   <Upload className="w-4 h-4" /> Upload File
@@ -215,8 +215,8 @@ const EditGreenCardModal = ({
                   onClick={() => setUseCamera(true)}
                   className={`inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all rounded-md shadow-sm border ${
                     useCamera
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                      ? "bg-slate-900 text-white border-slate-900"
+                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                   }`}
                 >
                   <Camera className="w-4 h-4" /> Live Camera
@@ -261,7 +261,7 @@ const EditGreenCardModal = ({
                 Student Name
               </label>
               <input
-                {...register('studentName', { required: true })}
+                {...register("studentName", { required: true })}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
                 placeholder="Student Name"
               />
@@ -273,7 +273,7 @@ const EditGreenCardModal = ({
                 Student ID
               </label>
               <input
-                {...register('studentId', { required: true })}
+                {...register("studentId", { required: true })}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
                 placeholder="Student ID"
               />
@@ -285,7 +285,7 @@ const EditGreenCardModal = ({
                 Phone Number
               </label>
               <input
-                {...register('studentPhone', { required: true })}
+                {...register("studentPhone", { required: true })}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
                 placeholder="Phone Number"
               />
@@ -297,7 +297,7 @@ const EditGreenCardModal = ({
                 Exam Type
               </label>
               <select
-                {...register('examType')}
+                {...register("examType")}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
               >
                 <option value="Short">Short Term Exam</option>
@@ -311,7 +311,7 @@ const EditGreenCardModal = ({
                 <GraduationCap size={14} /> Department
               </label>
               <select
-                {...register('department', { required: true })}
+                {...register("department", { required: true })}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
               >
                 <option value="" disabled>
@@ -331,7 +331,7 @@ const EditGreenCardModal = ({
                 <CalendarDays size={14} /> Session
               </label>
               <select
-                {...register('academicYear', { required: true })}
+                {...register("academicYear", { required: true })}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
               >
                 <option value="" disabled>
@@ -352,7 +352,7 @@ const EditGreenCardModal = ({
               </label>
               <input
                 type="number"
-                {...register('amount', { required: true })}
+                {...register("amount", { required: true })}
                 className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-all"
                 placeholder="Amount"
               />
@@ -369,10 +369,10 @@ const EditGreenCardModal = ({
               >
                 <span
                   className={
-                    watchedPolytechnicName ? 'text-slate-900' : 'text-slate-400'
+                    watchedPolytechnicName ? "text-slate-900" : "text-slate-400"
                   }
                 >
-                  {watchedPolytechnicName || 'Select institute...'}
+                  {watchedPolytechnicName || "Select institute..."}
                 </span>
                 <span className="text-xs text-slate-400">▼</span>
               </div>
@@ -397,11 +397,11 @@ const EditGreenCardModal = ({
                         <div
                           key={inst?._id}
                           onClick={() => {
-                            setValue('polytechnicName', inst.name, {
+                            setValue("polytechnicName", inst.name, {
                               shouldValidate: true,
                             });
                             setIsInsDropdownOpen(false);
-                            setSearchIns('');
+                            setSearchIns("");
                           }}
                           className="px-4 py-2.5 text-sm hover:bg-slate-50 cursor-pointer flex justify-between items-center"
                         >
@@ -444,7 +444,7 @@ const EditGreenCardModal = ({
                   Saving...
                 </>
               ) : (
-                'Save Changes'
+                "Save Changes"
               )}
             </button>
           </div>

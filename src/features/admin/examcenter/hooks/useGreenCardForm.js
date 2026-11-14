@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
+import { useState, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export const useGreenCardForm = ({
   user,
@@ -26,9 +26,9 @@ export const useGreenCardForm = ({
       discountAmount: 0,
       userCollectedAmount: 0,
       payment: {
-        method: 'cash',
-        transactionId: '',
-        accountNumber: '',
+        method: "cash",
+        transactionId: "",
+        accountNumber: "",
       },
     },
   });
@@ -37,16 +37,16 @@ export const useGreenCardForm = ({
   const [photo, setPhoto] = useState(null);
   const [useCamera, setUseCamera] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedIns, setSelectedIns] = useState('');
-  const [search, setSearchIns] = useState('');
+  const [selectedIns, setSelectedIns] = useState("");
+  const [search, setSearchIns] = useState("");
   const webcamRef = useRef(null);
 
   // --- Watch Form Values for Dynamic Calculations & Conditional Rendering ---
-  const amount = watch('amount') || 0;
-  const quantity = watch('quantity') || 1;
-  const discountAmount = watch('discountAmount') || 0;
-  const userCollectedAmount = watch('userCollectedAmount') || 0;
-  const paymentMethod = watch('payment.method');
+  const amount = watch("amount") || 0;
+  const quantity = watch("quantity") || 1;
+  const discountAmount = watch("discountAmount") || 0;
+  const userCollectedAmount = watch("userCollectedAmount") || 0;
+  const paymentMethod = watch("payment.method");
 
   // Derived Financial States
   const [totalPayable, setTotalPayable] = useState(0);
@@ -65,11 +65,11 @@ export const useGreenCardForm = ({
 
   // Clean up payment fields based on selected method
   useEffect(() => {
-    if (['free', 'cash'].includes(paymentMethod)) {
-      setValue('payment.transactionId', '');
-      setValue('payment.accountNumber', '');
-    } else if (paymentMethod === 'bank transfer') {
-      setValue('payment.transactionId', '');
+    if (["free", "cash"].includes(paymentMethod)) {
+      setValue("payment.transactionId", "");
+      setValue("payment.accountNumber", "");
+    } else if (paymentMethod === "bank transfer") {
+      setValue("payment.transactionId", "");
     }
   }, [paymentMethod, setValue]);
 
@@ -82,42 +82,42 @@ export const useGreenCardForm = ({
   // --- Submit Handler ---
   const onSubmit = async (data) => {
     if (!photo) {
-      toast.error('Student profile photo is required');
+      toast.error("Student profile photo is required");
       return;
     }
     if (!selectedIns) {
-      toast.error('Please select an institute');
+      toast.error("Please select an institute");
       return;
     }
 
     // Build FormData for multipart/form-data (required for image upload)
     const formData = new FormData();
-    formData.append('studentPhoto', photo);
-    formData.append('studentName', data.studentName);
-    formData.append('studentId', data.studentId);
-    formData.append('polytechnicName', selectedIns);
-    formData.append('department', data.department);
-    formData.append('examType', data.examType);
-    formData.append('studentPhone', data.studentPhone);
-    formData.append('academicYear', data.academicYear);
+    formData.append("studentPhoto", photo);
+    formData.append("studentName", data.studentName);
+    formData.append("studentId", data.studentId);
+    formData.append("polytechnicName", selectedIns);
+    formData.append("department", data.department);
+    formData.append("examType", data.examType);
+    formData.append("studentPhone", data.studentPhone);
+    formData.append("academicYear", data.academicYear);
 
     // Financial Data
-    formData.append('amount', Number(data.amount));
-    formData.append('quantity', Number(data.quantity));
-    formData.append('discountAmount', Number(data.discountAmount));
-    formData.append('userCollectedAmount', Number(data.userCollectedAmount));
+    formData.append("amount", Number(data.amount));
+    formData.append("quantity", Number(data.quantity));
+    formData.append("discountAmount", Number(data.discountAmount));
+    formData.append("userCollectedAmount", Number(data.userCollectedAmount));
 
     // Payment Object mapping (bracket notation for Express/Multer array parsing)
-    formData.append('payment[method]', data.payment.method);
+    formData.append("payment[method]", data.payment.method);
     if (data.payment.transactionId)
-      formData.append('payment[transactionId]', data.payment.transactionId);
+      formData.append("payment[transactionId]", data.payment.transactionId);
     if (data.payment.accountNumber)
-      formData.append('payment[accountNumber]', data.payment.accountNumber);
+      formData.append("payment[accountNumber]", data.payment.accountNumber);
 
     // Seller Info
-    formData.append('seller[name]', user?.userName || 'Admin');
-    formData.append('seller[phone]', user?.phone || 'N/A');
-    formData.append('seller[id]', user?.userId || 'N/A');
+    formData.append("seller[name]", user?.userName || "Admin");
+    formData.append("seller[phone]", user?.phone || "N/A");
+    formData.append("seller[id]", user?.userId || "N/A");
 
     try {
       // Execute RTK Query Mutation
@@ -126,18 +126,18 @@ export const useGreenCardForm = ({
       // Reset application state
       reset();
       setPhoto(null);
-      setSelectedIns('');
-      setSearchIns('');
+      setSelectedIns("");
+      setSearchIns("");
 
-      toast.success('Successful');
+      toast.success("Successful");
 
-      setView('list');
+      setView("list");
       if (refetch) refetch();
     } catch (err) {
       const errorMsg =
         err?.data?.message ||
-        'Failed to submit application. Please check details.';
-      if (showNotification) showNotification('error', errorMsg);
+        "Failed to submit application. Please check details.";
+      if (showNotification) showNotification("error", errorMsg);
       else toast.error(errorMsg);
     }
   };

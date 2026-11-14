@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useGetAllEmployeeDutiesWithSummaryQuery } from '../../../../../redux/features/staff/employeeApi';
+import React, { useCallback, useMemo, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useGetAllEmployeeDutiesWithSummaryQuery } from "../../../../redux/features/staff/employeeApi";
 import {
   AlertCircle,
   CheckCircle,
@@ -35,39 +35,36 @@ import {
   DollarSign,
   CreditCard,
   ReceiptText,
-  SlidersHorizontal,
   BarChart3,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { saveAs } from 'file-saver';
-import toast from 'react-hot-toast';
-import { format } from 'date-fns';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import EmployeeFilterSidebar from '../components/EmployeeFilterSidebar';
-import { formatTimeAMPM } from '../../../../../constants/timeFormat';
-import { formatDutyTime } from '../../../../../constants/formateDutyTime';
-import EmployeePaymentModal from '../components/EmployeePaymentModal';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import EmployeeFilterSidebar from "../components/EmployeeFilterSidebar";
+import EmployeePaymentModal from "../components/EmployeePaymentModal";
 
-import ExcelJS from 'exceljs';
+import ExcelJS from "exceljs";
+import { formatTimeAMPM } from "@/constants/timeFormat";
+import { formatDutyTime } from "@/constants/formateDutyTime";
 
 const AllEmployees = () => {
   // State management
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: '',
-    startDate: '',
-    endDate: '',
-    month: '',
-    year: '',
-    status: '',
-    paymentStatus: '',
+    search: "",
+    startDate: "",
+    endDate: "",
+    month: "",
+    year: "",
+    status: "",
+    paymentStatus: "",
   });
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [expandedLoans, setExpandedLoans] = useState(new Set());
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -100,30 +97,30 @@ const AllEmployees = () => {
   // Options for filters
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'All Status' },
-      { value: 'pending', label: 'Pending' },
-      { value: 'approve', label: 'Approved' },
+      { value: "", label: "All Status" },
+      { value: "pending", label: "Pending" },
+      { value: "approve", label: "Approved" },
     ],
     [],
   );
 
   const paymentStatusOptions = useMemo(
     () => [
-      { value: '', label: 'All Payments' },
-      { value: 'paid', label: 'Paid' },
-      { value: 'unpaid', label: 'Unpaid' },
+      { value: "", label: "All Payments" },
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
     ],
     [],
   );
 
   const monthOptions = useMemo(
     () => [
-      { value: '', label: 'All Months' },
+      { value: "", label: "All Months" },
       ...Array.from({ length: 12 }, (_, i) => {
         const date = new Date(0, i);
         return {
-          value: format(date, 'MMMM'),
-          label: format(date, 'MMMM'),
+          value: format(date, "MMMM"),
+          label: format(date, "MMMM"),
         };
       }),
     ],
@@ -133,7 +130,7 @@ const AllEmployees = () => {
   const yearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return [
-      { value: '', label: 'All Years' },
+      { value: "", label: "All Years" },
       ...Array.from({ length: 5 }, (_, i) => ({
         value: (currentYear - i).toString(),
         label: (currentYear - i).toString(),
@@ -145,15 +142,15 @@ const AllEmployees = () => {
     setFilters({
       page: 1,
       limit: 10,
-      search: '',
-      startDate: '',
-      endDate: '',
-      month: '',
-      year: '',
-      status: '',
-      paymentStatus: '',
+      search: "",
+      startDate: "",
+      endDate: "",
+      month: "",
+      year: "",
+      status: "",
+      paymentStatus: "",
     });
-    setSearchInput('');
+    setSearchInput("");
   }, []);
 
   const handleEmployeePayment = (emp) => {
@@ -170,7 +167,7 @@ const AllEmployees = () => {
   };
 
   const handleLimitChange = (newLimit) => {
-    const limit = newLimit === 'all' ? pagination.totalItems : Number(newLimit);
+    const limit = newLimit === "all" ? pagination.totalItems : Number(newLimit);
     setFilters({ ...filters, limit, page: 1 });
   };
 
@@ -196,31 +193,31 @@ const AllEmployees = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      approve: 'text-green-800 border-green-300',
-      pending: 'text-amber-800 border-amber-300',
-      rejected: 'text-red-800 border-red-300',
+      approve: "text-green-800 border-green-300",
+      pending: "text-amber-800 border-amber-300",
+      rejected: "text-red-800 border-red-300",
     };
     return (
       styles[status?.toLowerCase()] ||
-      'bg-gray-100 text-gray-800 border-gray-300'
+      "bg-gray-100 text-gray-800 border-gray-300"
     );
   };
 
   const getPaymentBadge = (status) => {
-    return status === 'paid'
-      ? 'text-emerald-800 border-emerald-300'
-      : 'text-rose-800 border-rose-300';
+    return status === "paid"
+      ? "text-emerald-800 border-emerald-300"
+      : "text-rose-800 border-rose-300";
   };
 
   const handleAction = (action, employee) => {
     switch (action) {
-      case 'statement':
+      case "statement":
         toast.success(`Opening statement for ${employee.userName}`);
         break;
-      case 'invoice':
+      case "invoice":
         toast.success(`Generating invoice for ${employee.userName}`);
         break;
-      case 'payment':
+      case "payment":
         toast.success(`Processing payment for ${employee.userName}`);
         break;
       default:
@@ -230,58 +227,58 @@ const AllEmployees = () => {
 
   const exportToExcel = async () => {
     if (!employees || employees.length === 0) {
-      toast.error('No data to export');
+      toast.error("No data to export");
       return;
     }
 
     try {
       const now = new Date();
-      const dateTime = now.toLocaleString('en-BD', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+      const dateTime = now.toLocaleString("en-BD", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
         hour12: true,
       });
 
-      const companyName = 'RPR DUET Admission Care';
+      const companyName = "RPR DUET Admission Care";
       const address =
-        'M.A. Samad Villa-2 In front of DUET Campus | Gazipur, Bangladesh';
+        "M.A. Samad Villa-2 In front of DUET Campus | Gazipur, Bangladesh";
       const contacts =
-        '+880 1742 590 128 | +880 1901 852 989 | rpr.group2013@gmail.com';
+        "+880 1742 590 128 | +880 1901 852 989 | rpr.group2013@gmail.com";
 
       const formatPhone = (phone) => {
-        if (!phone) return 'N/A';
-        const digits = phone.toString().replace(/\D/g, '');
-        return digits.length === 11 ? digits : digits.padStart(11, '0');
+        if (!phone) return "N/A";
+        const digits = phone.toString().replace(/\D/g, "");
+        return digits.length === 11 ? digits : digits.padStart(11, "0");
       };
 
       // ১. হেডার অ্যারে
       const headers = [
-        '#',
-        'ID',
-        'Name',
-        'Phone',
-        'Total Duties',
-        'Approved',
-        'Pending',
-        'Total Amount',
-        'Approved Amount',
-        'Paid Amount',
-        'Unpaid/Due Amount',
-        'Loan Amount',
-        'Payable (Appr - Paid)',
-        'Net Payable (After Loan)',
+        "#",
+        "ID",
+        "Name",
+        "Phone",
+        "Total Duties",
+        "Approved",
+        "Pending",
+        "Total Amount",
+        "Approved Amount",
+        "Paid Amount",
+        "Unpaid/Due Amount",
+        "Loan Amount",
+        "Payable (Appr - Paid)",
+        "Net Payable (After Loan)",
       ];
 
       // ২. ডাটা ম্যাপিং
       const dataRows = employees.map((emp, i) => [
         (filters.page - 1) * filters.limit + (i + 1),
-        emp?.userId || emp?.employeeInfo?.userId || 'N/A',
-        emp?.userName || emp?.employeeInfo?.userName || 'N/A',
-        formatPhone(emp?.phone || emp?.employeeInfo?.phone || ''),
+        emp?.userId || emp?.employeeInfo?.userId || "N/A",
+        emp?.userName || emp?.employeeInfo?.userName || "N/A",
+        formatPhone(emp?.phone || emp?.employeeInfo?.phone || ""),
         emp?.totalDuties || 0,
         emp?.approvedDuties || 0,
         emp?.pendingDuties || 0,
@@ -296,36 +293,36 @@ const AllEmployees = () => {
 
       // ৩. ওয়ার্কবুক ও ওয়ার্কশিট তৈরি
       const workbook = new ExcelJS.Workbook();
-      const ws = workbook.addWorksheet('Employee Summary');
+      const ws = workbook.addWorksheet("Employee Summary");
 
       // ৪. এক্সেল শিটে রো গুলো ক্রমানুসারে যোগ করা (SheetData স্ট্রাকচার অনুযায়ী)
       ws.addRow([companyName]);
       ws.addRow([address]);
       ws.addRow([contacts]);
-      ws.addRow(['']);
-      ws.addRow(['EMPLOYEE PERFORMANCE & PAYMENT SUMMARY REPORT']);
-      ws.addRow(['']);
+      ws.addRow([""]);
+      ws.addRow(["EMPLOYEE PERFORMANCE & PAYMENT SUMMARY REPORT"]);
+      ws.addRow([""]);
       ws.addRow([`Generated on: ${dateTime}`]);
-      ws.addRow(['']);
-      ws.addRow(['FILTERS APPLIED:']);
-      ws.addRow(['Start Date:', filters.startDate || 'All']);
-      ws.addRow(['End Date:', filters.endDate || 'All']);
-      ws.addRow(['Month:', filters.month || 'All']);
-      ws.addRow(['Year:', filters.year || 'All']);
-      ws.addRow(['Status:', filters.status || 'All']);
-      ws.addRow(['']);
+      ws.addRow([""]);
+      ws.addRow(["FILTERS APPLIED:"]);
+      ws.addRow(["Start Date:", filters.startDate || "All"]);
+      ws.addRow(["End Date:", filters.endDate || "All"]);
+      ws.addRow(["Month:", filters.month || "All"]);
+      ws.addRow(["Year:", filters.year || "All"]);
+      ws.addRow(["Status:", filters.status || "All"]);
+      ws.addRow([""]);
       ws.addRow(headers); // মূল টেবিল হেডার (Row 16)
 
       // ডেটা রো গুলো যুক্ত করা
       ws.addRows(dataRows);
 
       // ৫. প্রফেশনাল স্টাইলিং ও ফন্ট সেটআপ
-      ws.getRow(1).font = { bold: true, size: 14, color: { argb: '003366' } };
-      ws.getRow(2).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(3).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(5).font = { bold: true, size: 12, color: { argb: '0047AB' } };
+      ws.getRow(1).font = { bold: true, size: 14, color: { argb: "003366" } };
+      ws.getRow(2).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(3).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(5).font = { bold: true, size: 12, color: { argb: "0047AB" } };
       ws.getRow(7).font = { italic: true, size: 10 };
-      ws.getRow(9).font = { bold: true, size: 10, color: { argb: '333333' } };
+      ws.getRow(9).font = { bold: true, size: 10, color: { argb: "333333" } };
 
       // মূল টেবিলের হেডার রো (Row 16) বোল্ড করা
       ws.getRow(16).font = { bold: true };
@@ -351,29 +348,29 @@ const AllEmployees = () => {
       // ৭. বাফার তৈরি এবং ব্রাউজারে ফাইল ডাউনলোড ট্রিগার করা
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
-      const fileName = `Employee_Report_${now.toISOString().split('T')[0]}.xlsx`;
+      const fileName = `Employee_Report_${now.toISOString().split("T")[0]}.xlsx`;
 
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.href = url;
       anchor.download = fileName;
       anchor.click();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Detailed report exported successfully');
+      toast.success("Detailed report exported successfully");
     } catch (error) {
-      toast.error('Failed to export employee report. Please try again.');
+      toast.error("Failed to export employee report. Please try again.");
     }
   };
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-BD', {
-      style: 'currency',
-      currency: 'BDT',
+    return new Intl.NumberFormat("en-BD", {
+      style: "currency",
+      currency: "BDT",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount || 0);
@@ -385,15 +382,6 @@ const AllEmployees = () => {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      {/* Header - Notion style */}
-      <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
-          </div>
-        </div>
-      </header>
-
       <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-md border-gray-200/60">
         <div className="px-6 py-10 lg:py-16 lg:ps-12 lg:pe-6">
           <div className="">
@@ -418,7 +406,7 @@ const AllEmployees = () => {
           className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <Filter className="w-4 h-4" />
-          {isMobileFilterOpen ? 'Hide Filters' : 'Show Filters'}
+          {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
         </button>
       </div>
 
@@ -443,7 +431,7 @@ const AllEmployees = () => {
             {isMobileFilterOpen && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="lg:hidden"
               >
@@ -471,7 +459,7 @@ const AllEmployees = () => {
                     <select
                       value={
                         filters?.limit === pagination.totalItems
-                          ? 'all'
+                          ? "all"
                           : filters.limit
                       }
                       onChange={(e) => handleLimitChange(e.target.value)}
@@ -505,7 +493,7 @@ const AllEmployees = () => {
                       disabled={isFetching}
                     >
                       <RefreshCw
-                        className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
+                        className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
                       />
                     </button>
                     <button
@@ -571,7 +559,7 @@ const AllEmployees = () => {
                         </h3>
                         <p className="max-w-xs mb-6 text-slate-500">
                           {error?.data?.message ||
-                            'Unable to fetch employee records'}
+                            "Unable to fetch employee records"}
                         </p>
                         <button
                           onClick={refetch}
@@ -619,21 +607,21 @@ const AllEmployees = () => {
                               <div className="flex flex-col justify-between gap-3 mb-8 lg:flex-row lg:items-center">
                                 <div className="flex items-start gap-4">
                                   <div className="flex items-center justify-center flex-shrink-0 w-10 h-10 font-bold text-white uppercase rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700">
-                                    {employee?.userName?.charAt(0) || 'N/A'}
+                                    {employee?.userName?.charAt(0) || "N/A"}
                                   </div>
                                   <div>
                                     <h4 className="text-sm font-bold leading-tight capitalize text-slate-900">
-                                      {employee?.userName || 'Unknown'} #
+                                      {employee?.userName || "Unknown"} #
                                       {getSerialNumber(index)}
                                     </h4>
                                     <div className="flex items-center gap-3 text-slate-500">
                                       <span className="flex items-center gap-1.5 text-[12px] font-medium">
                                         <Phone className="w-3.5 h-3.5" />
-                                        {employee?.phone || 'N/A'}
+                                        {employee?.phone || "N/A"}
                                       </span>
                                       <span className="text-slate-300">|</span>
                                       <span className="text-[12px] font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-600">
-                                        {employee?.userId || 'N/A'}
+                                        {employee?.userId || "N/A"}
                                       </span>
                                     </div>
                                   </div>
@@ -643,8 +631,8 @@ const AllEmployees = () => {
                                   <button
                                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                       employee?.totalPaidAmount > 0
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                        : 'bg-white text-slate-700 border-slate-200'
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                        : "bg-white text-slate-700 border-slate-200"
                                     }`}
                                   >
                                     Paid Duties ({employee?.paidDuties || 0})
@@ -652,8 +640,8 @@ const AllEmployees = () => {
                                   <button
                                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                       employee?.totalDuePayment > 0
-                                        ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                        : 'bg-white text-slate-700 border-slate-200'
+                                        ? "bg-rose-50 text-rose-700 border-rose-200"
+                                        : "bg-white text-slate-700 border-slate-200"
                                     }`}
                                   >
                                     Unpaid Duties ({employee?.unpaidDuties || 0}
@@ -663,8 +651,8 @@ const AllEmployees = () => {
                                     onClick={() => toggleRow(employee?._id)}
                                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                       expandedRows?.has(employee?._id)
-                                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                     }`}
                                   >
                                     {expandedRows?.has(employee?._id) ? (
@@ -678,8 +666,8 @@ const AllEmployees = () => {
                                     onClick={() => toggleLoanRow(employee?._id)}
                                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                       expandedLoans?.has(employee?._id)
-                                        ? 'bg-red-500 text-white border-red-500 shadow-sm'
-                                        : 'bg-white text-slate-700 border-red-100 hover:bg-red-50'
+                                        ? "bg-red-500 text-white border-red-500 shadow-sm"
+                                        : "bg-white text-slate-700 border-red-100 hover:bg-red-50"
                                     }`}
                                   >
                                     {expandedLoans?.has(employee?._id) ? (
@@ -720,100 +708,100 @@ const AllEmployees = () => {
                               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
                                 {[
                                   {
-                                    label: 'Total Duties',
+                                    label: "Total Duties",
                                     val: employee?.totalDuties,
                                     icon: BookOpen,
-                                    color: 'text-blue-600',
+                                    color: "text-blue-600",
                                   },
                                   {
-                                    label: 'Approved',
+                                    label: "Approved",
                                     val: employee?.approvedDuties,
                                     icon: CreditCard,
-                                    color: 'text-green-600',
+                                    color: "text-green-600",
                                   },
                                   {
-                                    label: 'Pending',
+                                    label: "Pending",
                                     val: employee?.pendingDuties,
                                     icon: AlertCircle,
-                                    color: 'text-rose-600',
+                                    color: "text-rose-600",
                                   },
                                   {
-                                    label: 'Total Amount',
+                                    label: "Total Amount",
                                     val: employee?.totalAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: DollarSign,
-                                    color: 'text-cyan-600',
+                                    color: "text-cyan-600",
                                   },
                                   {
-                                    label: 'Loan Amount',
+                                    label: "Loan Amount",
                                     val: employee?.loanAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: AlertCircle,
-                                    color: 'text-orange-600',
+                                    color: "text-orange-600",
                                   },
                                   {
-                                    label: 'Paid Amount',
+                                    label: "Paid Amount",
                                     val: employee?.paidAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: AlertCircle,
-                                    color: 'text-orange-600',
+                                    color: "text-orange-600",
                                   },
                                   {
-                                    label: 'Due Amount',
+                                    label: "Due Amount",
                                     val:
                                       employee?.unpaidAmount?.toLocaleString(
-                                        'en-US',
+                                        "en-US",
                                         {
-                                          style: 'currency',
-                                          currency: 'BDT',
+                                          style: "currency",
+                                          currency: "BDT",
                                         },
-                                      ) || 'N/A',
+                                      ) || "N/A",
                                     icon: CheckCircle,
                                     color:
-                                      employee?.status === 'approve'
-                                        ? 'text-green-600'
-                                        : 'text-amber-600',
+                                      employee?.status === "approve"
+                                        ? "text-green-600"
+                                        : "text-amber-600",
                                   },
                                   {
-                                    label: 'Payable Amount',
+                                    label: "Payable Amount",
                                     val:
                                       employee?.payableAmount?.toLocaleString(
-                                        'en-US',
+                                        "en-US",
                                         {
-                                          style: 'currency',
-                                          currency: 'BDT',
+                                          style: "currency",
+                                          currency: "BDT",
                                         },
-                                      ) || 'N/A',
+                                      ) || "N/A",
                                     icon: CheckCircle,
                                     color:
-                                      employee?.status === 'approve'
-                                        ? 'text-green-600'
-                                        : 'text-amber-600',
+                                      employee?.status === "approve"
+                                        ? "text-green-600"
+                                        : "text-amber-600",
                                   },
                                   {
-                                    label: 'Payment Progress',
+                                    label: "Payment Progress",
                                     val: `${Math.round(
                                       (employee?.paidAmount /
                                         employee?.totalAmount) *
                                         100 || 0,
                                     )}%`,
                                     icon: BarChart3,
-                                    color: 'text-purple-600',
+                                    color: "text-purple-600",
                                   },
                                 ]?.map((item, i) => (
                                   <div
@@ -874,7 +862,7 @@ const AllEmployees = () => {
                                 {expandedRows?.has(employee?._id) && (
                                   <motion.div
                                     initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
+                                    animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
                                     className="mt-4 overflow-hidden border border-purple-100 rounded-lg shadow-sm"
                                   >
@@ -951,10 +939,10 @@ const AllEmployees = () => {
                                                     className={`px-2 py-0.5 rounded-full text-[12px] font-bold border`}
                                                   >
                                                     {loan?.totalDutyFee?.toLocaleString(
-                                                      'en-US',
+                                                      "en-US",
                                                       {
-                                                        style: 'currency',
-                                                        currency: 'BDT',
+                                                        style: "currency",
+                                                        currency: "BDT",
                                                       },
                                                     )}
                                                   </span>
@@ -964,7 +952,7 @@ const AllEmployees = () => {
                                                     <span
                                                       className={`px-2 py-0.5 rounded-full text-[12px] font-bold border flex items-center gap-1 capitalize ${getStatusBadge(loan?.status)}`}
                                                     >
-                                                      <CheckCircle size={12} />{' '}
+                                                      <CheckCircle size={12} />{" "}
                                                       {loan?.status}
                                                     </span>
                                                   )}
@@ -990,7 +978,7 @@ const AllEmployees = () => {
                                   employee?.loans?.length > 0 && (
                                     <motion.div
                                       initial={{ height: 0, opacity: 0 }}
-                                      animate={{ height: 'auto', opacity: 1 }}
+                                      animate={{ height: "auto", opacity: 1 }}
                                       exit={{ height: 0, opacity: 0 }}
                                       className="mt-4 overflow-hidden border border-purple-100 rounded-lg shadow-sm"
                                     >
@@ -1058,12 +1046,12 @@ const AllEmployees = () => {
                                                       <span className="flex items-center gap-1 font-bold text-emerald-600">
                                                         <CheckCircle
                                                           size={12}
-                                                        />{' '}
+                                                        />{" "}
                                                         Yes
                                                       </span>
                                                     ) : (
                                                       <span className="flex items-center gap-1 font-bold text-rose-500">
-                                                        <Clock size={12} />{' '}
+                                                        <Clock size={12} />{" "}
                                                         Pending
                                                       </span>
                                                     )}
@@ -1082,7 +1070,7 @@ const AllEmployees = () => {
                                   employee?.loans?.length === 0 && (
                                     <motion.div
                                       initial={{ height: 0, opacity: 0 }}
-                                      animate={{ height: 'auto', opacity: 1 }}
+                                      animate={{ height: "auto", opacity: 1 }}
                                       exit={{ height: 0, opacity: 0 }}
                                       className="mt-4 overflow-hidden border border-purple-100 rounded-lg shadow-sm"
                                     >
@@ -1111,7 +1099,7 @@ const AllEmployees = () => {
                     {employees.length > 0 && (
                       <div className="flex flex-col items-center justify-between gap-4 px-6 py-4 mt-auto border-t bg-slate-50/50 border-slate-100 sm:flex-row">
                         <span className="text-xs font-semibold text-slate-500">
-                          Displaying {employees?.length || 0} of{' '}
+                          Displaying {employees?.length || 0} of{" "}
                           {pagination.totalItems || 0} results
                         </span>
 
@@ -1123,8 +1111,8 @@ const AllEmployees = () => {
                               disabled={filters.page === 1}
                               className={`p-1.5 rounded-md transition-colors ${
                                 filters.page === 1
-                                  ? 'text-gray-300 cursor-not-allowed'
-                                  : 'text-gray-500 hover:bg-gray-100'
+                                  ? "text-gray-300 cursor-not-allowed"
+                                  : "text-gray-500 hover:bg-gray-100"
                               }`}
                             >
                               <ChevronLeft className="w-4 h-4" />
@@ -1153,8 +1141,8 @@ const AllEmployees = () => {
                                   onClick={() => handlePageChange(pageNum)}
                                   className={`min-w-[28px] h-7 text-xs font-medium rounded-md transition-colors ${
                                     filters.page === pageNum
-                                      ? 'bg-gray-900 text-white'
-                                      : 'text-gray-600 hover:bg-gray-100'
+                                      ? "bg-gray-900 text-white"
+                                      : "text-gray-600 hover:bg-gray-100"
                                   }`}
                                 >
                                   {pageNum}
@@ -1182,8 +1170,8 @@ const AllEmployees = () => {
                               disabled={filters.page === pagination.totalPages}
                               className={`p-1.5 rounded-md transition-colors ${
                                 filters.page === pagination.totalPages
-                                  ? 'text-gray-300 cursor-not-allowed'
-                                  : 'text-gray-500 hover:bg-gray-100'
+                                  ? "text-gray-300 cursor-not-allowed"
+                                  : "text-gray-500 hover:bg-gray-100"
                               }`}
                             >
                               <ChevronRight className="w-4 h-4" />

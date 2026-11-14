@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Download,
   Search,
@@ -18,34 +18,31 @@ import {
   CheckCircle,
   Clock,
   RefreshCw,
-} from 'lucide-react';
+} from "lucide-react";
+
+import EmployeeFilterSidebar from "../components/EmployeeFilterSidebar";
+import { format, parseISO } from "date-fns";
+import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import UpdateEmployeeDutyModal from "../components/UpdateEmployeeDutyModal";
+import { formatTimeAMPM } from "@/constants/timeFormat";
+import { formatDateDMY } from "@/constants/dateFormat";
+
 import {
   useDeleteEmployeeDutyMutation,
   useGetAllEmployeeDutiesWithSummaryQuery,
   useGetEmployeeAllDutiesQuery,
   useUpdateEmployeeDutyMutation,
   useUpdateEmployeeDutyStatusMutation,
-} from '../../../../../redux/features/staff/employeeApi';
-
-import bgLogo from '../../../../../assets/img/log-rpr.png';
-import { Link } from 'react-router-dom';
-import { KeyReturn } from 'phosphor-react';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import EmployeeFilterSidebar from '../components/EmployeeFilterSidebar';
-import { format, parseISO } from 'date-fns';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
-import toast from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { formatTimeAMPM } from '../../../../../constants/timeFormat';
-import UpdateEmployeeDutyModal from '../components/UpdateEmployeeDutyModal';
+} from "../../../../redux/features/staff/employeeApi";
 
 const EmployeeAllDuties = () => {
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [selectedDuty, setSelectedDuty] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedDuty, setSelectedDuty] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -54,13 +51,13 @@ const EmployeeAllDuties = () => {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: '',
-    startDate: '',
-    endDate: '',
-    month: '',
-    year: '',
-    status: '',
-    paymentStatus: '',
+    search: "",
+    startDate: "",
+    endDate: "",
+    month: "",
+    year: "",
+    status: "",
+    paymentStatus: "",
   });
 
   const {
@@ -99,9 +96,9 @@ const EmployeeAllDuties = () => {
   };
 
   const getPaymentStyles = useCallback((status) => {
-    return status?.toLowerCase() === 'paid'
-      ? 'bg-blue-50 text-blue-700 border-blue-200'
-      : 'bg-slate-50 text-slate-700 border-slate-200';
+    return status?.toLowerCase() === "paid"
+      ? "bg-blue-50 text-blue-700 border-blue-200"
+      : "bg-slate-50 text-slate-700 border-slate-200";
   }, []);
 
   const stats = useMemo(() => {
@@ -119,9 +116,9 @@ const EmployeeAllDuties = () => {
     let paid = 0;
 
     duties.forEach((d) => {
-      if (d.status === 'approve') approved++;
-      if (d.status === 'pending') pending++;
-      if (d.paymentStatus === 'paid') paid++;
+      if (d.status === "approve") approved++;
+      if (d.status === "pending") pending++;
+      if (d.paymentStatus === "paid") paid++;
     });
 
     return {
@@ -133,16 +130,16 @@ const EmployeeAllDuties = () => {
   }, [duties]);
 
   const formatTo12Hour = useCallback((time) => {
-    if (!time) return 'N/A';
-    const [hours, minutes] = time.split(':');
+    if (!time) return "N/A";
+    const [hours, minutes] = time.split(":");
     let h = parseInt(hours, 10);
-    const ampm = h >= 12 ? 'PM' : 'AM';
+    const ampm = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
     return `${h}:${minutes} ${ampm}`;
   }, []);
 
   const formatDuration = useCallback((totalSeconds) => {
-    if (!totalSeconds) return '0m';
+    if (!totalSeconds) return "0m";
     const seconds = parseInt(totalSeconds, 10);
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -156,30 +153,30 @@ const EmployeeAllDuties = () => {
   // Options for filters
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'All Status' },
-      { value: 'pending', label: 'Pending' },
-      { value: 'approve', label: 'Approved' },
+      { value: "", label: "All Status" },
+      { value: "pending", label: "Pending" },
+      { value: "approve", label: "Approved" },
     ],
     [],
   );
 
   const paymentStatusOptions = useMemo(
     () => [
-      { value: '', label: 'All Payments' },
-      { value: 'paid', label: 'Paid' },
-      { value: 'unpaid', label: 'Unpaid' },
+      { value: "", label: "All Payments" },
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
     ],
     [],
   );
 
   const monthOptions = useMemo(
     () => [
-      { value: '', label: 'All Months' },
+      { value: "", label: "All Months" },
       ...Array.from({ length: 12 }, (_, i) => {
         const date = new Date(0, i);
         return {
-          value: format(date, 'MMMM'),
-          label: format(date, 'MMMM'),
+          value: format(date, "MMMM"),
+          label: format(date, "MMMM"),
         };
       }),
     ],
@@ -188,20 +185,20 @@ const EmployeeAllDuties = () => {
 
   const getStatusStyles = useCallback((status) => {
     const styles = {
-      pending: 'bg-orange-50 text-orange-700 border-orange-200',
-      approve: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      cancelled: 'bg-red-50 text-red-700 border-red-200',
+      pending: "bg-orange-50 text-orange-700 border-orange-200",
+      approve: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      cancelled: "bg-red-50 text-red-700 border-red-200",
     };
     return (
       styles[status?.toLowerCase()] ||
-      'bg-gray-50 text-gray-700 border-gray-200'
+      "bg-gray-50 text-gray-700 border-gray-200"
     );
   }, []);
 
   // Unified selection handler
   const handleSelect = (idOrAll) => {
-    if (idOrAll === 'all') {
+    if (idOrAll === "all") {
       // Toggle "select all"
       setSelectedIds((prev) =>
         prev?.length === duties?.length ? [] : duties?.map((d) => d._id),
@@ -220,7 +217,7 @@ const EmployeeAllDuties = () => {
   const handleUpdateNursingDuty = useCallback(
     async (formData) => {
       if (!selectedDuty?._id) {
-        toast.error('Invalid duty selected for update.');
+        toast.error("Invalid duty selected for update.");
         return;
       }
       try {
@@ -231,10 +228,10 @@ const EmployeeAllDuties = () => {
 
         setIsModalOpen(false);
         setSelectedIds(null);
-        toast.success(res?.message || 'Duty updated successfully!');
+        toast.success(res?.message || "Duty updated successfully!");
         refetch(); // Refresh the data
       } catch (err) {
-        toast.error(err?.data?.message || 'Failed to update duty.');
+        toast.error(err?.data?.message || "Failed to update duty.");
       }
     },
     [updateEmployeeDuty, selectedDuty, refetch],
@@ -247,7 +244,7 @@ const EmployeeAllDuties = () => {
 
       const res = await updateEmployeeDutyStatus({
         dutyId: id,
-        status: 'approve',
+        status: "approve",
       }).unwrap();
       toast.success(res?.message);
       refetch();
@@ -271,12 +268,12 @@ const EmployeeAllDuties = () => {
         ids: selectedIds,
       }).unwrap();
 
-      toast.success(res?.message || 'Deleted successfully!');
+      toast.success(res?.message || "Deleted successfully!");
 
       setSelectedIds([]); // reset selection
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to delete selected duties');
+      toast.error(error?.data?.message || "Failed to delete selected duties");
     }
   };
 
@@ -288,21 +285,21 @@ const EmployeeAllDuties = () => {
     setFilters({
       page: 1,
       limit: 10,
-      search: '',
-      startDate: '',
-      endDate: '',
-      month: '',
-      year: '',
-      status: '',
-      paymentStatus: '',
+      search: "",
+      startDate: "",
+      endDate: "",
+      month: "",
+      year: "",
+      status: "",
+      paymentStatus: "",
     });
-    setDebouncedSearch('');
+    setDebouncedSearch("");
   }, []);
 
   // Save duty PDF
   const generatePDFStatement = useCallback(() => {
     if (!duties?.length) {
-      toast.error('No data to generate PDF');
+      toast.error("No data to generate PDF");
       return;
     }
 
@@ -310,40 +307,40 @@ const EmployeeAllDuties = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const primaryFont = 'times';
+      const primaryFont = "times";
       let cursorY = margin;
 
       // Helper functions
       const capitalize = (str) =>
         str
           ?.toLowerCase()
-          .split(' ')
+          .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ') || 'N/A';
+          .join(" ") || "N/A";
 
       const drawHeader = () => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(18);
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
         doc.setFontSize(9);
         doc.text(
-          'M.A. Samad Villa, In front of DUET Campus, Gazipur | +880 1742 590 128',
+          "M.A. Samad Villa, In front of DUET Campus, Gazipur | +880 1742 590 128",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setDrawColor(0, 0, 0);
@@ -354,12 +351,12 @@ const EmployeeAllDuties = () => {
 
       const drawFooter = (pageNum) => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
         doc.setFontSize(8);
         const now = new Date().toLocaleString();
         doc.text(`Generated: ${now}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNum}`, pageWidth - margin, pageHeight - 10, {
-          align: 'right',
+          align: "right",
         });
       };
 
@@ -370,7 +367,7 @@ const EmployeeAllDuties = () => {
       employeeData?.forEach((item) => {
         if (item.date) {
           const date = parseISO(item.date);
-          const key = `${format(date, 'MMMM yyyy')}`;
+          const key = `${format(date, "MMMM yyyy")}`;
           if (!dutiesByMonth[key]) dutiesByMonth[key] = [];
           dutiesByMonth[key].push(item);
         }
@@ -382,29 +379,29 @@ const EmployeeAllDuties = () => {
       cursorY = drawHeader();
 
       // Title
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
       doc.setFontSize(12);
-      doc.text('Employee All Duty', pageWidth / 2, cursorY, {
-        align: 'center',
+      doc.text("Employee All Duty", pageWidth / 2, cursorY, {
+        align: "center",
       });
       cursorY += 6;
 
       // Date range info
-      doc.setFont(primaryFont, 'normal');
+      doc.setFont(primaryFont, "normal");
       doc.setFontSize(10);
 
       const dateRangeText =
         filters?.startDate && filters?.endDate
           ? `Date Range: ${formatDateDMY(filters.startDate)} to ${formatDateDMY(filters.endDate)}`
-          : 'Date Range: All Time';
+          : "Date Range: All Time";
 
       doc.text(dateRangeText, pageWidth / 2, cursorY, {
-        align: 'center',
+        align: "center",
       });
       cursorY += 10;
 
       // Summary info
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
       doc.setFontSize(10);
       doc.text(`Total Records: ${employeeData?.length}`, margin, cursorY);
       cursorY += 6;
@@ -421,56 +418,56 @@ const EmployeeAllDuties = () => {
         }
 
         // Month header
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(11);
         doc.text(monthKey, margin, cursorY);
         cursorY += 5;
 
         const tableRows = monthData.map((item) => [
-          item.date ? formatDateDMY(item.date.split('T')[0]) : 'N/A',
-          capitalize(item.employeeName || ''),
-          item.phone || 'N/A',
-          item.workDetails || 'N/A',
-          `${formatTimeAMPM(item.dutyStartTime) || 'N/A'} - ${formatTimeAMPM(item.dutyEndTime) || 'N/A'}`,
+          item.date ? formatDateDMY(item.date.split("T")[0]) : "N/A",
+          capitalize(item.employeeName || ""),
+          item.phone || "N/A",
+          item.workDetails || "N/A",
+          `${formatTimeAMPM(item.dutyStartTime) || "N/A"} - ${formatTimeAMPM(item.dutyEndTime) || "N/A"}`,
           formatDuration(item.totalDutyTime),
-          `${(item.totalDutyFee || 0).toLocaleString('en-US', { style: 'currency', currency: 'BDT' })} `,
-          capitalize(item.status || ''),
-          capitalize(item.paymentStatus || ''),
+          `${(item.totalDutyFee || 0).toLocaleString("en-US", { style: "currency", currency: "BDT" })} `,
+          capitalize(item.status || ""),
+          capitalize(item.paymentStatus || ""),
         ]);
 
         autoTable(doc, {
           startY: cursorY,
           head: [
             [
-              'Date',
-              'Employee Name',
-              'Phone',
-              'Work Details',
-              'Duty Time',
-              'Duration',
-              'Amount',
-              'Status',
-              'Payment',
+              "Date",
+              "Employee Name",
+              "Phone",
+              "Work Details",
+              "Duty Time",
+              "Duration",
+              "Amount",
+              "Status",
+              "Payment",
             ],
           ],
           body: tableRows,
-          theme: 'grid',
+          theme: "grid",
           headStyles: {
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
-            fontStyle: 'bold',
+            fontStyle: "bold",
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
-            halign: 'center',
+            halign: "center",
           },
           styles: {
             fontSize: 8,
-            halign: 'center',
+            halign: "center",
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
           },
           columnStyles: {
-            6: { fontStyle: 'bold' }, // Amount column
+            6: { fontStyle: "bold" }, // Amount column
           },
           margin: { left: margin, right: margin },
           didDrawPage: (data) => {
@@ -488,7 +485,7 @@ const EmployeeAllDuties = () => {
 
       employeeData.forEach((d) => {
         total += d.totalDutyFee || 0;
-        if (d.paymentStatus?.toLowerCase() === 'paid')
+        if (d.paymentStatus?.toLowerCase() === "paid")
           paid += d.totalDutyFee || 0;
         else unpaid += d.totalDutyFee || 0;
       });
@@ -499,18 +496,18 @@ const EmployeeAllDuties = () => {
         cursorY = margin + 20;
       }
 
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
       doc.setFontSize(12);
-      doc.text('PAYMENT SUMMARY', margin, cursorY);
+      doc.text("PAYMENT SUMMARY", margin, cursorY);
       cursorY += 4;
 
       autoTable(doc, {
         startY: cursorY,
         head: [
           [
-            'Total Payable Amount',
-            'Total Paid Amount',
-            'Total Due/Unpaid Amount',
+            "Total Payable Amount",
+            "Total Paid Amount",
+            "Total Due/Unpaid Amount",
           ],
         ],
         body: [
@@ -520,18 +517,18 @@ const EmployeeAllDuties = () => {
             `${unpaid.toFixed(2)} BDT`,
           ],
         ],
-        theme: 'grid',
+        theme: "grid",
         headStyles: {
           fillColor: [240, 240, 240],
           textColor: [0, 0, 0],
-          fontStyle: 'bold',
-          halign: 'center',
+          fontStyle: "bold",
+          halign: "center",
           lineColor: [0, 0, 0],
           lineWidth: 0.2,
         },
         styles: {
           fontSize: 10,
-          halign: 'center',
+          halign: "center",
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           cellPadding: 4,
@@ -544,17 +541,17 @@ const EmployeeAllDuties = () => {
       doc.setDrawColor(0, 0, 0);
       doc.line(pageWidth - margin - 60, cursorY, pageWidth - margin, cursorY);
       doc.setFontSize(10);
-      doc.text('Authorized Signature', pageWidth - margin - 30, cursorY + 5, {
-        align: 'center',
+      doc.text("Authorized Signature", pageWidth - margin - 30, cursorY + 5, {
+        align: "center",
       });
 
       // Save with appropriate filename
-      const fileName = `Employee_Duties_${format(new Date(), 'ddMMyyyy_HHmm')}.pdf`;
+      const fileName = `Employee_Duties_${format(new Date(), "ddMMyyyy_HHmm")}.pdf`;
       doc.save(fileName);
 
-      toast.success('PDF Downloaded Successfully!');
+      toast.success("PDF Downloaded Successfully!");
     } catch (err) {
-      toast.error('Error generating PDF');
+      toast.error("Error generating PDF");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -568,15 +565,6 @@ const EmployeeAllDuties = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center justify-between px-4 py-3 max-w-screen-2xl">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
-          </div>
-        </div>
-      </header>
-
       <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-md border-gray-200/60">
         <div className="px-4 py-10">
           <div className="">
@@ -601,7 +589,7 @@ const EmployeeAllDuties = () => {
           className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <Filter className="w-4 h-4" />
-          {isMobileFilterOpen ? 'Hide Filters' : 'Show Filters'}
+          {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
         </button>
       </div>
 
@@ -626,28 +614,28 @@ const EmployeeAllDuties = () => {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
                 {[
                   {
-                    label: 'Total Duties',
+                    label: "Total Duties",
                     value: stats.total,
                     icon: Calendar,
-                    color: 'blue',
+                    color: "blue",
                   },
                   {
-                    label: 'Approved Duties',
+                    label: "Approved Duties",
                     value: stats.approved,
                     icon: CheckCircle,
-                    color: 'emerald',
+                    color: "emerald",
                   },
                   {
-                    label: 'Pending Duties',
+                    label: "Pending Duties",
                     value: stats.pending,
                     icon: Clock,
-                    color: 'amber',
+                    color: "amber",
                   },
                   {
-                    label: 'Paid Duties',
+                    label: "Paid Duties",
                     value: stats?.paid,
                     icon: DollarSign,
-                    color: 'green',
+                    color: "green",
                   },
                 ]?.map((stat, index) => (
                   <motion.div
@@ -678,7 +666,7 @@ const EmployeeAllDuties = () => {
                     setFilters((prev) => ({
                       ...prev,
                       page: 1, // নতুন লিমিট মানেই প্রথম পেজে ফেরত যাওয়া
-                      limit: val === 'all' ? 'all' : Number(val), // 'all' থাকলে string, নয়তো Number
+                      limit: val === "all" ? "all" : Number(val), // 'all' থাকলে string, নয়তো Number
                     }));
                   }}
                   className="text-black bg-white disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border border-gray-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 outline-none cursor-pointer"
@@ -712,11 +700,11 @@ const EmployeeAllDuties = () => {
                   <RefreshCw
                     className={`w-3.5 h-3.5 transition-transform duration-500 ${
                       isFetching
-                        ? 'animate-spin text-blue-500'
-                        : 'group-hover:rotate-180'
+                        ? "animate-spin text-blue-500"
+                        : "group-hover:rotate-180"
                     }`}
                   />
-                  <span>{isFetching ? 'Updating...' : 'Refresh'}</span>
+                  <span>{isFetching ? "Updating..." : "Refresh"}</span>
                 </button>
                 <button
                   onClick={generatePDFStatement}
@@ -729,7 +717,7 @@ const EmployeeAllDuties = () => {
                     <Download className="w-3.5 h-3.5" />
                   )}
                   <span>
-                    {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+                    {isGeneratingPDF ? "Generating..." : "Download PDF"}
                   </span>
                 </button>
               </div>
@@ -794,23 +782,23 @@ const EmployeeAllDuties = () => {
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4">
                               <div className="font-medium text-gray-900 capitalize">
-                                {duty?.employeeName || 'N/A'}
+                                {duty?.employeeName || "N/A"}
                               </div>
                               <div className="text-[12px] text-gray-500">
-                                {duty?.phone || 'N/A'}
+                                {duty?.phone || "N/A"}
                               </div>
                             </td>
                             <td className="px-4 py-3 text-xs whitespace-nowrap md:px-6 md:py-4">
                               <div className="font-medium text-gray-700">
-                                {duty?.date ? formatDateDMY(duty?.date) : 'N/A'}
+                                {duty?.date ? formatDateDMY(duty?.date) : "N/A"}
                               </div>
                               <div className="text-gray-500 text-[12px]">
-                                {formatTo12Hour(duty?.dutyStartTime)} -{' '}
+                                {formatTo12Hour(duty?.dutyStartTime)} -{" "}
                                 {formatTo12Hour(duty?.dutyEndTime)}
                               </div>
                             </td>
                             <td className="px-4 py-3 text-xs font-medium text-gray-700 md:px-6 md:py-4">
-                              {duty?.workDetails || 'N/A'}
+                              {duty?.workDetails || "N/A"}
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4">
                               <span
@@ -818,17 +806,17 @@ const EmployeeAllDuties = () => {
                                   duty?.status,
                                 )}`}
                               >
-                                {duty?.status || 'N/A'}
+                                {duty?.status || "N/A"}
                               </span>
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4">
                               <div className="font-semibold text-gray-900">
-                                {' '}
+                                {" "}
                                 {(duty?.totalDutyFee || 0).toLocaleString(
-                                  'en-US',
+                                  "en-US",
                                   {
-                                    style: 'currency',
-                                    currency: 'BDT',
+                                    style: "currency",
+                                    currency: "BDT",
                                   },
                                 )}
                               </div>
@@ -837,28 +825,28 @@ const EmployeeAllDuties = () => {
                                   duty?.paymentStatus,
                                 )}`}
                               >
-                                {duty?.paymentStatus || 'N/A'}
+                                {duty?.paymentStatus || "N/A"}
                               </span>
                             </td>
 
                             <td className="px-6 py-4">
                               <button
                                 onClick={() =>
-                                  handleApprove(duty?._id, 'approve')
+                                  handleApprove(duty?._id, "approve")
                                 }
                                 disabled={
-                                  duty?.status === 'approve' ||
+                                  duty?.status === "approve" ||
                                   activeId === duty?._id
                                 }
                                 className={`text-[10px] font-bold uppercase tracking-tight text-center rounded btn btn-xs btn-success text-white ${
-                                  duty.status === 'approve'
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : ''
+                                  duty.status === "approve"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                               >
                                 {activeId === duty?._id
-                                  ? 'Updating...'
-                                  : 'Approve'}
+                                  ? "Updating..."
+                                  : "Approve"}
                               </button>
                             </td>
 
@@ -921,31 +909,31 @@ const EmployeeAllDuties = () => {
                 {/* INFO TEXT */}
                 <div className="flex items-center gap-4">
                   <span className="text-xs text-gray-600">
-                    {filters.limit === 'all' ? (
+                    {filters.limit === "all" ? (
                       <>
-                        Showing all{' '}
+                        Showing all{" "}
                         <span className="font-medium">
                           {pagination?.totalCount || duties?.length}
-                        </span>{' '}
+                        </span>{" "}
                         results
                       </>
                     ) : (
                       <>
-                        Showing{' '}
+                        Showing{" "}
                         <span className="font-medium">
                           {(filters.page - 1) * Number(filters.limit) + 1}
-                        </span>{' '}
-                        to{' '}
+                        </span>{" "}
+                        to{" "}
                         <span className="font-medium">
                           {Math.min(
                             filters.page * Number(filters.limit),
                             pagination.totalCount || 0,
                           )}
-                        </span>{' '}
-                        of{' '}
+                        </span>{" "}
+                        of{" "}
                         <span className="font-medium">
                           {pagination.totalCount || 0}
-                        </span>{' '}
+                        </span>{" "}
                         results
                       </>
                     )}
@@ -953,7 +941,7 @@ const EmployeeAllDuties = () => {
                 </div>
 
                 {/* PAGINATION BUTTONS */}
-                {filters.limit !== 'all' && (
+                {filters.limit !== "all" && (
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePageChange(filters.page - 1)}

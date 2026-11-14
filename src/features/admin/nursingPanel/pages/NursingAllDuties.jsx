@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { format, parseISO } from 'date-fns';
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { format, parseISO } from "date-fns";
 import {
   AlertCircle,
   Calendar,
@@ -16,39 +16,39 @@ import {
   Zap,
   Download,
   Trash2,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import autoTable from "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import { toast } from "sonner";
+import NursingFilterSidebar from "../components/NursingFilterSidebar";
+import UpdateNursingDutyModal from "../components/UpdateNursingDutyModal";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   useDeleteNursingDutyMutation,
   useGetNursingAllDutiesQuery,
   useUpdateNursingAttendanceStatusMutation,
   useUpdateNursingDutyMutation,
-} from '../../../../../redux/features/Nursing/NursingApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import autoTable from 'jspdf-autotable';
-import { jsPDF } from 'jspdf';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
-import toast from 'react-hot-toast';
-import NursingFilterSidebar from '../components/NursingFilterSidebar';
-import UpdateNursingDutyModal from '../components/UpdateNursingDutyModal';
+} from "@/redux/features/Nursing/NursingApi";
+import { formatDateDMY } from "@/constants/dateFormat";
 
 const NursingAllDuties = () => {
   // State for filters
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: '',
-    startDate: '',
-    endDate: '',
-    month: '',
-    year: '',
-    status: '',
-    paymentStatus: '',
+    search: "",
+    startDate: "",
+    endDate: "",
+    month: "",
+    year: "",
+    status: "",
+    paymentStatus: "",
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDuty, setSelectedDuty] = useState(null);
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeId, setActiveId] = useState(null);
@@ -80,8 +80,8 @@ const NursingAllDuties = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Debounce search
@@ -99,30 +99,30 @@ const NursingAllDuties = () => {
   // Options for filters
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'All Status' },
-      { value: 'pending', label: 'Pending' },
-      { value: 'approve', label: 'Approved' },
+      { value: "", label: "All Status" },
+      { value: "pending", label: "Pending" },
+      { value: "approve", label: "Approved" },
     ],
     [],
   );
 
   const paymentStatusOptions = useMemo(
     () => [
-      { value: '', label: 'All Payments' },
-      { value: 'paid', label: 'Paid' },
-      { value: 'unpaid', label: 'Unpaid' },
+      { value: "", label: "All Payments" },
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
     ],
     [],
   );
 
   const monthOptions = useMemo(
     () => [
-      { value: '', label: 'All Months' },
+      { value: "", label: "All Months" },
       ...Array.from({ length: 12 }, (_, i) => {
         const date = new Date(0, i);
         return {
-          value: format(date, 'MMMM'),
-          label: format(date, 'MMMM'),
+          value: format(date, "MMMM"),
+          label: format(date, "MMMM"),
         };
       }),
     ],
@@ -132,11 +132,11 @@ const NursingAllDuties = () => {
   // Limit options with "All"
   const limitOptions = useMemo(
     () => [
-      { value: 5, label: '5' },
-      { value: 10, label: '10' },
-      { value: 25, label: '25' },
-      { value: 50, label: '50' },
-      { value: 'all', label: 'All' },
+      { value: 5, label: "5" },
+      { value: 10, label: "10" },
+      { value: 25, label: "25" },
+      { value: 50, label: "50" },
+      { value: "all", label: "All" },
     ],
     [],
   );
@@ -168,7 +168,7 @@ const NursingAllDuties = () => {
   const handleUpdateNursingDuty = useCallback(
     async (formData) => {
       if (!selectedDuty?._id) {
-        toast.error('No duty selected for update');
+        toast.error("No duty selected for update");
         return;
       }
 
@@ -180,10 +180,10 @@ const NursingAllDuties = () => {
 
         setIsModalOpen(false);
         setSelectedDuty(null);
-        toast.success(res?.message || 'Duty updated successfully!');
+        toast.success(res?.message || "Duty updated successfully!");
         refetch(); // Refresh the data
       } catch (err) {
-        toast.error(err?.data?.message || 'Failed to update duty.');
+        toast.error(err?.data?.message || "Failed to update duty.");
       }
     },
     [selectedDuty, updateNursingDuty, refetch],
@@ -195,7 +195,7 @@ const NursingAllDuties = () => {
 
       const res = await updateNursingAttendanceStatus({
         nursingId: id,
-        status: 'approve', // "approve" / "reject"
+        status: "approve", // "approve" / "reject"
       }).unwrap();
       toast.success(res?.message);
       refetch();
@@ -208,7 +208,7 @@ const NursingAllDuties = () => {
 
   const handleDeleteNursingDuty = async (id) => {
     // 1. Confirm before deleting (Good UX)
-    if (!window.confirm('Are you sure you want to delete this duty?')) {
+    if (!window.confirm("Are you sure you want to delete this duty?")) {
       return;
     }
 
@@ -217,7 +217,7 @@ const NursingAllDuties = () => {
       const res = await deleteNursingDuty({ nursingId: id });
       // 3. Handle success
       // Replace 'toast' with your preferred notification method (e.g., alert, console)
-      toast.success(res?.message || 'Deleted successful!');
+      toast.success(res?.message || "Deleted successful!");
 
       refetch();
       // 4. Trigger a re-fetch or state update here
@@ -225,7 +225,7 @@ const NursingAllDuties = () => {
     } catch (error) {
       // 5. Handle errors
       const errorMessage =
-        error?.data?.message || 'Failed to delete duty. Please try again.';
+        error?.data?.message || "Failed to delete duty. Please try again.";
       toast.error(errorMessage);
     }
   };
@@ -236,14 +236,14 @@ const NursingAllDuties = () => {
       let finalValue = value;
 
       // যদি limit পরিবর্তন করা হয় এবং সেটি ০ বা "0" হয়, তবে "all" সেট হবে
-      if (name === 'limit') {
-        finalValue = value === 0 || value === '0' ? 'all' : Number(value);
+      if (name === "limit") {
+        finalValue = value === 0 || value === "0" ? "all" : Number(value);
       }
 
       return {
         ...prev,
         [name]: finalValue,
-        page: name === 'limit' ? 1 : prev.page, // লিমিট বদলালে পেজ ১ এ রিসেট হবে
+        page: name === "limit" ? 1 : prev.page, // লিমিট বদলালে পেজ ১ এ রিসেট হবে
       };
     });
   };
@@ -252,15 +252,15 @@ const NursingAllDuties = () => {
     setFilters({
       page: 1,
       limit: 10,
-      search: '',
-      startDate: '',
-      endDate: '',
-      month: '',
-      year: '',
-      status: '',
-      paymentStatus: '',
+      search: "",
+      startDate: "",
+      endDate: "",
+      month: "",
+      year: "",
+      status: "",
+      paymentStatus: "",
     });
-    setDebouncedSearch('');
+    setDebouncedSearch("");
   }, []);
 
   const handlePageChange = useCallback((newPage) => {
@@ -274,34 +274,34 @@ const NursingAllDuties = () => {
   // Notion-style Status Colors
   const getStatusStyles = useCallback((status) => {
     const styles = {
-      pending: 'bg-orange-50 text-orange-700 border-orange-200',
-      approve: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      cancelled: 'bg-red-50 text-red-700 border-red-200',
+      pending: "bg-orange-50 text-orange-700 border-orange-200",
+      approve: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      cancelled: "bg-red-50 text-red-700 border-red-200",
     };
     return (
       styles[status?.toLowerCase()] ||
-      'bg-gray-50 text-gray-700 border-gray-200'
+      "bg-gray-50 text-gray-700 border-gray-200"
     );
   }, []);
 
   const getPaymentStyles = useCallback((status) => {
-    return status?.toLowerCase() === 'paid'
-      ? 'bg-blue-50 text-blue-700 border-blue-200'
-      : 'bg-slate-50 text-slate-700 border-slate-200';
+    return status?.toLowerCase() === "paid"
+      ? "bg-blue-50 text-blue-700 border-blue-200"
+      : "bg-slate-50 text-slate-700 border-slate-200";
   }, []);
 
   const formatTo12Hour = useCallback((time) => {
-    if (!time) return 'N/A';
-    const [hours, minutes] = time.split(':');
+    if (!time) return "N/A";
+    const [hours, minutes] = time.split(":");
     let h = parseInt(hours, 10);
-    const ampm = h >= 12 ? 'PM' : 'AM';
+    const ampm = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
     return `${h}:${minutes} ${ampm}`;
   }, []);
 
   const formatDuration = useCallback((totalSeconds) => {
-    if (!totalSeconds) return '0m';
+    if (!totalSeconds) return "0m";
     const seconds = parseInt(totalSeconds, 10);
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -315,7 +315,7 @@ const NursingAllDuties = () => {
   // Save duty PDF
   const generatePDFStatement = useCallback(() => {
     if (!rawData?.data?.length) {
-      toast.error('No data to generate PDF');
+      toast.error("No data to generate PDF");
       return;
     }
 
@@ -323,9 +323,9 @@ const NursingAllDuties = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
@@ -337,25 +337,25 @@ const NursingAllDuties = () => {
       const capitalize = (str) =>
         str
           ?.toLowerCase()
-          .split(' ')
+          .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ') || 'N/A';
+          .join(" ") || "N/A";
 
       const drawHeader = () => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(18);
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.text(
-          'M.A. Samad Villa, In front of DUET Campus, Gazipur | +880 1742 590 128',
+          "M.A. Samad Villa, In front of DUET Campus, Gazipur | +880 1742 590 128",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setDrawColor(0, 0, 0);
@@ -366,12 +366,12 @@ const NursingAllDuties = () => {
 
       const drawFooter = (pageNum) => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         const now = new Date().toLocaleString();
         doc.text(`Generated: ${now}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNum}`, pageWidth - margin, pageHeight - 10, {
-          align: 'right',
+          align: "right",
         });
       };
 
@@ -382,7 +382,7 @@ const NursingAllDuties = () => {
       nursingData.forEach((item) => {
         if (item.date) {
           const date = parseISO(item.date);
-          const key = `${format(date, 'MMMM yyyy')}`;
+          const key = `${format(date, "MMMM yyyy")}`;
           if (!dutiesByMonth[key]) dutiesByMonth[key] = [];
           dutiesByMonth[key].push(item);
         }
@@ -394,29 +394,29 @@ const NursingAllDuties = () => {
       cursorY = drawHeader();
 
       // Title
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text('Nursing Duty Statement', pageWidth / 2, cursorY, {
-        align: 'center',
+      doc.text("Nursing Duty Statement", pageWidth / 2, cursorY, {
+        align: "center",
       });
       cursorY += 6;
 
       // Date range info
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
 
       const dateRangeText =
         filters?.startDate && filters?.endDate
           ? `Date Range: ${formatDateDMY(filters.startDate)} to ${formatDateDMY(filters.endDate)}`
-          : 'Date Range: All Time';
+          : "Date Range: All Time";
 
       doc.text(dateRangeText, pageWidth / 2, cursorY, {
-        align: 'center',
+        align: "center",
       });
       cursorY += 10;
 
       // Summary info
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.text(`Total Records: ${nursingData.length}`, margin, cursorY);
       cursorY += 6;
@@ -433,56 +433,56 @@ const NursingAllDuties = () => {
         }
 
         // Month header
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
         doc.text(monthKey, margin, cursorY);
         cursorY += 5;
 
         const tableRows = monthData.map((item) => [
-          item.date ? formatDateDMY(item.date.split('T')[0]) : 'N/A',
-          capitalize(item.employeeName || ''),
-          item.phone || 'N/A',
-          item.messName || 'N/A',
-          `${item.dutyStartTime || 'N/A'} - ${item.dutyEndTime || 'N/A'}`,
+          item.date ? formatDateDMY(item.date.split("T")[0]) : "N/A",
+          capitalize(item.employeeName || ""),
+          item.phone || "N/A",
+          item.messName || "N/A",
+          `${item.dutyStartTime || "N/A"} - ${item.dutyEndTime || "N/A"}`,
           formatDuration(item.totalDutyTime),
           `${(item.totalAmount || 0).toFixed(2)} BDT`,
-          capitalize(item.status || ''),
-          capitalize(item.paymentStatus || ''),
+          capitalize(item.status || ""),
+          capitalize(item.paymentStatus || ""),
         ]);
 
         autoTable(doc, {
           startY: cursorY,
           head: [
             [
-              'Date',
-              'Nurse Name',
-              'Phone',
-              'Mess Name',
-              'Duty Time',
-              'Duration',
-              'Amount',
-              'Status',
-              'Payment',
+              "Date",
+              "Nurse Name",
+              "Phone",
+              "Mess Name",
+              "Duty Time",
+              "Duration",
+              "Amount",
+              "Status",
+              "Payment",
             ],
           ],
           body: tableRows,
-          theme: 'grid',
+          theme: "grid",
           headStyles: {
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
-            fontStyle: 'bold',
+            fontStyle: "bold",
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
-            halign: 'center',
+            halign: "center",
           },
           styles: {
             fontSize: 8,
-            halign: 'center',
+            halign: "center",
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
           },
           columnStyles: {
-            6: { fontStyle: 'bold' }, // Amount column
+            6: { fontStyle: "bold" }, // Amount column
           },
           margin: { left: margin, right: margin },
           didDrawPage: (data) => {
@@ -500,7 +500,7 @@ const NursingAllDuties = () => {
 
       nursingData.forEach((d) => {
         total += d.totalAmount || 0;
-        if (d.paymentStatus?.toLowerCase() === 'paid')
+        if (d.paymentStatus?.toLowerCase() === "paid")
           paid += d.totalAmount || 0;
         else unpaid += d.totalAmount || 0;
       });
@@ -511,18 +511,18 @@ const NursingAllDuties = () => {
         cursorY = margin + 20;
       }
 
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text('ACCOUNT SUMMARY', margin, cursorY);
+      doc.text("ACCOUNT SUMMARY", margin, cursorY);
       cursorY += 4;
 
       autoTable(doc, {
         startY: cursorY,
         head: [
           [
-            'Total Payable Amount',
-            'Total Paid Amount',
-            'Total Due/Unpaid Amount',
+            "Total Payable Amount",
+            "Total Paid Amount",
+            "Total Due/Unpaid Amount",
           ],
         ],
         body: [
@@ -532,18 +532,18 @@ const NursingAllDuties = () => {
             `${unpaid.toFixed(2)} BDT`,
           ],
         ],
-        theme: 'grid',
+        theme: "grid",
         headStyles: {
           fillColor: [240, 240, 240],
           textColor: [0, 0, 0],
-          fontStyle: 'bold',
-          halign: 'center',
+          fontStyle: "bold",
+          halign: "center",
           lineColor: [0, 0, 0],
           lineWidth: 0.2,
         },
         styles: {
           fontSize: 10,
-          halign: 'center',
+          halign: "center",
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           cellPadding: 4,
@@ -556,17 +556,17 @@ const NursingAllDuties = () => {
       doc.setDrawColor(0, 0, 0);
       doc.line(pageWidth - margin - 60, cursorY, pageWidth - margin, cursorY);
       doc.setFontSize(10);
-      doc.text('Authorized Signature', pageWidth - margin - 30, cursorY + 5, {
-        align: 'center',
+      doc.text("Authorized Signature", pageWidth - margin - 30, cursorY + 5, {
+        align: "center",
       });
 
       // Save with appropriate filename
-      const fileName = `Nursing_Duties_${format(new Date(), 'ddMMyyyy_HHmm')}.pdf`;
+      const fileName = `Nursing_Duties_${format(new Date(), "ddMMyyyy_HHmm")}.pdf`;
       doc.save(fileName);
 
-      toast.success('PDF Downloaded Successfully!');
+      toast.success("PDF Downloaded Successfully!");
     } catch (err) {
-      toast.error('Error generating PDF');
+      toast.error("Error generating PDF");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -596,7 +596,7 @@ const NursingAllDuties = () => {
             Something went wrong!
           </h2>
           <p className="mb-4 text-gray-600">
-            {error?.data?.message || 'Failed to fetch nursing duties'}
+            {error?.data?.message || "Failed to fetch nursing duties"}
           </p>
           <button
             onClick={handleRefresh}
@@ -615,7 +615,7 @@ const NursingAllDuties = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -626,8 +626,8 @@ const NursingAllDuties = () => {
         animate={{ y: 0, opacity: 1 }}
         className={`sticky top-0  w-full transition-all duration-200 border-b ${
           isScrolled
-            ? 'bg-white/80 backdrop-blur-md border-gray-200/80 shadow-sm'
-            : 'bg-white border-transparent'
+            ? "bg-white/80 backdrop-blur-md border-gray-200/80 shadow-sm"
+            : "bg-white border-transparent"
         }`}
       >
         <div className="relative z-10 px-6 py-6 mx-auto lg:py-10 lg:ps-12 lg:pe-6">
@@ -670,28 +670,28 @@ const NursingAllDuties = () => {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
                 {[
                   {
-                    label: 'Total Duties',
+                    label: "Total Duties",
                     value: stats.total,
                     icon: Calendar,
-                    color: 'blue',
+                    color: "blue",
                   },
                   {
-                    label: 'Approved Duties',
+                    label: "Approved Duties",
                     value: stats.approved,
                     icon: CheckCircle,
-                    color: 'emerald',
+                    color: "emerald",
                   },
                   {
-                    label: 'Pending Duties',
+                    label: "Pending Duties",
                     value: stats.pending,
                     icon: Clock,
-                    color: 'amber',
+                    color: "amber",
                   },
                   {
-                    label: 'Paid Duties',
+                    label: "Paid Duties",
                     value: stats?.paid,
                     icon: DollarSign,
-                    color: 'green',
+                    color: "green",
                   },
                 ]?.map((stat, index) => (
                   <motion.div
@@ -722,7 +722,7 @@ const NursingAllDuties = () => {
                     setFilters((prev) => ({
                       ...prev,
                       page: 1, // নতুন লিমিট মানেই প্রথম পেজে ফেরত যাওয়া
-                      limit: val === 'all' ? 'all' : Number(val), // 'all' থাকলে string, নয়তো Number
+                      limit: val === "all" ? "all" : Number(val), // 'all' থাকলে string, নয়তো Number
                     }));
                   }}
                   className="text-black bg-white disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border border-gray-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 outline-none cursor-pointer"
@@ -742,11 +742,11 @@ const NursingAllDuties = () => {
                   <RefreshCw
                     className={`w-3.5 h-3.5 transition-transform duration-500 ${
                       isFetching
-                        ? 'animate-spin text-blue-500'
-                        : 'group-hover:rotate-180'
+                        ? "animate-spin text-blue-500"
+                        : "group-hover:rotate-180"
                     }`}
                   />
-                  <span>{isFetching ? 'Updating...' : 'Refresh'}</span>
+                  <span>{isFetching ? "Updating..." : "Refresh"}</span>
                 </button>
                 <button
                   onClick={generatePDFStatement}
@@ -759,7 +759,7 @@ const NursingAllDuties = () => {
                     <Download className="w-3.5 h-3.5" />
                   )}
                   <span>
-                    {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+                    {isGeneratingPDF ? "Generating..." : "Download PDF"}
                   </span>
                 </button>
               </div>
@@ -802,23 +802,23 @@ const NursingAllDuties = () => {
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4">
                               <div className="font-medium text-gray-900 capitalize">
-                                {duty?.employeeName || 'N/A'}
+                                {duty?.employeeName || "N/A"}
                               </div>
                               <div className="text-[12px] text-gray-500">
-                                {duty?.phone || 'N/A'}
+                                {duty?.phone || "N/A"}
                               </div>
                             </td>
                             <td className="px-4 py-3 text-xs whitespace-nowrap md:px-6 md:py-4">
                               <div className="font-medium text-gray-700">
-                                {duty?.date ? formatDateDMY(duty?.date) : 'N/A'}
+                                {duty?.date ? formatDateDMY(duty?.date) : "N/A"}
                               </div>
                               <div className="text-gray-500 text-[12px]">
-                                {formatTo12Hour(duty?.dutyStartTime)} -{' '}
+                                {formatTo12Hour(duty?.dutyStartTime)} -{" "}
                                 {formatTo12Hour(duty?.dutyEndTime)}
                               </div>
                             </td>
                             <td className="px-4 py-3 text-xs font-medium text-gray-700 md:px-6 md:py-4">
-                              {duty?.messName || 'N/A'}
+                              {duty?.messName || "N/A"}
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4">
                               <span
@@ -826,7 +826,7 @@ const NursingAllDuties = () => {
                                   duty?.status,
                                 )}`}
                               >
-                                {duty?.status || 'N/A'}
+                                {duty?.status || "N/A"}
                               </span>
                             </td>
                             <td className="px-4 py-3 md:px-6 md:py-4">
@@ -838,27 +838,27 @@ const NursingAllDuties = () => {
                                   duty?.paymentStatus,
                                 )}`}
                               >
-                                {duty?.paymentStatus || 'N/A'}
+                                {duty?.paymentStatus || "N/A"}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <button
                                 onClick={() =>
-                                  handleApprove(duty?._id, 'approve')
+                                  handleApprove(duty?._id, "approve")
                                 }
                                 disabled={
-                                  duty.status === 'approve' ||
+                                  duty.status === "approve" ||
                                   activeId === duty?._id
                                 }
                                 className={`text-[10px] font-bold uppercase tracking-tight text-center rounded btn btn-xs btn-success text-white ${
-                                  duty.status === 'approve'
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : ''
+                                  duty.status === "approve"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                               >
                                 {activeId === duty?._id
-                                  ? 'Updating...'
-                                  : 'Approve'}
+                                  ? "Updating..."
+                                  : "Approve"}
                               </button>
                             </td>
                             <td className="px-4 py-3 text-right md:px-6 md:py-4">
@@ -914,38 +914,38 @@ const NursingAllDuties = () => {
                 <div className="flex items-center gap-4">
                   <span className="text-xs text-gray-600">
                     {/* চেক করছি limit 'all' কি না অথবা ০ কি না */}
-                    {filters?.limit === 'all' || filters.limit === 0 ? (
+                    {filters?.limit === "all" || filters.limit === 0 ? (
                       <>
-                        Showing all{' '}
+                        Showing all{" "}
                         <span className="font-medium">
                           {rawData.pagination.totalDocuments}
-                        </span>{' '}
+                        </span>{" "}
                         results
                       </>
                     ) : (
                       <>
-                        Showing{' '}
+                        Showing{" "}
                         <span className="font-medium">
                           {(filters.page - 1) * Number(filters.limit) + 1}
-                        </span>{' '}
-                        to{' '}
+                        </span>{" "}
+                        to{" "}
                         <span className="font-medium">
                           {Math.min(
                             filters.page * Number(filters.limit),
                             rawData.pagination.totalDocuments,
                           )}
-                        </span>{' '}
-                        of{' '}
+                        </span>{" "}
+                        of{" "}
                         <span className="font-medium">
                           {rawData.pagination.totalDocuments}
-                        </span>{' '}
+                        </span>{" "}
                         results
                       </>
                     )}
                   </span>
                 </div>
 
-                {filters?.limit !== 'all' && filters.limit !== 0 && (
+                {filters?.limit !== "all" && filters.limit !== 0 && (
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePageChange(filters.page - 1)}

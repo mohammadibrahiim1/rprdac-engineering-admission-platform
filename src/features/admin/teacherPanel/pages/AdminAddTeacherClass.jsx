@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from "react";
 import {
   Calendar,
   BookOpen,
@@ -8,17 +8,17 @@ import {
   CheckCircle,
   RotateCcw,
   Zap,
-} from 'lucide-react';
-import { useForm, Controller } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { usePostTeacherAttendanceMutation } from '../../../../../redux/features/teacher/teacherApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import TimeSlotSelector from '../../../../../components/forms/TimeSlotSelector';
-import BatchSelector from '../../../../../components/forms/BatchSelector';
-import DepartmentSelector from '../../../../../components/forms/DepartmentSelector';
-import SubjectSelector from '../../../../../components/forms/SubjectSelector';
-import TeacherSelector from '../../../../../components/forms/TeacherSelector';
-import { useGetBillingRatesQuery } from '../../controlPanel/services/billingRateApi';
+} from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
+import { toast } from "sonner";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { usePostTeacherAttendanceMutation } from "@/redux/features/teacher/teacherApi";
+import BatchSelector from "@/components/common/BatchSelector";
+import SubjectSelector from "@/components/common/SubjectSelector";
+import TeacherSelector from "@/components/common/TeacherSelector";
+import { useGetBillingRatesQuery } from "../../controlPanel/services/billingRateApi";
+import DepartmentSelector from "@/components/common/DepartmentSelector";
+import TimeSlotSelector from "@/components/common/TimeSlotSelector";
 
 const AdminAddTeacherClass = () => {
   const [resetKey, setResetKey] = useState(0);
@@ -26,27 +26,27 @@ const AdminAddTeacherClass = () => {
 
   const { control, handleSubmit, reset, watch, setValue } = useForm({
     defaultValues: {
-      classDate: '',
-      teacherId: '',
-      teacherName: '',
-      phone: '',
-      department: '',
-      subject: '',
-      batch: '',
-      classTime: '',
+      classDate: "",
+      teacherId: "",
+      teacherName: "",
+      phone: "",
+      department: "",
+      subject: "",
+      batch: "",
+      classTime: "",
       classQuantity: 1,
       classFee: 0,
       secRate: 0,
-      userType: 'teacher',
-      selectedRateCategory: '',
+      userType: "teacher",
+      selectedRateCategory: "",
     },
   });
 
   // Watch fields
-  const teacherId = watch('teacherId');
-  const classQuantity = watch('classQuantity');
-  const classFee = watch('classFee');
-  const selectedRateCategory = watch('selectedRateCategory');
+  const teacherId = watch("teacherId");
+  const classQuantity = watch("classQuantity");
+  const classFee = watch("classFee");
+  const selectedRateCategory = watch("selectedRateCategory");
 
   // Sob billing rates fetch korci (jodi backend e query parameter support na kore)
   const { data: billingResponse, isLoading: isBilling } =
@@ -63,7 +63,7 @@ const AdminAddTeacherClass = () => {
     // Jekhane billing record-er `user` ba `user._id` amader selected `teacherId` er sathe match korbe
     const teacherBillingRecord = allBillingRecords.find((item) => {
       const recordUserId =
-        typeof item.user === 'object' ? item.user?._id : item.user;
+        typeof item.user === "object" ? item.user?._id : item.user;
 
       return recordUserId === teacherId;
     });
@@ -80,42 +80,42 @@ const AdminAddTeacherClass = () => {
   useEffect(() => {
     if (ratesList.length > 0) {
       const regularRate =
-        ratesList.find((r) => r.category === 'regular') || ratesList[0];
+        ratesList.find((r) => r.category === "regular") || ratesList[0];
       if (regularRate) {
-        setValue('classFee', regularRate.hourlyRate || 0);
-        setValue('secRate', regularRate.secRate || 0);
-        setValue('selectedRateCategory', regularRate.category || '');
+        setValue("classFee", regularRate.hourlyRate || 0);
+        setValue("secRate", regularRate.secRate || 0);
+        setValue("selectedRateCategory", regularRate.category || "");
       }
     } else {
-      setValue('classFee', 0);
-      setValue('secRate', 0);
-      setValue('selectedRateCategory', '');
+      setValue("classFee", 0);
+      setValue("secRate", 0);
+      setValue("selectedRateCategory", "");
     }
   }, [ratesList, setValue]);
 
   // Rate select korle form-e value set kora
   const handleRateSelect = (rateObj) => {
-    setValue('classFee', rateObj.hourlyRate || 0);
-    setValue('secRate', rateObj.secRate || 0);
-    setValue('selectedRateCategory', rateObj.category || '');
+    setValue("classFee", rateObj.hourlyRate || 0);
+    setValue("secRate", rateObj.secRate || 0);
+    setValue("selectedRateCategory", rateObj.category || "");
   };
 
   // Form Reset
   const handleReset = () => {
     reset();
     setResetKey((p) => p + 1);
-    setValue('classFee', 0);
-    setValue('secRate', 0);
-    setValue('selectedRateCategory', '');
-    toast.success('Form cleared');
+    setValue("classFee", 0);
+    setValue("secRate", 0);
+    setValue("selectedRateCategory", "");
+    toast.success("Form cleared");
   };
 
   const onSubmit = async (data) => {
     if (!data.teacherId) {
-      return toast.error('Please select a teacher first!');
+      return toast.error("Please select a teacher first!");
     }
     if (!data.classFee || data.classFee <= 0) {
-      return toast.error('Please select a valid billing rate!');
+      return toast.error("Please select a valid billing rate!");
     }
 
     try {
@@ -128,21 +128,21 @@ const AdminAddTeacherClass = () => {
       };
 
       await postAttendance(payload).unwrap();
-      toast.success('Class recorded successfully!');
+      toast.success("Class recorded successfully!");
       // handleReset();
     } catch (err) {
-      toast.error(err?.data?.message || 'Something went wrong');
+      toast.error(err?.data?.message || "Something went wrong");
     }
   };
 
   const inputBase =
-    'w-full px-3 py-2 text-[14px] bg-[#f7f7f5] border border-transparent rounded-md focus:outline-none focus:bg-white focus:border-[#2383e2] transition-all placeholder:text-gray-400 text-gray-800 shadow-sm';
-  const labelBase = 'text-[12px] font-medium text-gray-500 mb-1 block';
+    "w-full px-3 py-2 text-[14px] bg-[#f7f7f5] border border-transparent rounded-md focus:outline-none focus:bg-white focus:border-[#2383e2] transition-all placeholder:text-gray-400 text-gray-800 shadow-sm";
+  const labelBase = "text-[12px] font-medium text-gray-500 mb-1 block";
 
   const categoryColors = {
-    regular: 'bg-blue-100 text-blue-700',
-    private: 'bg-purple-100 text-purple-700',
-    examDuty: 'bg-orange-100 text-orange-700',
+    regular: "bg-blue-100 text-blue-700",
+    private: "bg-purple-100 text-purple-700",
+    examDuty: "bg-orange-100 text-orange-700",
   };
 
   return (
@@ -150,7 +150,7 @@ const AdminAddTeacherClass = () => {
       <header className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-3 py-2 max-w-screen-2xl">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -176,12 +176,12 @@ const AdminAddTeacherClass = () => {
               <TeacherSelector
                 key={resetKey}
                 onSelect={(teacher) => {
-                  setValue('teacherId', teacher?._id || '');
-                  setValue('teacherName', teacher?.userName || '');
-                  setValue('phone', teacher?.phone || '');
-                  setValue('classFee', 0);
-                  setValue('secRate', 0);
-                  setValue('selectedRateCategory', '');
+                  setValue("teacherId", teacher?._id || "");
+                  setValue("teacherName", teacher?.userName || "");
+                  setValue("phone", teacher?.phone || "");
+                  setValue("classFee", 0);
+                  setValue("secRate", 0);
+                  setValue("selectedRateCategory", "");
                 }}
                 labelBase={labelBase}
                 inputBase={inputBase}
@@ -199,9 +199,9 @@ const AdminAddTeacherClass = () => {
                 <div className="flex justify-between mb-3 text-xs">
                   <span className="opacity-80">Rate / Hour</span>
                   <span className="font-sans font-bold">
-                    {Number(classFee || 0).toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'BDT',
+                    {Number(classFee || 0).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "BDT",
                     })}
                   </span>
                 </div>
@@ -209,9 +209,9 @@ const AdminAddTeacherClass = () => {
                 <div className="flex justify-between pt-3 text-lg font-bold text-green-400 border-t border-slate-800">
                   <span>Total Fee</span>
                   <span className="font-sans">
-                    {totalFee.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'BDT',
+                    {totalFee.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "BDT",
                     })}
                   </span>
                 </div>
@@ -255,8 +255,8 @@ const AdminAddTeacherClass = () => {
                             onClick={() => handleRateSelect(rate)}
                             className={`group cursor-pointer transition-colors ${
                               selectedRateCategory === rate?.category
-                                ? 'bg-blue-50/50'
-                                : 'hover:bg-gray-50'
+                                ? "bg-blue-50/50"
+                                : "hover:bg-gray-50"
                             }`}
                           >
                             <td className="px-3 py-3">
@@ -272,15 +272,15 @@ const AdminAddTeacherClass = () => {
                             </td>
                             <td className="px-3 py-3">
                               <span
-                                className={`px-2 py-0.5 rounded-[4px] text-[11px] font-bold capitalize ${categoryColors[rate?.category] || 'bg-gray-100 text-gray-600'}`}
+                                className={`px-2 py-0.5 rounded-[4px] text-[11px] font-bold capitalize ${categoryColors[rate?.category] || "bg-gray-100 text-gray-600"}`}
                               >
                                 {rate?.category}
                               </span>
                             </td>
                             <td className="px-3 py-3 text-right font-sans text-xs font-bold text-[#37352F]">
-                              {rate?.hourlyRate?.toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              {rate?.hourlyRate?.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </td>
                           </tr>
@@ -305,16 +305,16 @@ const AdminAddTeacherClass = () => {
                         Calculation Preview
                       </p>
                       <p className="mt-1 text-xs text-emerald-600">
-                        {classQuantity || 0} Hour(s) ×{' '}
-                        {Number(classFee || 0).toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'BDT',
+                        {classQuantity || 0} Hour(s) ×{" "}
+                        {Number(classFee || 0).toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "BDT",
                         })}
-                        {'/hr'} ={' '}
+                        {"/hr"} ={" "}
                         <span className="font-bold">
-                          {totalFee.toLocaleString('en-US', {
-                            style: 'currency',
-                            currency: 'BDT',
+                          {totalFee.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "BDT",
                           })}
                         </span>
                       </p>
@@ -371,7 +371,7 @@ const AdminAddTeacherClass = () => {
                 {/* TIME SLOT */}
                 <TimeSlotSelector
                   resetKey={resetKey}
-                  onSelect={(val) => setValue('classTime', val)}
+                  onSelect={(val) => setValue("classTime", val)}
                   labelBase={labelBase}
                   inputBase={inputBase}
                 />
@@ -424,7 +424,7 @@ const AdminAddTeacherClass = () => {
                 {/* DEPARTMENT */}
                 <DepartmentSelector
                   resetKey={resetKey}
-                  onSelect={(val) => setValue('department', val)}
+                  onSelect={(val) => setValue("department", val)}
                   labelBase={labelBase}
                   inputBase={inputBase}
                 />
@@ -432,7 +432,7 @@ const AdminAddTeacherClass = () => {
                 {/* SUBJECT */}
                 <SubjectSelector
                   resetKey={resetKey}
-                  onChange={(val) => setValue('subject', val)}
+                  onChange={(val) => setValue("subject", val)}
                   labelBase={labelBase}
                   inputBase={inputBase}
                 />

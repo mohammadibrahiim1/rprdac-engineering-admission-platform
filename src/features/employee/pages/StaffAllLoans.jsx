@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { useState, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { motion } from "framer-motion";
+import { useState, useMemo } from "react";
+import { useSelector } from "react-redux";
 import {
   Search,
   Filter,
@@ -13,24 +13,28 @@ import {
   XCircle,
   TrendingUp,
   Loader,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Data fetching hooks
-import { useFetchEmployeeDutiesQuery } from '../../../../redux/features/staff/employeeApi';
-import { useGetSingleNurseAttendancesQuery } from '../../../../redux/features/Nursing/NursingApi';
-import { useGetTeacherClassesQuery } from '../../../../redux/features/teacher/teacherApi';
+// import { useFetchEmployeeDutiesQuery } from '../../../../redux/features/staff/employeeApi';
+// import { useGetSingleNurseAttendancesQuery } from '../../../../redux/features/Nursing/NursingApi';
+// import { useGetTeacherClassesQuery } from '../../../../redux/features/teacher/teacherApi';
+
+import { useGetSingleNurseAttendancesQuery } from "@/redux/features/Nursing/NursingApi";
+import { useFetchEmployeeDutiesQuery } from "@/redux/features/staff/employeeApi";
+import { useGetTeacherClassesQuery } from "@/redux/features/teacher/teacherApi";
 
 const StaffAllLoans = () => {
   const auth = useSelector((state) => state?.auth?.user);
   const [filters, setFilters] = useState({
-    year: '',
-    month: '',
-    status: '',
-    search: '',
+    year: "",
+    month: "",
+    status: "",
+    search: "",
   });
   const [sortConfig, setSortConfig] = useState({
-    key: 'date',
-    direction: 'desc',
+    key: "date",
+    direction: "desc",
   });
 
   // Data fetching
@@ -52,11 +56,11 @@ const StaffAllLoans = () => {
   // Get role-based data
   const roleData = useMemo(() => {
     switch (auth?.userType) {
-      case 'teacher':
+      case "teacher":
         return teacherData?.statements || [];
-      case 'staff':
+      case "staff":
         return staffData?.statements || [];
-      case 'nursing':
+      case "nursing":
         return nursingData?.statements || [];
       default:
         return [];
@@ -78,7 +82,7 @@ const StaffAllLoans = () => {
   const requestSort = (key) => {
     setSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
     }));
   };
 
@@ -112,28 +116,28 @@ const StaffAllLoans = () => {
       .sort((a, b) => {
         // Handle nested properties
         const getValue = (obj, path) =>
-          path.split('.').reduce((o, p) => (o ? o[p] : null), obj);
+          path.split(".").reduce((o, p) => (o ? o[p] : null), obj);
 
         const valA = getValue(a, key);
         const valB = getValue(b, key);
 
         // Special handling for dates
-        if (key === 'date') {
+        if (key === "date") {
           const dateA = valA ? new Date(valA).getTime() : 0;
           const dateB = valB ? new Date(valB).getTime() : 0;
-          return direction === 'asc' ? dateA - dateB : dateB - dateA;
+          return direction === "asc" ? dateA - dateB : dateB - dateA;
         }
 
         // Numeric comparison
-        if (typeof valA === 'number' && typeof valB === 'number') {
-          return direction === 'asc' ? valA - valB : valB - valA;
+        if (typeof valA === "number" && typeof valB === "number") {
+          return direction === "asc" ? valA - valB : valB - valA;
         }
 
         // String comparison
-        const strA = String(valA || '').toLowerCase();
-        const strB = String(valB || '').toLowerCase();
-        if (strA < strB) return direction === 'asc' ? -1 : 1;
-        if (strA > strB) return direction === 'asc' ? 1 : -1;
+        const strA = String(valA || "").toLowerCase();
+        const strB = String(valB || "").toLowerCase();
+        if (strA < strB) return direction === "asc" ? -1 : 1;
+        if (strA > strB) return direction === "asc" ? 1 : -1;
         return 0;
       });
   }, [roleData, filters, sortConfig]);
@@ -151,7 +155,7 @@ const StaffAllLoans = () => {
 
   // Reset all filters
   const resetFilters = () => {
-    setFilters({ year: '', month: '', status: '', search: '' });
+    setFilters({ year: "", month: "", status: "", search: "" });
   };
 
   // Animation variants
@@ -198,7 +202,7 @@ const StaffAllLoans = () => {
                     {auth?.userName}
                   </h1>
                   <span className="px-3 py-1 text-sm font-medium text-indigo-700 capitalize rounded-full bg-indigo-50">
-                    {auth?.userType === 'staff' ? 'Employee' : auth?.userType}
+                    {auth?.userType === "staff" ? "Employee" : auth?.userType}
                   </span>
                 </div>
 
@@ -207,7 +211,7 @@ const StaffAllLoans = () => {
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-emerald-500" />
                     <span>
-                      Records:{' '}
+                      Records:{" "}
                       <span className="font-semibold">
                         {filteredLoans.length}
                       </span>
@@ -215,7 +219,7 @@ const StaffAllLoans = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <span>
-                      Total:{' '}
+                      Total:{" "}
                       <span className="font-bold text-emerald-600">
                         {totalAmount.toFixed(2)} BDT
                       </span>
@@ -244,7 +248,7 @@ const StaffAllLoans = () => {
                 placeholder="Search loans..."
                 className="pl-9 w-full h-11 px-3.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                onChange={(e) => handleFilterChange("search", e.target.value)}
               />
             </div>
 
@@ -256,7 +260,7 @@ const StaffAllLoans = () => {
               <div className="relative mt-1">
                 <select
                   value={filters.year}
-                  onChange={(e) => handleFilterChange('year', e.target.value)}
+                  onChange={(e) => handleFilterChange("year", e.target.value)}
                   className="w-full pl-3 pr-8 text-sm bg-white border border-gray-300 rounded-lg appearance-none h-11 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Years</option>
@@ -278,7 +282,7 @@ const StaffAllLoans = () => {
               <div className="relative mt-1">
                 <select
                   value={filters.month}
-                  onChange={(e) => handleFilterChange('month', e.target.value)}
+                  onChange={(e) => handleFilterChange("month", e.target.value)}
                   className="w-full pl-3 pr-8 text-sm bg-white border border-gray-300 rounded-lg appearance-none h-11 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Months</option>
@@ -300,7 +304,7 @@ const StaffAllLoans = () => {
               <div className="relative mt-1">
                 <select
                   value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  onChange={(e) => handleFilterChange("status", e.target.value)}
                   className="w-full pl-3 pr-8 text-sm bg-white border border-gray-300 rounded-lg appearance-none h-11 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Status</option>
@@ -411,7 +415,7 @@ const StaffAllLoans = () => {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
-                        {loan.date?.slice(0, 10) || 'N/A'}
+                        {loan.date?.slice(0, 10) || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <StatusBadge status={loan.status} />
@@ -422,7 +426,7 @@ const StaffAllLoans = () => {
                             <Phone className="w-5 h-5 text-blue-600" />
                           </div>
                           <div className="text-sm text-gray-900">
-                            {loan.userDetails?.phone || 'N/A'}
+                            {loan.userDetails?.phone || "N/A"}
                           </div>
                         </div>
                       </td>
@@ -445,13 +449,13 @@ const StaffAllLoans = () => {
           {filteredLoans.length > 0 && (
             <div className="flex flex-col items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50 sm:flex-row">
               <div className="mb-2 text-sm text-gray-700 sm:mb-0">
-                Showing{' '}
-                <span className="font-medium">{filteredLoans.length}</span>{' '}
+                Showing{" "}
+                <span className="font-medium">{filteredLoans.length}</span>{" "}
                 loans
               </div>
               <div className="flex items-center">
                 <span className="mr-4 text-sm text-gray-700">
-                  Total:{' '}
+                  Total:{" "}
                   <span className="font-semibold">
                     ৳{totalAmount.toFixed(2)}
                   </span>
@@ -469,18 +473,18 @@ const StaffAllLoans = () => {
 const StatusBadge = ({ status }) => {
   const statusConfig = {
     approve: {
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-700',
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
       icon: <CheckCircle className="w-4 h-4" />,
     },
     pending: {
-      bg: 'bg-amber-50',
-      text: 'text-amber-700',
+      bg: "bg-amber-50",
+      text: "text-amber-700",
       icon: <Clock className="w-4 h-4" />,
     },
     rejected: {
-      bg: 'bg-red-50',
-      text: 'text-red-700',
+      bg: "bg-red-50",
+      text: "text-red-700",
       icon: <XCircle className="w-4 h-4" />,
     },
   };
@@ -500,7 +504,7 @@ const StatusBadge = ({ status }) => {
 // Table Header with Sorting
 const TableHeader = ({ title, sortKey, sortConfig, onSort }) => {
   const isActive = sortConfig.key === sortKey;
-  const isAscending = isActive && sortConfig.direction === 'asc';
+  const isAscending = isActive && sortConfig.direction === "asc";
 
   return (
     <th

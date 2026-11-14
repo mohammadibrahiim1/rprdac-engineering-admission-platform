@@ -1,21 +1,21 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 export const announcementApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createAnnouncement: builder.mutation({
       query: (announcementData) => ({
-        url: '/announcements/create',
-        method: 'POST',
+        url: "/announcements/create",
+        method: "POST",
         body: announcementData,
       }),
     }),
 
     getAnnouncements: builder.query({
       query: (params) => ({
-        url: '/announcements/all',
+        url: "/announcements/all",
         params,
       }),
-      providesTags: ['Announcement'],
+      providesTags: ["Announcement"],
     }),
 
     // student/all
@@ -25,7 +25,7 @@ export const announcementApi = baseApi.injectEndpoints({
         url: `/announcements/student/all`,
         params,
       }),
-      providingTags: ['Announcement'],
+      providesTags: ["Announcement"],
     }),
 
     getTeacherAnnouncements: builder.query({
@@ -33,26 +33,26 @@ export const announcementApi = baseApi.injectEndpoints({
         url: `/announcements/all`,
         params,
       }),
-      providingTags: ['Announcement'],
+      providesTags: ["Announcement"],
     }),
 
     //delete announcement
     updateAnnouncements: builder.mutation({
       query: ({ id, data }) => ({
         url: `/announcements/update/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
-      providingTags: ['Announcement'],
+      invalidatesTags: ["Announcement"],
     }),
 
     //delete announcement
     deleteAnnouncements: builder.mutation({
       query: (id) => ({
         url: `/announcements/delete/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      providingTags: ['Announcement'],
+      invalidatesTags: ["Announcement"],
     }),
   }),
 });

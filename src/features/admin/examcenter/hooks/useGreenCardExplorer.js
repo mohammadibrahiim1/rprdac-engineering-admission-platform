@@ -1,19 +1,18 @@
-// @ts-nocheck
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-hot-toast';
-import { useReactToPrint } from 'react-to-print';
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
+import { useReactToPrint } from "react-to-print";
 
-import { useGetInstitutesQuery } from '../../../../../redux/features/institute/instituteApi';
-import { useGetDepartmentsQuery } from '../../../../../redux/features/subject/subjectApi';
+import { useGetInstitutesQuery } from "../../../../redux/features/institute/instituteApi";
+import { useGetDepartmentsQuery } from "../../../../redux/features/subject/subjectApi";
 import {
   useCreateSingleAdmitCardMutation,
   useDeleteSingleAdmitCardMutation,
   useGetSingleAdmitCardQuery,
   useUpdateSingleAdmitGreenCardMutation,
-} from '../../../../../redux/features/examCenter/examcenterApi';
+} from "../../../../redux/features/examCenter/examcenterApi";
 
-import ExcelJS from 'exceljs';
+import ExcelJS from "exceljs";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
@@ -23,14 +22,14 @@ const processImage = async (imageSrc) => {
     const img = new Image();
     img.src = imageSrc;
     img.onload = async () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
       canvas.width = img.width;
       canvas.height = img.height;
 
       // Simple background removal (use @mediapipe/selfie_segmentation)
       const { SelfieSegmentation } =
-        await import('@mediapipe/selfie_segmentation');
+        await import("@mediapipe/selfie_segmentation");
       const segmentation = new SelfieSegmentation({
         locateFile: (file) =>
           `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
@@ -39,10 +38,10 @@ const processImage = async (imageSrc) => {
 
       segmentation.onResults((results) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.globalCompositeOperation = 'destination-atop';
+        ctx.globalCompositeOperation = "destination-atop";
         ctx.drawImage(
           results.segmentationMask,
           0,
@@ -50,10 +49,10 @@ const processImage = async (imageSrc) => {
           canvas.width,
           canvas.height,
         );
-        ctx.globalCompositeOperation = 'source-atop';
+        ctx.globalCompositeOperation = "source-atop";
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.9);
+        canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.9);
       });
       segmentation.send({ image: img });
     };
@@ -73,20 +72,20 @@ export const useGreenCardExplorer = () => {
 
   // ----- LOCAL STATE -----
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(10);
-  const [academicYear, setAcademicYear] = useState('');
+  const [academicYear, setAcademicYear] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
-  const [range, setRange] = useState({ startId: '', endId: '' });
+  const [range, setRange] = useState({ startId: "", endId: "" });
   const [notification, setNotification] = useState({
     show: false,
-    type: '',
-    message: '',
+    type: "",
+    message: "",
   });
   const [formData, setFormData] = useState({});
   const [photo, setPhoto] = useState(null);
   const [useCamera, setUseCamera] = useState(false);
-  const [currentPhotoUrl, setCurrentPhotoUrl] = useState('');
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState("");
   const [newPhotoFile, setNewPhotoFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const webcamRef = useRef(null);
@@ -156,7 +155,7 @@ export const useGreenCardExplorer = () => {
   }, []);
 
   const closeNotification = useCallback(() => {
-    setNotification({ show: false, type: '', message: '' });
+    setNotification({ show: false, type: "", message: "" });
   }, []);
 
   // ----- HANDLERS -----
@@ -192,9 +191,9 @@ export const useGreenCardExplorer = () => {
   }, []);
 
   const handleReset = useCallback(() => {
-    setSearch('');
-    setAcademicYear('');
-    setRange({ startId: '', endId: '' });
+    setSearch("");
+    setAcademicYear("");
+    setRange({ startId: "", endId: "" });
     setLimit(10);
     setPage(1);
     setSelectedIds([]);
@@ -215,7 +214,7 @@ export const useGreenCardExplorer = () => {
 
   const handleDeleteSelected = useCallback(async () => {
     if (!selectedIds.length) {
-      showNotification('error', 'Select at least one card');
+      showNotification("error", "Select at least one card");
       return;
     }
     if (!window.confirm(`Delete ${selectedIds.length} record(s)?`)) return;
@@ -225,7 +224,7 @@ export const useGreenCardExplorer = () => {
       setSelectedIds([]);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || 'Delete failed');
+      toast.error(err?.data?.message || "Delete failed");
     }
   }, [selectedIds, deleteSingleAdmitCard, refetch, showNotification]);
 
@@ -234,7 +233,7 @@ export const useGreenCardExplorer = () => {
   const handleExport = async () => {
     try {
       if (!tableData || tableData.length === 0) {
-        toast.error('No data available to export');
+        toast.error("No data available to export");
         return;
       }
 
@@ -242,34 +241,34 @@ export const useGreenCardExplorer = () => {
       const workbook = new ExcelJS.Workbook();
 
       const headerInfo = [
-        ['RPR DUET Admission Care'],
+        ["RPR DUET Admission Care"],
         [
-          'Our Campus: M.A. Samad Villa, In front of DUET Campus, Gazipur, Bangladesh',
+          "Our Campus: M.A. Samad Villa, In front of DUET Campus, Gazipur, Bangladesh",
         ],
-        ['Phone: +880 1742-590128 | +880 1901-852989'],
-        ['Email: rpr.group2013@gmail.com'],
-        [''],
+        ["Phone: +880 1742-590128 | +880 1901-852989"],
+        ["Email: rpr.group2013@gmail.com"],
+        [""],
       ];
 
       const detailData = tableData.map((card, index) => ({
-        '#': index + 1,
-        'Student Name': card.studentName || 'N/A',
-        'Student ID': card.studentId || 'N/A',
-        Phone: card.studentPhone || 'N/A',
-        Institute: card.polytechnicName || 'N/A',
-        Department: card.department || 'N/A',
-        'Exam Type': card.examType || 'N/A',
-        AcademicYear: card.academicYear || 'N/A', // মূল কি (Key) ঠিক রাখা হয়েছে
-        'Amount (BDT)': card.amount || 0,
-        'Seller Name': card.seller?.name || 'N/A',
-        'Created At': card.createdAt
+        "#": index + 1,
+        "Student Name": card.studentName || "N/A",
+        "Student ID": card.studentId || "N/A",
+        Phone: card.studentPhone || "N/A",
+        Institute: card.polytechnicName || "N/A",
+        Department: card.department || "N/A",
+        "Exam Type": card.examType || "N/A",
+        AcademicYear: card.academicYear || "N/A", // মূল কি (Key) ঠিক রাখা হয়েছে
+        "Amount (BDT)": card.amount || 0,
+        "Seller Name": card.seller?.name || "N/A",
+        "Created At": card.createdAt
           ? new Date(card.createdAt).toLocaleDateString()
-          : 'N/A',
+          : "N/A",
       }));
 
       // শিটের নাম নির্ধারণ (সামারি থাকলে 'Admit Cards', না থাকলে 'Data')
       const mainSheetName =
-        summary && summary.length > 0 ? 'Admit Cards' : 'Data';
+        summary && summary.length > 0 ? "Admit Cards" : "Data";
       const ws = workbook.addWorksheet(mainSheetName);
 
       // ২. হেডার ইনফো (A1 থেকে A5 পর্যন্ত) যোগ করা
@@ -278,10 +277,10 @@ export const useGreenCardExplorer = () => {
       });
 
       // হেডারগুলোর স্টাইলিং
-      ws.getRow(1).font = { bold: true, size: 14, color: { argb: '003366' } };
-      ws.getRow(2).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(3).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(4).font = { italic: true, size: 10, color: { argb: '555555' } };
+      ws.getRow(1).font = { bold: true, size: 14, color: { argb: "003366" } };
+      ws.getRow(2).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(3).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(4).font = { italic: true, size: 10, color: { argb: "555555" } };
 
       // ৩. টেবিলের হেডার এবং ডেটা যোগ করা (অরিজিনাল কোডের A6 অনুযায়ী)
       if (detailData.length > 0) {
@@ -315,13 +314,13 @@ export const useGreenCardExplorer = () => {
       // ৪. সামারি ডেটা থাকলে দ্বিতীয় শিট তৈরি করা
       if (summary && summary.length > 0) {
         const summaryData = summary.map((s, index) => ({
-          '#': index + 1,
-          Session: s.session || 'N/A',
-          'Total Cards': s.totalCards || 0,
-          'Total Revenue (BDT)': s.totalRevenue || 0,
+          "#": index + 1,
+          Session: s.session || "N/A",
+          "Total Cards": s.totalCards || 0,
+          "Total Revenue (BDT)": s.totalRevenue || 0,
         }));
 
-        const wsSummary = workbook.addWorksheet('Session Summary');
+        const wsSummary = workbook.addWorksheet("Session Summary");
         if (summaryData.length > 0) {
           const summaryKeys = Object.keys(summaryData[0]);
 
@@ -344,21 +343,21 @@ export const useGreenCardExplorer = () => {
       // ৫. ফাইল জেনারেট এবং ব্রাউজারে ডাউনলোড ট্রিগার করা
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
-      const fileName = `Green_Card_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const fileName = `Green_Card_Report_${new Date().toISOString().split("T")[0]}.xlsx`;
 
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.href = url;
       anchor.download = fileName;
       anchor.click();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Excel file downloaded successfully!');
+      toast.success("Excel file downloaded successfully!");
     } catch (error) {
-      toast.error('Failed to export Excel file');
+      toast.error("Failed to export Excel file");
     }
   };
 
@@ -366,7 +365,7 @@ export const useGreenCardExplorer = () => {
   const printRef = useRef();
   const handlePrintGreenCard = useReactToPrint({
     content: () => printRef.current,
-    documentTitle: 'Green Cards',
+    documentTitle: "Green Cards",
   });
 
   // Edit modal
@@ -391,13 +390,13 @@ export const useGreenCardExplorer = () => {
       }).unwrap();
 
       if (response.success) {
-        toast.success('Updated Successfully!');
+        toast.success("Updated Successfully!");
         refetch();
         closeEditModal();
         setPhoto(null);
       }
     } catch (err) {
-      toast.error('Green Card Update Failed!');
+      toast.error("Green Card Update Failed!");
     }
   };
 

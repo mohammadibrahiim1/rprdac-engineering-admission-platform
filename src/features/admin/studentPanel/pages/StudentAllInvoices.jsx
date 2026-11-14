@@ -18,17 +18,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-  createColumnHelper,
-} from "@tanstack/react-table";
-import { PiInvoice } from "react-icons/pi";
+
 import { useStudentInvoices } from "../hooks/useStudentInvoices";
 
-import logo from "../../../../../assets/img/log-rpr.png";
+import logo from "../../../../assets/img/log-rpr.png";
 
 // ─── FORMATTERS ───────────────────────────────────────────────────────────────
 const fmtBDT = (n) =>
@@ -1249,7 +1242,6 @@ export function PrintModal({ invoice, onClose }) {
 }
 
 // ─── COLUMN HELPER (stable) ───────────────────────────────────────────────────
-const columnHelper = createColumnHelper();
 
 const itemVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -1263,17 +1255,15 @@ const itemVariants = {
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function StudentAllInvoices() {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [rowSelection, setRowSelection] = useState({});
-  const [sorting, setSorting] = useState([]);
+  const [selectedRowIds, setSelectedRowIds] = useState([]);
 
   const {
-    invoices,
+    invoices = [],
     isLoading,
     isFetching,
     isDeletingStudentInvoice,
     search,
     clearSearch,
-    paymentDate,
     page,
     limit,
     totalInvoices,
@@ -1281,7 +1271,6 @@ export default function StudentAllInvoices() {
     handleSearch,
     startDate,
     endDate,
-    handlePaymentDate,
     handleStartDate,
     handleEndDate,
     handlePageChange,
@@ -1290,212 +1279,23 @@ export default function StudentAllInvoices() {
     clearFilters,
   } = useStudentInvoices();
 
-  // Stable columns
-  const columns = useMemo(
-    () => [
-      columnHelper.display({
-        id: "select",
-        header: ({ table }) => (
-          <SelectionHeader
-            allRowsSelected={table.getIsAllRowsSelected()}
-            onToggle={table.getToggleAllRowsSelectedHandler()}
-          />
-        ),
-        cell: ({ row }) => (
-          <SelectionCell
-            isSelected={row.getIsSelected()}
-            onToggle={row.getToggleSelectedHandler()}
-          />
-        ),
-        enableSorting: false,
-      }),
-      columnHelper.accessor("invoiceNumber", {
-        header: "Invoice",
-        cell: (info) => (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center flex-shrink-0 w-6 h-6 bg-gray-100 rounded-md">
-              <Receipt size={11} className="text-gray-400" />
-            </div>
-            <div className="min-w-0">
-              <p
-                className="text-xs font-semibold text-gray-800 font-sans"
-                title={info.getValue()}
-              >
-                {info.getValue()}
-              </p>
-              <p className="text-[10px] text-gray-400 font-sans">
-                {info.row.original.studentUniqueId}
-              </p>
-            </div>
-          </div>
-        ),
-      }),
-      columnHelper.accessor("studentName", {
-        header: "Student",
-        cell: (info) => (
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-700 to-indigo-800 flex items-center justify-center flex-shrink-0 text-white text-[10px] font-bold uppercase">
-              {(info.getValue() || "?").charAt(0)}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-gray-800 capitalize truncate">
-                {info.getValue()}
-              </p>
-              <p className="text-[10px] text-gray-400">
-                {info.row.original.studentPhone}
-              </p>
-            </div>
-          </div>
-        ),
-      }),
-      columnHelper.accessor(
-        (row) => row.dueAmountBeforePayment ?? row.previousDue ?? 0,
-        {
-          id: "dueBefore",
-          header: "Due Before",
-          cell: (info) => (
-            <span className="text-xs text-gray-600 font-sans">
-              {fmtBDT(info.getValue())}
-            </span>
-          ),
-          sortingFn: "alphanumeric",
-        },
-      ),
-      columnHelper.accessor("paidAmount", {
-        header: "Paid",
-        cell: (info) => (
-          <span className="text-xs font-bold font-sans text-emerald-600">
-            {fmtBDT(info.getValue())}
-          </span>
-        ),
-      }),
-      columnHelper.accessor(
-        (row) => row.dueAmountAfterPayment ?? row.finalDue ?? 0,
-        {
-          id: "remaining",
-          header: "Remaining",
-          cell: (info) => {
-            const value = info.getValue();
-            const isDue = Number(value) > 0;
-            return (
-              <span
-                className={`text-xs font-sans font-bold ${
-                  isDue ? "text-red-500" : "text-emerald-500"
-                }`}
-              >
-                {fmtBDT(value)}
-              </span>
-            );
-          },
-        },
-      ),
-      columnHelper.accessor("paymentMethod", {
-        header: "Method",
-        cell: (info) => (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-[10px] font-semibold text-gray-600 uppercase tracking-wide">
-            <CreditCard size={9} />
-            {info.getValue()}
-          </span>
-        ),
-      }),
-      columnHelper.display({
-        id: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          const inv = row.original;
-          const remainingDue = Number(
-            inv.dueAmountAfterPayment ?? inv.finalDue ?? 0,
-          );
-          const paidAmount = Number(inv.paidAmount ?? 0);
-
-          let status = "pending";
-          if (remainingDue === 0) status = "paid";
-          else if (paidAmount > 0) status = "partial";
-
-          return <StatusBadge status={status} />;
-        },
-      }),
-      columnHelper.accessor("paymentDate", {
-        header: "Date",
-        cell: (info) => (
-          <span className="text-[11px] text-gray-500 whitespace-nowrap">
-            {fmtDate(info.getValue() || info.row.original.createdAt)}
-          </span>
-        ),
-      }),
-      columnHelper.display({
-        id: "actions",
-        header: "Print",
-        cell: ({ row }) => (
-          <div className="flex items-center justify-center gap-1">
-            <button
-              type="button"
-              onClick={() => setSelectedInvoice(row.original)}
-              title="Print"
-              className="text-gray-600 transition-colors rounded hover:bg-indigo-50 hover:text-indigo-600"
-            >
-              <Printer size={16} />
-            </button>
-          </div>
-        ),
-        enableSorting: false,
-      }),
-      columnHelper.display({
-        id: "remove",
-        header: "Remove",
-        cell: ({ row }) => (
-          <div className="flex items-center justify-center gap-1">
-            <button
-              type="button"
-              onClick={() => handleDelete([row.original._id])}
-              disabled={isDeletingStudentInvoice}
-              className="text-gray-500 transition-colors hover:text-red-500"
-            >
-              <Trash2 size={13} />
-            </button>
-          </div>
-        ),
-        enableSorting: false,
-      }),
-    ],
-    [handleDelete, isDeletingStudentInvoice],
-  );
-
-  const table = useReactTable({
-    data: invoices || [],
-    columns,
-    state: {
-      sorting,
-      rowSelection,
-    },
-    onSortingChange: setSorting,
-    onRowSelectionChange: setRowSelection,
-    manualPagination: true,
-    pageCount: totalPages,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    enableRowSelection: true,
-    getRowId: (row) => row._id,
-  });
-
-  // Selected IDs from the table (correct source of truth)
-  const selectedRowIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original._id);
-
-  // Stats
-  const stats = {
-    total: (invoices || []).reduce(
-      (s, i) => s + (i.dueAmountBeforePayment || 0),
-      0,
-    ),
-    paid: (invoices || []).reduce((s, i) => s + (i.paidAmount || 0), 0),
-    pending: (invoices || []).reduce(
-      (s, i) => s + (i.dueAmountAfterPayment || 0),
-      0,
-    ),
-    count: (invoices || []).length,
+  // Selection handlers
+  const handleSelectAll = () => {
+    if (selectedRowIds.length === invoices.length) {
+      setSelectedRowIds([]);
+    } else {
+      setSelectedRowIds(invoices.map((inv) => inv._id));
+    }
   };
+
+  const handleSelectId = (id) => {
+    setSelectedRowIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const allSelected =
+    invoices.length > 0 && selectedRowIds.length === invoices.length;
 
   const thClass =
     "px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap";
@@ -1515,57 +1315,173 @@ export default function StudentAllInvoices() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px]">
           <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr
-                key={headerGroup.id}
-                className="border-b border-gray-100 bg-gray-50/60"
-              >
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className={`${thClass} ${header.id === "select" ? "w-8 pl-4 pr-2" : ""}`}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <span className="flex items-center gap-1">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                      {header.column.getCanSort() && <ArrowUpDown size={10} />}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
+            <tr className="border-b border-gray-100 bg-gray-50/60">
+              <th className={`${thClass} w-8 pl-4 pr-2`}>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={handleSelectAll}
+                  className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
+                />
+              </th>
+              <th className={thClass}>Invoice</th>
+              <th className={thClass}>Student</th>
+              <th className={thClass}>Due Before</th>
+              <th className={thClass}>Paid</th>
+              <th className={thClass}>Remaining</th>
+              <th className={thClass}>Method</th>
+              <th className={thClass}>Status</th>
+              <th className={thClass}>Date</th>
+              <th className={`${thClass} text-center`}>Print</th>
+              <th className={`${thClass} pr-4 text-center`}>Remove</th>
+            </tr>
           </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <motion.tr
-                key={row.id}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ delay: row.index * 0.025 }}
-                className={`group border-b border-gray-100 last:border-0 transition-colors ${
-                  row.getIsSelected()
-                    ? "bg-indigo-50/60"
-                    : "hover:bg-gray-50/80"
-                }`}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className={`px-3 py-3 ${
-                      cell.column.id === "select" ? "pl-4 pr-2" : ""
-                    } ${cell.column.id === "actions" ? "pr-4 text-right" : ""}`}
+          <tbody className="divide-y divide-gray-100 bg-white">
+            <AnimatePresence mode="popLayout">
+              {invoices.map((inv, index) => {
+                const isSelected = selectedRowIds.includes(inv._id);
+                const remainingDue = Number(
+                  inv.dueAmountAfterPayment ?? inv.finalDue ?? 0,
+                );
+                const paidAmount = Number(inv.paidAmount ?? 0);
+
+                let status = "pending";
+                if (remainingDue === 0) status = "paid";
+                else if (paidAmount > 0) status = "partial";
+
+                return (
+                  <motion.tr
+                    key={inv._id}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ delay: index * 0.025 }}
+                    className={`group border-b border-gray-100 last:border-0 transition-colors ${
+                      isSelected ? "bg-indigo-50/60" : "hover:bg-gray-50/80"
+                    }`}
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </motion.tr>
-            ))}
+                    {/* Checkbox */}
+                    <td className="px-3 py-3 pl-4 pr-2">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectId(inv._id)}
+                        className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
+                      />
+                    </td>
+
+                    {/* Invoice & Student Unique ID */}
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center flex-shrink-0 w-6 h-6 bg-gray-100 rounded-md">
+                          <Receipt size={11} className="text-gray-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <p
+                            className="text-xs font-semibold text-gray-800 font-sans"
+                            title={inv.invoiceNumber}
+                          >
+                            {inv.invoiceNumber || "—"}
+                          </p>
+                          <p className="text-[10px] text-gray-400 font-sans">
+                            {inv.studentUniqueId || ""}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Student Name & Phone */}
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-700 to-indigo-800 flex items-center justify-center flex-shrink-0 text-white text-[10px] font-bold uppercase">
+                          {(inv.studentName || "?").charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-gray-800 capitalize truncate">
+                            {inv.studentName || "Unknown"}
+                          </p>
+                          <p className="text-[10px] text-gray-400">
+                            {inv.studentPhone || "—"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Due Before */}
+                    <td className="px-3 py-3">
+                      <span className="text-xs text-gray-600 font-sans">
+                        {fmtBDT(
+                          inv.dueAmountBeforePayment ?? inv.previousDue ?? 0,
+                        )}
+                      </span>
+                    </td>
+
+                    {/* Paid */}
+                    <td className="px-3 py-3">
+                      <span className="text-xs font-bold font-sans text-emerald-600">
+                        {fmtBDT(inv.paidAmount ?? 0)}
+                      </span>
+                    </td>
+
+                    {/* Remaining */}
+                    <td className="px-3 py-3">
+                      <span
+                        className={`text-xs font-sans font-bold ${
+                          remainingDue > 0 ? "text-red-500" : "text-emerald-500"
+                        }`}
+                      >
+                        {fmtBDT(remainingDue)}
+                      </span>
+                    </td>
+
+                    {/* Payment Method */}
+                    <td className="px-3 py-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-[10px] font-semibold text-gray-600 uppercase tracking-wide">
+                        <CreditCard size={9} />
+                        {inv.paymentMethod || "Cash"}
+                      </span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-3 py-3">
+                      <StatusBadge status={status} />
+                    </td>
+
+                    {/* Date */}
+                    <td className="px-3 py-3">
+                      <span className="text-[11px] text-gray-500 whitespace-nowrap">
+                        {fmtDate(inv.paymentDate || inv.createdAt)}
+                      </span>
+                    </td>
+
+                    {/* Print Action */}
+                    <td className="px-3 py-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInvoice(inv)}
+                        title="Print"
+                        className="p-1 text-gray-600 transition-colors rounded hover:bg-indigo-50 hover:text-indigo-600 inline-flex items-center justify-center"
+                      >
+                        <Printer size={16} />
+                      </button>
+                    </td>
+
+                    {/* Remove Action */}
+                    <td className="px-3 py-3 pr-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete([inv._id])}
+                        disabled={isDeletingStudentInvoice}
+                        title="Delete"
+                        className="p-1 text-gray-500 transition-colors hover:text-red-500 inline-flex items-center justify-center disabled:opacity-40"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </td>
+                  </motion.tr>
+                );
+              })}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
@@ -1583,6 +1499,8 @@ export default function StudentAllInvoices() {
       {/* Header */}
       <motion.header
         variants={itemVariants}
+        initial="hidden"
+        animate="show"
         className="border-b border-[#E8E8E5] px-5 sm:px-5 py-6 sm:py-8 bg-white"
       >
         <div className="flex flex-col gap-6 -mt-20 relative z-10 lg:flex-row lg:items-end lg:justify-between">
@@ -1629,11 +1547,11 @@ export default function StudentAllInvoices() {
         </div>
       </motion.header>
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="px-5 py-5 mx-auto space-y-4 sm:px-5">
-        {/* Controls */}
+        {/* Controls / Filters */}
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 max-w-md w-full">
             <Search
               size={13}
               className="absolute text-gray-400 -translate-y-1/2 left-3 top-1/2"
@@ -1687,8 +1605,9 @@ export default function StudentAllInvoices() {
 
             {(startDate || endDate || search) && (
               <button
+                type="button"
                 onClick={clearFilters}
-                className="px-3 py-2 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200"
+                className="px-3 py-2 text-sm text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
               >
                 Clear Filters
               </button>
@@ -1712,7 +1631,7 @@ export default function StudentAllInvoices() {
           </AnimatePresence>
         </div>
 
-        {/* Table */}
+        {/* Table Container */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1722,13 +1641,13 @@ export default function StudentAllInvoices() {
 
           {/* Pagination */}
           {totalInvoices > 0 && (
-            <div className="flex flex-col gap-4 px-4 py-3 border-t border-gray-100 bg-gray-50/40 sm:flex-row sm:items-center sm:justify-start">
+            <div className="flex flex-col gap-4 px-4 py-3 border-t border-gray-100 bg-gray-50/40 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-4">
                 <p className="text-[14px] text-gray-500">
                   Showing{" "}
                   <strong className="text-gray-700">
-                    {(page - 1) * limit + 1}–
-                    {Math.min(page * limit, totalInvoices)}
+                    {(page - 1) * Number(limit) + 1}–
+                    {Math.min(page * Number(limit), totalInvoices)}
                   </strong>{" "}
                   of <strong className="text-gray-700">{totalInvoices}</strong>{" "}
                   invoices
@@ -1744,7 +1663,7 @@ export default function StudentAllInvoices() {
                   <select
                     value={limit}
                     onChange={(e) => handleLimitChange(e.target.value)}
-                    className="px-2 py-1 text-sm border border-gray-200 rounded"
+                    className="px-2 py-1 text-sm border border-gray-200 rounded bg-white"
                   >
                     <option value="10">10</option>
                     <option value="20">20</option>

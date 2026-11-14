@@ -1,28 +1,28 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const orderApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOrders: builder.query({
-      query: ({ page = 1, limit = 10, status = '', searchQuery = '' }) => ({
-        url: '/order/all',
+      query: ({ page = 1, limit = 10, status = "", searchQuery = "" }) => ({
+        url: "/order/all",
         params: { page, limit, status, searchQuery },
       }),
-      providesTags: ['Orders'],
+      providesTags: ["Orders"],
     }),
 
     getOrdersWithUserPhone: builder.query({
       query: ({ phoneNumber, page, limit }) => ({
         url: `/order/client?phone=${phoneNumber}&page=${page}&limit=${limit}`,
       }),
-      providesTags: ['Orders'],
+      providesTags: ["Orders"],
     }),
 
     deleteOrder: builder.mutation({
       query: (id) => ({
         url: `/order/delete/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Orders'],
+      invalidatesTags: ["Orders"],
     }),
   }),
 });

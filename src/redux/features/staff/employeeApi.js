@@ -1,11 +1,11 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 export const employeeApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     postEmployeeAttendance: builder.mutation({
       query: (data) => ({
         url: `employee/create/duty`,
-        method: 'POST',
+        method: "POST",
         body: data,
       }),
     }),
@@ -18,13 +18,13 @@ export const employeeApi = baseApi.injectEndpoints({
           ...filters,
         },
       }),
-      providesTags: ['EmployeeAttendances'],
+      providesTags: ["EmployeeAttendances"],
     }),
 
     //fetch all employees
     fetchAllEmployees: builder.query({
       query: ({ searchQuery, page, limit }) => ({
-        url: 'user/staff',
+        url: "user/staff",
         params: { searchQuery, page, limit },
       }),
     }),
@@ -47,7 +47,7 @@ export const employeeApi = baseApi.injectEndpoints({
       // /admin/duty/status
       query: ({ dutyId, status }) => ({
         url: `/admin/duty/status/${dutyId}`,
-        method: 'PUT',
+        method: "PUT",
         body: { status },
       }),
     }),
@@ -63,27 +63,27 @@ export const employeeApi = baseApi.injectEndpoints({
     deleteEmployeeDuty: builder.mutation({
       query: (idsArray) => ({
         url: `employee/duty/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: idsArray,
       }),
-      invalidatesTags: ['EmployeeDuties'], // 🔥 auto refetch
+      invalidatesTags: ["EmployeeDuties"], // 🔥 auto refetch
     }),
 
     //update employee duty(active)
     updateEmployeeDuty: builder.mutation({
       query: ({ id, ...body }) => ({
         url: `employee/update-duty/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body,
       }),
-      invalidatesTags: ['EmployeeDuties'],
+      invalidatesTags: ["EmployeeDuties"],
     }),
 
     // Define a mutation to submit the payment
     payUserDue: builder.mutation({
       query: ({ userId, payAmount }) => ({
         url: `/admin/user/payment/${userId}`, // Your backend route
-        method: 'PUT',
+        method: "PUT",
         body: { payAmount },
       }),
     }),
@@ -92,7 +92,7 @@ export const employeeApi = baseApi.injectEndpoints({
     updateEmployeePayment: builder.mutation({
       query: ({ employeeId, payAmount, startDate, endDate, loanAmount }) => ({
         url: `/employee/${employeeId}/update-payment`,
-        method: 'PUT',
+        method: "PUT",
         body: {
           payAmount,
           startDate,
@@ -111,7 +111,7 @@ export const employeeApi = baseApi.injectEndpoints({
 
     getEmployeeApprovedDuties: builder.query({
       query: ({ page, limit, search }) => ({
-        url: 'employee/approved/all',
+        url: "employee/approved/all",
         params: {
           page,
           limit,
@@ -125,17 +125,17 @@ export const employeeApi = baseApi.injectEndpoints({
         url: `employee/duty/adm/all`,
         params,
       }),
-      providesTags: ['EmployeeDuties'],
+      providesTags: ["EmployeeDuties"],
     }),
 
     //process employee payment(active)
     processEmployeePayment: builder.mutation({
       query: (payload) => ({
         url: `employee/process/payment`,
-        method: 'POST',
+        method: "POST",
         body: payload,
       }),
-      invalidatesTags: ['Employee', 'Duty'],
+      invalidatesTags: ["Employee", "Duty"],
     }),
   }),
 });

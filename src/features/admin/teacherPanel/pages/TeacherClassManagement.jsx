@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import {
   CheckCircle,
   Loader2,
@@ -12,19 +12,19 @@ import {
   Eye,
   X,
   SlidersHorizontal,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-} from '@tanstack/react-table';
-import toast from 'react-hot-toast';
+} from "@tanstack/react-table";
+import { toast } from "sonner";
 import {
   useDeleteTeacherClassMutation,
   useGetTeacherClassListQuery,
   useUpdateClassMutation,
-} from '../../../../../redux/features/teacher/teacherApi';
+} from "../../../../../redux/features/teacher/teacherApi";
 
 // ----------------------------------------------------------------------
 // Reusable UI States & Loaders
@@ -66,17 +66,17 @@ const TeacherClassManagement = () => {
     () => ({
       page: 1,
       limit: 5,
-      search: '',
-      status: 'pending',
-      paymentStatus: '',
-      month: '',
-      year: '',
+      search: "",
+      status: "pending",
+      paymentStatus: "",
+      month: "",
+      year: "",
     }),
     [],
   );
 
   const [filters, setFilters] = useState(defaultFilters);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState({
     select: true,
@@ -94,18 +94,18 @@ const TeacherClassManagement = () => {
   // Check if filters deviate from their default values (to show the "Clear Filters" button)
   const isFiltered = useMemo(() => {
     return (
-      searchInput !== '' ||
-      filters.status !== 'pending' ||
+      searchInput !== "" ||
+      filters.status !== "pending" ||
       filters.limit !== 5 ||
       filters.page !== 1
     );
   }, [filters, searchInput]);
 
   const handleClearFilters = useCallback(() => {
-    setSearchInput('');
+    setSearchInput("");
     setFilters(defaultFilters);
     setRowSelection({});
-    toast.success('Filters cleared successfully!');
+    toast.success("Filters cleared successfully!");
   }, [defaultFilters]);
 
   // 2. Search Debounce Implementation
@@ -137,11 +137,11 @@ const TeacherClassManagement = () => {
   const handleApprove = useCallback(
     async (courseId) => {
       try {
-        await updateClass({ courseId: courseId, status: 'approve' }).unwrap();
-        toast.success('Class verified and approved successfully!');
+        await updateClass({ courseId: courseId, status: "approve" }).unwrap();
+        toast.success("Class verified and approved successfully!");
         refetch();
       } catch (error) {
-        toast.error(error?.data?.message || 'Verification action failed.');
+        toast.error(error?.data?.message || "Verification action failed.");
       }
     },
     [updateClass, refetch],
@@ -153,17 +153,17 @@ const TeacherClassManagement = () => {
 
       if (
         window.confirm(
-          'Are you sure you want to completely drop this session entry?',
+          "Are you sure you want to completely drop this session entry?",
         )
       ) {
         try {
           await deleteTeacherClass({ ids: [courseId] }).unwrap();
-          toast.success('Class record deleted perfectly.');
+          toast.success("Class record deleted perfectly.");
           setRowSelection({});
           refetch();
         } catch (error) {
           toast.error(
-            error?.data?.message || 'Failed to process cancellation.',
+            error?.data?.message || "Failed to process cancellation.",
           );
         }
       }
@@ -181,7 +181,7 @@ const TeacherClassManagement = () => {
       .filter(Boolean);
 
     if (selectedIds.length === 0) {
-      toast.error('No records selected for deletion.');
+      toast.error("No records selected for deletion.");
       return;
     }
 
@@ -201,7 +201,7 @@ const TeacherClassManagement = () => {
       } catch (error) {
         toast.error(
           error?.data?.message ||
-            'Failed to delete selected records. Please try again.',
+            "Failed to delete selected records. Please try again.",
         );
       }
     }
@@ -211,7 +211,7 @@ const TeacherClassManagement = () => {
   const columns = useMemo(
     () => [
       {
-        id: 'select',
+        id: "select",
         header: ({ table }) => (
           <input
             type="checkbox"
@@ -231,48 +231,48 @@ const TeacherClassManagement = () => {
         ),
       },
       {
-        id: 'teacher',
-        header: 'Teacher',
-        accessorFn: (row) => row.teacher?.userName || 'Anonymous Profile',
+        id: "teacher",
+        header: "Teacher",
+        accessorFn: (row) => row.teacher?.userName || "Anonymous Profile",
         cell: ({ getValue, row }) => (
           <div className="py-1">
             <p className="font-semibold text-gray-900 capitalize text-sm">
               {getValue()}
             </p>
             <p className="text-xs text-gray-400 font-mono">
-              {row.original.teacher?.phone || 'No Linked Phone'}
+              {row.original.teacher?.phone || "No Linked Phone"}
             </p>
           </div>
         ),
       },
       {
-        id: 'batch',
-        header: 'Batch',
-        accessorKey: 'batch',
+        id: "batch",
+        header: "Batch",
+        accessorKey: "batch",
         cell: ({ getValue }) => (
           <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
-            {getValue() || 'N/A'}
+            {getValue() || "N/A"}
           </span>
         ),
       },
       {
-        id: 'subjectDepartment',
-        header: 'Subject & Dept.',
+        id: "subjectDepartment",
+        header: "Subject & Dept.",
         cell: ({ row }) => (
           <div className="text-sm">
             <div className="font-medium text-gray-800">
-              {row.original.subject || 'Not Set'}
+              {row.original.subject || "Not Set"}
             </div>
             <div className="text-xs text-gray-400 mt-0.5">
-              {row.original.department || 'General'}
+              {row.original.department || "General"}
             </div>
           </div>
         ),
       },
       {
-        id: 'schedule',
-        header: 'Schedule',
-        accessorKey: 'classQuantity',
+        id: "schedule",
+        header: "Schedule",
+        accessorKey: "classQuantity",
         cell: ({ getValue }) => (
           <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
             <Clock size={14} className="text-gray-400" />
@@ -281,40 +281,40 @@ const TeacherClassManagement = () => {
         ),
       },
       {
-        id: 'amount',
-        header: 'Amount',
-        accessorKey: 'totalFee',
+        id: "amount",
+        header: "Amount",
+        accessorKey: "totalFee",
         cell: ({ getValue }) => (
           <span className="text-sm font-bold text-gray-900 font-mono">
-            ৳{(getValue() || 0).toLocaleString('en-BD')}
+            ৳{(getValue() || 0).toLocaleString("en-BD")}
           </span>
         ),
       },
       {
-        id: 'date',
-        header: 'Date',
+        id: "date",
+        header: "Date",
         accessorFn: (row) => row.classDate,
         cell: ({ getValue }) => (
           <div className="flex items-center gap-1.5 text-xs text-gray-600">
             <Calendar size={14} className="text-gray-400" />
             {getValue()
-              ? new Date(getValue()).toLocaleDateString('en-GB')
-              : 'N/A'}
+              ? new Date(getValue()).toLocaleDateString("en-GB")
+              : "N/A"}
           </div>
         ),
       },
       {
-        id: 'status',
-        header: 'Status',
-        accessorKey: 'status',
+        id: "status",
+        header: "Status",
+        accessorKey: "status",
         cell: ({ getValue }) => {
-          const status = getValue()?.toLowerCase() || 'pending';
+          const status = getValue()?.toLowerCase() || "pending";
           const config =
             {
-              approve: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
-              pending: 'bg-amber-50 text-amber-700 border-amber-200/60',
-              review: 'bg-indigo-50 text-indigo-700 border-indigo-200/60',
-            }[status] || 'bg-gray-50 text-gray-700 border-gray-200';
+              approve: "bg-emerald-50 text-emerald-700 border-emerald-200/60",
+              pending: "bg-amber-50 text-amber-700 border-amber-200/60",
+              review: "bg-indigo-50 text-indigo-700 border-indigo-200/60",
+            }[status] || "bg-gray-50 text-gray-700 border-gray-200";
 
           return (
             <span
@@ -327,10 +327,10 @@ const TeacherClassManagement = () => {
         },
       },
       {
-        id: 'actions',
-        header: 'Actions',
+        id: "actions",
+        header: "Actions",
         cell: ({ row }) => {
-          const isRowPending = row.original.status === 'pending';
+          const isRowPending = row.original.status === "pending";
           return (
             <div className="flex items-center gap-2">
               {isRowPending && (
@@ -404,9 +404,9 @@ const TeacherClassManagement = () => {
               {/* Segment Status Filters */}
               <div className="flex items-center bg-slate-100/85 p-1 rounded border border-slate-200/40 select-none">
                 {[
-                  { label: 'All Records', value: '' },
-                  { label: 'Pending', value: 'pending' },
-                  { label: 'Approved', value: 'approve' },
+                  { label: "All Records", value: "" },
+                  { label: "Pending", value: "pending" },
+                  { label: "Approved", value: "approve" },
                 ].map((tab) => (
                   <button
                     key={tab.value}
@@ -415,8 +415,8 @@ const TeacherClassManagement = () => {
                     }
                     className={`px-4 py-1.5 text-xs font-semibold rounded transition-all ${
                       filters.status === tab.value
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                        ? "bg-blue-600 text-white shadow-sm"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                     }`}
                   >
                     {tab.label}
@@ -458,7 +458,7 @@ const TeacherClassManagement = () => {
                               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"
                             />
                             <span className="capitalize">
-                              {column.id.replace(/([A-Z])/g, ' $1')}
+                              {column.id.replace(/([A-Z])/g, " $1")}
                             </span>
                           </label>
                         ))}
@@ -487,7 +487,7 @@ const TeacherClassManagement = () => {
           {selectedRowsCount > 0 && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               className="bg-blue-50/50 border-b border-blue-100 overflow-hidden"
             >
@@ -495,10 +495,10 @@ const TeacherClassManagement = () => {
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
                   <p className="text-xs text-blue-800 font-semibold">
-                    Selected{' '}
+                    Selected{" "}
                     <strong className="text-blue-900">
                       {selectedRowsCount}
-                    </strong>{' '}
+                    </strong>{" "}
                     row(s) for bulk processing
                   </p>
                 </div>
@@ -564,8 +564,8 @@ const TeacherClassManagement = () => {
                       transition={{ duration: 0.2 }}
                       className={`hover:bg-slate-50/60 transition-colors group ${
                         row.getIsSelected()
-                          ? 'bg-blue-50/20 hover:bg-blue-50/30'
-                          : 'bg-white'
+                          ? "bg-blue-50/20 hover:bg-blue-50/30"
+                          : "bg-white"
                       }`}
                     >
                       {row.getVisibleCells().map((cell) => (
@@ -594,16 +594,16 @@ const TeacherClassManagement = () => {
           {/* Left pagination details block */}
           <div className="flex items-center flex-wrap gap-4 text-xs text-slate-500 font-medium">
             <span>
-              Showing{' '}
+              Showing{" "}
               <strong className="text-slate-800 font-semibold">
                 {totalCount === 0 ? 0 : startRow}
               </strong>
               –
-              <strong className="text-slate-800 font-semibold">{endRow}</strong>{' '}
-              of{' '}
+              <strong className="text-slate-800 font-semibold">{endRow}</strong>{" "}
+              of{" "}
               <strong className="text-slate-800 font-semibold">
                 {totalCount}
-              </strong>{' '}
+              </strong>{" "}
               rows
             </span>
 
@@ -667,8 +667,8 @@ const TeacherClassManagement = () => {
                         disabled={isFetching}
                         className={`w-8 h-8 rounded text-xs font-bold transition ${
                           currentPage === pageNumber
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-100'
-                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                            ? "bg-blue-600 text-white shadow-md shadow-blue-100"
+                            : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                         }`}
                       >
                         {pageNumber}

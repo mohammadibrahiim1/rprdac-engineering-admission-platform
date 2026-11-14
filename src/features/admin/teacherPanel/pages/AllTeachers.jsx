@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
-import { useGetAllTeacherQuery } from '../../../../../redux/features/teacher/teacherApi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
   CheckCircle,
@@ -20,31 +19,31 @@ import {
   File,
   Zap,
   ReceiptText,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import TeacherFilterSidebar from '../components/TeacherFilterSidebar';
-import TeacherPaymentModal from '../components/TeacherPaymentModal';
-import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+} from "lucide-react";
+import TeacherFilterSidebar from "../components/TeacherFilterSidebar";
+import TeacherPaymentModal from "../components/TeacherPaymentModal";
+import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
-import ExcelJS from 'exceljs';
+import ExcelJS from "exceljs";
+import { useGetAllTeacherQuery } from "@/redux/features/teacher/teacherApi";
+import { toast } from "sonner";
 
 const AllTeachers = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [setIsExporting] = useState(false);
-  const [activeTab] = useState('summary');
+  const [activeTab] = useState("summary");
 
   const [filters, setFilters] = useState({
-    search: '',
+    search: "",
     batch: [],
-    status: '',
-    paymentStatus: '',
-    year: '',
-    month: '',
-    startDate: '',
-    endDate: '',
+    status: "",
+    paymentStatus: "",
+    year: "",
+    month: "",
+    startDate: "",
+    endDate: "",
     page: 1,
     limit: 10,
   });
@@ -97,34 +96,34 @@ const AllTeachers = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      approve: 'text-green-800 border-green-300',
-      pending: 'text-amber-800 border-amber-300',
-      rejected: 'text-red-800 border-red-300',
+      approve: "text-green-800 border-green-300",
+      pending: "text-amber-800 border-amber-300",
+      rejected: "text-red-800 border-red-300",
     };
     return (
       styles[status?.toLowerCase()] ||
-      'bg-gray-100 text-gray-800 border-gray-300'
+      "bg-gray-100 text-gray-800 border-gray-300"
     );
   };
 
   const getPaymentBadge = (status) => {
-    return status === 'paid'
-      ? 'text-emerald-800 border-emerald-300'
-      : 'text-rose-800 border-rose-300';
+    return status === "paid"
+      ? "text-emerald-800 border-emerald-300"
+      : "text-rose-800 border-rose-300";
   };
 
   const clearFilters = () => {
     setFilters({
-      batch: '',
-      status: '',
-      paymentStatus: '',
-      year: '',
-      month: '',
-      startDate: '',
-      endDate: '',
+      batch: "",
+      status: "",
+      paymentStatus: "",
+      year: "",
+      month: "",
+      startDate: "",
+      endDate: "",
       page: 1,
       limit: 10,
-      search: '',
+      search: "",
     });
   };
 
@@ -132,10 +131,10 @@ const AllTeachers = () => {
 
   const exportToExcel = useCallback(async () => {
     const dataToExport =
-      activeTab === 'summary' ? teachers : teacherPendingClasses;
+      activeTab === "summary" ? teachers : teacherPendingClasses;
 
     if (!dataToExport?.length) {
-      toast.error('No data to export');
+      toast.error("No data to export");
       return;
     }
 
@@ -143,43 +142,43 @@ const AllTeachers = () => {
     try {
       const now = new Date();
       const fileName = `Teacher_${
-        activeTab === 'summary' ? 'Summary' : 'Pending'
-      }_${format(now, 'yyyy-MM-dd_HH-mm')}.xlsx`;
+        activeTab === "summary" ? "Summary" : "Pending"
+      }_${format(now, "yyyy-MM-dd_HH-mm")}.xlsx`;
 
       // Prepare data for export with proper number formatting
       const exportData = dataToExport.map((t, index) => ({
-        'SL No': index + 1,
-        'Teacher ID': t.teacherInfo?.userId || '',
-        'Teacher Name': t.teacherInfo?.userName || '',
-        'Phone Number': t.teacherInfo?.phone || '',
-        'Total Batches': t.totalBatch || 0,
-        'Total Subjects': t.totalSubjects || 0,
-        'Total Departments': t.totalDepartments || 0,
-        'Total Classes': t.totalClasses || 0,
-        'Approved Classes': t.approvedClasses || 0,
-        'Pending Classes': t.pendingClasses || 0,
-        'Paid Classes': t.paidClasses || 0,
-        'Unpaid Classes': t.unpaidClasses || 0,
-        'Total Amount (৳)': Number(t.totalAmount || 0).toFixed(2),
-        'Approved Amount (৳)': Number(t.approvedAmount || 0).toFixed(2),
-        'Paid Amount (৳)': Number(t.paidAmount || 0).toFixed(2),
-        'Unpaid Amount (৳)': Number(t.unpaidAmount || 0).toFixed(2),
-        'Loan Amount (৳)': Number(t.loanAmount || 0).toFixed(2),
-        'Due Loan (৳)': Number(t.dueLoan || 0).toFixed(2),
-        'Due Amount (৳)': Number(t.dueAmount || 0).toFixed(2),
-        'Payable Amount (৳)': Number(t.payableAmount || 0).toFixed(2),
-        'Can Pay': t.canPay ? 'Yes' : 'No',
-        'Payment Note': t.finalPaymentNote || '',
-        'Export Date': format(now, 'yyyy-MM-dd HH:mm:ss'),
-        'Filter Batch': filters.batch || 'All',
-        'Filter Status': filters.status || 'All',
-        'Filter Payment Status': filters.paymentStatus || 'All',
-        'Filter Month': filters.month || 'All',
+        "SL No": index + 1,
+        "Teacher ID": t.teacherInfo?.userId || "",
+        "Teacher Name": t.teacherInfo?.userName || "",
+        "Phone Number": t.teacherInfo?.phone || "",
+        "Total Batches": t.totalBatch || 0,
+        "Total Subjects": t.totalSubjects || 0,
+        "Total Departments": t.totalDepartments || 0,
+        "Total Classes": t.totalClasses || 0,
+        "Approved Classes": t.approvedClasses || 0,
+        "Pending Classes": t.pendingClasses || 0,
+        "Paid Classes": t.paidClasses || 0,
+        "Unpaid Classes": t.unpaidClasses || 0,
+        "Total Amount (৳)": Number(t.totalAmount || 0).toFixed(2),
+        "Approved Amount (৳)": Number(t.approvedAmount || 0).toFixed(2),
+        "Paid Amount (৳)": Number(t.paidAmount || 0).toFixed(2),
+        "Unpaid Amount (৳)": Number(t.unpaidAmount || 0).toFixed(2),
+        "Loan Amount (৳)": Number(t.loanAmount || 0).toFixed(2),
+        "Due Loan (৳)": Number(t.dueLoan || 0).toFixed(2),
+        "Due Amount (৳)": Number(t.dueAmount || 0).toFixed(2),
+        "Payable Amount (৳)": Number(t.payableAmount || 0).toFixed(2),
+        "Can Pay": t.canPay ? "Yes" : "No",
+        "Payment Note": t.finalPaymentNote || "",
+        "Export Date": format(now, "yyyy-MM-dd HH:mm:ss"),
+        "Filter Batch": filters.batch || "All",
+        "Filter Status": filters.status || "All",
+        "Filter Payment Status": filters.paymentStatus || "All",
+        "Filter Month": filters.month || "All",
       }));
 
       // ১. ওয়ার্কবুক ও ওয়ার্কশিট তৈরি
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Teacher Data');
+      const worksheet = workbook.addWorksheet("Teacher Data");
 
       // ২. কলাম হেডার এবং উইডথ সেটআপ (আপনার আগের colWidths এর মান অনুযায়ী)
       if (exportData.length > 0) {
@@ -229,11 +228,11 @@ const AllTeachers = () => {
       //  buffer
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.href = url;
       anchor.download = fileName;
       anchor.click();
@@ -249,15 +248,6 @@ const AllTeachers = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
-      {/* breadcrumb header */}
-      <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="relative z-10 px-6 py-10 mx-auto lg:py-16 lg:ps-12 lg:pe-6">
         {/* Enhanced Header */}
@@ -346,7 +336,7 @@ const AllTeachers = () => {
                 {/* Empty State */}
                 {!teachersLoading &&
                   !teachersError &&
-                  (activeTab === 'summary'
+                  (activeTab === "summary"
                     ? teachers?.length === 0
                     : teacherPendingClasses?.length === 0) && (
                     <div className="flex flex-col items-center justify-center flex-1 p-12 text-center">
@@ -357,9 +347,9 @@ const AllTeachers = () => {
                         No records found
                       </h3>
                       <p className="max-w-xs mb-6 text-slate-500">
-                        {activeTab === 'summary'
+                        {activeTab === "summary"
                           ? "Adjust your search or filters to find what you're looking for."
-                          : 'No teachers with pending payments at the moment.'}
+                          : "No teachers with pending payments at the moment."}
                       </p>
                       <button
                         onClick={clearFilters}
@@ -373,11 +363,11 @@ const AllTeachers = () => {
                 {/* --- Teachers List --- */}
                 {!teachersLoading &&
                   !teachersError &&
-                  (activeTab === 'summary'
+                  (activeTab === "summary"
                     ? teachers?.length > 0
                     : teacherPendingClasses?.length > 0) && (
                     <div className="divide-y divide-slate-100">
-                      {(activeTab === 'summary'
+                      {(activeTab === "summary"
                         ? teachers
                         : teacherPendingClasses
                       )?.map((teacher, index) => (
@@ -424,8 +414,8 @@ const AllTeachers = () => {
                                   // }
                                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                     expandedRows?.has(teacher?.teacherInfo?._id)
-                                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                      ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                   }`}
                                 >
                                   {/* {expandedRows?.has(
@@ -440,8 +430,8 @@ const AllTeachers = () => {
                                 <button
                                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                     expandedRows?.has(teacher?.teacherInfo?._id)
-                                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                      ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                   }`}
                                 >
                                   Subjects ({teacher?.totalSubjects || 0})
@@ -449,8 +439,8 @@ const AllTeachers = () => {
                                 <button
                                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                     expandedRows?.has(teacher?.teacherInfo?._id)
-                                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                      ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                   }`}
                                 >
                                   Batches ({teacher?.totalBatch || 0})
@@ -461,8 +451,8 @@ const AllTeachers = () => {
                                   }
                                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                     expandedRows?.has(teacher?.teacherInfo?._id)
-                                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                      ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                   }`}
                                 >
                                   {expandedRows?.has(
@@ -481,8 +471,8 @@ const AllTeachers = () => {
                                   }
                                   className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border ${
                                     expandedLoans?.has(teacher?.teacherInfo._id)
-                                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                      : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                                      ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                                      : "bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50"
                                   }`}
                                 >
                                   <CreditCard size={14} />
@@ -509,7 +499,7 @@ const AllTeachers = () => {
                                   onClick={() => handleTeacherPayment(teacher)}
                                   className="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-[12px] font-semibold rounded-md shadow-sm transition-all"
                                 >
-                                  {' '}
+                                  {" "}
                                   <Banknote size={14} />
                                   Payment
                                 </button>
@@ -520,96 +510,96 @@ const AllTeachers = () => {
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-8">
                               {[
                                 {
-                                  label: 'Total Classes',
+                                  label: "Total Classes",
                                   val: teacher?.totalClasses,
                                   icon: BookOpen,
-                                  color: 'text-blue-600',
+                                  color: "text-blue-600",
                                 },
                                 {
-                                  label: 'Approved',
+                                  label: "Approved",
                                   val: teacher?.approvedClasses,
                                   icon: CheckCircle,
-                                  color: 'text-teal-600',
+                                  color: "text-teal-600",
                                 },
                                 {
-                                  label: 'Pending',
+                                  label: "Pending",
                                   val: teacher?.pendingClasses,
                                   icon: Clock,
-                                  color: 'text-yellow-600',
+                                  color: "text-yellow-600",
                                 },
                                 {
-                                  label: 'Earnings',
+                                  label: "Earnings",
                                   val: `${teacher?.approvedAmount?.toLocaleString(
-                                    'en-US',
+                                    "en-US",
                                     {
-                                      style: 'currency',
-                                      currency: 'BDT',
+                                      style: "currency",
+                                      currency: "BDT",
                                       minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
                                     },
                                   )}`,
                                   icon: DollarSign,
-                                  color: 'text-cyan-600',
+                                  color: "text-cyan-600",
                                 },
                                 {
-                                  label: 'Loaned',
+                                  label: "Loaned",
                                   val: `${teacher?.loanAmount?.toLocaleString(
-                                    'en-US',
+                                    "en-US",
                                     {
-                                      style: 'currency',
-                                      currency: 'BDT',
+                                      style: "currency",
+                                      currency: "BDT",
                                       minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
                                     },
                                   )}`,
                                   icon: CreditCard,
-                                  color: 'text-purple-600',
+                                  color: "text-purple-600",
                                 },
                                 {
-                                  label: 'Paid',
+                                  label: "Paid",
                                   val: `${teacher?.paidAmount?.toLocaleString(
-                                    'en-US',
+                                    "en-US",
                                     {
-                                      style: 'currency',
-                                      currency: 'BDT',
+                                      style: "currency",
+                                      currency: "BDT",
                                       minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
                                     },
                                   )}`,
                                   icon: CreditCard,
-                                  color: 'text-green-600',
+                                  color: "text-green-600",
                                 },
                                 {
                                   label:
                                     teacher?.loanAmount > teacher?.dueAmount
-                                      ? 'Loan Due'
-                                      : 'Due Balance',
+                                      ? "Loan Due"
+                                      : "Due Balance",
                                   val: `${(teacher?.loanAmount >
                                   teacher?.unpaidAmount
                                     ? teacher?.loanAmount
                                     : teacher?.unpaidAmount
-                                  )?.toLocaleString('en-US', {
-                                    style: 'currency',
-                                    currency: 'BDT',
+                                  )?.toLocaleString("en-US", {
+                                    style: "currency",
+                                    currency: "BDT",
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
                                   })}`,
                                   icon: AlertCircle,
-                                  color: 'text-rose-600',
+                                  color: "text-rose-600",
                                 },
                                 {
-                                  label: 'Payable',
+                                  label: "Payable",
                                   val: `${teacher?.payableAmount?.toLocaleString(
-                                    'en-US',
+                                    "en-US",
                                     {
-                                      style: 'currency',
-                                      currency: 'BDT',
+                                      style: "currency",
+                                      currency: "BDT",
                                       minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
                                     },
                                   )}`,
                                   icon: BarChart3,
-                                  color: 'text-indigo-600',
+                                  color: "text-indigo-600",
                                 },
                               ]?.map((item, i) => (
                                 <div
@@ -640,7 +630,7 @@ const AllTeachers = () => {
                               {expandedRows?.has(teacher.teacherInfo._id) && (
                                 <motion.div
                                   initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: 'auto', opacity: 1 }}
+                                  animate={{ height: "auto", opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
                                   className="mt-6 overflow-hidden border rounded-lg shadow-sm border-slate-200"
                                 >
@@ -710,8 +700,8 @@ const AllTeachers = () => {
                                                       cls.status,
                                                     )}`}
                                                   >
-                                                    {cls.status === 'approve'
-                                                      ? 'Approved'
+                                                    {cls.status === "approve"
+                                                      ? "Approved"
                                                       : cls.status}
                                                   </span>
                                                 </div>
@@ -722,9 +712,9 @@ const AllTeachers = () => {
                                                     cls.paymentStatus,
                                                   )}`}
                                                 >
-                                                  {cls.paymentStatus === 'paid'
-                                                    ? 'PAID'
-                                                    : 'UNPAID'}
+                                                  {cls.paymentStatus === "paid"
+                                                    ? "PAID"
+                                                    : "UNPAID"}
                                                 </span>
                                               </td>
                                             </tr>
@@ -742,7 +732,7 @@ const AllTeachers = () => {
                               ) && (
                                 <motion.div
                                   initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: 'auto', opacity: 1 }}
+                                  animate={{ height: "auto", opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
                                   className="mt-4 overflow-hidden border border-purple-100 rounded-lg shadow-sm"
                                 >
@@ -823,10 +813,10 @@ const AllTeachers = () => {
                 {/* Footer Pagination Area */}
                 <div className="flex flex-col items-center justify-between gap-4 px-6 py-4 mt-auto border-t bg-slate-50/50 border-slate-100 sm:flex-row">
                   <span className="text-xs font-semibold text-slate-500">
-                    Displaying{' '}
-                    {(activeTab === 'summary'
+                    Displaying{" "}
+                    {(activeTab === "summary"
                       ? teachers?.length
-                      : teacherPendingClasses?.length) || 0}{' '}
+                      : teacherPendingClasses?.length) || 0}{" "}
                     results
                   </span>
                 </div>

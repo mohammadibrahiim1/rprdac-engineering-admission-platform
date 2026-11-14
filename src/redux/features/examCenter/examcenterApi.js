@@ -1,34 +1,34 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 export const examCenterApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // create single admit card
     createSingleAdmitCard: builder.mutation({
       query: (formData) => ({
-        url: '/single-admit-card/create',
-        method: 'POST',
+        url: "/single-admit-card/create",
+        method: "POST",
         body: formData,
       }),
-      invalidatesTags: ['SingleAdmitCard'],
+      invalidatesTags: ["SingleAdmitCard"],
     }),
 
     // get green cards
     getSingleAdmitCard: builder.query({
       query: ({ academicYear, search, page, limit, startId, endId }) => ({
-        url: '/single-admit-card/all',
+        url: "/single-admit-card/all",
         params: { academicYear, search, page, limit, startId, endId },
       }),
-      providesTags: ['SingleAdmitCard'],
+      providesTags: ["SingleAdmitCard"],
     }),
 
     // delete single admit card
     deleteSingleAdmitCard: builder.mutation({
       query: (data) => ({
         url: `/single-admit-card/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: data,
       }),
-      invalidatesTags: ['SingleAdmitCard'],
+      invalidatesTags: ["SingleAdmitCard"],
     }),
 
     // update single admit green card
@@ -36,11 +36,11 @@ export const examCenterApi = baseApi.injectEndpoints({
       query: ({ id, data }) => {
         return {
           url: `/single-admit-card/update/green-card/${id}`,
-          method: 'PATCH',
+          method: "PATCH",
           body: data,
         };
       },
-      invalidatesTags: ['SingleAdmitCard'],
+      invalidatesTags: ["SingleAdmitCard"],
     }),
   }),
 });

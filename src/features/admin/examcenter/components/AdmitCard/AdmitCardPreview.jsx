@@ -1,8 +1,8 @@
 import React from 'react';
 // @ts-ignore
-import logo from '../../../../../../assets/img/log-rpr.png';
+import logo from '../../../../../assets/img/log-rpr.png';
 // @ts-ignore
-import signature from '../../../../../../assets/img/rpr-director-sign.png';
+import signature from '../../../../../assets/img/rpr-director-sign.png';
 import { formatDate } from '../../hooks/admitcard/useAdmitCardForm';
 
 const AdmitCardPreview = ({ watchedValues }) => {

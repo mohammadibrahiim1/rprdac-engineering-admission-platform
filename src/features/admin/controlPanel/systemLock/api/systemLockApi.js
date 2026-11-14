@@ -1,26 +1,26 @@
-import { baseApi } from '../../../../../../redux/features/baseApi';
+import { baseApi } from "@/api/baseApi";
 
 export const systemLockApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     getAllSystemLocks: builder.query({
-      query: () => '/system-lock/get',
+      query: () => "/system-lock/get",
       providesTags: (result) =>
         result
           ? [
               ...result.data.map(({ _id }) => ({
-                type: 'SystemLock',
+                type: "SystemLock",
                 id: _id,
               })),
-              { type: 'SystemLock', id: 'LIST' },
+              { type: "SystemLock", id: "LIST" },
             ]
-          : [{ type: 'SystemLock', id: 'LIST' }],
+          : [{ type: "SystemLock", id: "LIST" }],
     }),
 
     getLockByPortal: builder.query({
       query: (portalType) => `/system-locks/portal/${portalType}`,
       providesTags: (result, error, portalType) => [
-        { type: 'SystemLock', id: portalType },
+        { type: "SystemLock", id: portalType },
       ],
     }),
 
@@ -28,30 +28,30 @@ export const systemLockApi = baseApi.injectEndpoints({
     createSystemLock: builder.mutation({
       query: (payload) => {
         return {
-          url: '/system-lock/create',
-          method: 'POST',
+          url: "/system-lock/create",
+          method: "POST",
           body: payload,
         };
       },
-      invalidatesTags: [{ type: 'SystemLock', id: 'LIST' }],
+      invalidatesTags: [{ type: "SystemLock", id: "LIST" }],
     }),
 
     updateSystemLock: builder.mutation({
       query: (payload) => ({
         url: `/system-lock/update`,
-        method: 'PATCH',
+        method: "PATCH",
         body: payload,
       }),
       invalidatesTags: (result, error, arg) => [
-        { type: 'SystemLock', id: arg.targetId },
-        { type: 'SystemLock', id: 'LIST' },
+        { type: "SystemLock", id: arg.targetId },
+        { type: "SystemLock", id: "LIST" },
       ],
     }),
 
     deleteSystemLock: builder.mutation({
       query: (payload) => ({
         url: `/system-lock/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: payload,
       }),
       // Invalidating tags forces getSystemLocks to re-fetch automatically
@@ -59,15 +59,15 @@ export const systemLockApi = baseApi.injectEndpoints({
         if (error) return [];
 
         // If a whole document was dropped, invalidate the entire list view setup
-        if (arg.actionType === 'DELETE_DOCUMENT') {
+        if (arg.actionType === "DELETE_DOCUMENT") {
           return [
-            { type: 'SystemLock', id: arg.targetId },
-            { type: 'SystemLock', id: 'LIST' },
+            { type: "SystemLock", id: arg.targetId },
+            { type: "SystemLock", id: "LIST" },
           ];
         }
 
         // For deleting individual sub-batches, re-fetch the list to accurately mirror structural mutations
-        return [{ type: 'SystemLock', id: 'LIST' }];
+        return [{ type: "SystemLock", id: "LIST" }];
       },
     }),
   }),

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
   BadgeDollarSign,
@@ -20,18 +20,18 @@ import {
   Upload,
   User,
   X,
-} from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
-import { useSelector } from 'react-redux';
-import Webcam from 'react-webcam';
-import logo from '../../../../../assets/img/log-rpr.png';
-import signature from '../../../../../assets/img/rpr-director-sign.png';
-import CreateGreenCard from './GreenCard/CreateGreenCard';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import GreenCardDashboard from './GreenCard/GreenCardDashboard';
-import GreenCardPreview from './GreenCard/GreenCardPreview';
-import { useGreenCardExplorer } from '../hooks/useGreenCardExplorer';
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useSelector } from "react-redux";
+import logo from "../../../../assets/img/log-rpr.png";
+import signature from "../../../../assets/img/rpr-director-sign.png";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+
+import { useGreenCardExplorer } from "../hooks/useGreenCardExplorer";
+import GreenCardDashboard from "./GreenCard/GreenCardDashboard";
+import CreateGreenCard from "./GreenCard/CreateGreenCard";
+import GreenCardPreview from "./GreenCard/GreenCardPreview";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
@@ -50,25 +50,25 @@ const Notification = ({ message, type, onClose }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
       className={`fixed top-4 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg ${
-        type === 'success'
-          ? 'bg-emerald-50 border border-emerald-200'
-          : 'bg-red-50 border border-red-200'
+        type === "success"
+          ? "bg-emerald-50 border border-emerald-200"
+          : "bg-red-50 border border-red-200"
       }`}
     >
-      {type === 'success' ? (
+      {type === "success" ? (
         <CheckCircle className="w-5 h-5 text-emerald-500" />
       ) : (
         <AlertCircle className="w-5 h-5 text-red-500" />
       )}
       <span
-        className={`text-sm font-medium ${type === 'success' ? 'text-emerald-700' : 'text-red-700'}`}
+        className={`text-sm font-medium ${type === "success" ? "text-emerald-700" : "text-red-700"}`}
       >
         {message}
       </span>
       <button type="button" onClick={onClose} className="ml-4">
         <X
           size={16}
-          className={type === 'success' ? 'text-emerald-500' : 'text-red-500'}
+          className={type === "success" ? "text-emerald-500" : "text-red-500"}
         />
       </button>
     </motion.div>
@@ -79,36 +79,36 @@ const Notification = ({ message, type, onClose }) => {
 const LoadingSpinner = ({ text }) => (
   <div className="flex flex-col items-center justify-center py-12">
     <Loader2 className="w-8 h-8 mb-3 animate-spin text-slate-400" />
-    <p className="text-sm text-slate-500">{text || 'Loading...'}</p>
+    <p className="text-sm text-slate-500">{text || "Loading..."}</p>
   </div>
 );
 
 const tabs = [
   {
-    id: 'create',
+    id: "create",
     sl: 1,
     icon: <Plus size={16} />,
-    label: 'Create',
-    color: 'bg-emerald-50/80 border border-emerald-100',
+    label: "Create",
+    color: "bg-emerald-50/80 border border-emerald-100",
   },
   {
-    id: 'list',
+    id: "list",
     sl: 2,
     icon: <ListIcon size={16} />,
-    label: 'View List',
-    color: 'bg-indigo-50/80 border border-indigo-100',
+    label: "View List",
+    color: "bg-indigo-50/80 border border-indigo-100",
   },
   {
-    id: 'preview',
+    id: "preview",
     sl: 3,
     icon: <Eye size={16} />,
-    label: 'Preview',
-    color: 'bg-rose-50/80 border border-rose-100',
+    label: "Preview",
+    color: "bg-rose-50/80 border border-rose-100",
   },
 ];
 
 const ExamCenterDashboard = () => {
-  const [view, setView] = useState('list');
+  const [view, setView] = useState("list");
 
   const {
     tableData,
@@ -158,7 +158,7 @@ const ExamCenterDashboard = () => {
     setLimit,
     page,
     setPage,
-  } = useGreenCardExplorer({});
+  } = useGreenCardExplorer();
 
   return (
     <div className="min-h-screen antialiased bg-slate-50/50 text-slate-900 font-sans">
@@ -169,7 +169,7 @@ const ExamCenterDashboard = () => {
             message={notification.message}
             type={notification.type}
             onClose={() =>
-              setNotification({ show: false, type: '', message: '' })
+              setNotification({ show: false, type: "", message: "" })
             }
           />
         )}
@@ -182,12 +182,12 @@ const ExamCenterDashboard = () => {
           <nav
             className="sticky top-0 z-30 w-full border-b border-[#E8E8E5] px-4"
             style={{
-              background: 'rgba(250,250,249,0.92)',
-              backdropFilter: 'blur(12px)',
+              background: "rgba(250,250,249,0.92)",
+              backdropFilter: "blur(12px)",
             }}
           >
             <div className="flex items-center h-10">
-              <BreadCrumbMenu />
+              <Breadcrumb />
             </div>
           </nav>
 
@@ -314,14 +314,14 @@ const NavButton = ({ active, onClick, icon, label, colorClass }) => (
     type="button"
     onClick={onClick}
     className={`relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-300 z-10 ${
-      active ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
+      active ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
     }`}
   >
     {active && (
       <motion.div
         layoutId="activeTab"
         className={`absolute inset-0 rounded-lg ${colorClass} shadow-sm`}
-        transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
       />
     )}
     <span className="relative z-10 flex items-center gap-2">

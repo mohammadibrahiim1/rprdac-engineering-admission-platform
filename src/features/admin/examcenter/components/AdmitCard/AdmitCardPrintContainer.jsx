@@ -1,23 +1,22 @@
-// @ts-ignore
-import React, { useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
-import SingleAdmitCard from './SingleAdmitCard';
-import { AlertCircle, CheckCircle2, Loader2, Trash2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useDeleteBulkAdmitCardsByDateMutation } from '../../../../../../redux/features/student/studentApi';
-import toast from 'react-hot-toast';
+import { useRef, useState } from "react";
+import { useReactToPrint } from "react-to-print";
+import SingleAdmitCard from "./SingleAdmitCard";
+import { AlertCircle, CheckCircle2, Loader2, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { useDeleteBulkAdmitCardsByDateMutation } from "@/features/admin/studentPanel/services/api/studentApi";
 
 // @ts-ignore
 const AdmitCardPrintContainer = ({ admitCardsData }) => {
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const [selectedDate, setSelectedDate] = useState('');
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [selectedDate, setSelectedDate] = useState("");
   const printRef = useRef();
   const [loading, setLoading] = useState(false);
 
   const handlePrintAdmitCard = useReactToPrint({
     // @ts-ignore
     content: () => printRef.current,
-    documentTitle: 'Admit_Cards_RPR',
+    documentTitle: "Admit_Cards_RPR",
   });
 
   const [deleteBulkAdmitCardsByDate, { isLoading }] =
@@ -35,16 +34,16 @@ const AdmitCardPrintContainer = ({ admitCardsData }) => {
 
     if (!confirmDelete) return;
 
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
       setLoading(true);
       const response = await deleteBulkAdmitCardsByDate(selectedDate).unwrap();
       toast.success(response.message);
-      setSelectedDate('');
+      setSelectedDate("");
     } catch (error) {
       // @ts-ignore
-      toast.error(error?.data?.message || 'Something went wrong!');
+      toast.error(error?.data?.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
@@ -105,12 +104,12 @@ const AdmitCardPrintContainer = ({ admitCardsData }) => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
                   className={`absolute -bottom-10 right-0 px-3 py-1.5 rounded-lg border text-[10px] font-bold flex items-center gap-2 shadow-sm whitespace-nowrap ${
-                    message.type === 'success'
-                      ? 'bg-green-50 text-green-700 border-green-100'
-                      : 'bg-red-50 text-red-700 border-red-100'
+                    message.type === "success"
+                      ? "bg-green-50 text-green-700 border-green-100"
+                      : "bg-red-50 text-red-700 border-red-100"
                   }`}
                 >
-                  {message.type === 'success' ? (
+                  {message.type === "success" ? (
                     <CheckCircle2 size={12} />
                   ) : (
                     <AlertCircle size={12} />

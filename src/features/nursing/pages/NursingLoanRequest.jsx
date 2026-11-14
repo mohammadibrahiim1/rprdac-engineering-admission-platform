@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import React, { useEffect, useState, useRef, useMemo } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   ArrowRight,
   Loader2,
@@ -21,39 +21,39 @@ import {
   Wallet,
   Pencil,
   Banknote,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
+import { toast } from "sonner";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   useDeleteLoanMutation,
   useGetLoansQuery,
   useUpdateLoanDataMutation,
-} from '../../../../redux/features/loan/loanApi';
-import { useUserRequestForLoanMutation } from '../../../../redux/features/admin/adminApi';
-import BreadCrumbMenu from '../../../../components/BreadCrumbMenu';
-import { useGetallNursingUserQuery } from '../../../../redux/features/Nursing/NursingApi';
-import toast from 'react-hot-toast';
+} from "@/redux/features/loan/loanApi";
+import { useUserRequestForLoanMutation } from "@/redux/features/admin/adminApi";
+import { useGetallNursingUserQuery } from "@/redux/features/Nursing/NursingApi";
 
 // Validation Schemas
 const schema = z.object({
   nursingMember: z
     .any()
-    .refine((val) => val !== null, 'Please select a nursing member'),
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
+    .refine((val) => val !== null, "Please select a nursing member"),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
 });
 
 const updateSchema = z.object({
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
-  date: z.string().min(1, 'Date is required'),
-  status: z.enum(['pending', 'approve', 'rejected']),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
+  date: z.string().min(1, "Date is required"),
+  status: z.enum(["pending", "approve", "rejected"]),
 });
 
-const RequestForLoanNursing = () => {
-  const [panelType] = useState('nursing');
-  const [status, setStatus] = useState('');
+const NursingLoanRequest = () => {
+  const [panelType] = useState("nursing");
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [editingLoan, setEditingLoan] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const containerRef = useRef(null);
@@ -92,7 +92,7 @@ const RequestForLoanNursing = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { amount: '', nursingMember: null },
+    defaultValues: { amount: "", nursingMember: null },
   });
 
   const {
@@ -110,8 +110,8 @@ const RequestForLoanNursing = () => {
       if (containerRef.current && !containerRef.current.contains(e.target))
         setIsDropdownOpen(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Update Modal Logic
@@ -122,7 +122,7 @@ const RequestForLoanNursing = () => {
         status: editingLoan.status,
         date: new Date(editingLoan.date || editingLoan.createdAt)
           .toISOString()
-          .split('T')[0],
+          .split("T")[0],
       });
     }
   }, [editingLoan, resetUpdate]);
@@ -152,13 +152,13 @@ const RequestForLoanNursing = () => {
         amount: Number(formData.amount),
         userName: formData.nursingMember?.userName,
         phone: formData.nursingMember?.phone,
-        userType: 'nursing',
+        userType: "nursing",
       }).unwrap();
       toast.success(res?.message);
       refetch();
       reset();
     } catch (err) {
-      toast.error(err?.data?.message || 'Request failed!');
+      toast.error(err?.data?.message || "Request failed!");
     }
   };
 
@@ -177,7 +177,7 @@ const RequestForLoanNursing = () => {
   };
 
   const handleDeleteSelected = async (id) => {
-    if (!window.confirm('Delete selected loan requests permanently?')) return;
+    if (!window.confirm("Delete selected loan requests permanently?")) return;
 
     try {
       const res = await deleteLoan({ ids: selectedLoans }).unwrap();
@@ -191,15 +191,15 @@ const RequestForLoanNursing = () => {
 
   // UI Components Styles
   const inputStyles =
-    'w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-[14px]';
+    "w-full px-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-gray-400 text-[14px]";
   const labelStyles =
-    'text-[11px] font-bold text-gray-500 mb-2 block uppercase tracking-widest';
+    "text-[11px] font-bold text-gray-500 mb-2 block uppercase tracking-widest";
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#37352F] selection:bg-blue-100">
       {/* breadcrumb header  */}
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#F1F1F0] h-12 flex items-center px-6">
-        <BreadCrumbMenu />
+        <Breadcrumb />
       </nav>
 
       <main className="px-4 py-14">
@@ -225,9 +225,9 @@ const RequestForLoanNursing = () => {
             <div className="text-right">
               <p className={labelStyles}>Approved Total</p>
               <p className="text-xl font-bold">
-                {stats?.totalApprovedAmount?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {stats?.totalApprovedAmount?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 }) || 0}
               </p>
             </div>
@@ -347,7 +347,7 @@ const RequestForLoanNursing = () => {
                   <label className={labelStyles}>Amount (BDT)</label>
                   <input
                     type="number"
-                    {...register('amount')}
+                    {...register("amount")}
                     className={inputStyles}
                     placeholder="0.00"
                   />
@@ -404,7 +404,7 @@ const RequestForLoanNursing = () => {
                   <input
                     type="date"
                     className={`${inputStyles} pl-9 pr-6`}
-                    value={dateFilter || ''}
+                    value={dateFilter || ""}
                     onChange={(e) => setDateFilter(e.target.value)}
                   />
 
@@ -412,7 +412,7 @@ const RequestForLoanNursing = () => {
                   {dateFilter && (
                     <button
                       type="button"
-                      onClick={() => setDateFilter('')}
+                      onClick={() => setDateFilter("")}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A4A39E] hover:text-[#b12307] transition"
                     >
                       <X size={14} />
@@ -525,30 +525,30 @@ const RequestForLoanNursing = () => {
                           </td>
                           <td className="px-6 py-4 text-start">
                             <span className="text-xs font-black text-gray-900">
-                              {loan.amount?.toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              {loan.amount?.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-start">
                             <span
                               className={`inline-flex px-2.5 py-1 rounded text-[9px] font-black uppercase tracking-wider ${
-                                loan?.status === 'approve'
-                                  ? 'bg-green-100 text-green-700'
-                                  : loan?.status === 'pending'
-                                    ? 'bg-amber-100 text-amber-700'
-                                    : 'bg-red-100 text-red-700'
+                                loan?.status === "approve"
+                                  ? "bg-green-100 text-green-700"
+                                  : loan?.status === "pending"
+                                    ? "bg-amber-100 text-amber-700"
+                                    : "bg-red-100 text-red-700"
                               }`}
                             >
                               {loan?.status}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-xs font-bold text-gray-500 text-start">
-                            {new Date(loan?.date).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
+                            {new Date(loan?.date).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
                             })}
                           </td>
                           <td className="px-6 py-4 text-start">
@@ -634,7 +634,7 @@ const RequestForLoanNursing = () => {
                   </button>
                 </div>
                 <p className="text-sm font-medium capitalize opacity-90">
-                  {editingLoan?.userDetails?.userName} —{' '}
+                  {editingLoan?.userDetails?.userName} —{" "}
                   {editingLoan?.userDetails?.phone}
                 </p>
               </div>
@@ -647,7 +647,7 @@ const RequestForLoanNursing = () => {
                   <label className={labelStyles}>Amount (BDT)</label>
                   <input
                     type="number"
-                    {...registerUpdate('amount')}
+                    {...registerUpdate("amount")}
                     className={inputStyles}
                   />
                   {updateErrors.amount && (
@@ -661,14 +661,14 @@ const RequestForLoanNursing = () => {
                   <label className={labelStyles}>Entry Date</label>
                   <input
                     type="date"
-                    {...registerUpdate('date')}
+                    {...registerUpdate("date")}
                     className={inputStyles}
                   />
                 </div>
 
                 <div>
                   <label className={labelStyles}>Status Workflow</label>
-                  <select {...registerUpdate('status')} className={inputStyles}>
+                  <select {...registerUpdate("status")} className={inputStyles}>
                     <option value="pending">Pending</option>
                     <option value="approve">Approve</option>
                     <option value="rejected">Rejected</option>
@@ -684,7 +684,7 @@ const RequestForLoanNursing = () => {
                     {isUpdating ? (
                       <Loader2 className="w-5 h-5 mx-auto animate-spin" />
                     ) : (
-                      'Save Changes'
+                      "Save Changes"
                     )}
                   </button>
                 </div>
@@ -697,4 +697,4 @@ const RequestForLoanNursing = () => {
   );
 };
 
-export default RequestForLoanNursing;
+export default NursingLoanRequest;

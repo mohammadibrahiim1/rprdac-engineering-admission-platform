@@ -1,15 +1,15 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 export const visitorApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getVisitCount: builder.query({
-      query: () => '/visitor/all',
+      query: () => "/visitor/all",
     }),
 
     incrementVisitCount: builder.mutation({
       query: (sessionId) => ({
-        url: '/visitor/post',
-        method: 'POST',
+        url: "/visitor/post",
+        method: "POST",
         body: {
           sessionId,
         },

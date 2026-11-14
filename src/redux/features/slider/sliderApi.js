@@ -1,12 +1,12 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const sliderApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ✅ Create or Update Slider
     createOrUpdateSlider: builder.mutation({
       query: (formData) => ({
-        url: 'hero/create/slider',
-        method: 'POST',
+        url: "hero/create/slider",
+        method: "POST",
         body: formData,
       }),
     }),
@@ -14,65 +14,65 @@ const sliderApi = baseApi.injectEndpoints({
     // get all sliders img
     getAllSliders: builder.query({
       query: () => ({
-        url: 'hero/get/sliders',
+        url: "hero/get/sliders",
       }), // Adjust the URL path as necessary
 
-      providesTags: ['Sliders'],
+      providesTags: ["Sliders"],
     }),
 
     // update sliders
     updateSliders: builder.mutation({
       query: ({ id, formData }) => ({
         url: `hero/update/slider/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: formData,
       }),
-      invalidatesTags: ['Sliders'],
+      invalidatesTags: ["Sliders"],
     }),
 
     // delete sliders
     deleteSliders: builder.mutation({
       query: (ids) => ({
-        url: 'hero/delete/slider',
-        method: 'DELETE',
+        url: "hero/delete/slider",
+        method: "DELETE",
         body: { ids },
       }),
-      invalidatesTags: ['Sliders'],
+      invalidatesTags: ["Sliders"],
     }),
 
     // post gallery images
     uploadGalleryImages: builder.mutation({
       query: (formData) => ({
-        url: 'gallery/upload-multiple/images',
-        method: 'POST',
+        url: "gallery/upload-multiple/images",
+        method: "POST",
         body: formData,
       }),
-      invalidatesTags: ['Gallery'],
+      invalidatesTags: ["Gallery"],
     }),
 
     // get all gallery images
     getGalleryImages: builder.query({
-      query: () => '/gallery/images/all',
-      providesTags: ['Gallery'],
+      query: () => "/gallery/images/all",
+      providesTags: ["Gallery"],
     }),
 
     //update gallery imgs
     updateGalleryImages: builder.mutation({
       query: ({ id, formData }) => ({
         url: `/gallery/images/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: formData,
       }),
-      invalidatesTags: ['Gallery'],
+      invalidatesTags: ["Gallery"],
     }),
     // delete gallery images
     deleteGalleryImages: builder.mutation({
       query: (ids) => ({
-        url: '/gallery/images/delete',
-        method: 'DELETE',
+        url: "/gallery/images/delete",
+        method: "DELETE",
         body: { ids },
       }),
-      invalidatesTags: ['Gallery'],
+      invalidatesTags: ["Gallery"],
     }),
   }),
 });

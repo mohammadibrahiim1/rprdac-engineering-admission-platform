@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import {
   Download,
   Search,
@@ -34,39 +34,40 @@ import {
   BarChart3,
   ReceiptText,
   Zap,
-} from 'lucide-react';
-import { useGetAllNursingDutiesSummaryQuery } from '../../../../../redux/features/Nursing/NursingApi';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { saveAs } from 'file-saver';
-import toast from 'react-hot-toast';
-import { format } from 'date-fns';
-import ExcelJS from 'exceljs';
+} from "lucide-react";
 
-import NursingFilterSidebar from '../components/NursingFilterSidebar';
-import { formatTimeAMPM } from '../../../../../constants/timeFormat';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
-import { formatDutyTime } from '../../../../../constants/formateDutyTime';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import NursingPaymentModal from '../components/NursingPaymentModal';
+import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
+import { saveAs } from "file-saver";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import ExcelJS from "exceljs";
+
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { useGetAllNursingDutiesSummaryQuery } from "@/redux/features/Nursing/NursingApi";
+import NursingFilterSidebar from "../components/NursingFilterSidebar";
+import { formatTimeAMPM } from "@/constants/timeFormat";
+import { formatDateDMY } from "@/constants/dateFormat";
+import { formatDutyTime } from "@/constants/formateDutyTime";
+import NursingPaymentModal from "../components/NursingPaymentModal";
 
 const NursingDutiesSummary = () => {
   // State management
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: '',
-    startDate: '',
-    endDate: '',
-    month: '',
-    year: '',
-    status: '',
-    paymentStatus: '',
+    search: "",
+    startDate: "",
+    endDate: "",
+    month: "",
+    year: "",
+    status: "",
+    paymentStatus: "",
   });
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [expandedLoans, setExpandedLoans] = useState(new Set());
   const [selectedNursing, setSelectedNursing] = useState(null);
@@ -93,30 +94,30 @@ const NursingDutiesSummary = () => {
   // Options for filters
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'All Status' },
-      { value: 'pending', label: 'Pending' },
-      { value: 'approve', label: 'Approved' },
+      { value: "", label: "All Status" },
+      { value: "pending", label: "Pending" },
+      { value: "approve", label: "Approved" },
     ],
     [],
   );
 
   const paymentStatusOptions = useMemo(
     () => [
-      { value: '', label: 'All Payments' },
-      { value: 'paid', label: 'Paid' },
-      { value: 'unpaid', label: 'Unpaid' },
+      { value: "", label: "All Payments" },
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
     ],
     [],
   );
 
   const monthOptions = useMemo(
     () => [
-      { value: '', label: 'All Months' },
+      { value: "", label: "All Months" },
       ...Array.from({ length: 12 }, (_, i) => {
         const date = new Date(0, i);
         return {
-          value: format(date, 'MMMM'),
-          label: format(date, 'MMMM'),
+          value: format(date, "MMMM"),
+          label: format(date, "MMMM"),
         };
       }),
     ],
@@ -126,7 +127,7 @@ const NursingDutiesSummary = () => {
   const yearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return [
-      { value: '', label: 'All Years' },
+      { value: "", label: "All Years" },
       ...Array.from({ length: 5 }, (_, i) => ({
         value: (currentYear - i).toString(),
         label: (currentYear - i).toString(),
@@ -138,15 +139,15 @@ const NursingDutiesSummary = () => {
     setFilters({
       page: 1,
       limit: 10,
-      search: '',
-      startDate: '',
-      endDate: '',
-      month: '',
-      year: '',
-      status: '',
-      paymentStatus: '',
+      search: "",
+      startDate: "",
+      endDate: "",
+      month: "",
+      year: "",
+      status: "",
+      paymentStatus: "",
     });
-    setSearchInput('');
+    setSearchInput("");
   }, []);
 
   const handleChange = (name, value) => {
@@ -158,7 +159,7 @@ const NursingDutiesSummary = () => {
   };
 
   const handleLimitChange = (newLimit) => {
-    const limit = newLimit === 'all' ? pagination.totalItems : Number(newLimit);
+    const limit = newLimit === "all" ? pagination.totalItems : Number(newLimit);
     setFilters({ ...filters, limit, page: 1 });
   };
 
@@ -180,20 +181,20 @@ const NursingDutiesSummary = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      approve: 'text-green-800 border-green-300',
-      pending: 'text-amber-800 border-amber-300',
-      rejected: 'text-red-800 border-red-300',
+      approve: "text-green-800 border-green-300",
+      pending: "text-amber-800 border-amber-300",
+      rejected: "text-red-800 border-red-300",
     };
     return (
       styles[status?.toLowerCase()] ||
-      'bg-gray-100 text-gray-800 border-gray-300'
+      "bg-gray-100 text-gray-800 border-gray-300"
     );
   };
 
   const getPaymentBadge = (status) => {
-    return status === 'paid'
-      ? 'text-emerald-800 border-emerald-300'
-      : 'text-rose-800 border-rose-300';
+    return status === "paid"
+      ? "text-emerald-800 border-emerald-300"
+      : "text-rose-800 border-rose-300";
   };
 
   // const handleAction = (action, nursing) => {
@@ -222,53 +223,53 @@ const NursingDutiesSummary = () => {
 
   const exportToExcel = async () => {
     if (dutiesSummary.length === 0) {
-      toast.error('No data to export');
+      toast.error("No data to export");
       return;
     }
 
     try {
       const now = new Date();
-      const dateTime = now.toLocaleString('en-BD', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+      const dateTime = now.toLocaleString("en-BD", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
         hour12: true,
       });
 
-      const companyName = 'RPR DUET Admission Care';
+      const companyName = "RPR DUET Admission Care";
       const address =
-        'M.A. Samad Villa-2 In front of DUET Campus | Gazipur, Bangladesh';
+        "M.A. Samad Villa-2 In front of DUET Campus | Gazipur, Bangladesh";
       const contacts =
-        '+880 1742 590 128 | +880 1901 852 989 | rpr.group2013@gmail.com';
+        "+880 1742 590 128 | +880 1901 852 989 | rpr.group2013@gmail.com";
 
       const formatPhone = (phone) => {
-        if (!phone) return 'N/A';
-        const digits = phone.replace(/\D/g, '');
-        return digits.length === 11 ? digits : digits.padStart(11, '0');
+        if (!phone) return "N/A";
+        const digits = phone.replace(/\D/g, "");
+        return digits.length === 11 ? digits : digits.padStart(11, "0");
       };
 
       const headers = [
-        '#',
-        'ID',
-        'Name',
-        'Phone',
-        'Total Duties',
-        'Paid',
-        'Unpaid',
-        'Approved',
-        'Pending',
-        'Total Amount',
-        'Paid Amount',
-        'Unpaid Amount',
+        "#",
+        "ID",
+        "Name",
+        "Phone",
+        "Total Duties",
+        "Paid",
+        "Unpaid",
+        "Approved",
+        "Pending",
+        "Total Amount",
+        "Paid Amount",
+        "Unpaid Amount",
       ];
 
       const dataRows = dutiesSummary?.map((nursing, i) => [
         (filters.page - 1) * filters.limit + (i + 1),
-        nursing?.nursingInfo?.userId || 'N/A',
-        nursing?.nursingInfo?.userName || 'N/A',
+        nursing?.nursingInfo?.userId || "N/A",
+        nursing?.nursingInfo?.userName || "N/A",
         formatPhone(nursing?.nursingInfo?.phone),
         nursing?.totalDuties || 0,
         nursing?.paidDuties || 0,
@@ -282,37 +283,37 @@ const NursingDutiesSummary = () => {
 
       // ১. ওয়ার্কবুক ও ওয়ার্কশিট তৈরি
       const workbook = new ExcelJS.Workbook();
-      const ws = workbook.addWorksheet('Nursing Summary');
+      const ws = workbook.addWorksheet("Nursing Summary");
 
       // ২. এক্সেল শিটে রো গুলো ক্রমানুসারে যোগ করা (আপনার আগের sheetData স্ট্রাকচার অনুযায়ী)
       ws.addRow([companyName]);
       ws.addRow([address]);
       ws.addRow([contacts]);
-      ws.addRow(['']);
-      ws.addRow(['NURSING PERFORMANCE SUMMARY REPORT']);
-      ws.addRow(['']);
+      ws.addRow([""]);
+      ws.addRow(["NURSING PERFORMANCE SUMMARY REPORT"]);
+      ws.addRow([""]);
       ws.addRow([`Generated on: ${dateTime}`]);
-      ws.addRow(['']);
-      ws.addRow(['FILTERS APPLIED:']);
-      ws.addRow(['Start Date:', filters.startDate || 'N/A']);
-      ws.addRow(['End Date:', filters.endDate || 'N/A']);
-      ws.addRow(['Month:', filters.month || 'N/A']);
-      ws.addRow(['Year:', filters.year || 'N/A']);
-      ws.addRow(['Status:', filters.status || 'N/A']);
-      ws.addRow(['Payment Status:', filters.paymentStatus || 'N/A']);
-      ws.addRow(['']);
+      ws.addRow([""]);
+      ws.addRow(["FILTERS APPLIED:"]);
+      ws.addRow(["Start Date:", filters.startDate || "N/A"]);
+      ws.addRow(["End Date:", filters.endDate || "N/A"]);
+      ws.addRow(["Month:", filters.month || "N/A"]);
+      ws.addRow(["Year:", filters.year || "N/A"]);
+      ws.addRow(["Status:", filters.status || "N/A"]);
+      ws.addRow(["Payment Status:", filters.paymentStatus || "N/A"]);
+      ws.addRow([""]);
       ws.addRow(headers); // মূল টেবিল হেডার (Row 17)
 
       // ডেটা রো গুলো যোগ করা
       ws.addRows(dataRows);
 
       // ৩. প্রফেশনাল স্টাইলিং ও ফন্ট সেটআপ
-      ws.getRow(1).font = { bold: true, size: 14, color: { argb: '003366' } };
-      ws.getRow(2).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(3).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(5).font = { bold: true, size: 12, color: { argb: '0047AB' } };
+      ws.getRow(1).font = { bold: true, size: 14, color: { argb: "003366" } };
+      ws.getRow(2).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(3).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(5).font = { bold: true, size: 12, color: { argb: "0047AB" } };
       ws.getRow(7).font = { italic: true, size: 10 };
-      ws.getRow(9).font = { bold: true, size: 10, color: { argb: '333333' } };
+      ws.getRow(9).font = { bold: true, size: 10, color: { argb: "333333" } };
 
       // মূল টেবিলের হেডার রো (headers) বোল্ড করা
       ws.getRow(17).font = { bold: true };
@@ -336,30 +337,30 @@ const NursingDutiesSummary = () => {
       // ৫. ফাইল জেনারেট এবং ব্রাউজারে ডাউনলোড ট্রিগার করা
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
-      const formattedDateNow = format(now, 'yyyy-MM-dd');
+      const formattedDateNow = format(now, "yyyy-MM-dd");
       const fileName = `Nursing_Summary_${formattedDateNow}.xlsx`;
 
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.href = url;
       anchor.download = fileName;
       anchor.click();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Report exported successfully');
+      toast.success("Report exported successfully");
     } catch (error) {
-      toast.error('Failed to export report. Please try again.');
+      toast.error("Failed to export report. Please try again.");
     }
   };
 
   // Format currency
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-BD', {
-      style: 'currency',
-      currency: 'BDT',
+    return new Intl.NumberFormat("en-BD", {
+      style: "currency",
+      currency: "BDT",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount || 0);
@@ -371,7 +372,7 @@ const NursingDutiesSummary = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -400,7 +401,7 @@ const NursingDutiesSummary = () => {
           className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
         >
           <Filter className="w-4 h-4" />
-          {isMobileFilterOpen ? 'Hide Filters' : 'Show Filters'}
+          {isMobileFilterOpen ? "Hide Filters" : "Show Filters"}
         </button>
       </div>
 
@@ -425,7 +426,7 @@ const NursingDutiesSummary = () => {
             {isMobileFilterOpen && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 className="lg:hidden"
               >
@@ -452,7 +453,7 @@ const NursingDutiesSummary = () => {
                   <select
                     value={
                       filters?.limit === pagination.totalItems
-                        ? 'all'
+                        ? "all"
                         : filters.limit
                     }
                     onChange={(e) => handleLimitChange(e.target.value)}
@@ -473,7 +474,7 @@ const NursingDutiesSummary = () => {
                       disabled={isFetching}
                     >
                       <RefreshCw
-                        className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`}
+                        className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
                       />
                     </button>
                     <button
@@ -539,7 +540,7 @@ const NursingDutiesSummary = () => {
                         </h3>
                         <p className="max-w-xs mb-6 text-slate-500">
                           {error?.data?.message ||
-                            'Unable to fetch nursing records'}
+                            "Unable to fetch nursing records"}
                         </p>
                         <button
                           onClick={refetch}
@@ -591,23 +592,23 @@ const NursingDutiesSummary = () => {
                                       {nursing?.nursingInfo?.userName?.substring(
                                         0,
                                         1,
-                                      ) || 'N/A'}
+                                      ) || "N/A"}
                                     </span>
                                   </div>
                                   <div>
                                     <h4 className="text-xs font-bold leading-tight capitalize text-slate-900">
                                       {nursing?.nursingInfo?.userName ||
-                                        'Unknown'}{' '}
+                                        "Unknown"}{" "}
                                       #{index + 1}
                                     </h4>
                                     <div className="flex items-center gap-3 text-slate-500">
                                       <span className="flex items-center gap-1.5 text-[12px] font-medium">
                                         <Phone className="w-3.5 h-3.5" />
-                                        {nursing?.nursingInfo?.phone || 'N/A'}
+                                        {nursing?.nursingInfo?.phone || "N/A"}
                                       </span>
                                       <span className="text-slate-300">|</span>
                                       <span className="text-[12px] font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-600">
-                                        {nursing?.nursingInfo?.userId || 'N/A'}
+                                        {nursing?.nursingInfo?.userId || "N/A"}
                                       </span>
                                     </div>
                                   </div>
@@ -633,8 +634,8 @@ const NursingDutiesSummary = () => {
                                       expandedRows?.has(
                                         nursing?.nursingInfo?._id,
                                       )
-                                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                     }`}
                                   >
                                     {expandedRows?.has(
@@ -654,8 +655,8 @@ const NursingDutiesSummary = () => {
                                       expandedLoans?.has(
                                         nursing?.nursingInfo?._id,
                                       )
-                                        ? 'bg-red-500 text-white border-red-500 shadow-sm'
-                                        : 'bg-white text-slate-700 border-red-100 hover:bg-red-50'
+                                        ? "bg-red-500 text-white border-red-500 shadow-sm"
+                                        : "bg-white text-slate-700 border-red-100 hover:bg-red-50"
                                     }`}
                                   >
                                     {expandedLoans?.has(
@@ -698,82 +699,82 @@ const NursingDutiesSummary = () => {
                               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-8">
                                 {[
                                   {
-                                    label: 'Total Duties',
+                                    label: "Total Duties",
                                     val: nursing?.totalDuties || 0,
                                     icon: BookOpen,
-                                    color: 'text-blue-600',
+                                    color: "text-blue-600",
                                   },
                                   {
-                                    label: 'Approved',
+                                    label: "Approved",
                                     val: nursing?.approvedDuties || 0,
                                     icon: CheckCircle,
-                                    color: 'text-teal-600',
+                                    color: "text-teal-600",
                                   },
                                   {
-                                    label: 'Pending',
+                                    label: "Pending",
                                     val: nursing?.pendingDuties || 0,
                                     icon: Clock,
-                                    color: 'text-yellow-600',
+                                    color: "text-yellow-600",
                                   },
                                   {
-                                    label: 'Total Amount',
+                                    label: "Total Amount",
                                     val: nursing?.approvedAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: DollarSign,
-                                    color: 'text-cyan-600',
+                                    color: "text-cyan-600",
                                   },
                                   {
-                                    label: 'Loan Amount',
+                                    label: "Loan Amount",
                                     val: nursing?.loanAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: DollarSign,
-                                    color: 'text-cyan-600',
+                                    color: "text-cyan-600",
                                   },
                                   {
-                                    label: 'Paid Amount',
+                                    label: "Paid Amount",
                                     val: nursing?.paidAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: CreditCard,
-                                    color: 'text-green-600',
+                                    color: "text-green-600",
                                   },
                                   {
-                                    label: 'Due Amount',
+                                    label: "Due Amount",
                                     val: nursing?.unpaidAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: AlertCircle,
-                                    color: 'text-rose-600',
+                                    color: "text-rose-600",
                                   },
                                   {
-                                    label: 'Payable',
+                                    label: "Payable",
                                     val: nursing?.payableAmount?.toLocaleString(
-                                      'en-US',
+                                      "en-US",
                                       {
-                                        style: 'currency',
-                                        currency: 'BDT',
+                                        style: "currency",
+                                        currency: "BDT",
                                       },
                                     ),
                                     icon: AlertCircle,
-                                    color: 'text-rose-600',
+                                    color: "text-rose-600",
                                   },
                                 ]?.map((item, i) => (
                                   <div
@@ -807,7 +808,7 @@ const NursingDutiesSummary = () => {
                                 ) && (
                                   <motion.div
                                     initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
+                                    animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
                                     className="mt-6 overflow-hidden border rounded-lg shadow-sm border-slate-200"
                                   >
@@ -872,10 +873,10 @@ const NursingDutiesSummary = () => {
                                                 </td>
                                                 <td className="px-4 py-3 font-bold text-slate-900">
                                                   {duty.totalAmount?.toLocaleString(
-                                                    'en-US',
+                                                    "en-US",
                                                     {
-                                                      style: 'currency',
-                                                      currency: 'BDT',
+                                                      style: "currency",
+                                                      currency: "BDT",
                                                     },
                                                   )}
                                                 </td>
@@ -886,8 +887,8 @@ const NursingDutiesSummary = () => {
                                                         duty.status,
                                                       )}`}
                                                     >
-                                                      {duty.status === 'approve'
-                                                        ? 'Approved'
+                                                      {duty.status === "approve"
+                                                        ? "Approved"
                                                         : duty.status}
                                                     </span>
                                                   </div>
@@ -899,9 +900,9 @@ const NursingDutiesSummary = () => {
                                                     )}`}
                                                   >
                                                     {duty.paymentStatus ===
-                                                    'paid'
-                                                      ? 'PAID'
-                                                      : 'UNPAID'}
+                                                    "paid"
+                                                      ? "PAID"
+                                                      : "UNPAID"}
                                                   </span>
                                                 </td>
                                               </tr>
@@ -919,7 +920,7 @@ const NursingDutiesSummary = () => {
                                 ) && (
                                   <motion.div
                                     initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
+                                    animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
                                     className="mt-4 overflow-hidden border border-purple-100 rounded-lg shadow-sm"
                                   >
@@ -982,7 +983,7 @@ const NursingDutiesSummary = () => {
                                               <td className="px-4 py-3">
                                                 {loan?.isPaid === true ? (
                                                   <span className="flex items-center gap-1 font-bold text-emerald-600">
-                                                    <CheckCircle size={12} />{' '}
+                                                    <CheckCircle size={12} />{" "}
                                                     Yes
                                                   </span>
                                                 ) : (

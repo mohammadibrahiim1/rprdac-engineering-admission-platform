@@ -1,16 +1,6 @@
-import {
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-  SortingState,
-} from "@tanstack/react-table";
-import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
-  ChevronDown,
-  ChevronUp,
   Edit3,
   FileText,
   Loader2,
@@ -31,7 +21,7 @@ interface StudentTableProps {
   selectedIds: string[];
   onSelectId: (id: string) => void;
   onSelectAll: () => void;
-  onDelete: (ids: string[]) => void;
+  onDelete?: (ids: string[]) => void;
   isDeleting: boolean;
   currentPage: number;
   totalPages: number;
@@ -89,13 +79,12 @@ const FeeBadge = ({
   updatedDueAmount,
 }: FeeBadgeProps) => {
   const status = paymentStatus?.toLowerCase();
-
   const due = updatedDueAmount ?? dueAmount ?? admissionFeeDue ?? 0;
 
   if (status === "paid") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 btn btn-xs font-semibold text-emerald-700">
-        <span className="rounded-full bg-emerald-500" />
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
         Fully Cleared
       </span>
     );
@@ -103,7 +92,7 @@ const FeeBadge = ({
 
   if (due > 0) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 btn btn-xs  font-semibold text-rose-700">
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-700">
         <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
         Due ৳{due.toLocaleString("en-BD")}
       </span>
@@ -111,7 +100,7 @@ const FeeBadge = ({
   }
 
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 btn btn-xs font-semibold text-amber-700">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
       Pending
     </span>
@@ -148,7 +137,7 @@ export default function StudentTable({
   selectedIds,
   onSelectId,
   onSelectAll,
-  // onDelete,
+  onDelete,
   isDeleting,
   currentPage,
   totalPages,
@@ -157,192 +146,8 @@ export default function StudentTable({
   limit,
   onLimitChange,
 }: StudentTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-
-  const columns = useMemo(
-    () => [
-      {
-        id: "select",
-        header: () => {
-          const allSelected =
-            students.length > 0 && selectedIds.length === students.length;
-          return (
-            <input
-              type="checkbox"
-              checked={allSelected}
-              onChange={onSelectAll}
-              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
-            />
-          );
-        },
-        cell: ({ row }: any) => (
-          <input
-            type="checkbox"
-            checked={selectedIds.includes(row.original._id)}
-            onChange={() => onSelectId(row.original._id)}
-            className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
-          />
-        ),
-        size: 40,
-      },
-      {
-        id: "profile",
-        header: "STUDENT PROFILE",
-        cell: ({ row }: any) => {
-          const s = row.original;
-          return (
-            <div className="flex items-center gap-3 min-w-[200px]">
-              <Avatar src={s.studentPhoto} name={s.name} />
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900 truncate capitalize">
-                  {s.name}
-                </p>
-                <p className="text-[11px] text-slate-500 truncate">
-                  {s.instituteName || "—"}
-                </p>
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        id: "roll",
-        header: "ROLL / REGISTRY ID",
-        cell: ({ row }: any) => (
-          <div className="text-sm">
-            <p className="font-medium text-slate-800">
-              {row.original.studentId || row.original.rollNo || "—"}
-            </p>
-            <p className="text-[11px] text-slate-400">
-              {row.original.registryId || ""}
-            </p>
-          </div>
-        ),
-      },
-      {
-        id: "sessionBatch",
-        header: "SESSION & BATCH",
-        cell: ({ row }: any) => (
-          <div className="text-sm">
-            <p className="font-medium text-slate-800">
-              {row.original.session || "—"}
-            </p>
-            <p className="text-[11px] text-slate-500">
-              {row.original.batch || "—"}
-            </p>
-          </div>
-        ),
-      },
-      {
-        id: "dept",
-        header: "DEPARTMENT",
-        cell: ({ row }: any) => <DeptBadge dept={row.original.department} />,
-      },
-      {
-        id: "contact",
-        header: "CONTACT & GUARDIAN",
-        cell: ({ row }: any) => {
-          const s = row.original;
-          return (
-            <div className="text-sm min-w-[140px]">
-              <p className="font-medium text-slate-800">
-                {s.phone || s.mobile || "—"}
-              </p>
-              <p className="text-[11px] text-slate-500 truncate">
-                {s.fatherName || s.guardianName || s.motherName
-                  ? `F: ${s.fatherName || s.guardianName || s.motherName}`
-                  : "—"}
-              </p>
-            </div>
-          );
-        },
-      },
-      {
-        id: "paymentStatus",
-        header: "Payment Status",
-        cell: ({ row }: any) => (
-          <FeeBadge
-            paymentStatus={row.original.paymentStatus}
-            dueAmount={row.original.dueAmount}
-            admissionFeeDue={row.original.admissionFeeDue}
-            updatedDueAmount={row.original.updatedDueAmount}
-          />
-        ),
-      },
-      {
-        id: "admissionStatus",
-        header: "Status",
-        cell: ({ row }: any) => {
-          const statusStyles: Record<string, string> = {
-            pending: "bg-amber-100 text-amber-700 border-amber-200",
-            approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
-            rejected: "bg-red-100 text-red-700 border-red-200",
-          };
-          const status = row.original.admissionStatus?.toLowerCase();
-          return (
-            <span
-              className={`btn btn-xs rounded-full border font-sans font-medium capitalize ${
-                statusStyles[status] ||
-                "bg-slate-100 text-slate-600 border-slate-200"
-              }`}
-            >
-              {row.original.admissionStatus || "—"}
-            </span>
-          );
-        },
-      },
-      {
-        id: "actions",
-        header: "QUICK ACTIONS",
-        cell: ({ row }: any) => (
-          <div className="flex items-center gap-1">
-            <Link
-              to={`/dashboard/student/details/${row.original._id}`}
-              className="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-              title="View"
-            >
-              <FileText className="w-4 h-4" />
-            </Link>
-            <Link
-              to={`/dashboard/admin/edit/student/${row.original._id}`}
-              className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
-              title="Edit"
-            >
-              <Edit3 className="w-4 h-4" />
-            </Link>
-            <button
-              type="button"
-              // onClick={() => onDelete([row.original._id])}
-              disabled={isDeleting}
-              className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40"
-              title="Delete"
-            >
-              {isDeleting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4" />
-              )}
-            </button>
-            <button className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100">
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
-          </div>
-        ),
-      },
-    ],
-    [students, selectedIds, isDeleting, onSelectAll, onSelectId],
-  );
-
-  const table = useReactTable({
-    data: students,
-    columns,
-    state: { sorting },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
-  const rows = table.getRowModel().rows;
+  const allSelected =
+    students.length > 0 && selectedIds.length === students.length;
 
   if (isLoading || isFetching) {
     return (
@@ -365,7 +170,7 @@ export default function StudentTable({
     );
   }
 
-  if (rows.length === 0) {
+  if (students.length === 0) {
     return (
       <div className="py-20 flex flex-col items-center gap-3">
         <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
@@ -377,7 +182,6 @@ export default function StudentTable({
     );
   }
 
-  // At the top of the component (or inside the render)
   const page = Number(currentPage) || 1;
   const perPage = typeof limit === "number" ? limit : Number(limit) || 10;
   const totalItems = Number(meta?.totalItems) || 0;
@@ -388,84 +192,222 @@ export default function StudentTable({
 
   return (
     <div className="w-full">
-      <div className="overflow-x-auto rounded-md border border-slate-200">
-        <table className="w-full text-left">
-          <thead>
-            {table.getHeaderGroups()?.map((hg: any) => (
-              <tr
-                key={hg.id}
-                className="bg-slate-50/80 border-b border-slate-200"
-              >
-                {hg.headers.map((header: any) => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap"
-                  >
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className={
-                          header.column.getCanSort()
-                            ? "flex items-center gap-1 cursor-pointer select-none hover:text-slate-700"
-                            : ""
-                        }
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                        {{
-                          asc: (
-                            <ChevronUp className="w-3.5 h-3.5 text-indigo-600" />
-                          ),
-                          desc: (
-                            <ChevronDown className="w-3.5 h-3.5 text-indigo-600" />
-                          ),
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
+      {/* Shadcn UI Table Container */}
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-x-auto">
+        <table className="w-full caption-bottom text-sm text-left">
+          <thead className="[&_tr]:border-b bg-slate-50/70 border-b border-slate-200">
+            <tr className="border-b transition-colors">
+              <th className="h-12 px-4 align-middle font-medium text-slate-500 w-[40px]">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={onSelectAll}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
+                />
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                STUDENT PROFILE
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                ROLL / REGISTRY ID
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                SESSION & BATCH
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                DEPARTMENT
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                CONTACT & GUARDIAN
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Payment Status
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                Status
+              </th>
+              <th className="h-12 px-4 align-middle text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                QUICK ACTIONS
+              </th>
+            </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-slate-100 bg-white [&_tr:last-child]:border-0">
             <AnimatePresence mode="popLayout">
-              {rows.map((row: any, i: any) => (
-                <motion.tr
-                  key={row.original._id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: 0.15,
-                    delay: Math.min(i * 0.02, 0.15),
-                  }}
-                  className={`hover:bg-slate-50/70 transition-colors ${
-                    selectedIds.includes(row.original._id)
-                      ? "bg-indigo-50/40"
-                      : ""
-                  }`}
-                >
-                  {row.getVisibleCells().map((cell: any) => (
-                    <td key={cell.id} className="px-4 py-3 align-middle">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+              {students.map((student, i) => {
+                const isSelected = selectedIds.includes(student._id);
+                const admissionStatus = student.admissionStatus?.toLowerCase();
+
+                const statusStyles: Record<string, string> = {
+                  pending: "bg-amber-100 text-amber-700 border-amber-200",
+                  approved:
+                    "bg-emerald-100 text-emerald-700 border-emerald-200",
+                  rejected: "bg-red-100 text-red-700 border-red-200",
+                };
+
+                return (
+                  <motion.tr
+                    key={student._id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.15,
+                      delay: Math.min(i * 0.02, 0.15),
+                    }}
+                    className={`border-b transition-colors hover:bg-slate-50/70 ${
+                      isSelected ? "bg-indigo-50/40" : ""
+                    }`}
+                  >
+                    {/* Checkbox */}
+                    <td className="p-4 align-middle">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => onSelectId(student._id)}
+                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600 cursor-pointer"
+                      />
                     </td>
-                  ))}
-                </motion.tr>
-              ))}
+
+                    {/* Student Profile */}
+                    <td className="p-4 align-middle">
+                      <div className="flex items-center gap-3 min-w-[200px]">
+                        <Avatar
+                          src={student.studentPhoto}
+                          name={student.name}
+                        />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-900 truncate capitalize">
+                            {student.name}
+                          </p>
+                          <p className="text-[11px] text-slate-500 truncate">
+                            {student.instituteName || "—"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Roll / Registry ID */}
+                    <td className="p-4 align-middle">
+                      <div className="text-sm">
+                        <p className="font-medium text-slate-800">
+                          {student.studentId || student.rollNo || "—"}
+                        </p>
+                        <p className="text-[11px] text-slate-400">
+                          {student.registryId || ""}
+                        </p>
+                      </div>
+                    </td>
+
+                    {/* Session & Batch */}
+                    <td className="p-4 align-middle">
+                      <div className="text-sm">
+                        <p className="font-medium text-slate-800">
+                          {student.session || "—"}
+                        </p>
+                        <p className="text-[11px] text-slate-500">
+                          {student.batch || "—"}
+                        </p>
+                      </div>
+                    </td>
+
+                    {/* Department */}
+                    <td className="p-4 align-middle">
+                      <DeptBadge dept={student.department} />
+                    </td>
+
+                    {/* Contact & Guardian */}
+                    <td className="p-4 align-middle">
+                      <div className="text-sm min-w-[140px]">
+                        <p className="font-medium text-slate-800">
+                          {student.phone || student.mobile || "—"}
+                        </p>
+                        <p className="text-[11px] text-slate-500 truncate">
+                          {student.fatherName ||
+                          student.guardianName ||
+                          student.motherName
+                            ? `F: ${
+                                student.fatherName ||
+                                student.guardianName ||
+                                student.motherName
+                              }`
+                            : "—"}
+                        </p>
+                      </div>
+                    </td>
+
+                    {/* Payment Status */}
+                    <td className="p-4 align-middle">
+                      <FeeBadge
+                        paymentStatus={student.paymentStatus}
+                        dueAmount={student.dueAmount}
+                        admissionFeeDue={student.admissionFeeDue}
+                        updatedDueAmount={student.updatedDueAmount}
+                      />
+                    </td>
+
+                    {/* Admission Status */}
+                    <td className="p-4 align-middle">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs font-medium capitalize ${
+                          statusStyles[admissionStatus || ""] ||
+                          "bg-slate-100 text-slate-600 border-slate-200"
+                        }`}
+                      >
+                        {student.admissionStatus || "—"}
+                      </span>
+                    </td>
+
+                    {/* Quick Actions */}
+                    <td className="p-4 align-middle">
+                      <div className="flex items-center gap-1">
+                        <Link
+                          to={`/dashboard/student/details/${student._id}`}
+                          className="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                          title="View"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Link>
+                        <Link
+                          to={`/dashboard/admin/edit/student/${student._id}`}
+                          className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                          title="Edit"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </Link>
+                        {onDelete && (
+                          <button
+                            type="button"
+                            onClick={() => onDelete([student._id])}
+                            disabled={isDeleting}
+                            className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40"
+                            title="Delete"
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 transition-colors"
+                          title="More actions"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                );
+              })}
             </AnimatePresence>
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
-
-      {/* Pagination */}
-      {!isLoading && !error && rows.length > 0 && (
+      {/* Pagination Bar */}
+      {!isLoading && !error && students.length > 0 && (
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-3 text-slate-600">
             <span>
@@ -475,7 +417,7 @@ export default function StudentTable({
             <select
               value={limit}
               onChange={(e) => onLimitChange(e.target.value)}
-              className="border border-slate-200 rounded-md px-2 py-1 text-xs bg-white"
+              className="border border-slate-200 rounded-md px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
               {[10, 25, 50, 100].map((n) => (
                 <option key={n} value={n}>
@@ -491,7 +433,7 @@ export default function StudentTable({
               type="button"
               disabled={page <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, Number(p) - 1))}
-              className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50 text-xs font-medium"
+              className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50 text-xs font-medium transition-colors"
             >
               Prev
             </button>
@@ -506,55 +448,13 @@ export default function StudentTable({
               onClick={() =>
                 setCurrentPage((p) => Math.min(totalPagesSafe, Number(p) + 1))
               }
-              className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50 text-xs font-medium"
+              className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50 text-xs font-medium transition-colors"
             >
               Next
             </button>
           </div>
         </div>
       )}
-
-      {/* <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
-        <div className="flex items-center gap-3 text-slate-600">
-          <span>
-            Showing {(currentPage - 1) * limit + 1}–
-            {Math.min(currentPage * limit, meta.totalItems)} of {meta.totalItems.toLocaleString()}
-          </span>
-          <select
-            value={limit}
-            onChange={(e) => onLimitChange(e.target.value)}
-            className="border border-slate-200 rounded-md px-2 py-1 text-xs bg-white"
-          >
-            {[10, 25, 50, 100].map((n) => (
-              <option key={n} value={n}>
-                {n} / page
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            disabled={currentPage <= 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50 text-xs font-medium"
-          >
-            Prev
-          </button>
-          <span className="px-3 py-1.5 text-xs font-medium text-slate-600">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            type="button"
-            disabled={currentPage >= totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="px-3 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 disabled:opacity-40 hover:bg-slate-50 text-xs font-medium"
-          >
-            Next
-          </button>
-        </div>
-      </div> */}
     </div>
   );
 }

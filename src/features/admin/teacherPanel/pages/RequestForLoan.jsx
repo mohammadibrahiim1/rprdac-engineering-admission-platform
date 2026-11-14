@@ -1,9 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { AnimatePresence, motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { useEffect, useState, useMemo } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   ArrowRight,
   Loader2,
@@ -20,33 +20,28 @@ import {
   Edit3,
   Banknote,
   Filter,
-} from 'lucide-react';
-
-// API Hooks
-import { useUserRequestForLoanMutation } from '../../../../../redux/features/admin/adminApi';
-import {
-  useDeleteLoanMutation,
-  useGetLoansQuery,
-  useUpdateLoanDataMutation,
-} from '../../../../../redux/features/loan/loanApi';
+} from "lucide-react";
 
 // Components
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import TeacherSelector from '../../../../../components/forms/TeacherSelector';
+import {
+  useDeleteLoanMutation,
+  useUpdateLoanDataMutation,
+} from "@/redux/features/loan/loanApi";
+import TeacherSelector from "@/components/common/TeacherSelector";
 
 // --- Validation Schemas ---
 const schema = z.object({
   amount: z.coerce
     .number()
-    .min(100, 'Minimum ৳100')
-    .max(100000, 'Limit exceeded'),
-  teacher: z.any().refine((val) => val !== null, 'Select an employee'),
+    .min(100, "Minimum ৳100")
+    .max(100000, "Limit exceeded"),
+  teacher: z.any().refine((val) => val !== null, "Select an employee"),
 });
 
 const updateSchema = z.object({
-  amount: z.coerce.number().positive('Required'),
-  date: z.string().min(1, 'Required'),
-  status: z.enum(['pending', 'approve', 'rejected']),
+  amount: z.coerce.number().positive("Required"),
+  date: z.string().min(1, "Required"),
+  status: z.enum(["pending", "approve", "rejected"]),
 });
 
 // --- Animation Variants ---
@@ -57,11 +52,11 @@ const fader = {
 
 const RequestForLoan = () => {
   // Filters & Pagination
-  const [search, setSearch] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
-  const [status, setStatus] = useState('');
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
-  const [panelType] = useState('teacher');
+  const [panelType] = useState("teacher");
 
   // Selection State
   const [selectedLoans, setSelectedLoans] = useState([]);
@@ -97,7 +92,7 @@ const RequestForLoan = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { amount: '' },
+    defaultValues: { amount: "" },
   });
 
   const {
@@ -116,7 +111,7 @@ const RequestForLoan = () => {
         status: editingLoan.status,
         date: new Date(editingLoan.date || editingLoan.createdAt)
           .toISOString()
-          .split('T')[0],
+          .split("T")[0],
       });
     }
   }, [editingLoan, resetUpdate]);
@@ -131,12 +126,12 @@ const RequestForLoan = () => {
         phone: formData.teacher?.phone,
         userType: formData.teacher?.userType,
       }).unwrap();
-      toast.success(res.message || 'Request Sent');
+      toast.success(res.message || "Request Sent");
       reset();
       setResetKey((k) => k + 1);
       refetch();
     } catch (err) {
-      toast.error(err.data?.message || 'Failed to submit');
+      toast.error(err.data?.message || "Failed to submit");
     }
   };
 
@@ -144,27 +139,27 @@ const RequestForLoan = () => {
     try {
       await updateLoanData({ id: editingLoan?._id, ...formData }).unwrap();
       setEditingLoan(null);
-      toast.success('Record Updated');
+      toast.success("Record Updated");
       refetch();
     } catch (err) {
-      toast.error('Update failed');
+      toast.error("Update failed");
     }
   };
 
   const handleSingleDelete = async (id) => {
-    if (!window.confirm('Delete this record?')) return;
+    if (!window.confirm("Delete this record?")) return;
     try {
       await deleteLoan(id).unwrap();
-      toast.success('Deleted');
+      toast.success("Deleted");
       setSelectedLoans((prev) => prev.filter((item) => item !== id));
     } catch (err) {
-      toast.error('Error deleting');
+      toast.error("Error deleting");
     }
   };
 
   // delete loan data
   const handleBulkDelete = async () => {
-    if (!window.confirm('Delete selected loan requests permanently?')) return;
+    if (!window.confirm("Delete selected loan requests permanently?")) return;
     try {
       const res = await deleteLoan({ ids: selectedLoans }).unwrap();
       toast.success(res?.message);
@@ -188,19 +183,12 @@ const RequestForLoan = () => {
 
   // UI Helpers
   const inputStyle =
-    'w-full px-3 py-2 text-[13px] bg-[#f7f7f5] border border-[#efefee] rounded-lg focus:outline-none focus:bg-white focus:border-[#2383e2] focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400';
+    "w-full px-3 py-2 text-[13px] bg-[#f7f7f5] border border-[#efefee] rounded-lg focus:outline-none focus:bg-white focus:border-[#2383e2] focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400";
   const labelStyle =
-    'text-[11px] font-bold text-gray-400 mb-1.5 block uppercase tracking-wider';
+    "text-[11px] font-bold text-gray-400 mb-1.5 block uppercase tracking-wider";
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#37352F] font-sans capitalize selection:bg-blue-100">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#F1F1F0] h-12 flex items-center px-6">
-        <div>
-          <BreadCrumbMenu />
-        </div>
-      </nav>
-
       <main className="px-4 py-14">
         <div className="flex flex-wrap justify-center md:justify-between ">
           {/* Page Title */}
@@ -222,9 +210,9 @@ const RequestForLoan = () => {
             <div className="text-right">
               <p className={labelStyle}>Approved Total</p>
               <p className="text-xl font-bold">
-                {stats?.totalApprovedAmount?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {stats?.totalApprovedAmount?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 }) || 0}
               </p>
             </div>
@@ -270,7 +258,7 @@ const RequestForLoan = () => {
                   <label className={labelStyle}>Amount (BDT)</label>
                   <input
                     type="number"
-                    {...register('amount')}
+                    {...register("amount")}
                     placeholder="e.g. 15000"
                     className={inputStyle}
                   />
@@ -324,7 +312,7 @@ const RequestForLoan = () => {
                   <input
                     type="date"
                     className={`${inputStyle} pl-9 pr-6`}
-                    value={dateFilter || ''}
+                    value={dateFilter || ""}
                     onChange={(e) => setDateFilter(e.target.value)}
                   />
 
@@ -332,7 +320,7 @@ const RequestForLoan = () => {
                   {dateFilter && (
                     <button
                       type="button"
-                      onClick={() => setDateFilter('')}
+                      onClick={() => setDateFilter("")}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A4A39E] hover:text-[#b12307] transition"
                     >
                       <X size={14} />
@@ -410,7 +398,7 @@ const RequestForLoan = () => {
                             initial="hidden"
                             animate="visible"
                             exit="hidden"
-                            className={`group hover:bg-[#fbfbfa] transition-colors ${selectedLoans.includes(loan._id) ? 'bg-blue-50/40' : ''}`}
+                            className={`group hover:bg-[#fbfbfa] transition-colors ${selectedLoans.includes(loan._id) ? "bg-blue-50/40" : ""}`}
                           >
                             <td className="px-4 py-4">
                               <button
@@ -430,7 +418,7 @@ const RequestForLoan = () => {
                             <td className="px-2 py-4 text-[11px] text-gray-400 text-center font-medium">
                               {String((page - 1) * 10 + idx + 1).padStart(
                                 2,
-                                '0',
+                                "0",
                               )}
                             </td>
                             <td className="px-6 py-4">
@@ -444,19 +432,19 @@ const RequestForLoan = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 text-sm font-black text-center text-gray-700">
-                              {loan?.amount?.toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              {loan?.amount?.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </td>
                             <td className="px-6 py-4 text-center">
                               <span
                                 className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${
-                                  loan.status === 'approve'
-                                    ? 'bg-green-50 text-green-600 border-green-100'
-                                    : loan.status === 'pending'
-                                      ? 'bg-amber-50 text-amber-600 border-amber-100'
-                                      : 'bg-red-50 text-red-600 border-red-100'
+                                  loan.status === "approve"
+                                    ? "bg-green-50 text-green-600 border-green-100"
+                                    : loan.status === "pending"
+                                      ? "bg-amber-50 text-amber-600 border-amber-100"
+                                      : "bg-red-50 text-red-600 border-red-100"
                                 }`}
                               >
                                 {loan.status}
@@ -464,11 +452,11 @@ const RequestForLoan = () => {
                             </td>
                             <td className="px-6 py-4 text-sm font-black text-center text-gray-700">
                               {new Date(loan?.date)?.toLocaleDateString(
-                                'en-GB',
+                                "en-GB",
                                 {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  year: 'numeric',
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
                                 },
                               )}
                             </td>
@@ -565,7 +553,7 @@ const RequestForLoan = () => {
                   <label className={labelStyle}>Revised Amount</label>
                   <input
                     type="number"
-                    {...registerUpdate('amount')}
+                    {...registerUpdate("amount")}
                     className={inputStyle}
                   />
                 </div>
@@ -573,13 +561,13 @@ const RequestForLoan = () => {
                   <label className={labelStyle}>Effective Date</label>
                   <input
                     type="date"
-                    {...registerUpdate('date')}
+                    {...registerUpdate("date")}
                     className={inputStyle}
                   />
                 </div>
                 <div>
                   <label className={labelStyle}>Status Update</label>
-                  <select {...registerUpdate('status')} className={inputStyle}>
+                  <select {...registerUpdate("status")} className={inputStyle}>
                     <option value="pending">Pending</option>
                     <option value="approve">Approve</option>
                     <option value="rejected">Rejected</option>
@@ -593,7 +581,7 @@ const RequestForLoan = () => {
                   {isUpdating ? (
                     <Loader2 className="mx-auto animate-spin" size={20} />
                   ) : (
-                    'Save Changes'
+                    "Save Changes"
                   )}
                 </button>
               </form>

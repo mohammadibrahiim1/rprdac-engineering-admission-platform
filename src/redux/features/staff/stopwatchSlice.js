@@ -1,8 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit';
-import toast from 'react-hot-toast';
+import { createSlice } from "@reduxjs/toolkit";
+import { toast } from "sonner";
 const loadState = () => {
   try {
-    const serializedState = localStorage.getItem('stopwatchState');
+    const serializedState = localStorage.getItem("stopwatchState");
     if (serializedState === null) {
       return {
         startTime: null,
@@ -28,14 +28,14 @@ const initialState = loadState();
 const saveState = (state) => {
   try {
     const serializedState = JSON.stringify(state);
-    localStorage.setItem('stopwatchState', serializedState);
+    localStorage.setItem("stopwatchState", serializedState);
   } catch (err) {
-    toast.error(err.data?.message || 'Something went wrong! Try again.');
+    toast.error(err.data?.message || "Something went wrong! Try again.");
   }
 };
 
 const stopwatchSlice = createSlice({
-  name: 'timeTracker',
+  name: "timeTracker",
   initialState,
   reducers: {
     startTracking: (state) => {

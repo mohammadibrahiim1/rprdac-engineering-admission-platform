@@ -1,11 +1,6 @@
-import { useForm } from 'react-hook-form';
-import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  createColumnHelper,
-} from '@tanstack/react-table';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Plus,
@@ -27,8 +22,8 @@ import {
   Check,
   Download,
   Upload,
-} from 'lucide-react';
-import { useSubjectControll } from '../hooks/useSubjectControll';
+} from "lucide-react";
+import { useSubjectControll } from "../hooks/useSubjectControll";
 
 /* ========== Notification ========== */
 const Notification = ({ notification, setNotification }) => (
@@ -39,27 +34,27 @@ const Notification = ({ notification, setNotification }) => (
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -20, scale: 0.95 }}
         className={`fixed top-6 right-6 z-50 p-4 rounded-lg shadow-xl border backdrop-blur-sm ${
-          notification.type === 'success'
-            ? 'bg-green-50/95 border-green-200 text-green-800'
-            : notification.type === 'error'
-              ? 'bg-red-50/95 border-red-200 text-red-800'
-              : 'bg-blue-50/95 border-blue-200 text-blue-800'
+          notification.type === "success"
+            ? "bg-green-50/95 border-green-200 text-green-800"
+            : notification.type === "error"
+              ? "bg-red-50/95 border-red-200 text-red-800"
+              : "bg-blue-50/95 border-blue-200 text-blue-800"
         }`}
-        style={{ width: '380px' }}
+        style={{ width: "380px" }}
       >
         <div className="flex items-start gap-3">
           <div
             className={`rounded-full p-1.5 ${
-              notification.type === 'success'
-                ? 'bg-green-100'
-                : notification.type === 'error'
-                  ? 'bg-red-100'
-                  : 'bg-blue-100'
+              notification.type === "success"
+                ? "bg-green-100"
+                : notification.type === "error"
+                  ? "bg-red-100"
+                  : "bg-blue-100"
             }`}
           >
-            {notification.type === 'success' ? (
+            {notification.type === "success" ? (
               <CheckCircle className="w-4 h-4 text-green-600" />
-            ) : notification.type === 'error' ? (
+            ) : notification.type === "error" ? (
               <AlertCircle className="w-4 h-4 text-red-600" />
             ) : (
               <Info className="w-4 h-4 text-blue-600" />
@@ -70,7 +65,7 @@ const Notification = ({ notification, setNotification }) => (
           </div>
           <button
             onClick={() =>
-              setNotification({ show: false, message: '', type: '' })
+              setNotification({ show: false, message: "", type: "" })
             }
             className="p-1 text-gray-400 rounded hover:text-gray-600 hover:bg-gray-100"
           >
@@ -112,8 +107,8 @@ const SubjectCard = ({
       exit={{ opacity: 0, scale: 0.95 }}
       className={`group relative bg-white rounded-xl border p-4 transition-all duration-200 hover:shadow-md ${
         isSelected
-          ? 'ring-2 ring-blue-500 border-blue-300 bg-blue-50/30'
-          : 'border-gray-200 hover:border-gray-300'
+          ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/30"
+          : "border-gray-200 hover:border-gray-300"
       }`}
     >
       <div className="flex items-start justify-between mb-3">
@@ -122,8 +117,8 @@ const SubjectCard = ({
             onClick={() => onSelect(subject._id)}
             className={`flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors mt-0.5 ${
               isSelected
-                ? 'bg-blue-600 border-blue-600'
-                : 'border-gray-300 hover:border-blue-400'
+                ? "bg-blue-600 border-blue-600"
+                : "border-gray-300 hover:border-blue-400"
             }`}
           >
             {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -138,9 +133,9 @@ const SubjectCard = ({
                   className="flex-1 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   autoFocus
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter')
+                    if (e.key === "Enter")
                       handleUpdateSubjectLabel(subject._id);
-                    if (e.key === 'Escape') cancelEdit();
+                    if (e.key === "Escape") cancelEdit();
                   }}
                 />
                 <div className="flex gap-1">
@@ -219,7 +214,7 @@ const SubjectCard = ({
                   ) : (
                     <Eye className="w-4 h-4" />
                   )}
-                  {showOptions ? 'Hide Options' : 'Show Options'}
+                  {showOptions ? "Hide Options" : "Show Options"}
                 </button>
                 <button
                   onClick={() => {
@@ -254,7 +249,7 @@ const SubjectCard = ({
         {showOptions && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="pt-3 mt-3 border-t border-gray-100"
           >
@@ -287,9 +282,9 @@ const SubjectCard = ({
                         className="flex-1 px-3 py-1.5 text-sm border border-blue-300 rounded focus:ring-2 focus:ring-blue-500"
                         autoFocus
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter')
+                          if (e.key === "Enter")
                             handleUpdateOption(subject._id);
-                          if (e.key === 'Escape') cancelEdit();
+                          if (e.key === "Escape") cancelEdit();
                         }}
                       />
                       <div className="flex gap-1">
@@ -354,8 +349,6 @@ const SubjectCard = ({
 };
 
 /* ========== Main Subjects Component ========== */
-import { useState } from 'react';
-
 const Subjects = () => {
   const {
     subjects,
@@ -400,157 +393,22 @@ const Subjects = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      label: '',
-      departmentId: '',
-      thumbnail: '',
+      label: "",
+      departmentId: "",
+      thumbnail: "",
       isCommon: false,
     },
   });
 
-  const isCommon = watch('isCommon', false);
+  const isCommon = watch("isCommon", false);
 
   const onSubmit = async (data) => {
     const success = await handleCreateSubject(data);
     if (success) reset();
   };
 
-  // TanStack Table columns
-  const columnHelper = createColumnHelper();
-  const columns = [
-    columnHelper.display({
-      id: 'select',
-      header: () => (
-        <button
-          onClick={selectAllSubjects}
-          className={`w-4 h-4 rounded border flex items-center justify-center ${
-            subjects.length > 0 && selectedSubjects.length === subjects.length
-              ? 'bg-blue-600 border-blue-600'
-              : 'border-gray-300'
-          }`}
-        >
-          {subjects.length > 0 &&
-            selectedSubjects.length === subjects.length && (
-              <Check className="w-3 h-3 text-white" />
-            )}
-        </button>
-      ),
-      cell: ({ row }) => (
-        <button
-          onClick={() => toggleSubjectSelection(row.original._id)}
-          className={`w-4 h-4 rounded border flex items-center justify-center ${
-            selectedSubjects.includes(row.original._id)
-              ? 'bg-blue-600 border-blue-600'
-              : 'border-gray-300 hover:border-blue-400'
-          }`}
-        >
-          {selectedSubjects.includes(row.original._id) && (
-            <Check className="w-3 h-3 text-white" />
-          )}
-        </button>
-      ),
-    }),
-    columnHelper.accessor('label', {
-      header: 'Subject',
-      cell: ({ row }) => {
-        const subject = row.original;
-        return (
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg">
-              <BookOpen className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="min-w-0">
-              {editingLabel === subject._id ? (
-                <div className="flex items-center gap-2">
-                  <input
-                    value={editingLabelValue}
-                    onChange={(e) => setEditingLabelValue(e.target.value)}
-                    className="px-3 py-1.5 text-sm border border-blue-300 rounded focus:ring-2 focus:ring-blue-500"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter')
-                        handleUpdateSubjectLabel(subject._id);
-                      if (e.key === 'Escape') cancelEdit();
-                    }}
-                  />
-                  <button
-                    onClick={() => handleUpdateSubjectLabel(subject._id)}
-                    className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded"
-                  >
-                    <Check className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={cancelEdit}
-                    className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 group">
-                  <span className="font-medium text-gray-900">
-                    {subject.label}
-                  </span>
-                  <button
-                    onClick={() => {
-                      setEditingLabel(subject._id);
-                      setEditingLabelValue(subject.label);
-                    }}
-                    className="p-1 text-gray-400 rounded opacity-0 hover:text-blue-600 hover:bg-blue-50 group-hover:opacity-100"
-                  >
-                    <Pencil className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-              <p className="mt-1 text-xs text-gray-500">
-                {subject.options?.length || 0} options • Created:{' '}
-                {new Date(subject.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        );
-      },
-    }),
-    columnHelper.accessor('options', {
-      header: 'Options',
-      cell: ({ getValue }) => {
-        const options = getValue() || [];
-        return (
-          <div className="space-y-1">
-            {options.slice(0, 3).map((opt, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <span className="w-4 text-xs text-gray-500">{idx + 1}.</span>
-                <span className="text-sm text-gray-700 truncate">{opt}</span>
-              </div>
-            ))}
-            {options.length > 3 && (
-              <span className="text-xs text-gray-400">
-                +{options.length - 3} more
-              </span>
-            )}
-          </div>
-        );
-      },
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <button
-          onClick={() => handleDeleteSubject(row.original._id)}
-          className="p-2 text-red-600 rounded-lg hover:text-red-800 hover:bg-red-50"
-          title="Delete subject"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      ),
-    }),
-  ];
-
-  const table = useReactTable({
-    data: subjects,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+  const allSelected =
+    subjects.length > 0 && selectedSubjects.length === subjects.length;
 
   return (
     <>
@@ -581,8 +439,8 @@ const Subjects = () => {
                   Subject Name / Label
                 </label>
                 <input
-                  {...register('label', {
-                    required: 'Subject name is required',
+                  {...register("label", {
+                    required: "Subject name is required",
                   })}
                   placeholder="e.g., DESIGN OF STRUCTURE-2"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -599,16 +457,16 @@ const Subjects = () => {
                   Select Department
                 </label>
                 <select
-                  {...register('departmentId', {
-                    required: !isCommon ? 'Department is required' : false,
+                  {...register("departmentId", {
+                    required: !isCommon ? "Department is required" : false,
                   })}
                   disabled={isCommon}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">-- Choose Department --</option>
                   {departments?.map((dept) => (
                     <option key={dept._id} value={dept._id}>
-                      {dept.name} {dept.code ? `(${dept.code})` : ''}
+                      {dept.name} {dept.code ? `(${dept.code})` : ""}
                     </option>
                   ))}
                 </select>
@@ -624,7 +482,7 @@ const Subjects = () => {
                   Thumbnail Image URL (Optional)
                 </label>
                 <input
-                  {...register('thumbnail')}
+                  {...register("thumbnail")}
                   type="url"
                   placeholder="https://example.com/image.jpg"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -635,7 +493,7 @@ const Subjects = () => {
                 <input
                   type="checkbox"
                   id="isCommon"
-                  {...register('isCommon')}
+                  {...register("isCommon")}
                   className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <label
@@ -703,22 +561,22 @@ const Subjects = () => {
 
               <div className="flex p-1 bg-gray-100 rounded-lg">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={`px-3 py-2 rounded-md flex items-center gap-2 text-sm font-medium ${
-                    viewMode === 'grid'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                    viewMode === "grid"
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   <Grid className="w-4 h-4" />
                   Grid
                 </button>
                 <button
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode("list")}
                   className={`px-3 py-2 rounded-md flex items-center gap-2 text-sm font-medium ${
-                    viewMode === 'list'
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                    viewMode === "list"
+                      ? "bg-white text-blue-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   <List className="w-4 h-4" />
@@ -749,25 +607,36 @@ const Subjects = () => {
 
           {/* Content */}
           <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            {viewMode === 'list' ? (
+            {viewMode === "list" ? (
+              /* ========== LIST VIEW (Native Table) ========== */
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <th
-                            key={header.id}
-                            className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-900 uppercase"
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-900 uppercase w-12">
+                        <button
+                          onClick={selectAllSubjects}
+                          className={`w-4 h-4 rounded border flex items-center justify-center ${
+                            allSelected
+                              ? "bg-blue-600 border-blue-600"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {allSelected && (
+                            <Check className="w-3 h-3 text-white" />
+                          )}
+                        </button>
+                      </th>
+                      <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-900 uppercase">
+                        Subject
+                      </th>
+                      <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-900 uppercase">
+                        Options
+                      </th>
+                      <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-900 uppercase w-20">
+                        Actions
+                      </th>
+                    </tr>
                   </thead>
                   <tbody>
                     {subjectsLoading ? (
@@ -783,7 +652,7 @@ const Subjects = () => {
                           <AlertCircle className="w-12 h-12 mx-auto mb-3 text-red-400" />
                           <p className="mb-2 text-gray-600">
                             {subjectsErrorData?.data?.message ||
-                              'Failed to load subjects'}
+                              "Failed to load subjects"}
                           </p>
                           <button
                             onClick={refetchSubjects}
@@ -794,23 +663,133 @@ const Subjects = () => {
                         </td>
                       </tr>
                     ) : subjects.length > 0 ? (
-                      table.getRowModel().rows.map((row) => (
+                      subjects.map((subject) => (
                         <tr
-                          key={row.id}
+                          key={subject._id}
                           className={`border-b hover:bg-gray-50 ${
-                            selectedSubjects.includes(row.original._id)
-                              ? 'bg-blue-50'
-                              : ''
+                            selectedSubjects.includes(subject._id)
+                              ? "bg-blue-50"
+                              : ""
                           }`}
                         >
-                          {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id} className="px-6 py-4">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
+                          {/* Checkbox */}
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() =>
+                                toggleSubjectSelection(subject._id)
+                              }
+                              className={`w-4 h-4 rounded border flex items-center justify-center ${
+                                selectedSubjects.includes(subject._id)
+                                  ? "bg-blue-600 border-blue-600"
+                                  : "border-gray-300 hover:border-blue-400"
+                              }`}
+                            >
+                              {selectedSubjects.includes(subject._id) && (
+                                <Check className="w-3 h-3 text-white" />
                               )}
-                            </td>
-                          ))}
+                            </button>
+                          </td>
+
+                          {/* Subject Info */}
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg">
+                                <BookOpen className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div className="min-w-0">
+                                {editingLabel === subject._id ? (
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      value={editingLabelValue}
+                                      onChange={(e) =>
+                                        setEditingLabelValue(e.target.value)
+                                      }
+                                      className="px-3 py-1.5 text-sm border border-blue-300 rounded focus:ring-2 focus:ring-blue-500"
+                                      autoFocus
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter")
+                                          handleUpdateSubjectLabel(subject._id);
+                                        if (e.key === "Escape") cancelEdit();
+                                      }}
+                                    />
+                                    <button
+                                      onClick={() =>
+                                        handleUpdateSubjectLabel(subject._id)
+                                      }
+                                      className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded"
+                                    >
+                                      <Check className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={cancelEdit}
+                                      className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2 group">
+                                    <span className="font-medium text-gray-900">
+                                      {subject.label}
+                                    </span>
+                                    <button
+                                      onClick={() => {
+                                        setEditingLabel(subject._id);
+                                        setEditingLabelValue(subject.label);
+                                      }}
+                                      className="p-1 text-gray-400 rounded opacity-0 hover:text-blue-600 hover:bg-blue-50 group-hover:opacity-100"
+                                    >
+                                      <Pencil className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                )}
+                                <p className="mt-1 text-xs text-gray-500">
+                                  {subject.options?.length || 0} options •
+                                  Created:{" "}
+                                  {new Date(
+                                    subject.createdAt,
+                                  ).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Options Preview */}
+                          <td className="px-6 py-4">
+                            <div className="space-y-1">
+                              {(subject.options || [])
+                                .slice(0, 3)
+                                .map((opt, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <span className="w-4 text-xs text-gray-500">
+                                      {idx + 1}.
+                                    </span>
+                                    <span className="text-sm text-gray-700 truncate">
+                                      {opt}
+                                    </span>
+                                  </div>
+                                ))}
+                              {(subject.options?.length || 0) > 3 && (
+                                <span className="text-xs text-gray-400">
+                                  +{subject.options.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => handleDeleteSubject(subject._id)}
+                              className="p-2 text-red-600 rounded-lg hover:text-red-800 hover:bg-red-50"
+                              title="Delete subject"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
                         </tr>
                       ))
                     ) : (
@@ -822,8 +801,8 @@ const Subjects = () => {
                           </h3>
                           <p className="text-gray-600">
                             {searchTerm
-                              ? 'No subjects match your search.'
-                              : 'Create your first subject to get started.'}
+                              ? "No subjects match your search."
+                              : "Create your first subject to get started."}
                           </p>
                         </td>
                       </tr>
@@ -832,7 +811,7 @@ const Subjects = () => {
                 </table>
               </div>
             ) : (
-              /* Grid View */
+              /* ========== GRID VIEW ========== */
               <div className="p-6">
                 {subjectsLoading ? (
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -888,8 +867,8 @@ const Subjects = () => {
                     </h3>
                     <p className="text-gray-600">
                       {searchTerm
-                        ? 'Try adjusting your search terms'
-                        : 'Create your first subject to get started'}
+                        ? "Try adjusting your search terms"
+                        : "Create your first subject to get started"}
                     </p>
                   </div>
                 )}

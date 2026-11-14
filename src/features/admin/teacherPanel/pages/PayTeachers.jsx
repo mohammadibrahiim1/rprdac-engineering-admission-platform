@@ -1,11 +1,11 @@
 // components/ClassList.jsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   useGetAllTeacherQuery,
   useUpdatePaymentAndGenerateTeacherInvoiceMutation,
-} from '../../../../../redux/features/teacher/teacherApi';
-import { useGetBatchesQuery } from '../../../../../redux/features/batch/batchApi';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "../../../../../redux/features/teacher/teacherApi";
+import { useGetBatchesQuery } from "../../../../../redux/features/batch/batchApi";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
   Calendar,
@@ -39,29 +39,29 @@ import {
   Activity,
   Layers,
   Banknote,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+} from "lucide-react";
+import { toast } from "sonner";
 
-import bgLogo from '../../../../../assets/img/log-rpr.png';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import TeacherFilterSidebar from '../components/TeacherFilterSidebar';
-import TeacherPaymentModal from '../components/TeacherPaymentModal';
+import bgLogo from "../../../../../assets/img/log-rpr.png";
+import TeacherFilterSidebar from "../components/TeacherFilterSidebar";
+import TeacherPaymentModal from "../components/TeacherPaymentModal";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const PayTeachers = () => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   const [filters, setFilters] = useState({
-    searchQuery: '',
-    batch: '',
-    status: '',
-    paymentStatus: '',
-    year: '',
-    month: '',
-    startDate: '',
-    endDate: '',
+    searchQuery: "",
+    batch: "",
+    status: "",
+    paymentStatus: "",
+    year: "",
+    month: "",
+    startDate: "",
+    endDate: "",
     page: 1,
     limit: 10,
   });
@@ -95,15 +95,15 @@ const PayTeachers = () => {
       }).unwrap();
 
       if (result?.success) {
-        toast.success('Invoice generated successfully!');
+        toast.success("Invoice generated successfully!");
         if (result.data?.invoiceUrl) {
-          window.open(result.data.invoiceUrl, '_blank');
+          window.open(result.data.invoiceUrl, "_blank");
         }
       } else {
-        toast.error(result?.message || 'Failed to generate invoice');
+        toast.error(result?.message || "Failed to generate invoice");
       }
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to generate invoice');
+      toast.error(error?.data?.message || "Failed to generate invoice");
     }
   };
 
@@ -119,7 +119,7 @@ const PayTeachers = () => {
   const handleSelectChange = (name, value) => {
     setFilters({
       ...filters,
-      [name]: value === 'all' ? '' : value,
+      [name]: value === "all" ? "" : value,
       page: 1,
     });
   };
@@ -127,17 +127,17 @@ const PayTeachers = () => {
   const handlePageChange = (dir) => {
     setFilters((prev) => ({
       ...prev,
-      page: dir === 'next' ? prev.page + 1 : Math.max(prev.page - 1, 1),
+      page: dir === "next" ? prev.page + 1 : Math.max(prev.page - 1, 1),
     }));
   };
 
   // Count active filters
   const activeFiltersCount = Object.entries(filters).filter(
     ([key, value]) =>
-      value !== '' &&
+      value !== "" &&
       value !== 10 &&
       value !== 1 &&
-      !['page', 'limit'].includes(key),
+      !["page", "limit"].includes(key),
   ).length;
 
   const [expandedRows, setExpandedRows] = useState(new Set());
@@ -179,31 +179,31 @@ const PayTeachers = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      approve: 'text-green-800 border-green-300',
-      pending: 'text-amber-800 border-amber-300',
-      rejected: 'text-red-800 border-red-300',
+      approve: "text-green-800 border-green-300",
+      pending: "text-amber-800 border-amber-300",
+      rejected: "text-red-800 border-red-300",
     };
     return (
       styles[status?.toLowerCase()] ||
-      'bg-gray-100 text-gray-800 border-gray-300'
+      "bg-gray-100 text-gray-800 border-gray-300"
     );
   };
 
   const getPaymentBadge = (status) => {
-    return status === 'paid'
-      ? 'text-emerald-800 border-emerald-300'
-      : 'text-rose-800 border-rose-300';
+    return status === "paid"
+      ? "text-emerald-800 border-emerald-300"
+      : "text-rose-800 border-rose-300";
   };
 
   const clearFilters = () => {
     setFilters({
-      batch: '',
-      status: '',
-      paymentStatus: '',
-      year: '',
-      month: '',
-      startDate: '',
-      endDate: '',
+      batch: "",
+      status: "",
+      paymentStatus: "",
+      year: "",
+      month: "",
+      startDate: "",
+      endDate: "",
       page: 1,
       limit: 10,
     });
@@ -211,39 +211,39 @@ const PayTeachers = () => {
 
   const filterFields = [
     {
-      label: 'Batch',
-      name: 'batch',
+      label: "Batch",
+      name: "batch",
       icon: <Layers className="w-4 h-4" />,
-      type: 'select',
-      options: ['All Batches', ...allBatches.map((b) => b.title)],
+      type: "select",
+      options: ["All Batches", ...allBatches.map((b) => b.title)],
       loading: batchesLoading,
     },
     {
-      label: 'Status',
-      name: 'status',
+      label: "Status",
+      name: "status",
       icon: <Activity className="w-4 h-4" />,
-      type: 'select',
-      options: ['All Status', 'pending', 'approve', 'rejected'],
+      type: "select",
+      options: ["All Status", "pending", "approve", "rejected"],
     },
     {
-      label: 'Payment',
-      name: 'paymentStatus',
+      label: "Payment",
+      name: "paymentStatus",
       icon: <CreditCard className="w-4 h-4" />,
-      type: 'select',
-      options: ['All Payments', 'paid', 'unpaid'],
+      type: "select",
+      options: ["All Payments", "paid", "unpaid"],
     },
     {
-      label: 'Month',
-      name: 'month',
+      label: "Month",
+      name: "month",
       icon: <Calendar className="w-4 h-4" />,
-      type: 'month',
+      type: "month",
     },
     {
-      label: 'Limit',
-      name: 'limit',
+      label: "Limit",
+      name: "limit",
       icon: <LayoutGrid className="w-4 h-4" />,
-      type: 'select',
-      options: ['5 items', '10 items', '20 items', '50 items'],
+      type: "select",
+      options: ["5 items", "10 items", "20 items", "50 items"],
     },
   ];
 
@@ -267,7 +267,7 @@ const PayTeachers = () => {
             {/* Left Side: Content */}
             <div className="text-white lg:col-span-7 xl:col-span-8">
               {/* 1. Breadcrumb Menu */}
-              <BreadCrumbMenu />
+              <Breadcrumb />
 
               {/* 2. Title & Subtitle */}
               <motion.div
@@ -276,7 +276,7 @@ const PayTeachers = () => {
                 transition={{ duration: 0.6 }}
               >
                 <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white md:text-2xl lg:text-3xl">
-                  Manage{' '}
+                  Manage{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600">
                     Teacher&apos;s
                   </span>
@@ -312,7 +312,7 @@ const PayTeachers = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="justify-center hidden lg:flex lg:col-span-5 xl:col-span-4"
             >
               <div className="relative group">
@@ -542,8 +542,8 @@ const PayTeachers = () => {
                                 }
                                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
                                   expandedRows?.has(teacher.teacherInfo._id)
-                                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                 }`}
                               >
                                 {expandedRows?.has(teacher.teacherInfo._id) ? (
@@ -560,8 +560,8 @@ const PayTeachers = () => {
                                 }
                                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all border ${
                                   expandedLoans?.has(teacher.teacherInfo._id)
-                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                    : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                                    : "bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50"
                                 }`}
                               >
                                 <CreditCard size={14} />
@@ -598,49 +598,49 @@ const PayTeachers = () => {
                           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
                             {[
                               {
-                                label: 'Total Classes',
+                                label: "Total Classes",
                                 val: teacher?.totalClasses,
                                 icon: BookOpen,
-                                color: 'text-blue-600',
+                                color: "text-blue-600",
                               },
                               {
-                                label: 'Approved',
+                                label: "Approved",
                                 val: teacher?.approvedClasses,
                                 icon: CheckCircle,
-                                color: 'text-emerald-600',
+                                color: "text-emerald-600",
                               },
                               {
-                                label: 'Pending',
+                                label: "Pending",
                                 val: teacher?.pendingClasses,
                                 icon: Clock,
-                                color: 'text-amber-600',
+                                color: "text-amber-600",
                               },
                               {
-                                label: 'Earnings',
+                                label: "Earnings",
                                 val: `৳${teacher?.approvedAmount?.toLocaleString()}`,
                                 icon: DollarSign,
-                                color: 'text-slate-900',
+                                color: "text-slate-900",
                               },
                               {
-                                label: 'Loaned',
+                                label: "Loaned",
                                 val: `৳${teacher?.loanAmount?.toLocaleString()}`,
                                 icon: CreditCard,
-                                color: 'text-purple-600',
+                                color: "text-purple-600",
                               },
                               {
                                 label:
                                   teacher?.dueLoan > teacher?.dueAmount
-                                    ? 'Loan Due'
-                                    : 'Due Balance',
+                                    ? "Loan Due"
+                                    : "Due Balance",
                                 val: `৳${(teacher?.dueLoan > teacher?.dueAmount ? teacher?.dueLoan : teacher?.dueAmount)?.toLocaleString()}`,
                                 icon: AlertCircle,
-                                color: 'text-rose-600',
+                                color: "text-rose-600",
                               },
                               {
-                                label: 'Payable',
+                                label: "Payable",
                                 val: `৳${teacher?.payableAmount?.toLocaleString()}`,
                                 icon: BarChart3,
-                                color: 'text-indigo-600',
+                                color: "text-indigo-600",
                               },
                             ].map((item, i) => (
                               <div
@@ -671,7 +671,7 @@ const PayTeachers = () => {
                             {expandedRows?.has(teacher.teacherInfo._id) && (
                               <motion.div
                                 initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
+                                animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 className="mt-6 overflow-hidden border rounded-lg shadow-sm border-slate-200"
                               >
@@ -735,8 +735,8 @@ const PayTeachers = () => {
                                               <span
                                                 className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${getStatusBadge(cls.status)}`}
                                               >
-                                                {cls.status === 'approve'
-                                                  ? 'Approved'
+                                                {cls.status === "approve"
+                                                  ? "Approved"
                                                   : cls.status}
                                               </span>
                                             </div>
@@ -745,9 +745,9 @@ const PayTeachers = () => {
                                             <span
                                               className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${getPaymentBadge(cls.paymentStatus)}`}
                                             >
-                                              {cls.paymentStatus === 'paid'
-                                                ? 'PAID'
-                                                : 'UNPAID'}
+                                              {cls.paymentStatus === "paid"
+                                                ? "PAID"
+                                                : "UNPAID"}
                                             </span>
                                           </td>
                                         </tr>
@@ -762,7 +762,7 @@ const PayTeachers = () => {
                             {expandedLoans?.has(teacher.teacherInfo._id) && (
                               <motion.div
                                 initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
+                                animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
                                 className="mt-4 overflow-hidden border border-purple-100 rounded-lg shadow-sm"
                               >

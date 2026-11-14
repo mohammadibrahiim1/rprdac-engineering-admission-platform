@@ -1,8 +1,8 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { X } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useUpdateGalleryImagesMutation } from '../../../../../redux/features/slider/sliderApi';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { X } from "lucide-react";
+import { toast } from "sonner";
+import { useUpdateGalleryImagesMutation } from "../../../../../redux/features/slider/sliderApi";
 
 const GalleryEditModal = ({ data, close }) => {
   const { register, handleSubmit } = useForm();
@@ -13,17 +13,17 @@ const GalleryEditModal = ({ data, close }) => {
     try {
       const formData = new FormData();
 
-      formData.append('galleryImages', form.image[0]);
+      formData.append("galleryImages", form.image[0]);
 
       await updateGallery({
         id: data.id,
         formData,
       }).unwrap();
 
-      toast.success('Gallery Image Updated');
+      toast.success("Gallery Image Updated");
       close();
     } catch (err) {
-      toast.error(err?.data?.message || 'Update Failed');
+      toast.error(err?.data?.message || "Update Failed");
     }
   };
 
@@ -41,13 +41,13 @@ const GalleryEditModal = ({ data, close }) => {
         <h2 className="mb-4 text-lg font-semibold">Update Gallery Image</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <input type="file" {...register('image', { required: true })} />
+          <input type="file" {...register("image", { required: true })} />
 
           <button
             disabled={isLoading}
             className="w-full py-2 text-white bg-black rounded-lg"
           >
-            {isLoading ? 'Updating...' : 'Update Image'}
+            {isLoading ? "Updating..." : "Update Image"}
           </button>
         </form>
       </div>

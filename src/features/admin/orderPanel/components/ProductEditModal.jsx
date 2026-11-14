@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import toast from 'react-hot-toast';
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { toast } from "sonner";
 import {
   X,
   Save,
@@ -26,12 +26,12 @@ import {
   Star,
   Gift,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 
 const SERVER =
-  (typeof import.meta !== 'undefined' &&
+  (typeof import.meta !== "undefined" &&
     import.meta.env?.VITE_SERVER_BASE_URL) ||
-  '';
+  "";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -39,15 +39,15 @@ const SERVER =
 
 const resolveUrl = (path) => {
   if (!path) return null;
-  const clean = path.replace(/\\/g, '/');
-  if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-  return `${SERVER}${clean.startsWith('/') ? clean : `/${clean}`}`;
+  const clean = path.replace(/\\/g, "/");
+  if (clean.startsWith("http://") || clean.startsWith("https://")) return clean;
+  return `${SERVER}${clean.startsWith("/") ? clean : `/${clean}`}`;
 };
 
-const arr2csv = (arr) => (Array.isArray(arr) ? arr.join(', ') : arr || '');
+const arr2csv = (arr) => (Array.isArray(arr) ? arr.join(", ") : arr || "");
 const csv2arr = (str) =>
-  (str || '')
-    .split(',')
+  (str || "")
+    .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
 
@@ -65,43 +65,43 @@ const normalizeForForm = (book) => {
 
   return {
     // ── Basic Info
-    name: book.basic_info?.name ?? book.title ?? '',
-    brand: book.basic_info?.brand ?? book.brand?.name ?? '',
-    model: book.basic_info?.model ?? String(book.edition ?? ''),
+    name: book.basic_info?.name ?? book.title ?? "",
+    brand: book.basic_info?.brand ?? book.brand?.name ?? "",
+    model: book.basic_info?.model ?? String(book.edition ?? ""),
     sl_no: book.basic_info?.sl_no,
-    short_description: book.basic_info?.short_description ?? book.summary ?? '',
+    short_description: book.basic_info?.short_description ?? book.summary ?? "",
     long_description:
-      book.basic_info?.long_description ?? book.description ?? '',
-    product_type: book.basic_info?.type ?? 'physical',
-    condition: book.basic_info?.condition ?? 'new',
+      book.basic_info?.long_description ?? book.description ?? "",
+    product_type: book.basic_info?.type ?? "physical",
+    condition: book.basic_info?.condition ?? "new",
 
     // ── Category
     cat_primary_name:
       book.category?.primary?.name ??
-      (typeof book.category === 'string' ? book.category : '') ??
-      '',
-    cat_primary_slug: book.category?.primary?.slug ?? '',
-    cat_secondary_name: book.category?.secondary?.name ?? '',
-    cat_secondary_slug: book.category?.secondary?.slug ?? '',
-    cat_tertiary_name: book.category?.tertiary?.name ?? '',
-    cat_tertiary_slug: book.category?.tertiary?.slug ?? '',
+      (typeof book.category === "string" ? book.category : "") ??
+      "",
+    cat_primary_slug: book.category?.primary?.slug ?? "",
+    cat_secondary_name: book.category?.secondary?.name ?? "",
+    cat_secondary_slug: book.category?.secondary?.slug ?? "",
+    cat_tertiary_name: book.category?.tertiary?.name ?? "",
+    cat_tertiary_slug: book.category?.tertiary?.slug ?? "",
 
     // ── Status & Visibility
-    status: book.status ?? 'draft',
-    visibility: book.visibility ?? 'public',
+    status: book.status ?? "draft",
+    visibility: book.visibility ?? "public",
 
     // ── Pricing
-    currency: p.currency ?? 'BDT',
+    currency: p.currency ?? "BDT",
     base_price:
-      p.base_price ?? (book.price !== 'TBA' ? (book.price ?? '') : ''),
-    sale_price: p.sale_price ?? '',
-    cost_price: p.cost_price ?? '',
+      p.base_price ?? (book.price !== "TBA" ? (book.price ?? "") : ""),
+    sale_price: p.sale_price ?? "",
+    cost_price: p.cost_price ?? "",
     is_on_sale: p.is_on_sale ?? false,
-    price_is_tba: book.price === 'TBA' && !book.pricing,
-    discount_type: p.discount_type ?? 'fixed',
-    discount_value: p.discount_value ?? '',
+    price_is_tba: book.price === "TBA" && !book.pricing,
+    discount_type: p.discount_type ?? "fixed",
+    discount_value: p.discount_value ?? "",
     is_taxable: tax.is_taxable ?? false,
-    tax_class: tax.tax_class ?? 'standard',
+    tax_class: tax.tax_class ?? "standard",
     tax_rate_percent: tax.tax_rate_percent ?? 0,
 
     // ── Inventory
@@ -111,47 +111,47 @@ const normalizeForForm = (book) => {
     allow_backorder: inv.allow_backorder ?? false,
 
     // ── Attributes
-    material: attr.material ?? '',
-    weight_grams: attr.weight_grams ?? '',
+    material: attr.material ?? "",
+    weight_grams: attr.weight_grams ?? "",
 
     // ── Shipping
     is_shippable: ship.is_shippable ?? true,
     is_free_shipping: ship.is_free_shipping ?? false,
-    ship_weight_value: ship.weight?.value ?? '',
-    ship_weight_unit: ship.weight?.unit ?? 'g',
-    ship_length: ship.dimensions?.length ?? '',
-    ship_width: ship.dimensions?.width ?? '',
-    ship_height: ship.dimensions?.height ?? '',
-    ship_dim_unit: ship.dimensions?.unit ?? 'cm',
-    shipping_class: ship.shipping_class ?? 'standard',
+    ship_weight_value: ship.weight?.value ?? "",
+    ship_weight_unit: ship.weight?.unit ?? "g",
+    ship_length: ship.dimensions?.length ?? "",
+    ship_width: ship.dimensions?.width ?? "",
+    ship_height: ship.dimensions?.height ?? "",
+    ship_dim_unit: ship.dimensions?.unit ?? "cm",
+    shipping_class: ship.shipping_class ?? "standard",
     requires_signature: ship.requires_signature ?? false,
     fragile: ship.fragile ?? false,
-    country_of_origin: ship.country_of_origin ?? '',
-    hs_tariff_code: ship.hs_tariff_code ?? '',
+    country_of_origin: ship.country_of_origin ?? "",
+    hs_tariff_code: ship.hs_tariff_code ?? "",
 
     // ── Warranty & Returns
     has_warranty: wr.warranty?.has_warranty ?? false,
-    warranty_duration_months: wr.warranty?.duration_months ?? '',
-    warranty_type: wr.warranty?.type ?? '',
-    warranty_description: wr.warranty?.description ?? '',
+    warranty_duration_months: wr.warranty?.duration_months ?? "",
+    warranty_type: wr.warranty?.type ?? "",
+    warranty_description: wr.warranty?.description ?? "",
     is_returnable: wr.return_policy?.is_returnable ?? false,
-    return_window_days: wr.return_policy?.return_window_days ?? '',
-    return_condition: wr.return_policy?.return_condition ?? '',
+    return_window_days: wr.return_policy?.return_window_days ?? "",
+    return_condition: wr.return_policy?.return_condition ?? "",
     restocking_fee_percent: wr.return_policy?.restocking_fee_percent ?? 0,
 
     // ── Vendor
-    vendor_id: vendor.vendor_id ?? '',
-    vendor_name: vendor.vendor_name ?? '',
-    vendor_sku: vendor.vendor_sku ?? '',
-    commission_percent: vendor.commission_percent ?? '',
+    vendor_id: vendor.vendor_id ?? "",
+    vendor_name: vendor.vendor_name ?? "",
+    vendor_sku: vendor.vendor_sku ?? "",
+    commission_percent: vendor.commission_percent ?? "",
 
     // ── Taxonomy
     tags: arr2csv(book.tags),
     keywords: arr2csv(book.keywords),
 
     // ── SEO
-    meta_title: seo.meta_title ?? '',
-    meta_description: seo.meta_description ?? '',
+    meta_title: seo.meta_title ?? "",
+    meta_description: seo.meta_description ?? "",
 
     // ── Promotions
     eligible_for_coupons: promo.eligible_for_coupons ?? true,
@@ -184,10 +184,10 @@ const buildImageSlots = (book) => {
     .map((img) => ({
       id: img.id ?? img._id ?? Math.random().toString(36).slice(2),
       url: img.url,
-      caption: img.caption ?? img.alt ?? '',
+      caption: img.caption ?? img.alt ?? "",
       preview: img.thumbnail?.url,
       replacementFile: null,
-      action: 'keep',
+      action: "keep",
     }));
   return { thumb, slots };
 };
@@ -199,55 +199,55 @@ const buildImageSlots = (book) => {
 const cls = {
   input: (dark, err) =>
     [
-      'w-full px-3.5 py-2.5 rounded-lg text-[13px] border outline-none transition-all duration-150',
+      "w-full px-3.5 py-2.5 rounded-lg text-[13px] border outline-none transition-all duration-150",
       dark
-        ? 'bg-[#1c1c1c] border-white/10 text-white placeholder-white/20 focus:border-indigo-500/50'
-        : 'bg-white border-black/10 text-[#111] placeholder-black/25 focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.08)]',
+        ? "bg-[#1c1c1c] border-white/10 text-white placeholder-white/20 focus:border-indigo-500/50"
+        : "bg-white border-black/10 text-[#111] placeholder-black/25 focus:border-indigo-400 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.08)]",
       err
         ? dark
-          ? 'border-red-500/40 bg-red-950/20'
-          : 'border-red-400/50 bg-red-50'
-        : '',
-    ].join(' '),
+          ? "border-red-500/40 bg-red-950/20"
+          : "border-red-400/50 bg-red-50"
+        : "",
+    ].join(" "),
 
   textarea: (dark) =>
     [
-      'w-full px-3.5 py-2.5 rounded-lg text-[13px] border outline-none transition-all duration-150 resize-none leading-relaxed',
+      "w-full px-3.5 py-2.5 rounded-lg text-[13px] border outline-none transition-all duration-150 resize-none leading-relaxed",
       dark
-        ? 'bg-[#1c1c1c] border-white/10 text-white placeholder-white/20 focus:border-indigo-500/50'
-        : 'bg-white border-black/10 text-[#111] placeholder-black/25 focus:border-indigo-400',
-    ].join(' '),
+        ? "bg-[#1c1c1c] border-white/10 text-white placeholder-white/20 focus:border-indigo-500/50"
+        : "bg-white border-black/10 text-[#111] placeholder-black/25 focus:border-indigo-400",
+    ].join(" "),
 
   select: (dark) =>
     [
-      'w-full px-3.5 py-2.5 pr-9 rounded-lg text-[13px] border outline-none transition-all duration-150 appearance-none cursor-pointer',
+      "w-full px-3.5 py-2.5 pr-9 rounded-lg text-[13px] border outline-none transition-all duration-150 appearance-none cursor-pointer",
       dark
-        ? 'bg-[#1c1c1c] border-white/10 text-white focus:border-indigo-500/50'
-        : 'bg-white border-black/10 text-[#111] focus:border-indigo-400',
-    ].join(' '),
+        ? "bg-[#1c1c1c] border-white/10 text-white focus:border-indigo-500/50"
+        : "bg-white border-black/10 text-[#111] focus:border-indigo-400",
+    ].join(" "),
 
   ghost: (dark) =>
     [
-      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] cursor-pointer',
-      'transition-all duration-150 border select-none',
+      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] cursor-pointer",
+      "transition-all duration-150 border select-none",
       dark
-        ? 'border-white/10 text-white/50 hover:bg-white/5 hover:text-white/75'
-        : 'border-black/10 text-black/45 hover:bg-black/5 hover:text-black/65',
-    ].join(' '),
+        ? "border-white/10 text-white/50 hover:bg-white/5 hover:text-white/75"
+        : "border-black/10 text-black/45 hover:bg-black/5 hover:text-black/65",
+    ].join(" "),
 
   danger: (dark) =>
     [
-      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] cursor-pointer border transition-all duration-150',
+      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] cursor-pointer border transition-all duration-150",
       dark
-        ? 'border-red-500/20 text-red-400/70 hover:bg-red-500/10 hover:text-red-400'
-        : 'border-red-200 text-red-500/70 hover:bg-red-50 hover:text-red-600',
-    ].join(' '),
+        ? "border-red-500/20 text-red-400/70 hover:bg-red-500/10 hover:text-red-400"
+        : "border-red-200 text-red-500/70 hover:bg-red-50 hover:text-red-600",
+    ].join(" "),
 
   checkRow: (dark) =>
-    `flex items-center gap-2.5 cursor-pointer select-none text-[13px] ${dark ? 'text-white/55' : 'text-black/55'}`,
+    `flex items-center gap-2.5 cursor-pointer select-none text-[13px] ${dark ? "text-white/55" : "text-black/55"}`,
 
   hint: (dark) =>
-    `mt-1 text-[11px] ${dark ? 'text-white/25' : 'text-black/30'}`,
+    `mt-1 text-[11px] ${dark ? "text-white/25" : "text-black/30"}`,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -265,7 +265,7 @@ const MODAL = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: 'spring', stiffness: 340, damping: 28 },
+    transition: { type: "spring", stiffness: 340, damping: 28 },
   },
   exit: { opacity: 0, y: 8, scale: 0.99, transition: { duration: 0.13 } },
 };
@@ -276,15 +276,15 @@ const MODAL = {
 
 const SectionHeader = ({ icon: Icon, title, dark }) => (
   <div
-    className={`flex items-center gap-2.5 pb-3 mb-5 border-b ${dark ? 'border-white/[0.07]' : 'border-black/[0.06]'}`}
+    className={`flex items-center gap-2.5 pb-3 mb-5 border-b ${dark ? "border-white/[0.07]" : "border-black/[0.06]"}`}
   >
     <span
-      className={`p-1.5 rounded-md ${dark ? 'bg-white/[0.06] text-white/50' : 'bg-black/[0.05] text-black/40'}`}
+      className={`p-1.5 rounded-md ${dark ? "bg-white/[0.06] text-white/50" : "bg-black/[0.05] text-black/40"}`}
     >
       <Icon size={13} strokeWidth={2} />
     </span>
     <span
-      className={`text-[11px] font-semibold uppercase tracking-[0.1em] ${dark ? 'text-white/38' : 'text-black/35'}`}
+      className={`text-[11px] font-semibold uppercase tracking-[0.1em] ${dark ? "text-white/38" : "text-black/35"}`}
     >
       {title}
     </span>
@@ -293,7 +293,7 @@ const SectionHeader = ({ icon: Icon, title, dark }) => (
 
 const FL = ({ children, required, dark }) => (
   <label
-    className={`block mb-1.5 text-[12px] font-medium ${dark ? 'text-white/52' : 'text-black/48'}`}
+    className={`block mb-1.5 text-[12px] font-medium ${dark ? "text-white/52" : "text-black/48"}`}
   >
     {children}
     {required && <span className="ml-0.5 text-red-400/80">*</span>}
@@ -312,7 +312,7 @@ const Sel = ({ children, dark }) => (
     {children}
     <ChevronDown
       size={13}
-      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${dark ? 'text-white/28' : 'text-black/28'}`}
+      className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${dark ? "text-white/28" : "text-black/28"}`}
     />
   </div>
 );
@@ -320,7 +320,7 @@ const Sel = ({ children, dark }) => (
 const Pill = ({ label, value, dark }) =>
   value ? (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11.5px] border font-mono ${dark ? 'border-white/8 bg-white/3 text-white/35' : 'border-black/8 bg-black/3 text-black/35'}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11.5px] border font-mono ${dark ? "border-white/8 bg-white/3 text-white/35" : "border-black/8 bg-black/3 text-black/35"}`}
     >
       <span className="font-sans font-medium">{label}:</span> {value}
     </span>
@@ -328,7 +328,7 @@ const Pill = ({ label, value, dark }) =>
 
 const InfoBox = ({ children, dark }) => (
   <div
-    className={`flex items-start gap-2 p-3 rounded-lg text-[12px] leading-relaxed ${dark ? 'bg-white/4 text-white/40' : 'bg-black/[0.04] text-black/45'}`}
+    className={`flex items-start gap-2 p-3 rounded-lg text-[12px] leading-relaxed ${dark ? "bg-white/4 text-white/40" : "bg-black/[0.04] text-black/45"}`}
   >
     <Info size={12} className="mt-0.5 flex-shrink-0" />
     {children}
@@ -340,14 +340,14 @@ const InfoBox = ({ children, dark }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ImageSlotCard = ({ slot, dark, onReplace, onDelete }) => {
-  const isDeleted = slot.action === 'delete';
-  const isReplaced = slot.action === 'replace';
+  const isDeleted = slot.action === "delete";
+  const isReplaced = slot.action === "replace";
   return (
     <div
-      className={`relative group rounded-xl overflow-hidden border transition-all duration-200 ${isDeleted ? (dark ? 'border-red-500/30 opacity-40' : 'border-red-300 opacity-45') : dark ? 'border-white/10 hover:border-white/22' : 'border-black/10 hover:border-black/20'}`}
+      className={`relative group rounded-xl overflow-hidden border transition-all duration-200 ${isDeleted ? (dark ? "border-red-500/30 opacity-40" : "border-red-300 opacity-45") : dark ? "border-white/10 hover:border-white/22" : "border-black/10 hover:border-black/20"}`}
     >
       <div
-        className={`relative aspect-square ${dark ? 'bg-white/5' : 'bg-black/5'}`}
+        className={`relative aspect-square ${dark ? "bg-white/5" : "bg-black/5"}`}
       >
         {slot.preview ? (
           <img
@@ -359,7 +359,7 @@ const ImageSlotCard = ({ slot, dark, onReplace, onDelete }) => {
           <div className="flex items-center justify-center w-full h-full">
             <ImageIcon
               size={18}
-              className={dark ? 'text-white/20' : 'text-black/20'}
+              className={dark ? "text-white/20" : "text-black/20"}
             />
           </div>
         )}
@@ -382,7 +382,7 @@ const ImageSlotCard = ({ slot, dark, onReplace, onDelete }) => {
                   const f = e.target.files[0];
                   if (f) {
                     onReplace(slot.id, f);
-                    e.target.value = '';
+                    e.target.value = "";
                   }
                 }}
               />
@@ -406,7 +406,7 @@ const ImageSlotCard = ({ slot, dark, onReplace, onDelete }) => {
           <Trash2 size={13} />
           <span>Removed</span>
           <span
-            className={`text-[9.5px] underline ${dark ? 'text-white/35' : 'text-black/30'}`}
+            className={`text-[9.5px] underline ${dark ? "text-white/35" : "text-black/30"}`}
           >
             Undo
           </span>
@@ -421,16 +421,16 @@ const ImageSlotCard = ({ slot, dark, onReplace, onDelete }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const TABS = [
-  'Basic',
-  'Category',
-  'Pricing',
-  'Inventory',
-  'Shipping',
-  'Warranty',
-  'Media',
-  'Vendor',
-  'SEO',
-  'Advanced',
+  "Basic",
+  "Category",
+  "Pricing",
+  "Inventory",
+  "Shipping",
+  "Warranty",
+  "Media",
+  "Vendor",
+  "SEO",
+  "Advanced",
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -459,76 +459,76 @@ const ProductEditModal = ({
     fields: bulkFields,
     append: bulkAppend,
     remove: bulkRemove,
-  } = useFieldArray({ control, name: 'bulk_pricing' });
+  } = useFieldArray({ control, name: "bulk_pricing" });
 
-  const [activeTab, setActiveTab] = useState('Basic');
+  const [activeTab, setActiveTab] = useState("Basic");
 
   // ── Media state ──────────────────────────────────────────────────────────
   const [thumbPreview, setThumbPreview] = useState(null);
   const [thumbFile, setThumbFile] = useState(null);
-  const [thumbAction, setThumbAction] = useState('keep');
+  const [thumbAction, setThumbAction] = useState("keep");
   const [originalThumbUrl, setOriginalThumbUrl] = useState(null);
   const [imageSlots, setImageSlots] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [pdfFile, setPdfFile] = useState(null);
-  const [pdfLabel, setPdfLabel] = useState('');
-  const [pdfAction, setPdfAction] = useState('keep');
+  const [pdfLabel, setPdfLabel] = useState("");
+  const [pdfAction, setPdfAction] = useState("keep");
 
   // ── Populate on book change ──────────────────────────────────────────────
   useEffect(() => {
     if (!book) return;
     reset(normalizeForForm(book));
-    setActiveTab('Basic');
+    setActiveTab("Basic");
 
     const { thumb, slots } = buildImageSlots(book);
     const tUrl = thumb;
     setOriginalThumbUrl(tUrl);
     setThumbPreview(tUrl);
     setThumbFile(null);
-    setThumbAction('keep');
+    setThumbAction("keep");
     setImageSlots(slots);
     setNewImages([]);
 
     const pdfPath = book.pdfUrl ?? book.media?.documents?.[0]?.url ?? null;
-    setPdfLabel(pdfPath ? 'Existing PDF' : '');
+    setPdfLabel(pdfPath ? "Existing PDF" : "");
     setPdfFile(null);
-    setPdfAction('keep');
+    setPdfAction("keep");
   }, [book, reset]);
 
   // ── Thumbnail handlers ───────────────────────────────────────────────────
   const handleThumbChange = useCallback((e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image.');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Cover must be under 5 MB.');
+      toast.error("Cover must be under 5 MB.");
       return;
     }
     setThumbFile(file);
     setThumbPreview(URL.createObjectURL(file));
-    setThumbAction('replace');
-    e.target.value = '';
+    setThumbAction("replace");
+    e.target.value = "";
   }, []);
 
   const handleThumbRemove = useCallback(() => {
     setThumbFile(null);
     setThumbPreview(null);
-    setThumbAction('remove');
+    setThumbAction("remove");
   }, []);
 
   const handleThumbRestore = useCallback(() => {
     setThumbFile(null);
     setThumbPreview(originalThumbUrl);
-    setThumbAction('keep');
+    setThumbAction("keep");
   }, [originalThumbUrl]);
 
   // ── Gallery handlers ─────────────────────────────────────────────────────
   const handleSlotReplace = useCallback((id, file) => {
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be under 5 MB.');
+      toast.error("Image must be under 5 MB.");
       return;
     }
     setImageSlots((prev) =>
@@ -538,7 +538,7 @@ const ProductEditModal = ({
               ...s,
               replacementFile: file,
               preview: URL.createObjectURL(file),
-              action: 'replace',
+              action: "replace",
             }
           : s,
       ),
@@ -549,22 +549,22 @@ const ProductEditModal = ({
     setImageSlots((prev) =>
       prev.map((s) => {
         if (s.id !== id) return s;
-        if (s.action === 'delete')
+        if (s.action === "delete")
           return {
             ...s,
-            action: s.replacementFile ? 'replace' : 'keep',
+            action: s.replacementFile ? "replace" : "keep",
             preview: s.replacementFile
               ? URL.createObjectURL(s.replacementFile)
               : s.url,
           };
-        return { ...s, action: 'delete', preview: s.url };
+        return { ...s, action: "delete", preview: s.url };
       }),
     );
   }, []);
 
   const handleNewImages = useCallback((e) => {
     const valid = Array.from(e.target.files).filter((f) => {
-      if (!f.type.startsWith('image/')) {
+      if (!f.type.startsWith("image/")) {
         toast.error(`${f.name} is not an image.`);
         return false;
       }
@@ -578,7 +578,7 @@ const ProductEditModal = ({
       ...prev,
       ...valid.map((f) => ({ file: f, preview: URL.createObjectURL(f) })),
     ]);
-    e.target.value = '';
+    e.target.value = "";
   }, []);
 
   const removeNewImage = useCallback(
@@ -590,18 +590,18 @@ const ProductEditModal = ({
   const handlePdfChange = useCallback((e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.type !== 'application/pdf') {
-      toast.error('Please select a PDF.');
+    if (file.type !== "application/pdf") {
+      toast.error("Please select a PDF.");
       return;
     }
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('PDF must be under 50 MB.');
+      toast.error("PDF must be under 50 MB.");
       return;
     }
     setPdfFile(file);
     setPdfLabel(file.name);
-    setPdfAction('replace');
-    e.target.value = '';
+    setPdfAction("replace");
+    e.target.value = "";
   }, []);
 
   // ── Submit ───────────────────────────────────────────────────────────────
@@ -624,7 +624,7 @@ const ProductEditModal = ({
           name: data.cat_primary_name?.trim(),
           slug:
             data.cat_primary_slug?.trim() ||
-            data.cat_primary_name?.toLowerCase().replace(/\s+/g, '-'),
+            data.cat_primary_name?.toLowerCase().replace(/\s+/g, "-"),
         },
         ...(data.cat_secondary_name?.trim() && {
           secondary: {
@@ -643,7 +643,7 @@ const ProductEditModal = ({
       visibility: data.visibility,
       pricing: {
         currency: data.currency,
-        base_price: data.price_is_tba ? 'TBA' : Number(data.base_price) || 0,
+        base_price: data.price_is_tba ? "TBA" : Number(data.base_price) || 0,
         sale_price: data.sale_price ? Number(data.sale_price) : null,
         cost_price: data.cost_price ? Number(data.cost_price) : null,
         is_on_sale: data.is_on_sale,
@@ -671,7 +671,7 @@ const ProductEditModal = ({
       },
       attributes: {
         material: data.material?.trim(),
-        weight_grams: data.weight_grams ? Number(data.weight_grams) : '',
+        weight_grams: data.weight_grams ? Number(data.weight_grams) : "",
       },
       shipping: {
         is_shippable: data.is_shippable,
@@ -746,41 +746,41 @@ const ProductEditModal = ({
       },
     };
 
-    fd.append('_data', JSON.stringify(payload));
+    fd.append("_data", JSON.stringify(payload));
 
     // ==========================================================================
     // FILE APPENDING (মাল্টার কনফিগারেশন ম্যাচিং)
     // ==========================================================================
 
     // ১. থাম্বনেইল ফাইল
-    if (thumbFile && thumbAction === 'replace') {
-      fd.append('thumbnail', thumbFile);
+    if (thumbFile && thumbAction === "replace") {
+      fd.append("thumbnail", thumbFile);
     }
 
     // ২. গ্যালারি ইমেজেস (ফিল্ডের নাম 'images')
     imageSlots
-      .filter((s) => s.action === 'replace' && s.replacementFile)
-      .forEach((s) => fd.append('images', s.replacementFile));
+      .filter((s) => s.action === "replace" && s.replacementFile)
+      .forEach((s) => fd.append("images", s.replacementFile));
 
     // নতুন মাল্টিপল ইমেজ যুক্ত করা
     newImages.forEach((e) => {
-      if (e.file) fd.append('images', e.file);
+      if (e.file) fd.append("images", e.file);
     });
 
     // ৩. ডকুমেন্ট/পিডিএফ ফাইল (ফিল্ডের নাম 'documents')
-    if (pdfFile && pdfAction === 'replace') {
-      fd.append('documents', pdfFile);
+    if (pdfFile && pdfAction === "replace") {
+      fd.append("documents", pdfFile);
     }
 
     onSave(fd);
   };
 
-  const priceIsTba = watch('price_is_tba');
-  const isOnSale = watch('is_on_sale');
-  const hasWarranty = watch('has_warranty');
-  const isReturnable = watch('is_returnable');
-  const isShippable = watch('is_shippable');
-  const isTaxable = watch('is_taxable');
+  const priceIsTba = watch("price_is_tba");
+  const isOnSale = watch("is_on_sale");
+  const hasWarranty = watch("has_warranty");
+  const isReturnable = watch("is_returnable");
+  const isShippable = watch("is_shippable");
+  const isTaxable = watch("is_taxable");
 
   const tabHasError = useMemo(
     () => ({
@@ -798,8 +798,8 @@ const ProductEditModal = ({
     [errors],
   );
 
-  const border = dark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)';
-  const surface = dark ? '#141414' : '#f9f9f9';
+  const border = dark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.09)";
+  const surface = dark ? "#141414" : "#f9f9f9";
 
   return (
     <AnimatePresence>
@@ -812,8 +812,8 @@ const ProductEditModal = ({
           exit="exit"
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{
-            background: dark ? 'rgba(0,0,0,0.78)' : 'rgba(0,0,0,0.35)',
-            backdropFilter: 'blur(8px)',
+            background: dark ? "rgba(0,0,0,0.78)" : "rgba(0,0,0,0.35)",
+            backdropFilter: "blur(8px)",
           }}
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
@@ -825,14 +825,14 @@ const ProductEditModal = ({
             exit="exit"
             className="relative flex flex-col w-full max-w-2xl"
             style={{
-              maxHeight: 'calc(100dvh - 32px)',
+              maxHeight: "calc(100dvh - 32px)",
               borderRadius: 14,
               border: `1px solid ${border}`,
               boxShadow: dark
-                ? '0 32px 80px rgba(0,0,0,0.78), 0 2px 0 rgba(255,255,255,0.04) inset'
-                : '0 24px 64px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.9) inset',
+                ? "0 32px 80px rgba(0,0,0,0.78), 0 2px 0 rgba(255,255,255,0.04) inset"
+                : "0 24px 64px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.9) inset",
               background: surface,
-              overflow: 'hidden',
+              overflow: "hidden",
             }}
           >
             {/* ══ Header ══════════════════════════════════════════════════ */}
@@ -841,22 +841,22 @@ const ProductEditModal = ({
               style={{
                 borderBottom: `1px solid ${border}`,
                 background: dark
-                  ? 'rgba(255,255,255,0.02)'
-                  : 'rgba(255,255,255,0.8)',
+                  ? "rgba(255,255,255,0.02)"
+                  : "rgba(255,255,255,0.8)",
               }}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`p-2 rounded-lg ${dark ? 'bg-white/7' : 'bg-black/6'}`}
+                  className={`p-2 rounded-lg ${dark ? "bg-white/7" : "bg-black/6"}`}
                 >
                   <Package
                     size={16}
-                    className={dark ? 'text-white/60' : 'text-black/50'}
+                    className={dark ? "text-white/60" : "text-black/50"}
                   />
                 </div>
                 <div>
                   <h2
-                    className={`text-[15px] font-semibold leading-none ${dark ? 'text-white/90' : 'text-[#111]'}`}
+                    className={`text-[15px] font-semibold leading-none ${dark ? "text-white/90" : "text-[#111]"}`}
                   >
                     Edit Product
                   </h2>
@@ -869,7 +869,7 @@ const ProductEditModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className={`p-2 rounded-lg transition-colors ${dark ? 'hover:bg-white/8 text-white/35' : 'hover:bg-black/7 text-black/35'}`}
+                className={`p-2 rounded-lg transition-colors ${dark ? "hover:bg-white/8 text-white/35" : "hover:bg-black/7 text-black/35"}`}
               >
                 <X size={16} strokeWidth={2.2} />
               </button>
@@ -880,7 +880,7 @@ const ProductEditModal = ({
               className="flex items-center gap-0.5 px-4 py-2 flex-shrink-0 overflow-x-auto scrollbar-hide"
               style={{
                 borderBottom: `1px solid ${border}`,
-                background: dark ? 'rgba(0,0,0,0.18)' : 'rgba(0,0,0,0.02)',
+                background: dark ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.02)",
               }}
             >
               {TABS.map((tab) => (
@@ -889,15 +889,15 @@ const ProductEditModal = ({
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   className={[
-                    'relative px-3 py-1.5 rounded-md text-[12px] font-medium transition-all duration-150 whitespace-nowrap flex-shrink-0',
+                    "relative px-3 py-1.5 rounded-md text-[12px] font-medium transition-all duration-150 whitespace-nowrap flex-shrink-0",
                     activeTab === tab
                       ? dark
-                        ? 'bg-white/10 text-white'
-                        : 'bg-black/8 text-black'
+                        ? "bg-white/10 text-white"
+                        : "bg-black/8 text-black"
                       : dark
-                        ? 'text-white/38 hover:text-white/60 hover:bg-white/5'
-                        : 'text-black/38 hover:text-black/60 hover:bg-black/5',
-                  ].join(' ')}
+                        ? "text-white/38 hover:text-white/60 hover:bg-white/5"
+                        : "text-black/38 hover:text-black/60 hover:bg-black/5",
+                  ].join(" ")}
                 >
                   {tab}
                   {tabHasError[tab] && (
@@ -916,7 +916,7 @@ const ProductEditModal = ({
               >
                 <div className="px-6 py-6">
                   {/* ─────────── TAB: Basic ─────────────────────────────── */}
-                  {activeTab === 'Basic' && (
+                  {activeTab === "Basic" && (
                     <div className="space-y-8">
                       <section>
                         <SectionHeader
@@ -930,10 +930,10 @@ const ProductEditModal = ({
                               Product Name
                             </FL>
                             <input
-                              {...register('name', {
-                                required: 'Name is required',
+                              {...register("name", {
+                                required: "Name is required",
                                 validate: (v) =>
-                                  v?.trim() !== '' || 'Cannot be blank',
+                                  v?.trim() !== "" || "Cannot be blank",
                               })}
                               placeholder="Product name…"
                               className={cls.input(dark, !!errors.name)}
@@ -946,8 +946,8 @@ const ProductEditModal = ({
                                 Brand / Author
                               </FL>
                               <input
-                                {...register('brand', {
-                                  required: 'Brand is required',
+                                {...register("brand", {
+                                  required: "Brand is required",
                                 })}
                                 placeholder="Brand or author name…"
                                 className={cls.input(dark, !!errors.brand)}
@@ -957,7 +957,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Model / Edition</FL>
                               <input
-                                {...register('model')}
+                                {...register("model")}
                                 placeholder="e.g. 2025, v2, fx-991CW…"
                                 className={cls.input(dark)}
                               />
@@ -965,7 +965,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>SL NO</FL>
                               <input
-                                {...register('sl_no')}
+                                {...register("sl_no")}
                                 placeholder="e.g. SL NO"
                                 className={cls.input(dark)}
                               />
@@ -974,7 +974,7 @@ const ProductEditModal = ({
                               <FL dark={dark}>Product Type</FL>
                               <Sel dark={dark}>
                                 <select
-                                  {...register('product_type')}
+                                  {...register("product_type")}
                                   className={cls.select(dark)}
                                 >
                                   <option value="physical">Physical</option>
@@ -987,7 +987,7 @@ const ProductEditModal = ({
                               <FL dark={dark}>Condition</FL>
                               <Sel dark={dark}>
                                 <select
-                                  {...register('condition')}
+                                  {...register("condition")}
                                   className={cls.select(dark)}
                                 >
                                   <option value="new">New</option>
@@ -1002,7 +1002,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Short Description</FL>
                             <input
-                              {...register('short_description')}
+                              {...register("short_description")}
                               placeholder="One-line summary…"
                               className={cls.input(dark)}
                             />
@@ -1010,7 +1010,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Full Description</FL>
                             <textarea
-                              {...register('long_description')}
+                              {...register("long_description")}
                               rows={5}
                               placeholder="Detailed product description… (supports markdown)"
                               className={cls.textarea(dark)}
@@ -1030,7 +1030,7 @@ const ProductEditModal = ({
                             <FL dark={dark}>Status</FL>
                             <Sel dark={dark}>
                               <select
-                                {...register('status')}
+                                {...register("status")}
                                 className={cls.select(dark)}
                               >
                                 <option value="active">Active</option>
@@ -1044,7 +1044,7 @@ const ProductEditModal = ({
                             <FL dark={dark}>Visibility</FL>
                             <Sel dark={dark}>
                               <select
-                                {...register('visibility')}
+                                {...register("visibility")}
                                 className={cls.select(dark)}
                               >
                                 <option value="public">Public</option>
@@ -1066,7 +1066,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Tags</FL>
                             <input
-                              {...register('tags')}
+                              {...register("tags")}
                               placeholder="tag1, tag2, tag3…"
                               className={cls.input(dark)}
                             />
@@ -1075,7 +1075,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Keywords</FL>
                             <input
-                              {...register('keywords')}
+                              {...register("keywords")}
                               placeholder="keyword1, keyword2…"
                               className={cls.input(dark)}
                             />
@@ -1094,7 +1094,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Material</FL>
                             <input
-                              {...register('material')}
+                              {...register("material")}
                               placeholder="e.g. Plastic, Metal…"
                               className={cls.input(dark)}
                             />
@@ -1105,7 +1105,7 @@ const ProductEditModal = ({
                               type="number"
                               min="0"
                               step="0.1"
-                              {...register('weight_grams')}
+                              {...register("weight_grams")}
                               placeholder="e.g. 150"
                               className={`${cls.input(dark)} tabular-nums`}
                             />
@@ -1116,7 +1116,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Category ──────────────────────────── */}
-                  {activeTab === 'Category' && (
+                  {activeTab === "Category" && (
                     <section>
                       <SectionHeader
                         icon={Layers}
@@ -1126,7 +1126,7 @@ const ProductEditModal = ({
                       <div className="space-y-5">
                         <div>
                           <p
-                            className={`text-[12px] font-semibold mb-3 ${dark ? 'text-white/40' : 'text-black/40'}`}
+                            className={`text-[12px] font-semibold mb-3 ${dark ? "text-white/40" : "text-black/40"}`}
                           >
                             Primary
                           </p>
@@ -1134,7 +1134,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Category Name</FL>
                               <input
-                                {...register('cat_primary_name')}
+                                {...register("cat_primary_name")}
                                 placeholder="e.g. Electronics…"
                                 className={cls.input(dark)}
                               />
@@ -1142,7 +1142,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Slug</FL>
                               <input
-                                {...register('cat_primary_slug')}
+                                {...register("cat_primary_slug")}
                                 placeholder="auto-generated if blank"
                                 className={cls.input(dark)}
                               />
@@ -1151,7 +1151,7 @@ const ProductEditModal = ({
                         </div>
                         <div>
                           <p
-                            className={`text-[12px] font-semibold mb-3 ${dark ? 'text-white/40' : 'text-black/40'}`}
+                            className={`text-[12px] font-semibold mb-3 ${dark ? "text-white/40" : "text-black/40"}`}
                           >
                             Secondary (optional)
                           </p>
@@ -1159,7 +1159,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Category Name</FL>
                               <input
-                                {...register('cat_secondary_name')}
+                                {...register("cat_secondary_name")}
                                 placeholder="Sub-category…"
                                 className={cls.input(dark)}
                               />
@@ -1167,7 +1167,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Slug</FL>
                               <input
-                                {...register('cat_secondary_slug')}
+                                {...register("cat_secondary_slug")}
                                 placeholder="auto-generated if blank"
                                 className={cls.input(dark)}
                               />
@@ -1176,7 +1176,7 @@ const ProductEditModal = ({
                         </div>
                         <div>
                           <p
-                            className={`text-[12px] font-semibold mb-3 ${dark ? 'text-white/40' : 'text-black/40'}`}
+                            className={`text-[12px] font-semibold mb-3 ${dark ? "text-white/40" : "text-black/40"}`}
                           >
                             Tertiary (optional)
                           </p>
@@ -1184,7 +1184,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Category Name</FL>
                               <input
-                                {...register('cat_tertiary_name')}
+                                {...register("cat_tertiary_name")}
                                 placeholder="Sub-sub-category…"
                                 className={cls.input(dark)}
                               />
@@ -1192,7 +1192,7 @@ const ProductEditModal = ({
                             <div>
                               <FL dark={dark}>Slug</FL>
                               <input
-                                {...register('cat_tertiary_slug')}
+                                {...register("cat_tertiary_slug")}
                                 placeholder="auto-generated if blank"
                                 className={cls.input(dark)}
                               />
@@ -1208,7 +1208,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Pricing ───────────────────────────── */}
-                  {activeTab === 'Pricing' && (
+                  {activeTab === "Pricing" && (
                     <div className="space-y-8">
                       <section>
                         <SectionHeader
@@ -1222,7 +1222,7 @@ const ProductEditModal = ({
                               <FL dark={dark}>Currency</FL>
                               <Sel dark={dark}>
                                 <select
-                                  {...register('currency')}
+                                  {...register("currency")}
                                   className={cls.select(dark)}
                                 >
                                   <option value="BDT">
@@ -1259,8 +1259,8 @@ const ProductEditModal = ({
                             <div
                               className="flex items-center justify-center py-4 rounded-xl text-[14px] font-bold tracking-[0.3em] opacity-40"
                               style={{
-                                border: `1px dashed ${dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}`,
-                                color: dark ? '#fff' : '#111',
+                                border: `1px dashed ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)"}`,
+                                color: dark ? "#fff" : "#111",
                               }}
                             >
                               TBA
@@ -1275,10 +1275,10 @@ const ProductEditModal = ({
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  {...register('base_price', {
+                                  {...register("base_price", {
                                     required:
-                                      !priceIsTba && 'Base price is required',
-                                    min: { value: 0, message: 'Must be ≥ 0' },
+                                      !priceIsTba && "Base price is required",
+                                    min: { value: 0, message: "Must be ≥ 0" },
                                   })}
                                   placeholder="0.00"
                                   className={`${cls.input(dark, !!errors.base_price)} tabular-nums`}
@@ -1291,12 +1291,12 @@ const ProductEditModal = ({
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  {...register('sale_price', {
+                                  {...register("sale_price", {
                                     validate: (v) => {
-                                      if (!v || v === '') return true;
-                                      const base = Number(watch('base_price'));
+                                      if (!v || v === "") return true;
+                                      const base = Number(watch("base_price"));
                                       if (Number(v) >= base)
-                                        return 'Must be less than base price';
+                                        return "Must be less than base price";
                                       return true;
                                     },
                                   })}
@@ -1311,7 +1311,7 @@ const ProductEditModal = ({
                                   type="number"
                                   step="0.01"
                                   min="0"
-                                  {...register('cost_price')}
+                                  {...register("cost_price")}
                                   placeholder="Internal cost…"
                                   className={`${cls.input(dark)} tabular-nums`}
                                 />
@@ -1343,7 +1343,7 @@ const ProductEditModal = ({
                                     <FL dark={dark}>Discount Type</FL>
                                     <Sel dark={dark}>
                                       <select
-                                        {...register('discount_type')}
+                                        {...register("discount_type")}
                                         className={cls.select(dark)}
                                       >
                                         <option value="fixed">
@@ -1361,23 +1361,23 @@ const ProductEditModal = ({
                                       type="number"
                                       step="0.01"
                                       min="0"
-                                      {...register('discount_value', {
+                                      {...register("discount_value", {
                                         validate: (v) => {
-                                          if (!v || v === '') return true;
+                                          if (!v || v === "") return true;
                                           const base = Number(
-                                            watch('base_price'),
+                                            watch("base_price"),
                                           );
-                                          const type = watch('discount_type');
+                                          const type = watch("discount_type");
                                           if (
-                                            type === 'fixed' &&
+                                            type === "fixed" &&
                                             Number(v) >= base
                                           )
-                                            return 'Discount must be less than base price';
+                                            return "Discount must be less than base price";
                                           if (
-                                            type === 'percentage' &&
+                                            type === "percentage" &&
                                             Number(v) > 100
                                           )
-                                            return 'Percentage cannot exceed 100%';
+                                            return "Percentage cannot exceed 100%";
                                           return true;
                                         },
                                       })}
@@ -1423,7 +1423,7 @@ const ProductEditModal = ({
                                 <FL dark={dark}>Tax Class</FL>
                                 <Sel dark={dark}>
                                   <select
-                                    {...register('tax_class')}
+                                    {...register("tax_class")}
                                     className={cls.select(dark)}
                                   >
                                     <option value="standard">Standard</option>
@@ -1439,7 +1439,7 @@ const ProductEditModal = ({
                                   step="0.01"
                                   min="0"
                                   max="100"
-                                  {...register('tax_rate_percent')}
+                                  {...register("tax_rate_percent")}
                                   placeholder="0"
                                   className={`${cls.input(dark)} tabular-nums`}
                                 />
@@ -1460,10 +1460,10 @@ const ProductEditModal = ({
                             type="button"
                             onClick={() =>
                               bulkAppend({
-                                min_qty: '',
-                                max_qty: '',
-                                price: '',
-                                discount_percent: '',
+                                min_qty: "",
+                                max_qty: "",
+                                price: "",
+                                discount_percent: "",
                               })
                             }
                             className={cls.ghost(dark)}
@@ -1481,9 +1481,9 @@ const ProductEditModal = ({
                             {bulkFields.map((field, idx) => (
                               <div
                                 key={field.id}
-                                className={`grid gap-2 p-3 rounded-xl border ${dark ? 'border-white/8 bg-white/2' : 'border-black/8 bg-black/2'}`}
+                                className={`grid gap-2 p-3 rounded-xl border ${dark ? "border-white/8 bg-white/2" : "border-black/8 bg-black/2"}`}
                                 style={{
-                                  gridTemplateColumns: '1fr 1fr 1fr 1fr auto',
+                                  gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
                                 }}
                               >
                                 <div>
@@ -1549,7 +1549,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Inventory ─────────────────────────── */}
-                  {activeTab === 'Inventory' && (
+                  {activeTab === "Inventory" && (
                     <section>
                       <SectionHeader
                         icon={Package}
@@ -1580,9 +1580,9 @@ const ProductEditModal = ({
                             <input
                               type="number"
                               min="0"
-                              {...register('quantity', {
-                                required: 'Quantity is required',
-                                min: { value: 0, message: 'Must be ≥ 0' },
+                              {...register("quantity", {
+                                required: "Quantity is required",
+                                min: { value: 0, message: "Must be ≥ 0" },
                               })}
                               placeholder="0"
                               className={`${cls.input(dark, !!errors.quantity)} tabular-nums`}
@@ -1594,7 +1594,7 @@ const ProductEditModal = ({
                             <input
                               type="number"
                               min="0"
-                              {...register('low_stock_threshold')}
+                              {...register("low_stock_threshold")}
                               placeholder="5"
                               className={`${cls.input(dark)} tabular-nums`}
                             />
@@ -1623,7 +1623,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Shipping ──────────────────────────── */}
-                  {activeTab === 'Shipping' && (
+                  {activeTab === "Shipping" && (
                     <section>
                       <SectionHeader
                         icon={Truck}
@@ -1668,7 +1668,7 @@ const ProductEditModal = ({
                           <>
                             <div>
                               <p
-                                className={`text-[12px] font-semibold mb-3 ${dark ? 'text-white/40' : 'text-black/40'}`}
+                                className={`text-[12px] font-semibold mb-3 ${dark ? "text-white/40" : "text-black/40"}`}
                               >
                                 Weight
                               </p>
@@ -1679,7 +1679,7 @@ const ProductEditModal = ({
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    {...register('ship_weight_value')}
+                                    {...register("ship_weight_value")}
                                     placeholder="0"
                                     className={`${cls.input(dark)} tabular-nums`}
                                   />
@@ -1688,7 +1688,7 @@ const ProductEditModal = ({
                                   <FL dark={dark}>Unit</FL>
                                   <Sel dark={dark}>
                                     <select
-                                      {...register('ship_weight_unit')}
+                                      {...register("ship_weight_unit")}
                                       className={cls.select(dark)}
                                     >
                                       <option value="g">g</option>
@@ -1703,7 +1703,7 @@ const ProductEditModal = ({
 
                             <div>
                               <p
-                                className={`text-[12px] font-semibold mb-3 ${dark ? 'text-white/40' : 'text-black/40'}`}
+                                className={`text-[12px] font-semibold mb-3 ${dark ? "text-white/40" : "text-black/40"}`}
                               >
                                 Dimensions
                               </p>
@@ -1714,7 +1714,7 @@ const ProductEditModal = ({
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    {...register('ship_length')}
+                                    {...register("ship_length")}
                                     placeholder="0"
                                     className={`${cls.input(dark)} tabular-nums`}
                                   />
@@ -1725,7 +1725,7 @@ const ProductEditModal = ({
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    {...register('ship_width')}
+                                    {...register("ship_width")}
                                     placeholder="0"
                                     className={`${cls.input(dark)} tabular-nums`}
                                   />
@@ -1736,7 +1736,7 @@ const ProductEditModal = ({
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    {...register('ship_height')}
+                                    {...register("ship_height")}
                                     placeholder="0"
                                     className={`${cls.input(dark)} tabular-nums`}
                                   />
@@ -1745,7 +1745,7 @@ const ProductEditModal = ({
                                   <FL dark={dark}>Unit</FL>
                                   <Sel dark={dark}>
                                     <select
-                                      {...register('ship_dim_unit')}
+                                      {...register("ship_dim_unit")}
                                       className={cls.select(dark)}
                                     >
                                       <option value="cm">cm</option>
@@ -1762,7 +1762,7 @@ const ProductEditModal = ({
                                 <FL dark={dark}>Shipping Class</FL>
                                 <Sel dark={dark}>
                                   <select
-                                    {...register('shipping_class')}
+                                    {...register("shipping_class")}
                                     className={cls.select(dark)}
                                   >
                                     <option value="standard">Standard</option>
@@ -1778,7 +1778,7 @@ const ProductEditModal = ({
                               <div>
                                 <FL dark={dark}>Country of Origin</FL>
                                 <input
-                                  {...register('country_of_origin')}
+                                  {...register("country_of_origin")}
                                   placeholder="e.g. China / Thailand…"
                                   className={cls.input(dark)}
                                 />
@@ -1786,7 +1786,7 @@ const ProductEditModal = ({
                               <div>
                                 <FL dark={dark}>HS Tariff Code</FL>
                                 <input
-                                  {...register('hs_tariff_code')}
+                                  {...register("hs_tariff_code")}
                                   placeholder="e.g. 8470.10.00"
                                   className={cls.input(dark)}
                                 />
@@ -1832,7 +1832,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Warranty ──────────────────────────── */}
-                  {activeTab === 'Warranty' && (
+                  {activeTab === "Warranty" && (
                     <div className="space-y-8">
                       <section>
                         <SectionHeader
@@ -1863,7 +1863,7 @@ const ProductEditModal = ({
                                 <input
                                   type="number"
                                   min="0"
-                                  {...register('warranty_duration_months')}
+                                  {...register("warranty_duration_months")}
                                   placeholder="e.g. 12"
                                   className={`${cls.input(dark)} tabular-nums`}
                                 />
@@ -1871,7 +1871,7 @@ const ProductEditModal = ({
                               <div>
                                 <FL dark={dark}>Warranty Type</FL>
                                 <input
-                                  {...register('warranty_type')}
+                                  {...register("warranty_type")}
                                   placeholder="e.g. Manufacturer, Limited…"
                                   className={cls.input(dark)}
                                 />
@@ -1879,7 +1879,7 @@ const ProductEditModal = ({
                               <div className="md:col-span-2">
                                 <FL dark={dark}>Warranty Description</FL>
                                 <textarea
-                                  {...register('warranty_description')}
+                                  {...register("warranty_description")}
                                   rows={3}
                                   placeholder="Warranty terms and conditions…"
                                   className={cls.textarea(dark)}
@@ -1919,7 +1919,7 @@ const ProductEditModal = ({
                                 <input
                                   type="number"
                                   min="0"
-                                  {...register('return_window_days')}
+                                  {...register("return_window_days")}
                                   placeholder="e.g. 7"
                                   className={`${cls.input(dark)} tabular-nums`}
                                 />
@@ -1931,7 +1931,7 @@ const ProductEditModal = ({
                                   step="0.01"
                                   min="0"
                                   max="100"
-                                  {...register('restocking_fee_percent')}
+                                  {...register("restocking_fee_percent")}
                                   placeholder="0"
                                   className={`${cls.input(dark)} tabular-nums`}
                                 />
@@ -1939,7 +1939,7 @@ const ProductEditModal = ({
                               <div className="md:col-span-2">
                                 <FL dark={dark}>Return Condition</FL>
                                 <input
-                                  {...register('return_condition')}
+                                  {...register("return_condition")}
                                   placeholder="e.g. Unopened, original packaging…"
                                   className={cls.input(dark)}
                                 />
@@ -1952,7 +1952,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Media ─────────────────────────────── */}
-                  {activeTab === 'Media' && (
+                  {activeTab === "Media" && (
                     <div className="space-y-8">
                       {/* Thumbnail */}
                       <section>
@@ -1966,17 +1966,17 @@ const ProductEditModal = ({
                           style={{
                             border: `1px solid ${border}`,
                             background: dark
-                              ? 'rgba(255,255,255,0.02)'
-                              : 'rgba(0,0,0,0.02)',
+                              ? "rgba(255,255,255,0.02)"
+                              : "rgba(0,0,0,0.02)",
                           }}
                         >
                           <div
                             className="flex-shrink-0 w-20 overflow-hidden h-28 rounded-xl"
                             style={{
-                              border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}`,
+                              border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
                             }}
                           >
-                            {thumbPreview && thumbAction !== 'remove' ? (
+                            {thumbPreview && thumbAction !== "remove" ? (
                               <img
                                 src={thumbPreview}
                                 alt="Thumbnail"
@@ -1984,12 +1984,12 @@ const ProductEditModal = ({
                               />
                             ) : (
                               <div
-                                className={`flex items-center justify-center w-full h-full ${dark ? 'bg-white/5' : 'bg-black/5'}`}
+                                className={`flex items-center justify-center w-full h-full ${dark ? "bg-white/5" : "bg-black/5"}`}
                               >
                                 <ImageIcon
                                   size={20}
                                   className={
-                                    dark ? 'text-white/20' : 'text-black/20'
+                                    dark ? "text-white/20" : "text-black/20"
                                   }
                                 />
                               </div>
@@ -1997,8 +1997,8 @@ const ProductEditModal = ({
                           </div>
                           <div className="space-y-2">
                             <label className={cls.ghost(dark)}>
-                              <RefreshCw size={12} />{' '}
-                              {thumbFile ? 'Change Cover' : 'Replace Cover'}
+                              <RefreshCw size={12} />{" "}
+                              {thumbFile ? "Change Cover" : "Replace Cover"}
                               <input
                                 type="file"
                                 accept="image/*"
@@ -2006,7 +2006,7 @@ const ProductEditModal = ({
                                 onChange={handleThumbChange}
                               />
                             </label>
-                            {thumbAction !== 'remove' ? (
+                            {thumbAction !== "remove" ? (
                               <button
                                 type="button"
                                 onClick={handleThumbRemove}
@@ -2056,16 +2056,16 @@ const ProductEditModal = ({
                             className="flex flex-col items-center justify-center gap-2 py-10 border-2 border-dashed rounded-xl"
                             style={{
                               borderColor: dark
-                                ? 'rgba(255,255,255,0.09)'
-                                : 'rgba(0,0,0,0.09)',
+                                ? "rgba(255,255,255,0.09)"
+                                : "rgba(0,0,0,0.09)",
                             }}
                           >
                             <ImageIcon
                               size={22}
-                              className={`opacity-30 ${dark ? 'text-white' : 'text-black'}`}
+                              className={`opacity-30 ${dark ? "text-white" : "text-black"}`}
                             />
                             <p
-                              className={`text-[12.5px] ${dark ? 'text-white/28' : 'text-black/28'}`}
+                              className={`text-[12.5px] ${dark ? "text-white/28" : "text-black/28"}`}
                             >
                               No gallery images
                             </p>
@@ -2085,7 +2085,7 @@ const ProductEditModal = ({
                         ) : (
                           <>
                             <p
-                              className={`text-[11px] mb-3 ${dark ? 'text-white/28' : 'text-black/32'}`}
+                              className={`text-[11px] mb-3 ${dark ? "text-white/28" : "text-black/32"}`}
                             >
                               Hover an image to Replace or Remove it.
                             </p>
@@ -2102,7 +2102,7 @@ const ProductEditModal = ({
                               {newImages.map((entry, idx) => (
                                 <div
                                   key={`new-${idx}`}
-                                  className={`relative group rounded-xl overflow-hidden border ${dark ? 'border-indigo-500/30' : 'border-indigo-300'}`}
+                                  className={`relative group rounded-xl overflow-hidden border ${dark ? "border-indigo-500/30" : "border-indigo-300"}`}
                                 >
                                   <div className="relative aspect-square">
                                     <img
@@ -2140,31 +2140,31 @@ const ProductEditModal = ({
                           style={{
                             border: `1px solid ${border}`,
                             background: dark
-                              ? 'rgba(255,255,255,0.02)'
-                              : 'rgba(0,0,0,0.02)',
+                              ? "rgba(255,255,255,0.02)"
+                              : "rgba(0,0,0,0.02)",
                           }}
                         >
                           <div
                             className="p-2.5 rounded-lg flex-shrink-0"
                             style={{
                               background: dark
-                                ? 'rgba(239,68,68,0.1)'
-                                : 'rgba(220,38,38,0.07)',
+                                ? "rgba(239,68,68,0.1)"
+                                : "rgba(220,38,38,0.07)",
                             }}
                           >
                             <FileText
                               size={18}
                               style={{
                                 color: dark
-                                  ? 'rgba(252,165,165,0.8)'
-                                  : 'rgba(185,28,28,0.7)',
+                                  ? "rgba(252,165,165,0.8)"
+                                  : "rgba(185,28,28,0.7)",
                               }}
                             />
                           </div>
                           <div className="flex-1 min-w-0">
                             {pdfLabel && (
                               <p
-                                className={`mb-1.5 text-[12.5px] truncate ${dark ? 'text-white/52' : 'text-black/50'}`}
+                                className={`mb-1.5 text-[12.5px] truncate ${dark ? "text-white/52" : "text-black/50"}`}
                               >
                                 {pdfLabel}
                               </p>
@@ -2174,10 +2174,10 @@ const ProductEditModal = ({
                             >
                               <FileText size={12} />
                               {pdfFile
-                                ? 'Change PDF'
+                                ? "Change PDF"
                                 : pdfLabel
-                                  ? 'Replace PDF'
-                                  : 'Upload PDF'}
+                                  ? "Replace PDF"
+                                  : "Upload PDF"}
                               <input
                                 type="file"
                                 accept="application/pdf"
@@ -2195,7 +2195,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Vendor ────────────────────────────── */}
-                  {activeTab === 'Vendor' && (
+                  {activeTab === "Vendor" && (
                     <section>
                       <SectionHeader
                         icon={Store}
@@ -2206,7 +2206,7 @@ const ProductEditModal = ({
                         <div>
                           <FL dark={dark}>Vendor ID</FL>
                           <input
-                            {...register('vendor_id')}
+                            {...register("vendor_id")}
                             placeholder="Internal vendor ID…"
                             className={cls.input(dark)}
                           />
@@ -2214,7 +2214,7 @@ const ProductEditModal = ({
                         <div>
                           <FL dark={dark}>Vendor Name</FL>
                           <input
-                            {...register('vendor_name')}
+                            {...register("vendor_name")}
                             placeholder="Vendor or supplier name…"
                             className={cls.input(dark)}
                           />
@@ -2222,7 +2222,7 @@ const ProductEditModal = ({
                         <div>
                           <FL dark={dark}>Vendor SKU</FL>
                           <input
-                            {...register('vendor_sku')}
+                            {...register("vendor_sku")}
                             placeholder="Vendor's own SKU…"
                             className={cls.input(dark)}
                           />
@@ -2234,7 +2234,7 @@ const ProductEditModal = ({
                             step="0.01"
                             min="0"
                             max="100"
-                            {...register('commission_percent')}
+                            {...register("commission_percent")}
                             placeholder="0"
                             className={`${cls.input(dark)} tabular-nums`}
                           />
@@ -2244,7 +2244,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: SEO ───────────────────────────────── */}
-                  {activeTab === 'SEO' && (
+                  {activeTab === "SEO" && (
                     <section>
                       <SectionHeader
                         icon={Globe}
@@ -2255,7 +2255,7 @@ const ProductEditModal = ({
                         <div>
                           <FL dark={dark}>Meta Title</FL>
                           <input
-                            {...register('meta_title')}
+                            {...register("meta_title")}
                             placeholder="SEO title (defaults to product name)…"
                             className={cls.input(dark)}
                           />
@@ -2263,7 +2263,7 @@ const ProductEditModal = ({
                         <div>
                           <FL dark={dark}>Meta Description</FL>
                           <textarea
-                            {...register('meta_description')}
+                            {...register("meta_description")}
                             rows={4}
                             placeholder="Short description for search engines (120–160 chars)…"
                             className={cls.textarea(dark)}
@@ -2278,7 +2278,7 @@ const ProductEditModal = ({
                   )}
 
                   {/* ─────────── TAB: Advanced ──────────────────────────── */}
-                  {activeTab === 'Advanced' && (
+                  {activeTab === "Advanced" && (
                     <div className="space-y-8">
                       <section>
                         <SectionHeader
@@ -2333,7 +2333,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Upsells</FL>
                             <input
-                              {...register('upsells')}
+                              {...register("upsells")}
                               placeholder="product-id-1, product-id-2…"
                               className={cls.input(dark)}
                             />
@@ -2341,7 +2341,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Cross-sells</FL>
                             <input
-                              {...register('cross_sells')}
+                              {...register("cross_sells")}
                               placeholder="product-id-1, product-id-2…"
                               className={cls.input(dark)}
                             />
@@ -2349,7 +2349,7 @@ const ProductEditModal = ({
                           <div>
                             <FL dark={dark}>Frequently Bought Together</FL>
                             <input
-                              {...register('frequently_bought_together')}
+                              {...register("frequently_bought_together")}
                               placeholder="product-id-1, product-id-2…"
                               className={cls.input(dark)}
                             />
@@ -2364,66 +2364,66 @@ const ProductEditModal = ({
                           dark={dark}
                         />
                         <div
-                          className={`flex flex-wrap gap-3 p-4 rounded-xl ${dark ? 'bg-white/3' : 'bg-black/3'}`}
+                          className={`flex flex-wrap gap-3 p-4 rounded-xl ${dark ? "bg-white/3" : "bg-black/3"}`}
                         >
                           {[
                             {
-                              label: 'Avg Rating',
+                              label: "Avg Rating",
                               value:
                                 book?.ratings_and_reviews?.average_rating ?? 0,
                             },
                             {
-                              label: 'Total Reviews',
+                              label: "Total Reviews",
                               value:
                                 book?.ratings_and_reviews?.total_reviews ?? 0,
                             },
                             {
-                              label: '5★',
+                              label: "5★",
                               value:
                                 book?.ratings_and_reviews?.rating_breakdown?.[
-                                  '5_star'
+                                  "5_star"
                                 ] ?? 0,
                             },
                             {
-                              label: '4★',
+                              label: "4★",
                               value:
                                 book?.ratings_and_reviews?.rating_breakdown?.[
-                                  '4_star'
+                                  "4_star"
                                 ] ?? 0,
                             },
                             {
-                              label: '3★',
+                              label: "3★",
                               value:
                                 book?.ratings_and_reviews?.rating_breakdown?.[
-                                  '3_star'
+                                  "3_star"
                                 ] ?? 0,
                             },
                             {
-                              label: '2★',
+                              label: "2★",
                               value:
                                 book?.ratings_and_reviews?.rating_breakdown?.[
-                                  '2_star'
+                                  "2_star"
                                 ] ?? 0,
                             },
                             {
-                              label: '1★',
+                              label: "1★",
                               value:
                                 book?.ratings_and_reviews?.rating_breakdown?.[
-                                  '1_star'
+                                  "1_star"
                                 ] ?? 0,
                             },
                           ].map(({ label, value }) => (
                             <div
                               key={label}
-                              className={`px-3 py-2 rounded-lg text-center ${dark ? 'bg-white/5' : 'bg-black/5'}`}
+                              className={`px-3 py-2 rounded-lg text-center ${dark ? "bg-white/5" : "bg-black/5"}`}
                             >
                               <p
-                                className={`text-[10.5px] ${dark ? 'text-white/35' : 'text-black/35'}`}
+                                className={`text-[10.5px] ${dark ? "text-white/35" : "text-black/35"}`}
                               >
                                 {label}
                               </p>
                               <p
-                                className={`text-[15px] font-semibold tabular-nums ${dark ? 'text-white/80' : 'text-black/80'}`}
+                                className={`text-[15px] font-semibold tabular-nums ${dark ? "text-white/80" : "text-black/80"}`}
                               >
                                 {value}
                               </p>
@@ -2443,8 +2443,8 @@ const ProductEditModal = ({
               style={{
                 borderTop: `1px solid ${border}`,
                 background: dark
-                  ? 'rgba(255,255,255,0.015)'
-                  : 'rgba(255,255,255,0.8)',
+                  ? "rgba(255,255,255,0.015)"
+                  : "rgba(255,255,255,0.8)",
               }}
             >
               <div className="flex items-center gap-1 mr-auto">
@@ -2454,7 +2454,7 @@ const ProductEditModal = ({
                     onClick={() =>
                       setActiveTab(TABS[TABS.indexOf(activeTab) - 1])
                     }
-                    className={`px-3 py-1.5 rounded-lg text-[12px] border transition-all ${dark ? 'border-white/8 text-white/35 hover:bg-white/5' : 'border-black/8 text-black/35 hover:bg-black/5'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[12px] border transition-all ${dark ? "border-white/8 text-white/35 hover:bg-white/5" : "border-black/8 text-black/35 hover:bg-black/5"}`}
                   >
                     ← {TABS[TABS.indexOf(activeTab) - 1]}
                   </button>
@@ -2465,7 +2465,7 @@ const ProductEditModal = ({
                     onClick={() =>
                       setActiveTab(TABS[TABS.indexOf(activeTab) + 1])
                     }
-                    className={`px-3 py-1.5 rounded-lg text-[12px] border transition-all ${dark ? 'border-white/8 text-white/35 hover:bg-white/5' : 'border-black/8 text-black/35 hover:bg-black/5'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[12px] border transition-all ${dark ? "border-white/8 text-white/35 hover:bg-white/5" : "border-black/8 text-black/35 hover:bg-black/5"}`}
                   >
                     {TABS[TABS.indexOf(activeTab) + 1]} →
                   </button>
@@ -2475,7 +2475,7 @@ const ProductEditModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className={`px-4 py-2 rounded-lg text-[13px] border transition-all ${dark ? 'border-white/10 text-white/52 hover:bg-white/6 hover:text-white/75' : 'border-black/10 text-black/48 hover:bg-black/5 hover:text-black/68'}`}
+                className={`px-4 py-2 rounded-lg text-[13px] border transition-all ${dark ? "border-white/10 text-white/52 hover:bg-white/6 hover:text-white/75" : "border-black/10 text-black/48 hover:bg-black/5 hover:text-black/68"}`}
               >
                 Cancel
               </button>
@@ -2487,10 +2487,10 @@ const ProductEditModal = ({
                 className="flex items-center gap-2 px-5 py-2 rounded-lg text-[13px] font-semibold text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background:
-                    'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                    "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
                   boxShadow: isUpdating
-                    ? 'none'
-                    : '0 1px 2px rgba(99,102,241,0.5), 0 0 0 1px rgba(99,102,241,0.22)',
+                    ? "none"
+                    : "0 1px 2px rgba(99,102,241,0.5), 0 0 0 1px rgba(99,102,241,0.22)",
                 }}
               >
                 {isUpdating ? (
@@ -2498,7 +2498,7 @@ const ProductEditModal = ({
                 ) : (
                   <Save size={14} />
                 )}
-                {isUpdating ? 'Saving…' : 'Save Changes'}
+                {isUpdating ? "Saving…" : "Save Changes"}
               </button>
             </div>
           </motion.div>

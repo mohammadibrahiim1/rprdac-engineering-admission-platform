@@ -1,11 +1,11 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const resultApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     postResult: builder.mutation({
       query: (data) => ({
-        url: 'admin/result/upload-result',
-        method: 'POST',
+        url: "admin/result/upload-result",
+        method: "POST",
         body: data,
       }),
     }),
@@ -19,7 +19,7 @@ const resultApi = baseApi.injectEndpoints({
     deleteResult: builder.mutation({
       query: (id) => ({
         url: `admin/result/delete/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }), // Adjust the URL path as necessary
     }),
   }),

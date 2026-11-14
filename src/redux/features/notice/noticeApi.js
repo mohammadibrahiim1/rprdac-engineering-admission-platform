@@ -1,11 +1,11 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const noticeApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     postNotice: builder.mutation({
       query: (data) => ({
-        url: 'notice/create',
-        method: 'POST',
+        url: "notice/create",
+        method: "POST",
         body: data,
       }),
     }),
@@ -25,7 +25,7 @@ const noticeApi = baseApi.injectEndpoints({
     updateNotice: builder.mutation({
       query: ({ id, ...data }) => ({
         url: `notice/update/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
     }),
@@ -33,7 +33,7 @@ const noticeApi = baseApi.injectEndpoints({
     deleteNotice: builder.mutation({
       query: (id) => ({
         url: `notice/delete/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }), // Adjust the URL path as necessary
     }),
   }),

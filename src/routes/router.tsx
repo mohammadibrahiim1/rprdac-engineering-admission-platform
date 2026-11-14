@@ -11,6 +11,13 @@ import { Welcome } from "@/components/common/Welcome";
 import { Dashboard } from "@/components/common/Dashboard";
 import { ControlPanelRoutes } from "./controlPanelRoutes";
 import { StudentPanelRoutes } from "./studentPanelRoutes";
+import { teacherPanelRoutes } from "./teacherPanelRoutes";
+import { EmployeePanelRoutes } from "./EmployeePanelRoutes";
+import { NursingPanelRoutes } from "./NursingPanelRoutes";
+import { OrderPanelRoutes } from "./OrderPanelRoutes";
+import { AdminUserCoreRoutes } from "./AdminUserCoreRoutes";
+import { ExamCenterPanelRoutes } from "./ExamCenterPanelRoutes";
+import NotFound from "@/components/common/NotFound";
 
 const DASHBOARD_PATH = "/dashboard";
 
@@ -52,15 +59,39 @@ export const router = createBrowserRouter([
             path: "exam",
             children: examRoutes,
           },
+          {
+            path: "exam-center",
+            children: ExamCenterPanelRoutes,
+          },
 
           {
             path: "control",
             children: ControlPanelRoutes,
           },
-          // {
-          //   path: "student",
-          //   children: StudentPanelRoutes,
-          // },
+          {
+            path: "student",
+            children: StudentPanelRoutes,
+          },
+          {
+            path: "teacher",
+            children: teacherPanelRoutes,
+          },
+          {
+            path: "employee",
+            children: EmployeePanelRoutes,
+          },
+          {
+            path: "nursing",
+            children: NursingPanelRoutes,
+          },
+          {
+            path: "order",
+            children: OrderPanelRoutes,
+          },
+          {
+            path: "user",
+            children: AdminUserCoreRoutes,
+          },
         ],
       },
     ],
@@ -69,6 +100,6 @@ export const router = createBrowserRouter([
   // 404
   {
     path: "*",
-    element: <div>404 Page Not Found</div>,
+    element: <NotFound />,
   },
 ]);

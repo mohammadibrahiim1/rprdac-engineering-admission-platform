@@ -1,36 +1,36 @@
-import { baseApi } from '../../../../../redux/features/baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const shippingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getShippingSettings: builder.query({
-      query: () => '/shipping',
-      providesTags: ['Shipping'],
+      query: () => "/shipping",
+      providesTags: ["Shipping"],
     }),
     updateShippingSettings: builder.mutation({
       query: (body) => ({
-        url: '/shipping/update',
-        method: 'PATCH',
+        url: "/shipping/update",
+        method: "PATCH",
         body,
       }),
-      invalidatesTags: ['Shipping'],
+      invalidatesTags: ["Shipping"],
     }),
 
     createShipping: builder.mutation({
       query: (body) => ({
-        url: '/shipping/create',
-        method: 'POST',
+        url: "/shipping/create",
+        method: "POST",
         body,
       }),
-      invalidatesTags: ['Shipping'],
+      invalidatesTags: ["Shipping"],
     }),
 
     deleteShipping: builder.mutation({
       query: (body) => ({
-        url: '/shipping/delete',
-        method: 'DELETE',
+        url: "/shipping/delete",
+        method: "DELETE",
         body,
       }),
-      invalidatesTags: ['Shipping'],
+      invalidatesTags: ["Shipping"],
     }),
   }),
 });

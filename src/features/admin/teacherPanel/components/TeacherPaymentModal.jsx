@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useTeacherPaymentAndGenerateInvoiceMutation } from '../../../../../redux/features/teacher/teacherApi';
+import { useTeacherPaymentAndGenerateInvoiceMutation } from "@/redux/features/teacher/teacherApi";
+import { useState, useEffect } from "react";
 
 export default function TeacherPaymentModal({
   open,
@@ -66,15 +66,15 @@ export default function TeacherPaymentModal({
       const res = await teacherPayment(payload).unwrap();
 
       if (res) {
-        const blob = new Blob([res], { type: 'application/pdf' });
+        const blob = new Blob([res], { type: "application/pdf" });
         const url = window.URL.createObjectURL(blob);
         window.open(url);
 
-        alert('Payment completed successfully');
+        alert("Payment completed successfully");
         onClose();
       }
     } catch (err) {
-      alert(err?.data?.message || 'Payment failed');
+      alert(err?.data?.message || "Payment failed");
     }
   };
 
@@ -82,9 +82,9 @@ export default function TeacherPaymentModal({
   // Helper
   // -------------------------
   const formatCurrency = (value) =>
-    Number(value || 0).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'BDT',
+    Number(value || 0).toLocaleString("en-US", {
+      style: "currency",
+      currency: "BDT",
       minimumFractionDigits: 2,
     });
 
@@ -194,7 +194,7 @@ export default function TeacherPaymentModal({
             onClick={handleSubmit}
             className="px-5 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
           >
-            {isLoading ? 'Processing...' : 'Pay Now'}
+            {isLoading ? "Processing..." : "Pay Now"}
           </button>
         </div>
       </div>

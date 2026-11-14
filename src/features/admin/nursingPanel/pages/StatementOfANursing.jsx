@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGetSingleNurseAttendancesQuery } from '../../../../../redux/features/Nursing/NursingApi';
-import toast from 'react-hot-toast';
-import 'react-datepicker/dist/react-datepicker.css';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+
+import { toast } from "sonner";
+
+import "react-datepicker/dist/react-datepicker.css";
+
 import {
   FileText,
   Loader2,
@@ -23,16 +25,18 @@ import {
   ChevronUp,
   Zap,
   SearchX,
-} from 'lucide-react';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import UpdateNursingPopover from '../../../../../components/Popover/UpdateNursingPopover';
-import NursingFilterSidebar from '../components/NursingFilterSidebar';
-import { format } from 'date-fns';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import { formatTimeAMPM } from '../../../../../constants/timeFormat';
-import { formatDutyTime } from '../../../../../constants/formateDutyTime';
+} from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import NursingFilterSidebar from "../components/NursingFilterSidebar";
+import { format } from "date-fns";
+
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { useGetSingleNurseAttendancesQuery } from "@/redux/features/Nursing/NursingApi";
+import UpdateNursingPopover from "@/components/common/UpdateNursingPopover";
+import { formatTimeAMPM } from "@/constants/timeFormat";
+import { formatDutyTime } from "@/constants/formateDutyTime";
+import { formatDateDMY } from "@/constants/dateFormat";
 
 const StatementOfANursing = () => {
   const { id } = useParams();
@@ -45,13 +49,13 @@ const StatementOfANursing = () => {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: '',
-    startDate: '',
-    endDate: '',
-    month: '',
-    year: '',
-    status: '',
-    paymentStatus: '',
+    search: "",
+    startDate: "",
+    endDate: "",
+    month: "",
+    year: "",
+    status: "",
+    paymentStatus: "",
   });
 
   const { data, isLoading, isError, error, refetch } =
@@ -94,70 +98,70 @@ const StatementOfANursing = () => {
 
   // Format total seconds to readable string
   const formatTime = (totalSeconds) => {
-    if (!totalSeconds || isNaN(totalSeconds)) return 'N/A';
+    if (!totalSeconds || isNaN(totalSeconds)) return "N/A";
 
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = Math.floor(totalSeconds % 60);
 
     return [
-      hours > 0 ? `${hours}h` : '',
-      minutes > 0 ? `${minutes}m` : '',
-      seconds > 0 ? `${seconds}s` : '',
+      hours > 0 ? `${hours}h` : "",
+      minutes > 0 ? `${minutes}m` : "",
+      seconds > 0 ? `${seconds}s` : "",
     ]
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
   };
 
   // Format date
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   // Format time to AM/PM
   const formatToAmPm = (timeStr) => {
-    if (!timeStr || !timeStr.includes(':')) return 'N/A';
-    const [hourStr, minuteStr] = timeStr.split(':');
+    if (!timeStr || !timeStr.includes(":")) return "N/A";
+    const [hourStr, minuteStr] = timeStr.split(":");
     let hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const ampm = hour >= 12 ? "PM" : "AM";
     hour = hour % 12 || 12;
-    return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
   // Options for filters
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'All Status' },
-      { value: 'pending', label: 'Pending' },
-      { value: 'approve', label: 'Approved' },
+      { value: "", label: "All Status" },
+      { value: "pending", label: "Pending" },
+      { value: "approve", label: "Approved" },
     ],
     [],
   );
 
   const paymentStatusOptions = useMemo(
     () => [
-      { value: '', label: 'All Payments' },
-      { value: 'paid', label: 'Paid' },
-      { value: 'unpaid', label: 'Unpaid' },
+      { value: "", label: "All Payments" },
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
     ],
     [],
   );
 
   const monthOptions = useMemo(
     () => [
-      { value: '', label: 'All Months' },
+      { value: "", label: "All Months" },
       ...Array.from({ length: 12 }, (_, i) => {
         const date = new Date(0, i);
         return {
-          value: format(date, 'MMMM'),
-          label: format(date, 'MMMM'),
+          value: format(date, "MMMM"),
+          label: format(date, "MMMM"),
         };
       }),
     ],
@@ -167,7 +171,7 @@ const StatementOfANursing = () => {
   const yearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return [
-      { value: '', label: 'All Years' },
+      { value: "", label: "All Years" },
       ...Array.from({ length: 5 }, (_, i) => ({
         value: (currentYear - i).toString(),
         label: (currentYear - i).toString(),
@@ -179,13 +183,13 @@ const StatementOfANursing = () => {
     setFilters({
       page: 1,
       limit: 10,
-      search: '',
-      startDate: '',
-      endDate: '',
-      month: '',
-      year: '',
-      status: '',
-      paymentStatus: '',
+      search: "",
+      startDate: "",
+      endDate: "",
+      month: "",
+      year: "",
+      status: "",
+      paymentStatus: "",
     });
   };
 
@@ -195,42 +199,42 @@ const StatementOfANursing = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const primaryFont = 'times';
+      const primaryFont = "times";
       let cursorY = margin + 20;
 
       const capitalize = (str) =>
         str
           ?.toLowerCase()
-          .split(' ')
+          .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ') || 'N/A';
+          .join(" ") || "N/A";
 
       /* ---------------- HEADER ---------------- */
 
       const drawHeader = () => {
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(16);
 
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
         doc.setFontSize(9);
 
         doc.text(
-          'M.A. Samad Villa In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com',
+          "M.A. Samad Villa In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setLineWidth(0.5);
@@ -243,7 +247,7 @@ const StatementOfANursing = () => {
 
       const drawFooter = (pageNo, totalPages) => {
         doc.setFontSize(8);
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
 
         doc.text(
           `Generated: ${new Date().toLocaleString()}`,
@@ -256,7 +260,7 @@ const StatementOfANursing = () => {
           pageWidth - margin,
           pageHeight - 6,
           {
-            align: 'right',
+            align: "right",
           },
         );
       };
@@ -269,8 +273,8 @@ const StatementOfANursing = () => {
         doc.line(pageWidth - 70, signY, pageWidth - 20, signY);
 
         doc.setFontSize(10);
-        doc.text('Authorized Signature', pageWidth - 45, signY + 5, {
-          align: 'center',
+        doc.text("Authorized Signature", pageWidth - 45, signY + 5, {
+          align: "center",
         });
 
         cursorY = signY + 15;
@@ -301,8 +305,8 @@ const StatementOfANursing = () => {
       });
 
       const monthKeys = Object.keys(dutiesByMonth).sort((a, b) => {
-        const [monthA, yearA] = a.split(', ');
-        const [monthB, yearB] = b.split(', ');
+        const [monthA, yearA] = a.split(", ");
+        const [monthB, yearB] = b.split(", ");
 
         return (
           new Date(`${monthA} 1 ${yearA}`) - new Date(`${monthB} 1 ${yearB}`)
@@ -314,27 +318,27 @@ const StatementOfANursing = () => {
       /* ---------------- USER INFO ---------------- */
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
 
-      doc.text('Nursing Duty Statement', pageWidth / 2, cursorY + 5, {
-        align: 'center',
+      doc.text("Nursing Duty Statement", pageWidth / 2, cursorY + 5, {
+        align: "center",
       });
 
       cursorY += 15;
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'normal');
+      doc.setFont(primaryFont, "normal");
 
       doc.text(`Name: ${capitalize(user?.userName)}`, margin, cursorY);
 
-      doc.text(`Phone: ${user?.phone || 'N/A'}`, pageWidth - margin, cursorY, {
-        align: 'right',
+      doc.text(`Phone: ${user?.phone || "N/A"}`, pageWidth - margin, cursorY, {
+        align: "right",
       });
 
       cursorY += 6;
 
       doc.text(
-        `Period: ${filters.startDate || 'All'} to ${filters.endDate || 'All'}`,
+        `Period: ${filters.startDate || "All"} to ${filters.endDate || "All"}`,
         margin,
         cursorY,
       );
@@ -344,7 +348,7 @@ const StatementOfANursing = () => {
         pageWidth - margin,
         cursorY,
         {
-          align: 'right',
+          align: "right",
         },
       );
 
@@ -363,7 +367,7 @@ const StatementOfANursing = () => {
         const duties = dutiesByMonth[monthKey] || [];
         const loans = loansByMonth[monthKey] || [];
 
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(10);
 
         doc.text(monthKey, margin, cursorY);
@@ -377,21 +381,21 @@ const StatementOfANursing = () => {
 
             totalDutyAmount += amount;
 
-            if (d.paymentStatus?.toLowerCase() === 'paid') totalPaid += amount;
+            if (d.paymentStatus?.toLowerCase() === "paid") totalPaid += amount;
             else totalDue += amount;
 
             return [
-              formatDate(d.date) || 'N/A',
+              formatDate(d.date) || "N/A",
               capitalize(d.employeeName),
               capitalize(d.messName),
               `${formatTimeAMPM(d.dutyStartTime)} - ${formatTimeAMPM(d.dutyEndTime)}`,
-              formatDutyTime(d.totalDutyTime) || 'N/A',
-              amount.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'BDT',
+              formatDutyTime(d.totalDutyTime) || "N/A",
+              amount.toLocaleString("en-US", {
+                style: "currency",
+                currency: "BDT",
               }),
               capitalize(d.status),
-              capitalize(d.paymentStatus || 'N/A'),
+              capitalize(d.paymentStatus || "N/A"),
             ];
           });
 
@@ -400,27 +404,27 @@ const StatementOfANursing = () => {
 
             head: [
               [
-                'Date',
-                'Name',
-                'Work/Mess',
-                'Duty Start-End Time',
-                'Duration',
-                'Amount',
-                'Status',
-                'Payment Status',
+                "Date",
+                "Name",
+                "Work/Mess",
+                "Duty Start-End Time",
+                "Duration",
+                "Amount",
+                "Status",
+                "Payment Status",
               ],
             ],
 
             body,
 
-            theme: 'grid',
+            theme: "grid",
 
-            showHead: 'firstPage',
+            showHead: "firstPage",
 
             headStyles: {
               fillColor: [240, 240, 240],
               textColor: 0,
-              fontStyle: 'bold',
+              fontStyle: "bold",
               lineWidth: 0.1,
             },
 
@@ -447,29 +451,29 @@ const StatementOfANursing = () => {
             totalLoan += amount;
 
             return [
-              l?.date?.slice(0, 10) || 'N/A',
+              l?.date?.slice(0, 10) || "N/A",
               capitalize(l?.userDetails?.userName),
               `${amount.toFixed(2)} BDT`,
               capitalize(l?.status),
-              capitalize(l?.isPaid === true ? 'Paid' : 'Unpaid' || 'N/A'),
+              capitalize(l?.isPaid === true ? "Paid" : "Unpaid" || "N/A"),
             ];
           });
 
           autoTable(doc, {
             startY: cursorY,
 
-            head: [['Date', 'Name', 'Loan Amount', 'Status', 'Payment Status']],
+            head: [["Date", "Name", "Loan Amount", "Status", "Payment Status"]],
 
             body,
 
-            theme: 'grid',
+            theme: "grid",
 
-            showHead: 'firstPage',
+            showHead: "firstPage",
 
             headStyles: {
               fillColor: [240, 240, 240],
               textColor: 0,
-              fontStyle: 'bold',
+              fontStyle: "bold",
               lineWidth: 0.1,
             },
 
@@ -508,14 +512,14 @@ const StatementOfANursing = () => {
             ],
           ],
 
-          theme: 'grid',
+          theme: "grid",
 
-          showHead: 'firstPage',
+          showHead: "firstPage",
 
           headStyles: {
             fillColor: [240, 240, 240],
             textColor: 0,
-            fontStyle: 'bold',
+            fontStyle: "bold",
             lineWidth: 0.1,
           },
 
@@ -538,15 +542,15 @@ const StatementOfANursing = () => {
       const dueAfterLoan = totalDue - totalLoan;
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
 
-      doc.text('Summary', margin, cursorY);
+      doc.text("Summary", margin, cursorY);
       cursorY += 4;
 
       autoTable(doc, {
         startY: cursorY,
 
-        head: [['Total Amount', 'Paid', 'Due', 'Total Loan', 'Due After Loan']],
+        head: [["Total Amount", "Paid", "Due", "Total Loan", "Due After Loan"]],
 
         body: [
           [
@@ -558,12 +562,12 @@ const StatementOfANursing = () => {
           ],
         ],
 
-        theme: 'grid',
+        theme: "grid",
 
         headStyles: {
           fillColor: [240, 240, 240],
           textColor: 0,
-          fontStyle: 'bold',
+          fontStyle: "bold",
           lineWidth: 0.1,
         },
 
@@ -591,12 +595,12 @@ const StatementOfANursing = () => {
         drawFooter(i, totalPages);
       }
 
-      doc.save(`statement_of_${user?.userName || 'user'}.pdf`);
+      doc.save(`statement_of_${user?.userName || "user"}.pdf`);
 
       setIsGeneratingPDF(false);
-      toast.success('PDF generated successfully!');
+      toast.success("PDF generated successfully!");
     } catch (err) {
-      toast.error('Failed to generate PDF.');
+      toast.error("Failed to generate PDF.");
       setIsGeneratingPDF(false);
     }
   };
@@ -931,18 +935,18 @@ const StatementOfANursing = () => {
   // };
 
   const monthColors = {
-    January: 'bg-blue-100 text-blue-800 border-blue-200',
-    February: 'bg-pink-100 text-pink-800 border-pink-200',
-    March: 'bg-green-100 text-green-800 border-green-200',
-    April: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    May: 'bg-teal-100 text-teal-800 border-teal-200',
-    June: 'bg-red-100 text-red-800 border-red-200',
-    July: 'bg-purple-100 text-purple-800 border-purple-200',
-    August: 'bg-orange-100 text-orange-800 border-orange-200',
-    September: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    October: 'bg-amber-100 text-amber-800 border-amber-200',
-    November: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    December: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+    January: "bg-blue-100 text-blue-800 border-blue-200",
+    February: "bg-pink-100 text-pink-800 border-pink-200",
+    March: "bg-green-100 text-green-800 border-green-200",
+    April: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    May: "bg-teal-100 text-teal-800 border-teal-200",
+    June: "bg-red-100 text-red-800 border-red-200",
+    July: "bg-purple-100 text-purple-800 border-purple-200",
+    August: "bg-orange-100 text-orange-800 border-orange-200",
+    September: "bg-indigo-100 text-indigo-800 border-indigo-200",
+    October: "bg-amber-100 text-amber-800 border-amber-200",
+    November: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    December: "bg-cyan-100 text-cyan-800 border-cyan-200",
   };
 
   const monthOrder = {
@@ -978,7 +982,7 @@ const StatementOfANursing = () => {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: 'easeOut',
+        ease: "easeOut",
       },
     },
   };
@@ -1000,7 +1004,7 @@ const StatementOfANursing = () => {
           Error Loading Data
         </h3>
         <p className="mb-5 text-red-600">
-          {error?.data?.message || 'Failed to load nursing records'}
+          {error?.data?.message || "Failed to load nursing records"}
         </p>
         <button
           className="px-6 py-2 font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
@@ -1035,7 +1039,7 @@ const StatementOfANursing = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -1111,9 +1115,9 @@ const StatementOfANursing = () => {
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border`}
               >
                 Total Amount (
-                {grandTotal.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {grandTotal.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
                 )
               </button>
@@ -1121,9 +1125,9 @@ const StatementOfANursing = () => {
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border`}
               >
                 Loan Amount (
-                {loan?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {loan?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
                 )
               </button>
@@ -1131,9 +1135,9 @@ const StatementOfANursing = () => {
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border`}
               >
                 Paid Amount (
-                {paid?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {paid?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
                 )
               </button>
@@ -1141,9 +1145,9 @@ const StatementOfANursing = () => {
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border`}
               >
                 Net Payable (
-                {payableTotal?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {payableTotal?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
                 )
               </button>
@@ -1213,7 +1217,7 @@ const StatementOfANursing = () => {
                             {expandedYears?.has(statement.year) && (
                               <motion.tr
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
+                                animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                               >
                                 <td colSpan={6} className="p-0">
@@ -1247,41 +1251,41 @@ const StatementOfANursing = () => {
                                                   <ChevronDown className="w-4 h-4" />
                                                 )}
                                                 <span
-                                                  className={`px-3 py-1 rounded-full text-xs font-medium ${monthColors[month.month] || 'bg-gray-100 text-gray-800'}`}
+                                                  className={`px-3 py-1 rounded-full text-xs font-medium ${monthColors[month.month] || "bg-gray-100 text-gray-800"}`}
                                                 >
                                                   {month.month}
                                                 </span>
                                               </div>
                                               <div className="flex items-center gap-4 text-[12px]">
                                                 <span>
-                                                  Duties:{' '}
+                                                  Duties:{" "}
                                                   {month.monthSummary
                                                     ?.totalAttendances || 0}
                                                 </span>
                                                 <span>
-                                                  Loans:{' '}
+                                                  Loans:{" "}
                                                   {month.monthSummary
                                                     ?.totalLoanRequest || 0}
                                                 </span>
                                                 <span className="font-semibold">
-                                                  Total :{' '}
+                                                  Total :{" "}
                                                   {(
                                                     month.monthSummary
                                                       ?.totalApprovedAmount || 0
-                                                  ).toLocaleString('en-US', {
-                                                    style: 'currency',
-                                                    currency: 'BDT',
+                                                  ).toLocaleString("en-US", {
+                                                    style: "currency",
+                                                    currency: "BDT",
                                                   })}
                                                 </span>
                                                 <span className="font-semibold">
-                                                  Loan :{' '}
+                                                  Loan :{" "}
                                                   {(
                                                     month.monthSummary
                                                       ?.totalApprovedLoanAmount ||
                                                     0
-                                                  ).toLocaleString('en-US', {
-                                                    style: 'currency',
-                                                    currency: 'BDT',
+                                                  ).toLocaleString("en-US", {
+                                                    style: "currency",
+                                                    currency: "BDT",
                                                   })}
                                                 </span>
                                               </div>
@@ -1299,7 +1303,7 @@ const StatementOfANursing = () => {
                                                   }}
                                                   animate={{
                                                     opacity: 1,
-                                                    height: 'auto',
+                                                    height: "auto",
                                                   }}
                                                   exit={{
                                                     opacity: 0,
@@ -1369,7 +1373,7 @@ const StatementOfANursing = () => {
                                                                     {formatTimeAMPM(
                                                                       duty.dutyStartTime,
                                                                     )}
-                                                                    -{' '}
+                                                                    -{" "}
                                                                     {formatTimeAMPM(
                                                                       duty.dutyEndTime,
                                                                     )}
@@ -1392,9 +1396,9 @@ const StatementOfANursing = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded-full capitalize text-xs font-medium ${
                                                                         duty.status ===
-                                                                        'approve'
-                                                                          ? 'bg-green-100 text-green-800'
-                                                                          : 'bg-yellow-100 text-yellow-800'
+                                                                        "approve"
+                                                                          ? "bg-green-100 text-green-800"
+                                                                          : "bg-yellow-100 text-yellow-800"
                                                                       }`}
                                                                     >
                                                                       {
@@ -1406,13 +1410,13 @@ const StatementOfANursing = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
                                                                         duty.paymentStatus ===
-                                                                        'paid'
-                                                                          ? 'bg-blue-100 text-blue-800'
-                                                                          : 'bg-red-100 text-red-800'
+                                                                        "paid"
+                                                                          ? "bg-blue-100 text-blue-800"
+                                                                          : "bg-red-100 text-red-800"
                                                                       }`}
                                                                     >
                                                                       {duty.paymentStatus ||
-                                                                        'unpaid'}
+                                                                        "unpaid"}
                                                                     </span>
                                                                   </td>
                                                                 </tr>
@@ -1480,9 +1484,9 @@ const StatementOfANursing = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                         loan.status ===
-                                                                        'approve'
-                                                                          ? 'bg-green-100 text-green-800'
-                                                                          : 'bg-yellow-100 text-yellow-800'
+                                                                        "approve"
+                                                                          ? "bg-green-100 text-green-800"
+                                                                          : "bg-yellow-100 text-yellow-800"
                                                                       }`}
                                                                     >
                                                                       {
@@ -1494,13 +1498,13 @@ const StatementOfANursing = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                         loan.isPaid
-                                                                          ? 'bg-blue-100 text-blue-800'
-                                                                          : 'bg-red-100 text-red-800'
+                                                                          ? "bg-blue-100 text-blue-800"
+                                                                          : "bg-red-100 text-red-800"
                                                                       }`}
                                                                     >
                                                                       {loan.isPaid
-                                                                        ? 'Paid'
-                                                                        : 'Unpaid'}
+                                                                        ? "Paid"
+                                                                        : "Unpaid"}
                                                                     </span>
                                                                   </td>
                                                                 </tr>

@@ -1,54 +1,53 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useFetchEmployeeDutiesQuery } from '../../../../redux/features/staff/employeeApi';
-import { useGetSingleNurseAttendancesQuery } from '../../../../redux/features/Nursing/NursingApi';
-import { useGetTeacherFinancialStatementQuery } from '../../../../redux/features/teacher/teacherApi';
-import { LayoutGrid, Banknote, Info } from 'lucide-react';
-import BreadCrumbMenu from '../../../../components/BreadCrumbMenu';
-import TeacherFilterSidebar from '../../admin/teacherPanel/components/TeacherFilterSidebar';
+import { useState, useMemo, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { LayoutGrid, Banknote, Info } from "lucide-react";
+import TeacherFilterSidebar from "../../admin/teacherPanel/components/TeacherFilterSidebar";
+import { useFetchEmployeeDutiesQuery } from "@/redux/features/staff/employeeApi";
+import { useGetSingleNurseAttendancesQuery } from "@/redux/features/Nursing/NursingApi";
+import { useGetTeacherFinancialStatementQuery } from "@/redux/features/teacher/teacherApi";
 
 const TeacherAllLoanRequest = () => {
   const auth = useSelector((state) => state?.auth?.user);
   const [filters, setFilters] = useState({
-    search: '',
-    year: '',
-    month: '',
+    search: "",
+    year: "",
+    month: "",
     batch: [],
-    status: '',
-    paymentStatus: '',
-    department: '',
-    subject: '',
-    startDate: '',
-    endDate: '',
+    status: "",
+    paymentStatus: "",
+    department: "",
+    subject: "",
+    startDate: "",
+    endDate: "",
   });
 
   // API Hooks
   const { data: nursingData, isLoading: isNursingLoading } =
     useGetSingleNurseAttendancesQuery(
       { nursingId: auth?._id },
-      { skip: auth?.userType !== 'nursing' },
+      { skip: auth?.userType !== "nursing" },
     );
   const { data: staffData, isLoading: isStaffLoading } =
     useFetchEmployeeDutiesQuery(
       { employeeId: auth?._id },
-      { skip: auth?.userType !== 'staff' },
+      { skip: auth?.userType !== "staff" },
     );
   const { data: teacherData, isLoading: isTeacherLoading } =
     useGetTeacherFinancialStatementQuery(
       { teacherId: auth?._id, ...filters },
-      { skip: auth?.userType !== 'teacher' },
+      { skip: auth?.userType !== "teacher" },
     );
 
   const isLoading = isNursingLoading || isStaffLoading || isTeacherLoading;
 
   const getRoleData = useCallback(() => {
     switch (auth?.userType) {
-      case 'teacher':
+      case "teacher":
         return teacherData?.statements || [];
-      case 'staff':
+      case "staff":
         return staffData?.statements || [];
-      case 'nursing':
+      case "nursing":
         return nursingData?.statements || [];
       default:
         return [];
@@ -70,8 +69,8 @@ const TeacherAllLoanRequest = () => {
 
   const stats = {
     total: filteredLoans?.length,
-    approved: filteredLoans?.filter((l) => l.status === 'approve').length,
-    pending: filteredLoans?.filter((l) => l.status === 'pending').length,
+    approved: filteredLoans?.filter((l) => l.status === "approve").length,
+    pending: filteredLoans?.filter((l) => l.status === "pending").length,
     amount: filteredLoans?.reduce((sum, l) => sum + (l.amount || 0), 0),
   };
 
@@ -98,7 +97,7 @@ const TeacherAllLoanRequest = () => {
             <td className="px-2 py-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium capitalize">
-                  {loan?.userDetails?.userName || 'Member'}
+                  {loan?.userDetails?.userName || "Member"}
                 </span>
                 <span className="text-[11px] text-[#9B9A97]">
                   • {loan.createdAt?.slice(0, 10)}
@@ -107,9 +106,9 @@ const TeacherAllLoanRequest = () => {
             </td>
             <td className="px-2 py-3">
               <span className="text-sm font-semibold">
-                {loan?.amount?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {loan?.amount?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
               </span>
             </td>
@@ -129,13 +128,6 @@ const TeacherAllLoanRequest = () => {
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#37352F]">
-      {/* Top Navigation */}
-      <nav className="sticky top-0 z-30 flex h-12 items-center justify-between border-b border-[#EDECE9] bg-white/80 px-4 backdrop-blur-md">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <BreadCrumbMenu />
-        </div>
-      </nav>
-
       <main className="px-4">
         {/* Notion Style Header */}
         <header className="my-10 space-y-2">
@@ -193,7 +185,7 @@ const TeacherAllLoanRequest = () => {
           />
           <MinimalStat
             label="Total Amount"
-            value={`${stats.amount.toLocaleString('en-US', { style: 'currency', currency: 'BDT' })}`}
+            value={`${stats.amount.toLocaleString("en-US", { style: "currency", currency: "BDT" })}`}
           />
         </section>
 
@@ -206,7 +198,7 @@ const TeacherAllLoanRequest = () => {
               </div>
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold truncate">
-                  {auth?.userName || 'User Profile'}
+                  {auth?.userName || "User Profile"}
                 </p>
                 <p className="text-[10px] text-[#787774] font-mono tracking-tighter uppercase">
                   ID: {auth?.userId}
@@ -255,7 +247,7 @@ const TeacherAllLoanRequest = () => {
 
 // --- Custom Styled Sub-Components ---
 
-const MinimalStat = ({ label, value, color = 'text-[#37352F]' }) => (
+const MinimalStat = ({ label, value, color = "text-[#37352F]" }) => (
   <div className="p-4 bg-white">
     <p className="text-[11px] font-bold uppercase tracking-wider text-[#9B9A97] mb-1">
       {label}
@@ -266,16 +258,16 @@ const MinimalStat = ({ label, value, color = 'text-[#37352F]' }) => (
 
 const NotionStatus = ({ status }) => {
   const styles = {
-    approve: 'bg-[#E2F6F0] text-[#1D8265]',
-    pending: 'bg-[#FFF4E5] text-[#B46414]',
-    rejected: 'bg-[#FFEBEB] text-[#CF3B3B]',
+    approve: "bg-[#E2F6F0] text-[#1D8265]",
+    pending: "bg-[#FFF4E5] text-[#B46414]",
+    rejected: "bg-[#FFEBEB] text-[#CF3B3B]",
   };
   return (
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded text-[12px] font-medium ${styles[status] || styles.pending}`}
     >
-      {status === 'approve'
-        ? 'Approved'
+      {status === "approve"
+        ? "Approved"
         : status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -283,9 +275,9 @@ const NotionStatus = ({ status }) => {
 
 const NotionPayment = ({ isPaid }) => (
   <span
-    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] font-medium ${isPaid ? 'bg-blue-50 text-blue-700' : 'bg-[#F1F0EF] text-[#787774]'}`}
+    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[12px] font-medium ${isPaid ? "bg-blue-50 text-blue-700" : "bg-[#F1F0EF] text-[#787774]"}`}
   >
-    {isPaid ? 'Paid' : 'Due'}
+    {isPaid ? "Paid" : "Due"}
   </span>
 );
 

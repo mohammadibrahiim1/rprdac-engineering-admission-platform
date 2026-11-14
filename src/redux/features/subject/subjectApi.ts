@@ -1,4 +1,4 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 export interface Lesson {
   _id: string;
@@ -67,82 +67,82 @@ const subjectApi = baseApi.injectEndpoints({
     // Get all subjects
     getSubjects: builder.query({
       query: (debouncedSearch) => ({
-        url: 'subject/all',
+        url: "subject/all",
         params: debouncedSearch ? { debouncedSearch } : {},
       }),
-      providesTags: ['Subjects'],
+      providesTags: ["Subjects"],
     }),
 
     // Create subject
     createSubject: builder.mutation({
       query: (subjectData) => ({
-        url: 'subject/create',
-        method: 'POST',
+        url: "subject/create",
+        method: "POST",
         body: subjectData,
       }),
-      invalidatesTags: ['Subjects'],
+      invalidatesTags: ["Subjects"],
     }),
 
     // Delete multiple subjects
     deleteSubjects: builder.mutation({
       query: (ids) => ({
         url: `/subject/delete/multiple`,
-        method: 'DELETE',
+        method: "DELETE",
         body: { ids },
       }),
-      invalidatesTags: ['Subjects'],
+      invalidatesTags: ["Subjects"],
     }),
 
     // Update subject
     updateSubject: builder.mutation({
       query: ({ id, data }) => ({
         url: `/subject/update/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ['Subjects'],
+      invalidatesTags: ["Subjects"],
     }),
 
     // Delete options
     deleteOptions: builder.mutation({
       query: ({ id, options }) => ({
         url: `/subject/${id}/options/delete`,
-        method: 'PATCH',
+        method: "PATCH",
         body: { options },
       }),
-      invalidatesTags: ['Subjects'],
+      invalidatesTags: ["Subjects"],
     }),
 
     // Update options
     updateOptions: builder.mutation({
       query: ({ id, updates }) => ({
         url: `/subject/${id}/options/update`,
-        method: 'PATCH',
+        method: "PATCH",
         body: { updates },
       }),
-      invalidatesTags: ['Subjects'],
+      invalidatesTags: ["Subjects"],
     }),
 
     // Create department / course
     createDepartment: builder.mutation({
       query: (data) => ({
         url: `/department/create`,
-        method: 'POST',
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['Department'],
+      invalidatesTags: ["Department"],
     }),
 
     // Get all departments / courses
     getDepartments: builder.query<Course[] | DepartmentsResponse, void>({
       query: () => `/department/all`,
-      providesTags: ['Department'],
+      providesTags: ["Department"],
     }),
 
     // 🚀 Get full hierarchical courses (Courses -> Subjects -> Topics -> Lessons)
     getCoursesHierarchy: builder.query<CoursesHierarchyResponse, void>({
-      query: () => '/department/courses/hierarchy',
-      providesTags: ['Subjects', 'Department'],
+      query: () => "/department/courses/hierarchy",
+      providesTags: ["Subjects", "Department"],
     }),
   }),
 });

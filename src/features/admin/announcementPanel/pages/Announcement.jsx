@@ -39,21 +39,25 @@ import {
   Paperclip,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
 
-import { useGetOnlyTeachersQuery } from "../../../../../redux/features/users/userApi";
-import { useGetBatchesQuery } from "../../../../../redux/features/batch/batchApi";
-import {
-  useGetDepartmentsQuery,
-  useGetSubjectsQuery,
-} from "../../../../../redux/features/subject/subjectApi";
-import {
-  useCreateAnnouncementMutation,
-  useDeleteAnnouncementsMutation,
-  useGetAnnouncementsQuery,
-  useUpdateAnnouncementsMutation,
-} from "../../../../../redux/features/announcement/announcementApi";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
+
+import { useCreateAnnouncementMutation } from "@/redux/features/announcement/announcementApi";
+
+import { useDeleteAnnouncementsMutation } from "@/redux/features/announcement/announcementApi";
+
+import { useUpdateAnnouncementsMutation } from "@/redux/features/announcement/announcementApi";
+
+import { useGetAnnouncementsQuery } from "@/redux/features/announcement/announcementApi";
+
+import { useGetOnlyTeachersQuery } from "../../userPanel/services/userApi";
+
+import { useGetBatchesQuery } from "@/redux/features/batch/batchApi";
+
+import { useGetSubjectsQuery } from "@/redux/features/subject/subjectApi";
+
+import { useGetDepartmentsQuery } from "@/redux/features/subject/subjectApi";
 
 /* ─────────────────────── CONSTANTS ─────────────────────── */
 
@@ -586,6 +590,7 @@ const Announcement = () => {
   const [selectedDept, setSelectedDept] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const { user } = useSelector((state) => state?.auth);
+
   const [query] = useState({
     page: 1,
     limit: 50,
@@ -766,6 +771,7 @@ const Announcement = () => {
     setFormData((p) => ({ ...p, teacher: null }));
     setTeacherSearchTerm("");
   };
+
   const clearBatchSelection = () => {
     setSelectedBatch(null);
     setFormData((p) => ({ ...p, batch: "" }));

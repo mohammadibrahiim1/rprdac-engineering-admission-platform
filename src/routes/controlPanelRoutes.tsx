@@ -1,17 +1,21 @@
 import CreateStaffAccount from "@/features/admin/accountcreationPanel/pages/CreateStaffAccount";
 import AdmissionTimelinePage from "@/features/admin/controlPanel/admission-timeline/pages/AdmissionTimelinePage";
+import AcademicManager from "@/features/admin/controlPanel/pages/AcademicManager";
 import AddResults from "@/features/admin/controlPanel/pages/AddResults";
 import BillingRateManager from "@/features/admin/controlPanel/pages/BillingRateManager";
 import FAQ from "@/features/admin/controlPanel/pages/FAQ";
 import Notice from "@/features/admin/controlPanel/pages/Notice";
 import UploadSolutionCopy from "@/features/admin/controlPanel/pages/UploadSolutionCopy";
+import SystemLockPage from "@/features/admin/controlPanel/systemLock/pages/SystemLockPage";
+import AdminCoursePage from "@/features/admin/courses/pages/AdminCoursePage";
 import CombinedMeritPortal from "@/features/meritlist/pages/CombinedMeritPortal";
 import MeritList from "@/features/meritlist/pages/MeritList";
 import MeritRegistryDashboard from "@/features/meritlist/pages/MeritRegistryDashboard";
+import ActivityLogs from "@/redux/features/admin/ActivityLogs";
 
 export const ControlPanelRoutes = [
   {
-    path: "notice",
+    path: "admin/notice",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <Notice />
@@ -19,17 +23,18 @@ export const ControlPanelRoutes = [
     ),
     handle: { title: "Institutional Notice Board" },
   },
-  // {
-  //   path: "/control/course",
-  //   element: (
-  //     <AdmissionPrivateRoute panelName="control">
-  //     <AdminCoursePage />
-  //     // </AdmissionPrivateRoute>
-  //   ),
-  //   handle: { title: "Institutional Notice Board" },
-  // },
   {
-    path: "billing",
+    path: "admin/control/course",
+    element: (
+      // <AdmissionPrivateRoute panelName="control">
+      <AdminCoursePage />
+      //{" "}
+      // </AdmissionPrivateRoute>
+    ),
+    handle: { title: "Institutional Notice Board" },
+  },
+  {
+    path: "admin/billing",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <BillingRateManager />
@@ -38,7 +43,12 @@ export const ControlPanelRoutes = [
     handle: { title: "Billing Rates Configuration" },
   },
   {
-    path: "result",
+    path: "admin/academic/control",
+    element: <AcademicManager />,
+    handle: { title: "Strategic Academic Control Center" },
+  },
+  {
+    path: "admin/result",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <AddResults />
@@ -47,7 +57,7 @@ export const ControlPanelRoutes = [
     handle: { title: "Publish Academic Results Engine" },
   },
   {
-    path: "add/gallery/image",
+    path: "admin/add/gallery/image",
     // element: (
     //   <AdmissionPrivateRoute panelName="control">
     //     <AddGalleryImage />
@@ -56,7 +66,7 @@ export const ControlPanelRoutes = [
     handle: { title: "Media Gallery Control Management" },
   },
   {
-    path: "upload/solutionCopy",
+    path: "admin/upload/solutionCopy",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <UploadSolutionCopy />
@@ -65,7 +75,7 @@ export const ControlPanelRoutes = [
     handle: { title: "Upload Solution Control Center" },
   },
   {
-    path: "faq",
+    path: "admin/faq",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <FAQ />
@@ -74,7 +84,7 @@ export const ControlPanelRoutes = [
     handle: { title: "FAQ Configuration Database" },
   },
   {
-    path: "merit-list",
+    path: "admin/merit-list",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <MeritList />
@@ -83,7 +93,7 @@ export const ControlPanelRoutes = [
     handle: { title: "Merit" },
   },
   {
-    path: "admission-timeline",
+    path: "admin/admission-timeline",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <AdmissionTimelinePage />
@@ -92,7 +102,26 @@ export const ControlPanelRoutes = [
     handle: { title: "Timeline" },
   },
   {
-    path: "combined/merit-list",
+    path: "admin/activity-logs",
+    element: (
+      //<AdmissionPrivateRoute panelName="admin">
+      <ActivityLogs />
+      //</AdmissionPrivateRoute>
+    ),
+    handle: { title: "Threat & Audit Activity Logging" },
+  },
+  {
+    path: "admin/system-locks",
+    element: (
+      //<AdmissionPrivateRoute panelName="admin">
+      <SystemLockPage />
+      //</AdmissionPrivateRoute>
+    ),
+    handle: { title: "Threat & Audit Activity Logging" },
+  },
+
+  {
+    path: "admin/combined/merit-list",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <CombinedMeritPortal />
@@ -101,7 +130,7 @@ export const ControlPanelRoutes = [
     handle: { title: "Final Merit" },
   },
   {
-    path: "all-merit-list",
+    path: "admin/all-merit-list",
     element: (
       // <AdmissionPrivateRoute panelName="control">
       <MeritRegistryDashboard />

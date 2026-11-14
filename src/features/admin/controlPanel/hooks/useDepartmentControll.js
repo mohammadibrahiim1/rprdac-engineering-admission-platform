@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   useGetDepartmentsQuery,
   useCreateDepartmentMutation,
-} from '../../../../../redux/features/subject/subjectApi';
+} from "../../../../redux/features/subject/subjectApi";
 
 export const useDepartmentControll = () => {
   const [notification, setNotification] = useState({
     show: false,
-    message: '',
-    type: '',
+    message: "",
+    type: "",
   });
 
   const {
@@ -23,25 +23,25 @@ export const useDepartmentControll = () => {
 
   const departments = departmentsData?.data || [];
 
-  const showToast = (message, type = 'info') => {
+  const showToast = (message, type = "info") => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
-      setNotification({ show: false, message: '', type: '' });
+      setNotification({ show: false, message: "", type: "" });
     }, 4000);
   };
 
   const handleCreateDepartment = async (data) => {
     if (!data.name?.trim()) {
-      showToast('Department name is required', 'error');
+      showToast("Department name is required", "error");
       return false;
     }
     try {
       const res = await createDepartment({ name: data.name.trim() }).unwrap();
-      showToast(res.message || 'Department created successfully', 'success');
+      showToast(res.message || "Department created successfully", "success");
       refetchDepartments();
       return true;
     } catch (err) {
-      showToast(err?.data?.message || 'Failed to create department', 'error');
+      showToast(err?.data?.message || "Failed to create department", "error");
       return false;
     }
   };

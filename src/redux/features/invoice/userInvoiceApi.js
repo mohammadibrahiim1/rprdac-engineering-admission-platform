@@ -1,13 +1,13 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const userInvoiceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     deleteUserInvoice: builder.mutation({
       query: (id) => ({
         url: `invoice/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Invoice'],
+      invalidatesTags: ["Invoice"],
     }),
   }),
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 import {
   useCreateSubjectMutation,
   useGetSubjectsQuery,
@@ -7,21 +7,21 @@ import {
   useDeleteOptionsMutation,
   useUpdateOptionsMutation,
   useGetDepartmentsQuery,
-} from '../../../../../redux/features/subject/subjectApi';
+} from "../../../../redux/features/subject/subjectApi";
 
 export const useSubjectControll = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [editingOption, setEditingOption] = useState(null);
-  const [editingValue, setEditingValue] = useState('');
+  const [editingValue, setEditingValue] = useState("");
   const [editingLabel, setEditingLabel] = useState(null);
-  const [editingLabelValue, setEditingLabelValue] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  const [editingLabelValue, setEditingLabelValue] = useState("");
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
   const [notification, setNotification] = useState({
     show: false,
-    message: '',
-    type: '',
+    message: "",
+    type: "",
   });
 
   // API
@@ -52,10 +52,10 @@ export const useSubjectControll = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const showToast = (message, type = 'info') => {
+  const showToast = (message, type = "info") => {
     setNotification({ show: true, message, type });
     setTimeout(() => {
-      setNotification({ show: false, message: '', type: '' });
+      setNotification({ show: false, message: "", type: "" });
     }, 4000);
   };
 
@@ -66,21 +66,21 @@ export const useSubjectControll = () => {
         label: data.label.trim(),
         departmentId: data.departmentId,
         isCommon: data.isCommon || false,
-        thumbnail: data.thumbnail?.trim() || '',
+        thumbnail: data.thumbnail?.trim() || "",
       }).unwrap();
 
-      showToast(res.message || 'Subject created successfully', 'success');
+      showToast(res.message || "Subject created successfully", "success");
       refetchSubjects();
       return true;
     } catch (err) {
-      showToast(err?.data?.message || 'Failed to create subject', 'error');
+      showToast(err?.data?.message || "Failed to create subject", "error");
       return false;
     }
   };
 
   const handleUpdateSubjectLabel = async (subjectId) => {
     if (!editingLabelValue.trim()) {
-      showToast('Label cannot be empty', 'error');
+      showToast("Label cannot be empty", "error");
       return;
     }
     try {
@@ -88,25 +88,25 @@ export const useSubjectControll = () => {
         id: subjectId,
         label: editingLabelValue.trim(),
       }).unwrap();
-      showToast(res.message || 'Subject label updated', 'success');
+      showToast(res.message || "Subject label updated", "success");
       setEditingLabel(null);
-      setEditingLabelValue('');
+      setEditingLabelValue("");
       refetchSubjects();
     } catch (err) {
-      showToast(err?.data?.message || 'Failed to update subject', 'error');
+      showToast(err?.data?.message || "Failed to update subject", "error");
     }
   };
 
   const handleDeleteSubject = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this subject?'))
+    if (!window.confirm("Are you sure you want to delete this subject?"))
       return;
     try {
       const res = await deleteSubjects([id]).unwrap();
-      showToast(res.message || 'Subject deleted successfully', 'success');
+      showToast(res.message || "Subject deleted successfully", "success");
       setSelectedSubjects((prev) => prev.filter((sid) => sid !== id));
       refetchSubjects();
     } catch (err) {
-      showToast(err?.data?.message || 'Failed to delete subject', 'error');
+      showToast(err?.data?.message || "Failed to delete subject", "error");
     }
   };
 
@@ -118,13 +118,13 @@ export const useSubjectControll = () => {
       return;
     try {
       const res = await deleteSubjects(selectedSubjects).unwrap();
-      showToast(res.message || 'Selected subjects deleted', 'success');
+      showToast(res.message || "Selected subjects deleted", "success");
       setSelectedSubjects([]);
       refetchSubjects();
     } catch (err) {
       showToast(
-        err?.data?.message || 'Failed to delete selected subjects',
-        'error',
+        err?.data?.message || "Failed to delete selected subjects",
+        "error",
       );
     }
   };
@@ -137,16 +137,16 @@ export const useSubjectControll = () => {
         id: subjectId,
         options: [option],
       }).unwrap();
-      showToast(res.message || 'Option deleted', 'success');
+      showToast(res.message || "Option deleted", "success");
       refetchSubjects();
     } catch (err) {
-      showToast(err?.data?.message || 'Failed to delete option', 'error');
+      showToast(err?.data?.message || "Failed to delete option", "error");
     }
   };
 
   const handleUpdateOption = async (subjectId) => {
     if (!editingValue.trim()) {
-      showToast('Option cannot be empty', 'error');
+      showToast("Option cannot be empty", "error");
       return;
     }
     try {
@@ -154,20 +154,20 @@ export const useSubjectControll = () => {
         id: subjectId,
         updates: [{ old: editingOption, new: editingValue.trim() }],
       }).unwrap();
-      showToast(res.message || 'Option updated', 'success');
+      showToast(res.message || "Option updated", "success");
       setEditingOption(null);
-      setEditingValue('');
+      setEditingValue("");
       refetchSubjects();
     } catch (err) {
-      showToast(err?.data?.message || 'Failed to update option', 'error');
+      showToast(err?.data?.message || "Failed to update option", "error");
     }
   };
 
   const cancelEdit = () => {
     setEditingOption(null);
-    setEditingValue('');
+    setEditingValue("");
     setEditingLabel(null);
-    setEditingLabelValue('');
+    setEditingLabelValue("");
   };
 
   // ---------- Selection ----------
@@ -188,8 +188,8 @@ export const useSubjectControll = () => {
   };
 
   const clearSearch = () => {
-    setSearchTerm('');
-    setDebouncedSearch('');
+    setSearchTerm("");
+    setDebouncedSearch("");
   };
 
   return {

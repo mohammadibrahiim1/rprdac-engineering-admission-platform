@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useMemo, useRef, useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Clock,
@@ -12,37 +12,36 @@ import {
   CheckCircle,
   Workflow,
   Wallet,
-} from 'lucide-react';
+} from "lucide-react";
 
 import {
   useFetchAllEmployeesQuery,
   usePostEmployeeAttendanceMutation,
-} from '../../../../../redux/features/staff/employeeApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import { useGetBillingRatesQuery } from '../../controlPanel/services/billingRateApi';
+} from "../../../../redux/features/staff/employeeApi";
+import { useGetBillingRatesQuery } from "../../controlPanel/services/billingRateApi";
 
 const AdminAddEmployeeDuties = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const containerRef = useRef(null);
 
   const { register, handleSubmit, watch, reset, setValue } = useForm({
     defaultValues: {
-      date: new Date().toISOString().split('T')[0],
-      workDetails: '',
-      dutyStartTime: '',
-      dutyEndTime: '',
+      date: new Date().toISOString().split("T")[0],
+      workDetails: "",
+      dutyStartTime: "",
+      dutyEndTime: "",
       hourlyRate: 0,
-      selectedRateCategory: '',
+      selectedRateCategory: "",
     },
   });
 
   // Watch fields for calculations
-  const startTime = watch('dutyStartTime');
-  const endTime = watch('dutyEndTime');
-  const currentHourlyRate = watch('hourlyRate');
-  const selectedRateCategory = watch('selectedRateCategory');
+  const startTime = watch("dutyStartTime");
+  const endTime = watch("dutyEndTime");
+  const currentHourlyRate = watch("hourlyRate");
+  const selectedRateCategory = watch("selectedRateCategory");
 
   const teacherId = selectedEmployee?._id;
 
@@ -69,7 +68,7 @@ const AdminAddEmployeeDuties = () => {
 
     const employeeBillingRecord = allBillingRecords.find((item) => {
       const recordUserId =
-        typeof item.user === 'object' ? item.user?._id : item.user;
+        typeof item.user === "object" ? item.user?._id : item.user;
       return recordUserId === teacherId;
     });
 
@@ -79,20 +78,20 @@ const AdminAddEmployeeDuties = () => {
   useEffect(() => {
     if (ratesList.length > 0) {
       const regularRate =
-        ratesList.find((r) => r.category === 'regular') || ratesList[0];
+        ratesList.find((r) => r.category === "regular") || ratesList[0];
       if (regularRate) {
-        setValue('hourlyRate', Number(regularRate.hourlyRate || 0));
-        setValue('selectedRateCategory', regularRate.category || '');
+        setValue("hourlyRate", Number(regularRate.hourlyRate || 0));
+        setValue("selectedRateCategory", regularRate.category || "");
       }
     } else {
-      setValue('hourlyRate', 0);
-      setValue('selectedRateCategory', '');
+      setValue("hourlyRate", 0);
+      setValue("selectedRateCategory", "");
     }
   }, [ratesList, setValue]);
 
   const calculated = useMemo(() => {
     if (!startTime || !endTime || !currentHourlyRate) {
-      return { duration: '00:00:00', fee: 0, diffSec: 0 };
+      return { duration: "00:00:00", fee: 0, diffSec: 0 };
     }
 
     const start = new Date(`1970-01-01T${startTime}`);
@@ -104,11 +103,11 @@ const AdminAddEmployeeDuties = () => {
     const diffSec = Math.floor((end - start) / 1000);
     const h = Math.floor(diffSec / 3600)
       .toString()
-      .padStart(2, '0');
+      .padStart(2, "0");
     const m = Math.floor((diffSec % 3600) / 60)
       .toString()
-      .padStart(2, '0');
-    const s = (diffSec % 60).toString().padStart(2, '0');
+      .padStart(2, "0");
+    const s = (diffSec % 60).toString().padStart(2, "0");
 
     // ফি ক্যালকুলেশন
     const totalFee = (diffSec / 3600) * Number(currentHourlyRate);
@@ -121,16 +120,16 @@ const AdminAddEmployeeDuties = () => {
   }, [startTime, endTime, currentHourlyRate]);
 
   const handleRateSelect = (rateObj) => {
-    setValue('hourlyRate', Number(rateObj.hourlyRate || 0));
-    setValue('selectedRateCategory', rateObj.category || '');
+    setValue("hourlyRate", Number(rateObj.hourlyRate || 0));
+    setValue("selectedRateCategory", rateObj.category || "");
   };
 
   const onFormSubmit = async (data) => {
-    if (!selectedEmployee) return toast.error('Please select an employee');
+    if (!selectedEmployee) return toast.error("Please select an employee");
     if (!data.hourlyRate || data.hourlyRate <= 0)
-      return toast.error('Please select a valid billing rate!');
+      return toast.error("Please select a valid billing rate!");
     if (calculated.fee <= 0)
-      return toast.error('Invalid duty duration or rate');
+      return toast.error("Invalid duty duration or rate");
 
     try {
       const response = await postEmployeeAttendance({
@@ -142,24 +141,24 @@ const AdminAddEmployeeDuties = () => {
         employeeId: selectedEmployee._id,
         employeeName: selectedEmployee.userName,
         phone: selectedEmployee.phone,
-        userType: 'employee',
+        userType: "employee",
       });
 
       if (response?.data) {
-        toast.success('Duty added successfully');
+        toast.success("Duty added successfully");
         reset({
-          date: new Date().toISOString().split('T')[0],
-          workDetails: '',
-          dutyStartTime: '',
-          dutyEndTime: '',
+          date: new Date().toISOString().split("T")[0],
+          workDetails: "",
+          dutyStartTime: "",
+          dutyEndTime: "",
           hourlyRate: 0,
-          selectedRateCategory: '',
+          selectedRateCategory: "",
         });
         setSelectedEmployee(null);
-        setSearchQuery('');
+        setSearchQuery("");
       } else if (response?.error) {
         toast.error(
-          response.error?.data?.message || 'Server rejected the request',
+          response.error?.data?.message || "Server rejected the request",
         );
       }
     } catch (err) {
@@ -172,29 +171,23 @@ const AdminAddEmployeeDuties = () => {
       if (containerRef.current && !containerRef.current.contains(e.target))
         setIsDropdownOpen(false);
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const inputStyle =
-    'w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl focus:bg-white border border-transparent focus:border-blue-500 outline-none transition-all text-sm';
+    "w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl focus:bg-white border border-transparent focus:border-blue-500 outline-none transition-all text-sm";
   const labelStyle =
-    'text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block';
+    "text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block";
 
   const categoryColors = {
-    regular: 'bg-blue-100 text-blue-700',
-    private: 'bg-purple-100 text-purple-700',
-    examDuty: 'bg-orange-100 text-orange-700',
+    regular: "bg-blue-100 text-blue-700",
+    private: "bg-purple-100 text-purple-700",
+    examDuty: "bg-orange-100 text-orange-700",
   };
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="flex items-center justify-between px-4 py-3 max-w-screen-2xl">
-          <BreadCrumbMenu />
-        </div>
-      </header>
-
       <main className="max-w-6xl px-4 py-10 lg:py-16">
         <div className="mb-12">
           <h1 className="flex items-center gap-4 text-xl font-bold tracking-tighter text-gray-900 md:text-2xl">
@@ -238,8 +231,8 @@ const AdminAddEmployeeDuties = () => {
                           setSelectedEmployee(emp);
                           setIsDropdownOpen(false);
                           setSearchQuery(emp?.userName);
-                          setValue('hourlyRate', 0);
-                          setValue('selectedRateCategory', '');
+                          setValue("hourlyRate", 0);
+                          setValue("selectedRateCategory", "");
                         }}
                         className="flex items-center w-full gap-3 px-4 py-3 border-b cursor-pointer hover:bg-blue-50 border-gray-50 last:border-0"
                       >
@@ -318,7 +311,7 @@ const AdminAddEmployeeDuties = () => {
                           <tr
                             key={idx}
                             onClick={() => handleRateSelect(rate)}
-                            className={`cursor-pointer transition-colors ${selectedRateCategory === rate.category ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                            className={`cursor-pointer transition-colors ${selectedRateCategory === rate.category ? "bg-blue-50" : "hover:bg-gray-50"}`}
                           >
                             <td className="px-4 py-3">
                               <input
@@ -331,15 +324,15 @@ const AdminAddEmployeeDuties = () => {
                             </td>
                             <td className="px-4 py-3">
                               <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColors[rate.category] || 'bg-gray-100 text-gray-700'}`}
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${categoryColors[rate.category] || "bg-gray-100 text-gray-700"}`}
                               >
                                 {rate.category}
                               </span>
                             </td>
                             <td className="px-4 py-3 font-mono font-bold text-right text-gray-700">
-                              {rate.hourlyRate?.toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              {rate.hourlyRate?.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </td>
                           </tr>
@@ -373,7 +366,7 @@ const AdminAddEmployeeDuties = () => {
                   />
                   <input
                     type="date"
-                    {...register('date')}
+                    {...register("date")}
                     className={inputStyle}
                   />
                 </div>
@@ -388,7 +381,7 @@ const AdminAddEmployeeDuties = () => {
                   <input
                     type="text"
                     placeholder="e.g. Ward Duty"
-                    {...register('workDetails')}
+                    {...register("workDetails")}
                     className={inputStyle}
                   />
                 </div>
@@ -405,7 +398,7 @@ const AdminAddEmployeeDuties = () => {
                   />
                   <input
                     type="time"
-                    {...register('dutyStartTime')}
+                    {...register("dutyStartTime")}
                     className={inputStyle}
                   />
                 </div>
@@ -419,7 +412,7 @@ const AdminAddEmployeeDuties = () => {
                   />
                   <input
                     type="time"
-                    {...register('dutyEndTime')}
+                    {...register("dutyEndTime")}
                     className={inputStyle}
                   />
                 </div>
@@ -439,10 +432,10 @@ const AdminAddEmployeeDuties = () => {
                       Billing Analytics
                     </p>
                     <p className="text-sm font-medium text-blue-400">
-                      Rate Applied:{' '}
-                      {Number(currentHourlyRate)?.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'BDT',
+                      Rate Applied:{" "}
+                      {Number(currentHourlyRate)?.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "BDT",
                       })}
                       /hr
                     </p>
@@ -466,9 +459,9 @@ const AdminAddEmployeeDuties = () => {
                       Net Payable
                     </p>
                     <p className="text-4xl font-black tracking-tight text-emerald-400">
-                      {calculated?.fee?.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'BDT',
+                      {calculated?.fee?.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "BDT",
                       })}
                     </p>
                   </div>
@@ -483,8 +476,8 @@ const AdminAddEmployeeDuties = () => {
               }
               className={`w-full py-4 font-bold rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 ${
                 !selectedEmployee || calculated.fee <= 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200'
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-200"
               }`}
             >
               {isSubmitting ? (

@@ -4,8 +4,8 @@ import React, {
   useRef,
   useMemo,
   useCallback,
-} from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -24,7 +24,7 @@ import {
   Printer,
   User,
   Eye,
-} from 'lucide-react';
+} from "lucide-react";
 
 // Redux APIs
 import {
@@ -33,24 +33,23 @@ import {
   useDuplicateRoutinesMutation,
   useGetRoutinesQuery,
   useUpdateRoutineMutation,
-} from '../../../../../redux/features/routine/routineApi';
-import { useGetBatchesQuery } from '../../../../../redux/features/batch/batchApi';
-import { useGetSubjectsQuery } from '../../../../../redux/features/subject/subjectApi';
-import { useGetOnlyTeachersQuery } from '../../../../../redux/features/users/userApi';
-import routineImg from '../../../../../assets/img/rpr_class_routine-removebg-preview.png';
-import { useReactToPrint } from 'react-to-print';
-import toast from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import watermark from '../../../../../../src/assets/img/log-rpr.png';
+} from "../../../../redux/features/routine/routineApi";
+import { useGetBatchesQuery } from "../../../../redux/features/batch/batchApi";
+import { useGetSubjectsQuery } from "../../../../redux/features/subject/subjectApi";
+import { useGetOnlyTeachersQuery } from "../../../../redux/features/users/userApi";
+import routineImg from "../../../../assets/img/rpr_class_routine-removebg-preview.png";
+import { useReactToPrint } from "react-to-print";
+import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import watermark from "../../../../../src/assets/img/log-rpr.png";
 
 const RoutineManager = () => {
   //  STATE MANAGEMENT
   // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [search, setSearch] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [showDateFilter, setShowDateFilter] = useState(false);
 
   // Selection states
@@ -66,7 +65,7 @@ const RoutineManager = () => {
   const isLandscape = true;
 
   // UI States
-  const [viewMode, setViewMode] = useState('live'); // live | pdf
+  const [viewMode, setViewMode] = useState("live"); // live | pdf
   const [copyAdmitCount, setAdmitCopyCount] = useState(1);
 
   // Dropdown states
@@ -78,24 +77,24 @@ const RoutineManager = () => {
   const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
 
   // Search states for dropdowns
-  const [batchSearch, setBatchSearch] = useState('');
-  const [subjectSearch, setSubjectSearch] = useState('');
-  const [teacherQuery, setTeacherQuery] = useState('');
-  const [editBatchSearch, setEditBatchSearch] = useState('');
-  const [editSubjectSearch, setEditSubjectSearch] = useState('');
-  const [editTeacherSearch, setEditTeacherSearch] = useState('');
+  const [batchSearch, setBatchSearch] = useState("");
+  const [subjectSearch, setSubjectSearch] = useState("");
+  const [teacherQuery, setTeacherQuery] = useState("");
+  const [editBatchSearch, setEditBatchSearch] = useState("");
+  const [editSubjectSearch, setEditSubjectSearch] = useState("");
+  const [editTeacherSearch, setEditTeacherSearch] = useState("");
 
   // Form state (matches backend schema)
   const [formData, setFormData] = useState({
-    batch: '',
-    session: '',
-    date: '',
-    time: '',
+    batch: "",
+    session: "",
+    date: "",
+    time: "",
     subjects: [],
-    room: '',
+    room: "",
     teachers: [],
-    visibility: ['teacher'],
-    publishStatus: 'draft',
+    visibility: ["teacher"],
+    publishStatus: "draft",
   });
 
   // Selected teacher for display
@@ -120,21 +119,21 @@ const RoutineManager = () => {
 
   // Visibility options (matches schema: array of strings)
   const visibilityOptions = [
-    { value: 'teacher', label: 'Teacher', icon: User },
-    { value: 'student', label: 'Student', icon: Eye },
-    { value: 'both', label: 'Both', icon: Eye },
+    { value: "teacher", label: "Teacher", icon: User },
+    { value: "student", label: "Student", icon: Eye },
+    { value: "both", label: "Both", icon: Eye },
   ];
 
   // Publish status options
   const publishStatusOptions = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'published', label: 'Published' },
+    { value: "draft", label: "Draft" },
+    { value: "published", label: "Published" },
   ];
 
   const getDayName = (dateStr) => {
-    const [year, month, day] = dateStr.split('-').map(Number);
+    const [year, month, day] = dateStr.split("-").map(Number);
     const date = new Date(year, month - 1, day);
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
+    return date.toLocaleDateString("en-US", { weekday: "long" });
   };
 
   const toTitleCase = (str) =>
@@ -151,7 +150,7 @@ const RoutineManager = () => {
     endDate,
   });
 
-  const { data: batchesData } = useGetBatchesQuery('');
+  const { data: batchesData } = useGetBatchesQuery("");
   const { data: subjectsData } = useGetSubjectsQuery();
   const { data: teachersData, isLoading: isTeachersLoading } =
     useGetOnlyTeachersQuery(teacherQuery, {
@@ -182,7 +181,7 @@ const RoutineManager = () => {
     return routines?.slice(0, visibleCount);
   }, [routines, visibleCount]);
 
-  const batchName = searchTerm || 'Search Batch';
+  const batchName = searchTerm || "Search Batch";
 
   // Filter teachers based on search query for create form
   const filteredTeachers = useMemo(() => {
@@ -243,9 +242,9 @@ const RoutineManager = () => {
     const time24 = e.target.value;
     if (!time24) return;
 
-    let [h, m] = time24.split(':');
+    let [h, m] = time24.split(":");
     h = Number(h);
-    const ampm = h >= 12 ? 'PM' : 'AM';
+    const ampm = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
     const time12 = `${h}:${m} ${ampm}`;
 
@@ -255,25 +254,25 @@ const RoutineManager = () => {
     });
   };
 
-  const to24h = (time12 = '') => {
+  const to24h = (time12 = "") => {
     const match = time12.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (!match) return '';
+    if (!match) return "";
     let h = parseInt(match[1], 10);
     const m = match[2];
     const ampm = match[3].toUpperCase();
-    if (ampm === 'PM' && h !== 12) h += 12;
-    if (ampm === 'AM' && h === 12) h = 0;
-    return `${String(h).padStart(2, '0')}:${m}`;
+    if (ampm === "PM" && h !== 12) h += 12;
+    if (ampm === "AM" && h === 12) h = 0;
+    return `${String(h).padStart(2, "0")}:${m}`;
   };
 
   const handleEditTimeChange = (e) => {
     const time24 = e.target.value;
     if (!time24) return;
 
-    let [h, m] = time24.split(':');
+    let [h, m] = time24.split(":");
     h = Number(h);
 
-    const ampm = h >= 12 ? 'PM' : 'AM';
+    const ampm = h >= 12 ? "PM" : "AM";
     h = h % 12 || 12;
 
     const time12 = `${h}:${m} ${ampm}`;
@@ -289,7 +288,7 @@ const RoutineManager = () => {
     if (!formData.subjects.includes(sub)) {
       setFormData({ ...formData, subjects: [...formData.subjects, sub] });
     }
-    setSubjectSearch('');
+    setSubjectSearch("");
     setShowSubDrop(false);
   };
 
@@ -316,7 +315,7 @@ const RoutineManager = () => {
         subjects: [...(editRowData.subjects || []), sub],
       });
     }
-    setEditSubjectSearch('');
+    setEditSubjectSearch("");
     setShowEditSubDrop(false);
   };
 
@@ -350,7 +349,7 @@ const RoutineManager = () => {
       };
     });
 
-    setTeacherQuery('');
+    setTeacherQuery("");
     setIsTeacherDropdownOpen(false);
   };
   // Teacher selection for edit form - FIXED: Added proper state updates
@@ -358,13 +357,13 @@ const RoutineManager = () => {
     setEditRowData({
       ...editRowData,
       teacher: {
-        id: teacher?.userId || '',
-        name: teacher?.userName || '',
-        phone: teacher?.phone || '',
+        id: teacher?.userId || "",
+        name: teacher?.userName || "",
+        phone: teacher?.phone || "",
       },
     });
     setShowEditTeacherDrop(false);
-    setEditTeacherSearch('');
+    setEditTeacherSearch("");
   };
 
   // Visibility handler for create form (array)
@@ -388,33 +387,33 @@ const RoutineManager = () => {
   // Create routine submit handler
   const handleCreateRoutine = async () => {
     if (!formData.batch || !formData.date) {
-      return toast.error('Please fill required fields (Batch and Date)');
+      return toast.error("Please fill required fields (Batch and Date)");
     }
 
     if (!formData?.teachers || formData?.teachers?.length === 0) {
-      return toast.error('Please select at least one teacher');
+      return toast.error("Please select at least one teacher");
     }
 
     try {
       await addRoutine(formData).unwrap();
-      toast.success('Routine created successfully');
+      toast.success("Routine created successfully");
 
       // Reset form
       setFormData({
-        batch: '',
+        batch: "",
         session: currentSession,
-        date: '',
-        time: '',
+        date: "",
+        time: "",
         subjects: [],
-        room: '',
+        room: "",
         teachers: [],
-        visibility: ['teacher'],
-        publishStatus: 'draft',
+        visibility: ["teacher"],
+        publishStatus: "draft",
       });
-      setTeacherQuery('');
+      setTeacherQuery("");
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || 'Failed to create routine');
+      toast.error(err?.data?.message || "Failed to create routine");
     }
   };
 
@@ -434,7 +433,7 @@ const RoutineManager = () => {
       });
 
       if (Object.keys(changedData)?.length === 0) {
-        toast.error('No changes detected');
+        toast.error("No changes detected");
         return;
       }
 
@@ -443,10 +442,10 @@ const RoutineManager = () => {
       setShowEditBatchDrop(false);
       setShowEditSubDrop(false);
       setShowEditTeacherDrop(false);
-      toast.success('Routine updated successfully');
+      toast.success("Routine updated successfully");
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || 'Update failed');
+      toast.error(err?.data?.message || "Update failed");
     }
   };
 
@@ -456,28 +455,28 @@ const RoutineManager = () => {
       const ids = id || selectedIds;
 
       if (!ids || (Array.isArray(ids) && ids.length === 0)) {
-        return toast.error('Please select routine(s) to delete');
+        return toast.error("Please select routine(s) to delete");
       }
 
       const confirmMessage = id
-        ? 'Are you sure you want to delete this routine?'
+        ? "Are you sure you want to delete this routine?"
         : `Are you sure you want to delete ${selectedIds.length} routine(s)?`;
 
       if (!window.confirm(confirmMessage)) return;
 
       await deleteRoutine(ids).unwrap();
-      toast.success('Routine(s) deleted successfully');
+      toast.success("Routine(s) deleted successfully");
       setSelectedIds([]);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || 'Delete failed');
+      toast.error(err?.data?.message || "Delete failed");
     }
   };
 
   // Duplicate routines handler
   const handleDuplicate = async () => {
     if (selectedIds.length === 0) {
-      toast.error('Select routines first');
+      toast.error("Select routines first");
       return;
     }
 
@@ -487,7 +486,7 @@ const RoutineManager = () => {
       setSelectedIds([]);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || 'Something went wrong');
+      toast.error(err?.data?.message || "Something went wrong");
     }
   };
 
@@ -495,8 +494,8 @@ const RoutineManager = () => {
   const formatDate = (dateStr) => {
     try {
       const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = date.toLocaleString('en-US', { month: 'short' });
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = date.toLocaleString("en-US", { month: "short" });
       const year = date.getFullYear();
       return `${day}-${month}-${year}`;
     } catch {
@@ -506,19 +505,19 @@ const RoutineManager = () => {
 
   // Clear date filters
   const clearDateFilters = () => {
-    setStartDate('');
-    setEndDate('');
+    setStartDate("");
+    setEndDate("");
     setShowDateFilter(false);
   };
 
   // Apply date filters
   const applyDateFilters = () => {
     if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      toast.error('Start date cannot be after end date');
+      toast.error("Start date cannot be after end date");
       return;
     }
     setShowDateFilter(false);
-    toast.success('Date filter applied');
+    toast.success("Date filter applied");
   };
 
   // PDF download
@@ -560,8 +559,8 @@ const RoutineManager = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Reset pagination when filters change
@@ -572,50 +571,50 @@ const RoutineManager = () => {
 
   // Get visibility display text
   const getVisibilityDisplay = (visibility) => {
-    if (!visibility || !Array.isArray(visibility)) return 'N/A';
-    if (visibility.includes('teacher') && visibility.includes('student')) {
-      return 'Both';
+    if (!visibility || !Array.isArray(visibility)) return "N/A";
+    if (visibility.includes("teacher") && visibility.includes("student")) {
+      return "Both";
     }
-    if (visibility.includes('teacher')) return 'Teacher';
-    if (visibility.includes('student')) return 'Student';
-    return visibility[0] || 'N/A';
+    if (visibility.includes("teacher")) return "Teacher";
+    if (visibility.includes("student")) return "Student";
+    return visibility[0] || "N/A";
   };
 
   // Get visibility badge color
   const getVisibilityColor = (visibility) => {
     if (!visibility || !Array.isArray(visibility))
-      return 'bg-gray-100 text-gray-600';
-    if (visibility.includes('teacher') && visibility.includes('student')) {
-      return 'bg-purple-100 text-purple-600';
+      return "bg-gray-100 text-gray-600";
+    if (visibility.includes("teacher") && visibility.includes("student")) {
+      return "bg-purple-100 text-purple-600";
     }
-    if (visibility.includes('teacher')) {
-      return 'bg-blue-100 text-blue-600';
+    if (visibility.includes("teacher")) {
+      return "bg-blue-100 text-blue-600";
     }
-    if (visibility.includes('student')) {
-      return 'bg-green-100 text-green-600';
+    if (visibility.includes("student")) {
+      return "bg-green-100 text-green-600";
     }
-    return 'bg-gray-100 text-gray-600';
+    return "bg-gray-100 text-gray-600";
   };
 
   // Get publish status badge color
   const getPublishStatusColor = (status) => {
     switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-600';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-600';
+      case "published":
+        return "bg-green-100 text-green-600";
+      case "draft":
+        return "bg-yellow-100 text-yellow-600";
       default:
-        return 'bg-gray-100 text-gray-600';
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   const parseTime = (timeStr) => {
     if (!timeStr) return 0;
-    const [time, modifier] = timeStr.split(' ');
-    let [hours, minutes] = time.split(':').map(Number);
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
 
-    if (modifier === 'PM' && hours !== 12) hours += 12;
-    if (modifier === 'AM' && hours === 12) hours = 0;
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
 
     return hours * 60 + minutes;
   };
@@ -628,27 +627,27 @@ const RoutineManager = () => {
 
       if (!map[key]) {
         map[key] = {
-          room: r.room || '—',
-          time: r.time || '—',
+          room: r.room || "—",
+          time: r.time || "—",
           batch: new Set(),
           subjects: new Set(),
           teachers: new Set(),
         };
       }
 
-      map[key].batch.add(r.batch || '—');
+      map[key].batch.add(r.batch || "—");
 
       (r.subjects || []).forEach((s) => map[key].subjects.add(s));
 
       (r.teachers || []).forEach((t) =>
-        map[key].teachers.add(toTitleCase(t.name || '')),
+        map[key].teachers.add(toTitleCase(t.name || "")),
       );
     });
 
     return Object.values(map).map((item) => ({
       room: item.room,
       time: item.time,
-      batch: Array.from(item.batch).join(' / '),
+      batch: Array.from(item.batch).join(" / "),
       subjects: Array.from(item.subjects),
       teachers: Array.from(item.teachers),
     }));
@@ -663,15 +662,15 @@ const RoutineManager = () => {
 
       if (!map[key]) {
         map[key] = {
-          room: r.room || '—',
-          time: r.time || '—',
+          room: r.room || "—",
+          time: r.time || "—",
           batch: new Set(),
           subjects: [],
           teachers: [],
         };
       }
 
-      map[key].batch.add(r.batch || '—');
+      map[key].batch.add(r.batch || "—");
 
       (r.subjects || []).forEach((s) => {
         if (!map[key].subjects.includes(s)) {
@@ -680,7 +679,7 @@ const RoutineManager = () => {
       });
 
       (r.teachers || []).forEach((t) => {
-        const name = toTitleCase(t.name || '');
+        const name = toTitleCase(t.name || "");
         if (!map[key].teachers.includes(name)) {
           map[key].teachers.push(name);
         }
@@ -690,7 +689,7 @@ const RoutineManager = () => {
     return Object.values(map).map((item) => ({
       room: item.room,
       time: item.time,
-      batch: Array.from(item.batch).join(' / '),
+      batch: Array.from(item.batch).join(" / "),
       subjects: item.subjects,
       teachers: item.teachers,
     }));
@@ -700,9 +699,9 @@ const RoutineManager = () => {
     if (!routines || routines.length === 0) return;
 
     const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
     });
 
     const PAGE_W = 210;
@@ -721,12 +720,12 @@ const RoutineManager = () => {
 
     // Column widths (must sum to CONTENT_W = 190)
     const COLS = [
-      { label: '#', w: 10, align: 'center' },
-      { label: 'Room', w: 15, align: 'center' },
-      { label: 'Time', w: 18, align: 'center' },
-      { label: 'Batch', w: 22, align: 'center' },
-      { label: 'Subjects', w: 75, align: 'left' },
-      { label: 'Teachers', w: 55, align: 'left' },
+      { label: "#", w: 10, align: "center" },
+      { label: "Room", w: 15, align: "center" },
+      { label: "Time", w: 18, align: "center" },
+      { label: "Batch", w: 22, align: "center" },
+      { label: "Subjects", w: 75, align: "left" },
+      { label: "Teachers", w: 55, align: "left" },
     ];
 
     // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -746,16 +745,16 @@ const RoutineManager = () => {
       doc.rect(x, y, w, h);
 
       // Text
-      doc.setFont('helvetica', bold ? 'bold' : 'normal');
+      doc.setFont("helvetica", bold ? "bold" : "normal");
       doc.setFontSize(fontSize);
       doc.setTextColor(0, 0, 0);
 
       const padding = 2;
       const textW = w - padding * 2;
-      const textX = align === 'center' ? x + w / 2 : x + padding;
-      const textY = align === 'center' ? y + h / 2 : x + padding; // vertical centre
+      const textX = align === "center" ? x + w / 2 : x + padding;
+      const textY = align === "center" ? y + h / 2 : x + padding; // vertical centre
 
-      doc.text(String(text ?? ''), textX, textY, {
+      doc.text(String(text ?? ""), textX, textY, {
         align,
         maxWidth: textW,
       });
@@ -771,7 +770,7 @@ const RoutineManager = () => {
       const count = lines.length;
       const eachH = h / count;
 
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(0, 0, 0);
 
@@ -779,7 +778,7 @@ const RoutineManager = () => {
         const subY = y + eachH * i;
         const textY = subY + eachH / 2;
 
-        doc.text(String(text ?? ''), x + 2, textY, { maxWidth: w - 4 });
+        doc.text(String(text ?? ""), x + 2, textY, { maxWidth: w - 4 });
 
         // Inner divider (not after last item)
         if (i < count - 1) {
@@ -791,16 +790,16 @@ const RoutineManager = () => {
 
     // Draw page header (title + day + date)
     const drawPageHeader = (date) => {
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
       doc.setTextColor(0, 0, 0);
-      doc.text('RPR DUET Admission Care', PAGE_W / 2, 18, { align: 'center' });
+      doc.text("RPR DUET Admission Care", PAGE_W / 2, 18, { align: "center" });
 
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.text(`Day: ${getDayName(date)}`, PAGE_W / 2, 25, { align: 'center' });
+      doc.text(`Day: ${getDayName(date)}`, PAGE_W / 2, 25, { align: "center" });
       doc.text(`Date: ${formatDate(date)}`, PAGE_W / 2, 31, {
-        align: 'center',
+        align: "center",
       });
     };
 
@@ -808,7 +807,7 @@ const RoutineManager = () => {
     const drawTableHeader = () => {
       const y = TABLE_START_Y;
       COLS.forEach((col, ci) => {
-        drawCell(colX(ci), y, col.w, HEAD_H, col.label, 'center', true, 9);
+        drawCell(colX(ci), y, col.w, HEAD_H, col.label, "center", true, 9);
       });
     };
 
@@ -829,23 +828,23 @@ const RoutineManager = () => {
 
     // ── Watermark ────────────────────────────────────────────────────────────────
     const drawWatermark = () => {
-      if (typeof watermark !== 'undefined' && watermark.includes('base64')) {
+      if (typeof watermark !== "undefined" && watermark.includes("base64")) {
         doc.addImage(
           watermark,
-          'PNG',
+          "PNG",
           PAGE_W / 2 - 45,
           PAGE_H / 2 - 45,
           90,
           90,
-          '',
-          'FAST',
+          "",
+          "FAST",
         );
       }
     };
 
     // ── Group & sort data ────────────────────────────────────────────────────────
     const grouped = routines.reduce((acc, r) => {
-      const key = r.date || 'unknown';
+      const key = r.date || "unknown";
       if (!acc[key]) acc[key] = [];
       acc[key].push(r);
       return acc;
@@ -857,7 +856,7 @@ const RoutineManager = () => {
     // ── Main render loop ─────────────────────────────────────────────────────────
     dates.forEach((date) => {
       let data =
-        typeof groupData === 'function'
+        typeof groupData === "function"
           ? groupData(grouped[date])
           : grouped[date];
 
@@ -890,15 +889,15 @@ const RoutineManager = () => {
             r.room,
             r.time,
             r.batch,
-            Array.isArray(r.subjects) ? r.subjects : [r.subjects ?? ''],
-            Array.isArray(r.teachers) ? r.teachers : [r.teachers ?? ''],
+            Array.isArray(r.subjects) ? r.subjects : [r.subjects ?? ""],
+            Array.isArray(r.teachers) ? r.teachers : [r.teachers ?? ""],
           ];
           drawBodyRow(rowData, i);
         });
 
         // Fill remaining empty rows to keep the table full-page
         for (let i = chunk.length; i < ROWS_PER_PAGE; i++) {
-          drawBodyRow(['', '', '', '', [''], ['']], i);
+          drawBodyRow(["", "", "", "", [""], [""]], i);
         }
       });
     });
@@ -936,21 +935,21 @@ const RoutineManager = () => {
         {/* View Toggle */}
         <div className="flex p-1 mx-4 bg-white border border-b shadow-sm rounded-md border-slate-200 w-fit">
           <button
-            onClick={() => setViewMode('live')}
+            onClick={() => setViewMode("live")}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${
-              viewMode === 'live'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-500 hover:bg-slate-50'
+              viewMode === "live"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-slate-500 hover:bg-slate-50"
             }`}
           >
             <TableIcon size={16} /> Live Manager
           </button>
           <button
-            onClick={() => setViewMode('pdf')}
+            onClick={() => setViewMode("pdf")}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-all ${
-              viewMode === 'pdf'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-500 hover:bg-slate-50'
+              viewMode === "pdf"
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-slate-500 hover:bg-slate-50"
             }`}
           >
             <FileText size={16} /> Print Preview
@@ -979,11 +978,11 @@ const RoutineManager = () => {
                     className="flex items-center justify-between px-4 py-3 transition-all border cursor-pointer bg-slate-50 border-slate-200 rounded-md hover:border-blue-400"
                   >
                     <span className="text-sm font-medium">
-                      {formData?.batch || 'Select Batch'}
+                      {formData?.batch || "Select Batch"}
                     </span>
                     <ChevronDown
                       size={16}
-                      className={`transition-transform ${showBatchDrop ? 'rotate-180' : ''}`}
+                      className={`transition-transform ${showBatchDrop ? "rotate-180" : ""}`}
                     />
                   </div>
 
@@ -1017,7 +1016,7 @@ const RoutineManager = () => {
                                 onClick={() => {
                                   setFormData({ ...formData, batch: b.title });
                                   setShowBatchDrop(false);
-                                  setBatchSearch('');
+                                  setBatchSearch("");
                                 }}
                                 className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-sm font-medium transition-colors"
                               >
@@ -1082,7 +1081,7 @@ const RoutineManager = () => {
                                 className="flex items-center gap-3 px-3 py-2 text-sm capitalize rounded-sm cursor-pointer hover:bg-blue-50"
                               >
                                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold capitalize text-blue-600">
-                                  {teacher.userName?.charAt(0) || '?'}
+                                  {teacher.userName?.charAt(0) || "?"}
                                 </div>
                                 <div className="flex flex-col">
                                   <span className="text-xs font-medium">
@@ -1237,7 +1236,7 @@ const RoutineManager = () => {
                     Visible To
                   </label>
                   <select
-                    value={formData.visibility[0] || 'teacher'}
+                    value={formData.visibility[0] || "teacher"}
                     onChange={handleVisibilityChange}
                     className="w-full px-4 py-3 text-sm border outline-none bg-slate-50 border-slate-200 rounded-md focus:ring-2 focus:ring-blue-500"
                   >
@@ -1377,7 +1376,7 @@ const RoutineManager = () => {
                   </div>
 
                   {/* Bulk Actions */}
-                  {viewMode === 'live' && (
+                  {viewMode === "live" && (
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleDuplicate}
@@ -1387,7 +1386,7 @@ const RoutineManager = () => {
                         {isDuplicating ? (
                           <Loader2 size={16} className="animate-spin" />
                         ) : (
-                          'Duplicate Selected'
+                          "Duplicate Selected"
                         )}
                       </button>
                       <button
@@ -1413,7 +1412,7 @@ const RoutineManager = () => {
                 </div>
 
                 {/* Print Controls */}
-                {viewMode === 'pdf' && (
+                {viewMode === "pdf" && (
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-md border-slate-200">
                       <label className="text-sm font-medium text-slate-600">
@@ -1446,7 +1445,7 @@ const RoutineManager = () => {
               {/* Table Content */}
               <div className="flex-1 overflow-x-auto">
                 <AnimatePresence mode="wait">
-                  {viewMode === 'live' ? (
+                  {viewMode === "live" ? (
                     <div className="w-full">
                       {isRoutinesLoading ? (
                         <div className="flex items-center justify-center py-20">
@@ -1512,8 +1511,8 @@ const RoutineManager = () => {
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         className={`group transition-colors hover:bg-slate-50/50 ${
                                           editingId === item._id
-                                            ? 'bg-blue-50/40'
-                                            : ''
+                                            ? "bg-blue-50/40"
+                                            : ""
                                         }`}
                                       >
                                         {/* Checkbox */}
@@ -1547,11 +1546,11 @@ const RoutineManager = () => {
                                               >
                                                 <span>
                                                   {editRowData?.batch ||
-                                                    'Select Batch'}
+                                                    "Select Batch"}
                                                 </span>
                                                 <ChevronDown
                                                   size={14}
-                                                  className={`transition-transform ${showEditBatchDrop ? 'rotate-180' : ''}`}
+                                                  className={`transition-transform ${showEditBatchDrop ? "rotate-180" : ""}`}
                                                 />
                                               </div>
 
@@ -1603,7 +1602,7 @@ const RoutineManager = () => {
                                                                 false,
                                                               );
                                                               setEditBatchSearch(
-                                                                '',
+                                                                "",
                                                               );
                                                             }}
                                                             className="px-3 py-1.5 text-[11px] hover:bg-blue-50 cursor-pointer"
@@ -1647,7 +1646,7 @@ const RoutineManager = () => {
                                             </select>
                                           ) : (
                                             <div className="inline-flex items-center rounded-full  text-[11px] font-bold text-blue-600">
-                                              {item?.session || 'N/A'}
+                                              {item?.session || "N/A"}
                                             </div>
                                           )}
                                         </td>
@@ -1710,8 +1709,8 @@ const RoutineManager = () => {
                                                     size={14}
                                                     className={`transition-transform ${
                                                       showEditTeacherDrop
-                                                        ? 'rotate-180'
-                                                        : ''
+                                                        ? "rotate-180"
+                                                        : ""
                                                     }`}
                                                   />
                                                 </div>
@@ -1783,7 +1782,7 @@ const RoutineManager = () => {
                                                                   false,
                                                                 );
                                                                 setEditTeacherSearch(
-                                                                  '',
+                                                                  "",
                                                                 );
                                                               }}
                                                               className="px-3 py-1.5 text-[11px] flex items-center gap-2 hover:bg-blue-50 cursor-pointer"
@@ -1817,11 +1816,11 @@ const RoutineManager = () => {
                                                   className="flex items-center gap-2 capitalize"
                                                 >
                                                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-600">
-                                                    {tc?.name?.charAt(0) || '?'}
+                                                    {tc?.name?.charAt(0) || "?"}
                                                   </div>
 
                                                   <span className="text-[11px] font-medium">
-                                                    {tc?.name || 'N/A'}
+                                                    {tc?.name || "N/A"}
                                                   </span>
                                                 </div>
                                               ))}
@@ -1834,7 +1833,7 @@ const RoutineManager = () => {
                                             <div className="flex flex-col gap-1.5">
                                               <input
                                                 type="date"
-                                                value={editRowData.date || ''}
+                                                value={editRowData.date || ""}
                                                 onChange={(e) =>
                                                   setEditRowData({
                                                     ...editRowData,
@@ -1846,7 +1845,7 @@ const RoutineManager = () => {
                                               <input
                                                 type="time"
                                                 value={
-                                                  to24h(editRowData?.time) || ''
+                                                  to24h(editRowData?.time) || ""
                                                 }
                                                 onChange={handleEditTimeChange}
                                                 className="h-8 rounded-md border border-slate-200 px-2 text-[11px] outline-none focus:ring-1 focus:ring-blue-500"
@@ -1977,7 +1976,7 @@ const RoutineManager = () => {
                                           {editingId === item._id ? (
                                             <input
                                               type="text"
-                                              value={editRowData.room || ''}
+                                              value={editRowData.room || ""}
                                               onChange={(e) =>
                                                 setEditRowData({
                                                   ...editRowData,
@@ -1999,7 +1998,7 @@ const RoutineManager = () => {
                                             <select
                                               value={
                                                 editRowData?.visibility?.[0] ||
-                                                'teacher'
+                                                "teacher"
                                               }
                                               onChange={
                                                 handleEditVisibilityChange
@@ -2024,10 +2023,10 @@ const RoutineManager = () => {
                                               )}`}
                                             >
                                               {item?.visibility?.includes(
-                                                'teacher',
+                                                "teacher",
                                               ) && <User size={10} />}
                                               {item?.visibility?.includes(
-                                                'student',
+                                                "student",
                                               ) && <Eye size={10} />}
                                               {getVisibilityDisplay(
                                                 item?.visibility,
@@ -2042,7 +2041,7 @@ const RoutineManager = () => {
                                             <select
                                               value={
                                                 editRowData?.publishStatus ||
-                                                'draft'
+                                                "draft"
                                               }
                                               onChange={(e) =>
                                                 setEditRowData({
@@ -2069,7 +2068,7 @@ const RoutineManager = () => {
                                                 item?.publishStatus,
                                               )}`}
                                             >
-                                              {item?.publishStatus || 'N/A'}
+                                              {item?.publishStatus || "N/A"}
                                             </div>
                                           )}
                                         </td>
@@ -2149,14 +2148,14 @@ const RoutineManager = () => {
                           {visibleRoutines?.length > 0 && (
                             <div className="flex flex-col items-center justify-between gap-4 p-4 border-t sm:flex-row border-slate-100">
                               <p className="text-xs font-medium text-slate-500">
-                                Showing{' '}
+                                Showing{" "}
                                 <span className="font-bold text-slate-900">
                                   {visibleRoutines?.length}
-                                </span>{' '}
-                                of{' '}
+                                </span>{" "}
+                                of{" "}
                                 <span className="font-bold text-slate-900">
                                   {routines?.length}
-                                </span>{' '}
+                                </span>{" "}
                                 routines
                                 {(startDate || endDate) && (
                                   <span className="ml-2 text-blue-600">
@@ -2292,8 +2291,8 @@ const RoutineManager = () => {
                                                                   key={j}
                                                                   className={`text-center ${
                                                                     j > 0
-                                                                      ? 'border-t border-black pt-0.5 mt-0.5'
-                                                                      : ''
+                                                                      ? "border-t border-black pt-0.5 mt-0.5"
+                                                                      : ""
                                                                   }`}
                                                                 >
                                                                   {sub}

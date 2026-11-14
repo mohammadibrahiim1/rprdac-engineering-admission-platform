@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useEffect, useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import {
   useGetStudentByIdQuery,
   useGetStudentPaymentByStudentIdQuery,
-  useUpdateStudentBillingMutation,
-} from '../../../../../../redux/features/student/studentApi';
+} from "../../services/api/studentApi";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
-const fmtBDT = (val) => `${Number(val || 0).toLocaleString('en-BD')} ৳`;
+const fmtBDT = (val) => `${Number(val || 0).toLocaleString("en-BD")} ৳`;
 
 // Financial Rate Rule Engine
 const cgpaToRate = (cgpa) => {
@@ -145,7 +144,7 @@ export const StudentBillingContainer = ({ studentId }) => {
   const [updateStudentBilling, { isLoading: isUpdating }] =
     useUpdateStudentBillingMutation();
 
-  const [uiFeedback, setUiFeedback] = useState({ success: false, message: '' });
+  const [uiFeedback, setUiFeedback] = useState({ success: false, message: "" });
 
   const student = useMemo(() => studentRes?.data || {}, [studentRes]);
   const payment = useMemo(() => paymentRes?.data || null, [paymentRes]);
@@ -158,17 +157,17 @@ export const StudentBillingContainer = ({ studentId }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      courseFee: '',
-      admissionFee: '',
-      messServiceCharge: '',
-      cgpa: '',
-      newPaymentAmount: '',
-      newMessPayment: '',
-      refundedCashback: '',
-      paymentMethod: 'cash',
-      transactionId: '',
-      accountNumber: '',
-      note: '',
+      courseFee: "",
+      admissionFee: "",
+      messServiceCharge: "",
+      cgpa: "",
+      newPaymentAmount: "",
+      newMessPayment: "",
+      refundedCashback: "",
+      paymentMethod: "cash",
+      transactionId: "",
+      accountNumber: "",
+      note: "",
     },
   });
 
@@ -180,20 +179,20 @@ export const StudentBillingContainer = ({ studentId }) => {
       courseFee: payment.courseFee ?? 18000,
       admissionFee: payment.admissionFee ?? 15000,
       messServiceCharge: payment.messServiceCharge ?? 1300,
-      cgpa: payment.cgpa ?? '',
-      newPaymentAmount: '',
-      newMessPayment: '',
-      refundedCashback: '',
-      paymentMethod: payment.paymentMethod || 'cash',
-      transactionId: '',
-      accountNumber: '',
-      note: '',
+      cgpa: payment.cgpa ?? "",
+      newPaymentAmount: "",
+      newMessPayment: "",
+      refundedCashback: "",
+      paymentMethod: payment.paymentMethod || "cash",
+      transactionId: "",
+      accountNumber: "",
+      note: "",
     });
   }, [payment, reset]);
 
   const watched = useWatch({ control });
 
-  // Real-time Calculation Sync (মেস চার্জ সহ লাইভ হিসাব)
+  // Real-time Calculation Sync
   const live = useMemo(
     () =>
       calcFinancial({
@@ -203,7 +202,7 @@ export const StudentBillingContainer = ({ studentId }) => {
           watched.messServiceCharge ?? payment?.messServiceCharge ?? 0, // <-- LIVE INPUT
         admissionFeePaid: payment?.admissionFeePaid || 0,
         messServiceChargePaid: payment?.messServiceChargePaid || 0,
-        cgpa: watched.cgpa !== '' ? watched.cgpa : payment?.cgpa || 0,
+        cgpa: watched.cgpa !== "" ? watched.cgpa : payment?.cgpa || 0,
         newPaymentAmount: watched.newPaymentAmount || 0,
         newMessPayment: watched.newMessPayment || 0,
         refundedCashback: watched.refundedCashback || 0,
@@ -212,7 +211,7 @@ export const StudentBillingContainer = ({ studentId }) => {
   );
 
   const onSubmit = async (data) => {
-    setUiFeedback({ success: false, message: '' });
+    setUiFeedback({ success: false, message: "" });
 
     const payload = {
       courseFee: Number(data.courseFee) || 0,
@@ -224,12 +223,12 @@ export const StudentBillingContainer = ({ studentId }) => {
       newMessPayment: Number(data.newMessPayment) || 0,
       refundedCashback: Number(data.refundedCashback) || 0,
 
-      paymentMethod: data.paymentMethod || 'cash',
+      paymentMethod: data.paymentMethod || "cash",
       transactionId:
-        data.paymentMethod !== 'cash' ? data.transactionId || null : null,
+        data.paymentMethod !== "cash" ? data.transactionId || null : null,
       accountNumber:
-        data.paymentMethod !== 'cash' ? data.accountNumber || null : null,
-      note: data.note || 'Updated via Billing Console',
+        data.paymentMethod !== "cash" ? data.accountNumber || null : null,
+      note: data.note || "Updated via Billing Console",
 
       referenceDiscount: live.referenceDiscount,
       cgpaDiscount: live.cgpaDiscount,
@@ -257,23 +256,23 @@ export const StudentBillingContainer = ({ studentId }) => {
       setUiFeedback({
         success: true,
         message: `Payment updated successfully. Invoice: ${
-          result?.invoice?.invoiceNumber || payment?.invoiceNo || 'GENERATED'
+          result?.invoice?.invoiceNumber || payment?.invoiceNo || "GENERATED"
         }`,
       });
 
       reset((prev) => ({
         ...prev,
-        newPaymentAmount: '',
-        newMessPayment: '',
-        refundedCashback: '',
-        transactionId: '',
-        accountNumber: '',
-        note: '',
+        newPaymentAmount: "",
+        newMessPayment: "",
+        refundedCashback: "",
+        transactionId: "",
+        accountNumber: "",
+        note: "",
       }));
     } catch (err) {
       setUiFeedback({
         success: false,
-        message: err?.data?.message || 'Failed to update billing details.',
+        message: err?.data?.message || "Failed to update billing details.",
       });
     }
   };
@@ -296,120 +295,120 @@ export const StudentBillingContainer = ({ studentId }) => {
   }
 
   const studentName =
-    typeof student?.name === 'object'
-      ? `${student.name.firstName || ''} ${student.name.lastName || ''}`.trim()
-      : student?.name || 'Student';
+    typeof student?.name === "object"
+      ? `${student.name.firstName || ""} ${student.name.lastName || ""}`.trim()
+      : student?.name || "Student";
 
   // Structured Grid Display Data Mapping
   const summaryMetrics = [
     // 1. BASE FEES & STANDARDS
     {
-      label: 'Course Fee',
+      label: "Course Fee",
       value: fmtBDT(live.courseFee),
-      bg: 'bg-slate-50',
-      text: 'text-slate-800',
+      bg: "bg-slate-50",
+      text: "text-slate-800",
     },
     {
-      label: 'Ref. Discount',
+      label: "Ref. Discount",
       value: fmtBDT(live.referenceDiscount),
-      bg: 'bg-slate-50',
-      text: 'text-slate-600',
+      bg: "bg-slate-50",
+      text: "text-slate-600",
     },
     {
-      label: 'Admission Fee',
+      label: "Admission Fee",
       value: fmtBDT(live.admissionFee),
-      bg: 'bg-slate-50',
-      text: 'text-slate-800',
+      bg: "bg-slate-50",
+      text: "text-slate-800",
     },
 
     // 2. CGPA & NET DISCOUNT ENGINE
     {
-      label: 'CGPA Rate',
+      label: "CGPA Rate",
       value: live.cgpaRate
         ? `${watched.cgpa || payment?.cgpa || 0} (${(live.cgpaRate * 100).toFixed(0)}%)`
-        : watched.cgpa || payment?.cgpa || '—',
-      bg: 'bg-violet-50',
-      text: 'text-violet-700',
+        : watched.cgpa || payment?.cgpa || "—",
+      bg: "bg-violet-50",
+      text: "text-violet-700",
     },
     {
-      label: 'CGPA Discount',
+      label: "CGPA Discount",
       value: fmtBDT(live.cgpaDiscount),
-      bg: 'bg-violet-50',
-      text: 'text-violet-600',
+      bg: "bg-violet-50",
+      text: "text-violet-600",
     },
     {
-      label: 'Net Discount',
+      label: "Net Discount",
       value: fmtBDT(live.netDiscount),
-      bg: 'bg-indigo-50',
-      text: 'text-indigo-700',
+      bg: "bg-indigo-50",
+      text: "text-indigo-700",
     },
     {
-      label: 'After Discount',
+      label: "After Discount",
       value: fmtBDT(live.totalAfterDiscount),
-      bg: 'bg-indigo-50',
-      text: 'text-indigo-800 font-semibold',
+      bg: "bg-indigo-50",
+      text: "text-indigo-800 font-semibold",
     },
 
     // 3. OTHER CHARGES
     {
-      label: 'Mess Charge',
+      label: "Mess Charge",
       value: fmtBDT(live.messServiceCharge),
-      bg: 'bg-amber-50',
-      text: 'text-amber-800',
+      bg: "bg-amber-50",
+      text: "text-amber-800",
     },
 
     // 4. COLLECTION / PAID AMOUNTS
     {
-      label: 'Admission Paid',
+      label: "Admission Paid",
       value: fmtBDT(live.admissionFeePaid),
-      bg: 'bg-sky-50',
-      text: 'text-sky-600',
+      bg: "bg-sky-50",
+      text: "text-sky-600",
     },
     {
-      label: 'Mess Paid',
+      label: "Mess Paid",
       value: fmtBDT(live.messServiceChargePaid),
-      bg: 'bg-sky-50',
-      text: 'text-sky-600',
+      bg: "bg-sky-50",
+      text: "text-sky-600",
     },
     {
-      label: 'Total Collected',
+      label: "Total Collected",
       value: fmtBDT(live.totalCollected),
-      bg: 'bg-sky-100',
-      text: 'text-sky-800 font-semibold',
+      bg: "bg-sky-100",
+      text: "text-sky-800 font-semibold",
     },
 
     // 5. OUTSTANDING DUES
     {
-      label: 'Admission Due',
+      label: "Admission Due",
       value: fmtBDT(live.admissionDue),
-      bg: 'bg-rose-50',
-      text: 'text-rose-600',
+      bg: "bg-rose-50",
+      text: "text-rose-600",
     },
     {
-      label: 'Mess Due',
+      label: "Mess Due",
       value: fmtBDT(live.messDue),
-      bg: 'bg-rose-50',
-      text: 'text-rose-600',
+      bg: "bg-rose-50",
+      text: "text-rose-600",
     },
     {
-      label: 'Total Due Amount',
+      label: "Total Due Amount",
       value: fmtBDT(live.dueAmount),
-      bg: 'bg-rose-100',
-      text: 'text-rose-800 font-semibold',
+      bg: "bg-rose-100",
+      text: "text-rose-800 font-semibold",
     },
 
     // 6. CASHBACK & REFUNDS
     {
-      label: 'Cashback',
+      label: "Cashback",
       value: fmtBDT(live.cashback),
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-600',
+      bg: "bg-emerald-50",
+      text: "text-emerald-600",
     },
     {
-      label: 'Returned',
+      label: "Returned",
       value: fmtBDT(live.studentReturnAmount),
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-700',
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
     },
   ];
 
@@ -422,7 +421,7 @@ export const StudentBillingContainer = ({ studentId }) => {
         </h1>
         <span className="text-slate-300">|</span>
         <span className="text-sm font-mono text-slate-600">
-          ID: {payment?.studentId || 'N/A'}
+          ID: {payment?.studentId || "N/A"}
         </span>
         {payment?.invoiceNo && (
           <>
@@ -435,11 +434,11 @@ export const StudentBillingContainer = ({ studentId }) => {
         {payment?.paymentStatus && (
           <span
             className={`ml-auto px-3 py-1 text-xs font-semibold rounded-full border ${
-              payment.paymentStatus === 'paid'
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : payment.paymentStatus === 'partial'
-                  ? 'bg-amber-50 text-amber-700 border-amber-200'
-                  : 'bg-slate-50 text-slate-600 border-slate-200'
+              payment.paymentStatus === "paid"
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : payment.paymentStatus === "partial"
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : "bg-slate-50 text-slate-600 border-slate-200"
             }`}
           >
             {payment.paymentStatus.toUpperCase()}
@@ -495,7 +494,7 @@ export const StudentBillingContainer = ({ studentId }) => {
               <input
                 type="number"
                 step="any"
-                {...register('courseFee', { required: 'Required' })}
+                {...register("courseFee", { required: "Required" })}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
               {errors.courseFee && (
@@ -512,7 +511,7 @@ export const StudentBillingContainer = ({ studentId }) => {
               <input
                 type="number"
                 step="any"
-                {...register('admissionFee', { required: 'Required' })}
+                {...register("admissionFee", { required: "Required" })}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -523,7 +522,7 @@ export const StudentBillingContainer = ({ studentId }) => {
               <input
                 type="number"
                 step="any"
-                {...register('messServiceCharge', { required: 'Required' })}
+                {...register("messServiceCharge", { required: "Required" })}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -538,7 +537,7 @@ export const StudentBillingContainer = ({ studentId }) => {
                 min="0"
                 max="4"
                 placeholder="e.g. 3.92"
-                {...register('cgpa')}
+                {...register("cgpa")}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
               <p className="mt-1 text-[10px] text-slate-400">
@@ -558,7 +557,7 @@ export const StudentBillingContainer = ({ studentId }) => {
                 type="number"
                 step="any"
                 placeholder="0.00"
-                {...register('newPaymentAmount')}
+                {...register("newPaymentAmount")}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -571,7 +570,7 @@ export const StudentBillingContainer = ({ studentId }) => {
                 type="number"
                 step="any"
                 placeholder="0.00"
-                {...register('newMessPayment')}
+                {...register("newMessPayment")}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
               />
             </div>
@@ -584,7 +583,7 @@ export const StudentBillingContainer = ({ studentId }) => {
                 type="number"
                 step="any"
                 placeholder="0.00"
-                {...register('refundedCashback')}
+                {...register("refundedCashback")}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
@@ -598,7 +597,7 @@ export const StudentBillingContainer = ({ studentId }) => {
                   Payment Method
                 </label>
                 <select
-                  {...register('paymentMethod')}
+                  {...register("paymentMethod")}
                   className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 >
                   <option value="cash">Cash</option>
@@ -609,7 +608,7 @@ export const StudentBillingContainer = ({ studentId }) => {
                 </select>
               </div>
 
-              {watched.paymentMethod !== 'cash' && (
+              {watched.paymentMethod !== "cash" && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 mb-1">
@@ -617,9 +616,9 @@ export const StudentBillingContainer = ({ studentId }) => {
                     </label>
                     <input
                       type="text"
-                      {...register('transactionId', {
+                      {...register("transactionId", {
                         required:
-                          watched.paymentMethod !== 'cash' ? 'Required' : false,
+                          watched.paymentMethod !== "cash" ? "Required" : false,
                       })}
                       className="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-md font-mono"
                     />
@@ -630,9 +629,9 @@ export const StudentBillingContainer = ({ studentId }) => {
                     </label>
                     <input
                       type="text"
-                      {...register('accountNumber', {
+                      {...register("accountNumber", {
                         required:
-                          watched.paymentMethod !== 'cash' ? 'Required' : false,
+                          watched.paymentMethod !== "cash" ? "Required" : false,
                       })}
                       className="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-md font-mono"
                     />
@@ -648,7 +647,7 @@ export const StudentBillingContainer = ({ studentId }) => {
             </label>
             <textarea
               rows={2}
-              {...register('note')}
+              {...register("note")}
               placeholder="Internal operational note..."
               className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none"
             />
@@ -659,11 +658,11 @@ export const StudentBillingContainer = ({ studentId }) => {
             disabled={isUpdating}
             className={`w-full py-3 rounded-lg text-sm font-semibold text-white transition-all ${
               isUpdating
-                ? 'bg-slate-400 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700'
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
             }`}
           >
-            {isUpdating ? 'Updating Records...' : 'Save & Update Billing'}
+            {isUpdating ? "Updating Records..." : "Save & Update Billing"}
           </button>
         </form>
 
@@ -671,14 +670,14 @@ export const StudentBillingContainer = ({ studentId }) => {
           <div
             className={`mt-4 p-3 rounded-lg text-xs font-medium border flex items-center justify-between ${
               uiFeedback.success
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                : 'bg-rose-50 border-rose-200 text-rose-800'
+                ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                : "bg-rose-50 border-rose-200 text-rose-800"
             }`}
           >
             <span>{uiFeedback.message}</span>
             <button
               type="button"
-              onClick={() => setUiFeedback({ success: false, message: '' })}
+              onClick={() => setUiFeedback({ success: false, message: "" })}
               className="text-slate-400 hover:text-slate-600"
             >
               ✕
@@ -703,24 +702,24 @@ export const StudentBillingContainer = ({ studentId }) => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-semibold text-slate-700">
-                    {item.actionType?.replaceAll('_', ' ')}
+                    {item.actionType?.replaceAll("_", " ")}
                   </span>
                   <span className="text-[11px] font-mono text-slate-400">
                     {item.createdAt
-                      ? new Date(item.createdAt).toLocaleDateString('en-GB')
-                      : '—'}
+                      ? new Date(item.createdAt).toLocaleDateString("en-GB")
+                      : "—"}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 mb-1">{item.message}</p>
                 <div className="flex flex-wrap gap-x-4 text-[11px] text-slate-500">
                   <span>
-                    Collected:{' '}
+                    Collected:{" "}
                     <strong className="text-slate-700">
                       {fmtBDT(item.totalCollected)}
                     </strong>
                   </span>
                   <span className="capitalize">
-                    Method: <strong>{item.paymentMethod || '—'}</strong>
+                    Method: <strong>{item.paymentMethod || "—"}</strong>
                   </span>
                   {item.invoiceNo && (
                     <span>

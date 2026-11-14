@@ -1,9 +1,11 @@
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { Clock, UserCircle, CheckCircle, Users } from 'lucide-react';
-import { usePostEmployeeAttendanceMutation } from '../../../../redux/features/staff/employeeApi';
-import toast from 'react-hot-toast';
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Clock, UserCircle, CheckCircle, Users } from "lucide-react";
+
+import { usePostEmployeeAttendanceMutation } from "@/redux/features/staff/employeeApi";
+
+import { toast } from "sonner";
 
 const HOURLY_RATE = 53;
 
@@ -11,16 +13,16 @@ const StaffAttendance = () => {
   const user = useSelector((state) => state.auth.user);
   const [postEmployeeAttendance, { isLoading }] =
     usePostEmployeeAttendanceMutation();
-  const [currentDate] = useState(new Date().toISOString().split('T')[0]);
+  const [currentDate] = useState(new Date().toISOString().split("T")[0]);
 
   const [formData, setFormData] = useState({
-    date: '',
-    employeeName: '',
-    phone: '',
-    employeeId: '',
-    workDetails: '',
-    dutyStartTime: '',
-    dutyEndTime: '',
+    date: "",
+    employeeName: "",
+    phone: "",
+    employeeId: "",
+    workDetails: "",
+    dutyStartTime: "",
+    dutyEndTime: "",
     totalDutyTime: 0,
     totalDutyFee: 0,
     everyHourFee: HOURLY_RATE,
@@ -31,9 +33,9 @@ const StaffAttendance = () => {
       setFormData((prev) => ({
         ...prev,
         date: currentDate,
-        employeeName: user.userName || '',
-        phone: user.phone || '',
-        employeeId: user._id || '',
+        employeeName: user.userName || "",
+        phone: user.phone || "",
+        employeeId: user._id || "",
       }));
     }
   }, [user, currentDate]);
@@ -85,12 +87,12 @@ const StaffAttendance = () => {
     e.preventDefault();
 
     if (!formData.workDetails.trim()) {
-      toast.error('Please provide work details');
+      toast.error("Please provide work details");
       return;
     }
 
     if (!formData.dutyStartTime || !formData.dutyEndTime) {
-      toast.error('Please set both start and end time');
+      toast.error("Please set both start and end time");
       return;
     }
 
@@ -100,14 +102,14 @@ const StaffAttendance = () => {
 
       setFormData((prev) => ({
         ...prev,
-        workDetails: '',
-        dutyStartTime: '',
-        dutyEndTime: '',
+        workDetails: "",
+        dutyStartTime: "",
+        dutyEndTime: "",
         totalDutyTime: 0,
         totalDutyFee: 0,
       }));
     } catch (error) {
-      toast.error(error?.data?.error || 'Submission failed');
+      toast.error(error?.data?.error || "Submission failed");
     }
   };
 
@@ -133,7 +135,7 @@ const StaffAttendance = () => {
           </div>
         </div>
         <div className="text-sm text-gray-500">
-          Rate:{' '}
+          Rate:{" "}
           <span className="font-semibold text-purple-600">
             ${HOURLY_RATE.toFixed(3)}/hour
           </span>
@@ -153,11 +155,11 @@ const StaffAttendance = () => {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-gray-800 capitalize">
-                {user?.userName || 'Employee'}
+                {user?.userName || "Employee"}
               </h3>
               <p className="flex items-center gap-1 text-xs text-gray-600">
                 <CheckCircle className="w-3 h-3 text-green-500" />
-                {user?.userType || 'Staff Member'}
+                {user?.userType || "Staff Member"}
               </p>
             </div>
           </div>
@@ -308,7 +310,7 @@ const StaffAttendance = () => {
               disabled={isLoading}
               className="w-full p-3.5 bg-blue-600 text-white font-medium rounded-lg transition-all hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Submitting...' : 'Submit Duty Record'}
+              {isLoading ? "Submitting..." : "Submit Duty Record"}
             </motion.button>
           </div>
         </div>

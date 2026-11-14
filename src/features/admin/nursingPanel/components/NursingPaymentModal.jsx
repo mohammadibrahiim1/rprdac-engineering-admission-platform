@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useTeacherPaymentAndGenerateInvoiceMutation } from '../../../../../redux/features/teacher/teacherApi';
-import { useProcessEmployeePaymentMutation } from '../../../../../redux/features/staff/employeeApi';
-import { useProcessNursingPaymentMutation } from '../../../../../redux/features/Nursing/NursingApi';
+import { useState, useEffect } from "react";
+import { useTeacherPaymentAndGenerateInvoiceMutation } from "../../../../redux/features/teacher/teacherApi";
+import { useProcessEmployeePaymentMutation } from "../../../../redux/features/staff/employeeApi";
+import { useProcessNursingPaymentMutation } from "../../../../redux/features/Nursing/NursingApi";
 
 export default function NursingPaymentModal({
   open,
@@ -68,11 +68,11 @@ export default function NursingPaymentModal({
       const res = await processNursingPayment(payload).unwrap();
 
       if (res) {
-        alert('Payment completed successfully');
+        alert("Payment completed successfully");
         onClose();
       }
     } catch (err) {
-      alert(err?.data?.message || 'Payment failed');
+      alert(err?.data?.message || "Payment failed");
     }
   };
 
@@ -80,9 +80,9 @@ export default function NursingPaymentModal({
   // Helper
   // -------------------------
   const formatCurrency = (value) =>
-    Number(value || 0).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'BDT',
+    Number(value || 0).toLocaleString("en-US", {
+      style: "currency",
+      currency: "BDT",
       minimumFractionDigits: 2,
     });
 
@@ -192,7 +192,7 @@ export default function NursingPaymentModal({
             onClick={handleSubmit}
             className="px-5 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
           >
-            {isLoading ? 'Processing...' : 'Pay Now'}
+            {isLoading ? "Processing..." : "Pay Now"}
           </button>
         </div>
       </div>

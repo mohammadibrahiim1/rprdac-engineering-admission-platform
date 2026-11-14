@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useFieldArray, useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
+import React, { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useFieldArray, useForm } from "react-hook-form";
+
 import {
   BookOpen,
   ChevronLeft,
@@ -26,47 +26,48 @@ import {
   CheckSquare,
   Square,
   RefreshCw,
-} from 'lucide-react';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
+} from "lucide-react";
 
-import AddProduct from '../components/AddProduct';
-import ProductList from '../components/ProductList';
-import ProductEditModal from '../components/ProductEditModal';
+import { toast } from "sonner";
+
+import AddProduct from "../components/AddProduct";
+import ProductList from "../components/ProductList";
+import ProductEditModal from "../components/ProductEditModal";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   useCreateProductMutation,
   useDeleteMultipleProductsMutation,
-  useDeleteProductMutation,
   useGetProductsQuery,
   useUpdateProductMutation,
-} from '../../../../bookshop/services/productApi';
+} from "../services/productApi";
 
 const CATEGORIES = [
-  'electronic',
-  'book',
-  'Self-Help',
-  'Sci-Fi',
-  'Dystopia',
-  'History',
-  'Productivity',
-  'Fiction',
-  'Biography',
-  'Science',
+  "electronic",
+  "book",
+  "Self-Help",
+  "Sci-Fi",
+  "Dystopia",
+  "History",
+  "Productivity",
+  "Fiction",
+  "Biography",
+  "Science",
 ];
 
-const AVAILABILITY_OPTIONS = ['available', 'out-of-stock', 'upcoming'];
+const AVAILABILITY_OPTIONS = ["available", "out-of-stock", "upcoming"];
 
 const SORT_OPTIONS = [
-  { value: 'title', label: 'Title' },
-  { value: 'price', label: 'Price' },
-  { value: 'stock', label: 'Stock' },
-  { value: 'created_at', label: 'Date Added' },
+  { value: "title", label: "Title" },
+  { value: "price", label: "Price" },
+  { value: "stock", label: "Stock" },
+  { value: "created_at", label: "Date Added" },
 ];
 
 const formatPrice = (price, discount) => {
-  if (price === 'TBA' || price === null || price === undefined)
-    return { original: 'TBA', discounted: null };
+  if (price === "TBA" || price === null || price === undefined)
+    return { original: "TBA", discounted: null };
   const num = parseFloat(price);
-  if (isNaN(num)) return { original: 'TBA', discounted: null };
+  if (isNaN(num)) return { original: "TBA", discounted: null };
   if (discount > 0) {
     const discounted = num - (num * discount) / 100;
     return { original: num.toFixed(2), discounted: discounted.toFixed(2) };
@@ -76,26 +77,26 @@ const formatPrice = (price, discount) => {
 
 const getAvailabilityBadge = (availability) => {
   switch (availability) {
-    case 'available':
+    case "available":
       return {
-        text: 'Available',
+        text: "Available",
         color:
-          'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-        dot: 'bg-emerald-500',
+          "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+        dot: "bg-emerald-500",
       };
-    case 'out-of-stock':
+    case "out-of-stock":
       return {
-        text: 'Out of stock',
+        text: "Out of stock",
         color:
-          'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-        dot: 'bg-rose-500',
+          "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+        dot: "bg-rose-500",
       };
     default:
       return {
-        text: 'Upcoming',
+        text: "Upcoming",
         color:
-          'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-        dot: 'bg-amber-500',
+          "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+        dot: "bg-amber-500",
       };
   }
 };
@@ -109,8 +110,8 @@ const ThumbImagesManager = ({ thumbImages, setThumbImages }) => {
   const handleAdd = (e) => {
     const files = Array.from(e.target.files);
     files.forEach((file) => {
-      if (!file.type.startsWith('image/')) {
-        toast.error('Only image files allowed');
+      if (!file.type.startsWith("image/")) {
+        toast.error("Only image files allowed");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
@@ -118,7 +119,7 @@ const ThumbImagesManager = ({ thumbImages, setThumbImages }) => {
         return;
       }
       const preview = URL.createObjectURL(file);
-      setThumbImages((prev) => [...prev, { file, preview, caption: '' }]);
+      setThumbImages((prev) => [...prev, { file, preview, caption: "" }]);
     });
     e.target.value = null;
   };
@@ -126,7 +127,7 @@ const ThumbImagesManager = ({ thumbImages, setThumbImages }) => {
   const handleRemove = (idx) => {
     setThumbImages((prev) => {
       const next = [...prev];
-      if (next[idx].preview?.startsWith('blob:'))
+      if (next[idx].preview?.startsWith("blob:"))
         URL.revokeObjectURL(next[idx].preview);
       next.splice(idx, 1);
       return next;
@@ -161,7 +162,7 @@ const ThumbImagesManager = ({ thumbImages, setThumbImages }) => {
             <input
               type="text"
               placeholder="Caption..."
-              value={img.caption || ''}
+              value={img.caption || ""}
               onChange={(e) => handleCaption(idx, e.target.value)}
               className="px-2 py-1 text-xs text-gray-700 bg-white border border-gray-200 rounded dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
@@ -196,7 +197,7 @@ const ImageDropZone = ({
   preview,
   onChange,
   onClear,
-  accept = 'image/*',
+  accept = "image/*",
   hint,
 }) => {
   const [drag, setDrag] = useState(false);
@@ -226,7 +227,7 @@ const ImageDropZone = ({
         </div>
       ) : (
         <div
-          className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition ${drag ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}`}
+          className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition ${drag ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"}`}
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => {
             e.preventDefault();
@@ -242,7 +243,7 @@ const ImageDropZone = ({
         >
           <Upload size={20} className="mx-auto mb-2 text-gray-400" />
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {hint || 'Click or drag to upload'}
+            {hint || "Click or drag to upload"}
           </p>
         </div>
       )}
@@ -277,23 +278,23 @@ const BookManagement = () => {
   // Dark mode
   const [darkMode, setDarkMode] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('bm_darkMode') || 'false');
+      return JSON.parse(localStorage.getItem("bm_darkMode") || "false");
     } catch {
       return false;
     }
   });
 
   useEffect(() => {
-    localStorage.setItem('bm_darkMode', JSON.stringify(darkMode));
+    localStorage.setItem("bm_darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
 
   // UI state
-  const [activeTab, setActiveTab] = useState('list');
+  const [activeTab, setActiveTab] = useState("list");
   const [selectedBooks, setSelectedBooks] = useState([]);
-  const [attributes, setAttributes] = useState([{ key: '', value: '' }]);
+  const [attributes, setAttributes] = useState([{ key: "", value: "" }]);
 
   const addAttribute = () => {
-    setAttributes([...attributes, { key: '', value: '' }]);
+    setAttributes([...attributes, { key: "", value: "" }]);
   };
 
   const removeAttribute = (index) => {
@@ -322,7 +323,7 @@ const BookManagement = () => {
   const removeThumb = (index) => {
     setThumbImages((prev) => {
       const updated = [...prev];
-      // মেমোরি থেকে টেম্পোরারি ইউআরএল রিলিজ করা ভালো প্র্যাকটিস
+
       URL.revokeObjectURL(updated[index].preview);
       updated.splice(index, 1);
       return updated;
@@ -330,11 +331,11 @@ const BookManagement = () => {
   };
 
   // Filters & pagination
-  const [searchTerm, setSearchTerm] = useState('');
-  const [category, setCategory] = useState('');
-  const [availability, setAvailability] = useState('');
-  const [sortBy, setSortBy] = useState('title');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [sortBy, setSortBy] = useState("title");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const limit = 10;
 
@@ -345,7 +346,7 @@ const BookManagement = () => {
   // Add form state
   const [imagePreview, setImagePreview] = useState(null);
   const [bookImage, setBookImage] = useState(null);
-  const [pdfName, setPdfName] = useState('');
+  const [pdfName, setPdfName] = useState("");
   const [bookPDF, setBookPDF] = useState(null);
 
   // API hooks
@@ -387,27 +388,27 @@ const BookManagement = () => {
     reset,
   } = useForm({
     defaultValues: {
-      title: '',
-      author: '',
-      edition: '',
-      price: '',
-      category: '',
-      discount: '',
-      stock: '',
-      availability: 'available',
-      description: '',
+      title: "",
+      author: "",
+      edition: "",
+      price: "",
+      category: "",
+      discount: "",
+      stock: "",
+      availability: "available",
+      description: "",
     },
   });
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
+      toast.error("Image must be less than 5MB");
       return;
     }
     setBookImage(file);
@@ -417,12 +418,12 @@ const BookManagement = () => {
   const handlePdfChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.type !== 'application/pdf') {
-      toast.error('Please select a PDF file');
+    if (file.type !== "application/pdf") {
+      toast.error("Please select a PDF file");
       return;
     }
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('PDF must be less than 50MB');
+      toast.error("PDF must be less than 50MB");
       return;
     }
     setBookPDF(file);
@@ -436,10 +437,10 @@ const BookManagement = () => {
         data: formData,
       }).unwrap();
 
-      toast.success('Product updated!');
+      toast.success("Product updated!");
       setIsEditModalOpen(false);
     } catch (err) {
-      toast.error(err?.data?.message || 'Update failed');
+      toast.error(err?.data?.message || "Update failed");
     }
   };
 
@@ -449,36 +450,36 @@ const BookManagement = () => {
       const formData = new FormData();
 
       // ১. সাধারণ টেক্সট ডাটা অ্যাপেন্ড করা
-      formData.append('title', data.title);
-      formData.append('author', data.author);
-      formData.append('summary', data.summary || '');
-      formData.append('description', data.description || '');
-      formData.append('category', data.category || 'General');
-      formData.append('price', data.price);
-      formData.append('edition', data.edition);
-      formData.append('stock', data.stock);
-      formData.append('brandName', data.brand || '');
+      formData.append("title", data.title);
+      formData.append("author", data.author);
+      formData.append("summary", data.summary || "");
+      formData.append("description", data.description || "");
+      formData.append("category", data.category || "General");
+      formData.append("price", data.price);
+      formData.append("edition", data.edition);
+      formData.append("stock", data.stock);
+      formData.append("brandName", data.brand || "");
       // আপনার ব্যাকএন্ডে availability এবং author ফিল্ড থাকলে সেগুলোও যোগ করুন
 
       // ২. মেইন কভার ইমেজ (খুবই গুরুত্বপূর্ণ)
       // আমরা register("image") ব্যবহার করেছি, তাই data.image[0]-এ ফাইলটি থাকবে
       if (data.image && data.image[0]) {
-        formData.append('image', data.image[0]);
+        formData.append("image", data.image[0]);
       } else {
-        alert('Please select a cover image!');
+        alert("Please select a cover image!");
         return;
       }
 
       // ৩. পিডিএফ ফাইল
       if (data.pdf && data.pdf[0]) {
-        formData.append('pdf', data.pdf[0]);
+        formData.append("pdf", data.pdf[0]);
       }
 
       // ৪. মাল্টিপল থাম্বনেইল ইমেজ (thumbImages state থেকে)
       if (thumbImages && thumbImages.length > 0) {
         thumbImages.forEach((img) => {
           // ব্যাকএন্ডে multer-এ এই নামটি 'thumbImage' হিসেবে থাকতে হবে
-          formData.append('thumbImage', img.file);
+          formData.append("thumbImage", img.file);
         });
       }
 
@@ -489,21 +490,21 @@ const BookManagement = () => {
           attrObject[attr.key] = attr.value;
         }
       });
-      formData.append('attributes', JSON.stringify(attrObject));
+      formData.append("attributes", JSON.stringify(attrObject));
 
       // API Call
       await postProduct(formData).unwrap();
 
-      alert('Product Created Successfully');
+      alert("Product Created Successfully");
 
       // ফর্ম এবং স্টেট রিসেট করা
       setImagePreview(null);
-      setPdfName('');
+      setPdfName("");
       setThumbImages([]);
-      setAttributes([{ key: '', value: '' }]);
-      setActiveTab('list');
+      setAttributes([{ key: "", value: "" }]);
+      setActiveTab("list");
     } catch (error) {
-      alert(error?.data?.message || 'Something went wrong');
+      alert(error?.data?.message || "Something went wrong");
     }
   };
 
@@ -518,7 +519,7 @@ const BookManagement = () => {
     const isMultiple = idsArray.length > 1;
     const confirmMessage = isMultiple
       ? `Are you sure you want to delete these ${idsArray.length} products?`
-      : 'Are you sure you want to delete this product?';
+      : "Are you sure you want to delete this product?";
 
     if (!window.confirm(confirmMessage)) return;
 
@@ -527,33 +528,33 @@ const BookManagement = () => {
 
       toast.success(
         isMultiple
-          ? 'Products deleted successfully!'
-          : 'Product deleted successfully!',
+          ? "Products deleted successfully!"
+          : "Product deleted successfully!",
       );
       refetch();
 
-      if (isMultiple && typeof setSelectedBooks === 'function') {
+      if (isMultiple && typeof setSelectedBooks === "function") {
         setSelectedBooks([]);
       }
     } catch (err) {
-      toast.error(err?.data?.message || 'Failed to delete product(s)');
+      toast.error(err?.data?.message || "Failed to delete product(s)");
     }
   };
 
   // download product pdf
   const handleDownloadPdf = (pdfPath, fileName) => {
     if (!pdfPath) {
-      toast.error('PDF not available');
+      toast.error("PDF not available");
       return;
     }
-    const SERVER = import.meta.env?.VITE_SERVER_BASE_URL || '';
-    const fullUrl = pdfPath.startsWith('http')
+    const SERVER = import.meta.env?.VITE_SERVER_BASE_URL || "";
+    const fullUrl = pdfPath.startsWith("http")
       ? pdfPath
       : `${SERVER}${pdfPath}`;
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = fullUrl;
-    link.setAttribute('download', fileName || 'book.pdf');
-    link.target = '_blank';
+    link.setAttribute("download", fileName || "book.pdf");
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -576,12 +577,12 @@ const BookManagement = () => {
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark bg-gray-950 text-gray-100' : 'bg-white text-gray-900'}`}
+      className={`min-h-screen transition-colors duration-300 ${darkMode ? "dark bg-gray-950 text-gray-100" : "bg-white text-gray-900"}`}
     >
       {/* Notion Nav */}
       <nav className="sticky top-0 z-0 flex items-center justify-between px-6 bg-white border-b border-gray-100 h-11">
         <div className="flex items-center gap-2 text-[13px] opacity-70 overflow-hidden whitespace-nowrap">
-          <BreadCrumbMenu />
+          <Breadcrumb />
         </div>
       </nav>
 
@@ -602,12 +603,12 @@ const BookManagement = () => {
         <div className="flex gap-1 mb-6 border-b border-gray-200 font-sans dark:border-gray-800">
           {[
             {
-              id: 'list',
-              label: 'All Products',
+              id: "list",
+              label: "All Products",
               icon: BookOpen,
               count: pagination?.total,
             },
-            { id: 'add', label: 'Add Product', icon: Plus, count: null },
+            { id: "add", label: "Add Product", icon: Plus, count: null },
           ]?.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -615,12 +616,12 @@ const BookManagement = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 pb-2 text-sm font-medium transition-all ${active ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+                className={`flex items-center gap-2 px-3 pb-2 text-sm font-medium transition-all ${active ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400" : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"}`}
               >
                 <Icon size={14} /> {tab.label}
                 {tab.count !== null && (
                   <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full ${active ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded-full ${active ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}
                   >
                     {tab.count}
                   </span>
@@ -631,7 +632,7 @@ const BookManagement = () => {
         </div>
 
         <AnimatePresence mode="wait">
-          {activeTab === 'list' ? (
+          {activeTab === "list" ? (
             <ProductList
               key="list"
               books={books}
@@ -665,7 +666,7 @@ const BookManagement = () => {
               onSubmit={onSubmitAdd}
               errors={addErrors}
               isLoading={isAddingBook}
-              onCancel={() => setActiveTab('list')}
+              onCancel={() => setActiveTab("list")}
               imagePreview={imagePreview}
               setImagePreview={setImagePreview}
               pdfName={pdfName}

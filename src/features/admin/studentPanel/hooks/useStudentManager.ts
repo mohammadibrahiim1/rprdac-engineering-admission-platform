@@ -120,9 +120,11 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
   );
 
   const allBatches: BatchRecord[] = useMemo(
-    () => batchesResponse?.data || [],
+    () => batchesResponse || [],
     [batchesResponse],
   );
+
+  console.log("allBatches", allBatches);
 
   const filteredBatches: Batch[] = useMemo(() => {
     if (!batchQuery) return allBatches;

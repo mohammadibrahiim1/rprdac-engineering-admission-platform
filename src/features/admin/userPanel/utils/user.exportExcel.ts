@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { User } from "../types/User.types";
 
 export const exportUsersToExcel = async (

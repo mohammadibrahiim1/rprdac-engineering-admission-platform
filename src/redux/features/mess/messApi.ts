@@ -1,6 +1,6 @@
-import { baseApi } from "../baseApi";
-
 // ==================== TypeScript Interfaces ====================
+
+import { baseApi } from "@/api/baseApi";
 
 export interface Mess {
   _id: string;

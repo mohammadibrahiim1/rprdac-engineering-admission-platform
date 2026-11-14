@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useUpdateStudentInformationMutation } from '../../../../../../redux/features/student/studentApi';
-import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   AlertCircle,
   Building2,
@@ -21,97 +20,98 @@ import {
   User,
   X,
   XCircle,
-} from 'lucide-react';
-import BatchSelector from '../../../../../../components/forms/BatchSelector';
-import { motion } from 'framer-motion';
-import { useGetMessesQuery } from '../../../../../../redux/features/mess/messApi';
+} from "lucide-react";
+
+import { motion } from "framer-motion";
+import { useUpdateStudentInformationMutation } from "../../services/api/studentApi";
+import { useGetMessesQuery } from "@/redux/features/mess/messApi";
 
 const STATUS_CONFIG = {
   approved: {
     icon: CheckCircle2,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    dot: 'bg-emerald-500',
-    label: 'Approved',
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
+    label: "Approved",
   },
   active: {
     icon: CheckCircle2,
-    color: 'text-sky-600',
-    bg: 'bg-sky-50',
-    border: 'border-sky-200',
-    dot: 'bg-sky-500',
-    label: 'Active',
+    color: "text-sky-600",
+    bg: "bg-sky-50",
+    border: "border-sky-200",
+    dot: "bg-sky-500",
+    label: "Active",
   },
   pending: {
     icon: Clock,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    dot: 'bg-amber-500',
-    label: 'Pending',
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    dot: "bg-amber-500",
+    label: "Pending",
   },
   draft: {
     icon: FileText,
-    color: 'text-slate-500',
-    bg: 'bg-slate-50',
-    border: 'border-slate-200',
-    dot: 'bg-slate-400',
-    label: 'Draft',
+    color: "text-slate-500",
+    bg: "bg-slate-50",
+    border: "border-slate-200",
+    dot: "bg-slate-400",
+    label: "Draft",
   },
   rejected: {
     icon: XCircle,
-    color: 'text-rose-600',
-    bg: 'bg-rose-50',
-    border: 'border-rose-200',
-    dot: 'bg-rose-500',
-    label: 'Rejected',
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+    dot: "bg-rose-500",
+    label: "Rejected",
   },
   dropped: {
     icon: XCircle,
-    color: 'text-orange-600',
-    bg: 'bg-orange-50',
-    border: 'border-orange-200',
-    dot: 'bg-orange-500',
-    label: 'Dropped',
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    dot: "bg-orange-500",
+    label: "Dropped",
   },
   graduated: {
     icon: GraduationCap,
-    color: 'text-indigo-600',
-    bg: 'bg-indigo-50',
-    border: 'border-indigo-200',
-    dot: 'bg-indigo-500',
-    label: 'Graduated',
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    border: "border-indigo-200",
+    dot: "bg-indigo-500",
+    label: "Graduated",
   },
 };
 
 const STATUS_OPTIONS = [
-  'draft',
-  'pending',
-  'approved',
-  'rejected',
-  'active',
-  'dropped',
-  'graduated',
+  "draft",
+  "pending",
+  "approved",
+  "rejected",
+  "active",
+  "dropped",
+  "graduated",
 ];
 
 const DEPARTMENT_OPTIONS = [
-  'ARCH',
-  'CE',
-  'CHE',
-  'CSE',
-  'EEE',
-  'FE',
-  'ME / IPE / MME',
-  'TE',
+  "ARCH",
+  "CE",
+  "CHE",
+  "CSE",
+  "EEE",
+  "FE",
+  "ME / IPE / MME",
+  "TE",
 ];
 const DEFAULT_COURSE_FEE = 18000;
 
 const inputBase =
-  'w-full px-3 py-2 text-md bg-slate-50/60 border border-slate-200/80 rounded-md focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all placeholder:text-slate-400 text-slate-800 shadow-xs';
+  "w-full px-3 py-2 text-md bg-slate-50/60 border border-slate-200/80 rounded-md focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all placeholder:text-slate-400 text-slate-800 shadow-xs";
 
 const labelBase =
-  'text-[14px] font-semibold text-slate-600 mb-1 block tracking-wide';
+  "text-[14px] font-semibold text-slate-600 mb-1 block tracking-wide";
 
 const Field = ({ icon: Icon, label, children, hint }) => (
   <div className="space-y-0.5">
@@ -134,23 +134,23 @@ function Alert({ type, message }) {
   if (!message) return null;
   const s = {
     success: {
-      bg: 'bg-emerald-50/90 border-emerald-200/80',
-      text: 'text-emerald-800',
+      bg: "bg-emerald-50/90 border-emerald-200/80",
+      text: "text-emerald-800",
       Icon: CheckCircle,
     },
     error: {
-      bg: 'bg-rose-50/90 border-rose-200/80',
-      text: 'text-rose-800',
+      bg: "bg-rose-50/90 border-rose-200/80",
+      text: "text-rose-800",
       Icon: AlertCircle,
     },
     info: {
-      bg: 'bg-indigo-50/90 border-indigo-200/80',
-      text: 'text-indigo-800',
+      bg: "bg-indigo-50/90 border-indigo-200/80",
+      text: "text-indigo-800",
       Icon: Info,
     },
   }[type] || {
-    bg: 'bg-indigo-50/90 border-indigo-200/80',
-    text: 'text-indigo-800',
+    bg: "bg-indigo-50/90 border-indigo-200/80",
+    text: "text-indigo-800",
     Icon: Info,
   };
 
@@ -174,11 +174,11 @@ export default function InfoEditorCard({
 }) {
   const [updateStudentInformation] = useUpdateStudentInformationMutation();
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState({ type: '', text: '' });
+  const [msg, setMsg] = useState({ type: "", text: "" });
 
   // Mess search states
-  const [searchTerm, setSearchTerm] = useState(student?.mess || '');
-  const [debouncedSearch, setDebouncedSearch] = useState(student?.mess || '');
+  const [searchTerm, setSearchTerm] = useState(student?.mess || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(student?.mess || "");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const inputRef = useRef(null);
@@ -188,19 +188,19 @@ export default function InfoEditorCard({
       courseFee: student?.courseFee || DEFAULT_COURSE_FEE,
       admissionFee: student?.admissionFee || 0,
       studentPaid: student?.studentPaid || 0,
-      admissionStatus: student?.admissionStatus || 'pending',
-      batch: student?.batch || '',
-      department: student?.department || '',
-      session: student?.session || '',
-      studentId: student?.studentId || '',
-      mess: student?.mess || '',
-      room: student?.room || '',
+      admissionStatus: student?.admissionStatus || "pending",
+      batch: student?.batch || "",
+      department: student?.department || "",
+      session: student?.session || "",
+      studentId: student?.studentId || "",
+      mess: student?.mess || "",
+      room: student?.room || "",
     },
   });
 
-  const currentMess = watch('mess');
-  const selectedDept = watch('department');
-  const watchedStatus = watch('admissionStatus');
+  const currentMess = watch("mess");
+  const selectedDept = watch("department");
+  const watchedStatus = watch("admissionStatus");
   const statusCfg =
     STATUS_CONFIG[watchedStatus?.toLowerCase()] || STATUS_CONFIG.pending;
 
@@ -215,7 +215,7 @@ export default function InfoEditorCard({
   // Sync searchTerm when form value changes (e.g. reset)
   useEffect(() => {
     if (!isOpen) {
-      setSearchTerm(currentMess || '');
+      setSearchTerm(currentMess || "");
     }
   }, [currentMess, isOpen]);
 
@@ -233,41 +233,41 @@ export default function InfoEditorCard({
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false);
-        setSearchTerm(currentMess || '');
+        setSearchTerm(currentMess || "");
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [currentMess]);
 
   const handleSelect = (mess) => {
-    setValue('mess', mess.name, { shouldValidate: true, shouldDirty: true });
+    setValue("mess", mess.name, { shouldValidate: true, shouldDirty: true });
     setSearchTerm(mess.name);
     setIsOpen(false);
   };
 
   const handleClear = () => {
-    setValue('mess', '', { shouldValidate: true, shouldDirty: true });
-    setSearchTerm('');
-    setDebouncedSearch('');
+    setValue("mess", "", { shouldValidate: true, shouldDirty: true });
+    setSearchTerm("");
+    setDebouncedSearch("");
     inputRef.current?.focus();
   };
 
   const flash = (type, text, ms = 4000) => {
     setMsg({ type, text });
-    setTimeout(() => setMsg({ type: '', text: '' }), ms);
+    setTimeout(() => setMsg({ type: "", text: "" }), ms);
   };
 
   // Sync Student ID prefix based on selected department
   useEffect(() => {
     if (selectedDept) {
-      const currentVal = watch('studentId') || '';
-      const actualIdPart = currentVal.includes('-')
-        ? currentVal.split('-')[1]
+      const currentVal = watch("studentId") || "";
+      const actualIdPart = currentVal.includes("-")
+        ? currentVal.split("-")[1]
         : currentVal;
-      const newId = `${selectedDept}-${actualIdPart || ''}`;
+      const newId = `${selectedDept}-${actualIdPart || ""}`;
       if (currentVal !== newId) {
-        setValue('studentId', newId, { shouldDirty: true });
+        setValue("studentId", newId, { shouldDirty: true });
       }
     }
   }, [selectedDept, setValue, watch]);
@@ -298,13 +298,13 @@ export default function InfoEditorCard({
           id: student?._id,
           data: updatedData,
         }).unwrap();
-        flash('success', 'Student record updated successfully.');
+        flash("success", "Student record updated successfully.");
         onUpdateSuccess?.();
       } else {
-        flash('info', 'No changes detected.');
+        flash("info", "No changes detected.");
       }
     } catch (err) {
-      flash('error', err?.data?.message || 'Failed to update record.');
+      flash("error", err?.data?.message || "Failed to update record.");
     } finally {
       setLoading(false);
     }
@@ -329,7 +329,7 @@ export default function InfoEditorCard({
             </div>
           </div>
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] tracking-wider font-semibold bg-slate-100 text-slate-600 border border-slate-200/60">
-            ID: {student?.studentId || 'N/A'}
+            ID: {student?.studentId || "N/A"}
           </span>
         </div>
       </div>
@@ -353,7 +353,7 @@ export default function InfoEditorCard({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Department" icon={GraduationCap}>
             <select
-              {...register('department')}
+              {...register("department")}
               className={`${inputBase} pl-8 pr-7 appearance-none cursor-pointer`}
             >
               <option value="">Select Department</option>
@@ -371,7 +371,7 @@ export default function InfoEditorCard({
 
           <Field label="Academic Session" icon={Calendar}>
             <select
-              {...register('session')}
+              {...register("session")}
               className={`${inputBase} pl-8 pr-7 appearance-none cursor-pointer`}
             >
               <option value="">Select Session</option>
@@ -396,9 +396,9 @@ export default function InfoEditorCard({
         >
           <input
             type="text"
-            {...register('studentId')}
+            {...register("studentId")}
             placeholder={
-              selectedDept ? `${selectedDept}-XXXX` : 'e.g., CSE-1024'
+              selectedDept ? `${selectedDept}-XXXX` : "e.g., CSE-1024"
             }
             className={`${inputBase} pl-8 font-mono text-md`}
           />
@@ -451,8 +451,8 @@ export default function InfoEditorCard({
 
                   {isMessesError && (
                     <div className="px-3 py-3 text-sm text-rose-600">
-                      Failed to load messes.{' '}
-                      {messesError?.data?.message || 'Please try again.'}
+                      Failed to load messes.{" "}
+                      {messesError?.data?.message || "Please try again."}
                     </div>
                   )}
 
@@ -475,8 +475,8 @@ export default function InfoEditorCard({
                           onClick={() => handleSelect(mess)}
                           className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-sm hover:bg-slate-50 ${
                             isSelected
-                              ? 'bg-indigo-50 text-indigo-700'
-                              : 'text-slate-800'
+                              ? "bg-indigo-50 text-indigo-700"
+                              : "text-slate-800"
                           }`}
                         >
                           <span className="truncate">{mess.name}</span>
@@ -493,7 +493,7 @@ export default function InfoEditorCard({
           <Field label="Room No." icon={DoorOpen} hint="e.g., 302-B">
             <input
               type="text"
-              {...register('room')}
+              {...register("room")}
               placeholder="Enter room number"
               className={`${inputBase} pl-8`}
             />
@@ -506,7 +506,7 @@ export default function InfoEditorCard({
             className={`absolute z-10 left-3 w-2 h-2 rounded-full ${statusCfg.dot}`}
           />
           <select
-            {...register('admissionStatus')}
+            {...register("admissionStatus")}
             className={`${inputBase} pl-7 pr-7 appearance-none cursor-pointer capitalize`}
           >
             {STATUS_OPTIONS?.map((s) => (
@@ -533,8 +533,8 @@ export default function InfoEditorCard({
             whileTap={{ scale: loading ? 1 : 0.985 }}
             className={`w-full py-2.5 px-4 rounded-md text-md font-semibold text-white flex items-center justify-center gap-2 transition-all shadow-sm ${
               loading
-                ? 'bg-slate-300 cursor-not-allowed'
-                : 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950'
+                ? "bg-slate-300 cursor-not-allowed"
+                : "bg-slate-900 hover:bg-slate-800 active:bg-slate-950"
             }`}
           >
             {loading ? (

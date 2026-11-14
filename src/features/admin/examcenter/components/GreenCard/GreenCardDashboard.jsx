@@ -1,13 +1,11 @@
-// @ts-nocheck
+import React, { useMemo } from "react";
+import { motion } from "framer-motion";
 
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-
-import GreenCardTable from './GreenCardTable';
-import SellerPerformance from './SellerPerformance';
-import GreenCardPagination from './GreenCardPagination';
-import { useGreenCardExplorer } from '../../hooks/useGreenCardExplorer';
-import EditGreenCardModal from './EditGreenCardModal';
+import GreenCardTable from "./GreenCardTable";
+import SellerPerformance from "./SellerPerformance";
+import GreenCardPagination from "./GreenCardPagination";
+import { useGreenCardExplorer } from "../../hooks/useGreenCardExplorer";
+import EditGreenCardModal from "./EditGreenCardModal";
 
 const GreenCardDashboard = ({
   tableData,
@@ -50,11 +48,11 @@ const GreenCardDashboard = ({
   page,
   setPage,
 }) => {
-  if (view !== 'list') return null;
+  if (view !== "list") return null;
 
   return (
     <motion.div
-      key={'list'}
+      key={"list"}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
@@ -76,10 +74,10 @@ const GreenCardDashboard = ({
           {/* FOLDER METADATA */}
           <div className="flex items-center justify-between text-sm text-slate-500 bg-white p-3 rounded-lg border border-slate-100">
             <span>
-              Folder: <b className="text-slate-800">{academicYear || 'All'}</b>
+              Folder: <b className="text-slate-800">{academicYear || "All"}</b>
             </span>
             <span>
-              Total Records:{' '}
+              Total Records:{" "}
               <b className="text-slate-800">{pagination?.total}</b>
             </span>
           </div>

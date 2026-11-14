@@ -63,13 +63,16 @@ export function useBillingRateForm(
     name: "rates",
   });
 
-  // Debounced search handler for phone number or name
-  const handleSearchChange = useMemo(
-    () =>
-      useDebounce((query: string) => {
-        setSearchQuery(query);
-      }, 400),
-    [],
+  // Safe Debounced search handler (Fixed the crash issue)
+  const debouncedSearch = useDebounce((query: string) => {
+    setSearchQuery(query || "");
+  }, 400);
+
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      debouncedSearch(query);
+    },
+    [debouncedSearch],
   );
 
   // UserType filter change handler

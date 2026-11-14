@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Icons
 import {
@@ -31,49 +31,49 @@ import {
   Mail,
   Globe,
   MapPin,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   useCreateInstituteMutation,
   useDeleteInstitutesMutation,
   useGetInstitutesQuery,
   useUpdateInstituteMutation,
-} from '../../../../../redux/features/institute/instituteApi';
-import toast from 'react-hot-toast';
+} from "../../../../redux/features/institute/instituteApi";
+import { toast } from "sonner";
 
 const InstituteManagement = () => {
   // State management
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [message, setMessage] = useState({ type: '', text: '', show: false });
-  const [activeTab, setActiveTab] = useState('view');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "", show: false });
+  const [activeTab, setActiveTab] = useState("view");
   const [editingInstitute, setEditingInstitute] = useState(null);
 
   // Form states
   const [singleForm, setSingleForm] = useState({
-    name: '',
-    slug: '',
-    eiin: '',
-    address: '',
-    phone: '',
-    email: '',
-    website: '',
-    type: 'school',
-    status: 'active',
+    name: "",
+    slug: "",
+    eiin: "",
+    address: "",
+    phone: "",
+    email: "",
+    website: "",
+    type: "school",
+    status: "active",
   });
 
   const [multipleForms, setMultipleForms] = useState([
     {
-      name: '',
-      slug: '',
-      eiin: '',
-      address: '',
-      phone: '',
-      email: '',
-      website: '',
-      type: 'school',
-      status: 'active',
+      name: "",
+      slug: "",
+      eiin: "",
+      address: "",
+      phone: "",
+      email: "",
+      website: "",
+      type: "school",
+      status: "active",
     },
   ]);
 
@@ -83,8 +83,8 @@ const InstituteManagement = () => {
   const [isBulkUpdateOpen, setIsBulkUpdateOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [bulkUpdateField, setBulkUpdateField] = useState('');
-  const [bulkUpdateValue, setBulkUpdateValue] = useState('');
+  const [bulkUpdateField, setBulkUpdateField] = useState("");
+  const [bulkUpdateValue, setBulkUpdateValue] = useState("");
   const [instituteToDelete, setInstituteToDelete] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -136,15 +136,15 @@ const InstituteManagement = () => {
   useEffect(() => {
     if (createError) {
       showMessage(
-        'error',
-        createError?.data?.message || 'Failed to create institute',
+        "error",
+        createError?.data?.message || "Failed to create institute",
       );
       resetCreate();
     }
     if (fetchError) {
       showMessage(
-        'error',
-        fetchError?.data?.message || 'Failed to fetch institutes',
+        "error",
+        fetchError?.data?.message || "Failed to fetch institutes",
       );
     }
   }, [createError, fetchError, resetCreate]);
@@ -157,29 +157,29 @@ const InstituteManagement = () => {
   // Utility functions
   const showMessage = (type, text, duration = 5000) => {
     setMessage({ type, text, show: true });
-    setTimeout(() => setMessage({ type: '', text: '', show: false }), duration);
+    setTimeout(() => setMessage({ type: "", text: "", show: false }), duration);
   };
 
   const generateSlug = (name) => {
     return name
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
   const validateInstitute = (institute) => {
-    if (!institute.name?.trim()) return 'Institute name is required';
-    if (!institute.slug?.trim()) return 'Slug is required';
-    if (!institute.eiin?.trim()) return 'EIIN is required';
-    if (!/^\d+$/.test(institute.eiin)) return 'EIIN must contain only numbers';
-    if (institute.eiin?.length < 4) return 'EIIN must be at least 4 digits';
+    if (!institute.name?.trim()) return "Institute name is required";
+    if (!institute.slug?.trim()) return "Slug is required";
+    if (!institute.eiin?.trim()) return "EIIN is required";
+    if (!/^\d+$/.test(institute.eiin)) return "EIIN must contain only numbers";
+    if (institute.eiin?.length < 4) return "EIIN must be at least 4 digits";
     if (institute.email && !/^\S+@\S+\.\S+$/.test(institute.email))
-      return 'Invalid email format';
+      return "Invalid email format";
     if (institute.phone && !/^[\d\s+\-()]+$/.test(institute.phone))
-      return 'Invalid phone number';
+      return "Invalid phone number";
     return null;
   };
 
@@ -189,14 +189,14 @@ const InstituteManagement = () => {
     setSingleForm((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === 'name' && value.trim() && { slug: generateSlug(value) }),
+      ...(name === "name" && value.trim() && { slug: generateSlug(value) }),
     }));
   };
 
   const handleMultipleInputChange = (index, field, value) => {
     const updatedForms = [...multipleForms];
     updatedForms[index][field] = value;
-    if (field === 'name' && value.trim()) {
+    if (field === "name" && value.trim()) {
       updatedForms[index].slug = generateSlug(value);
     }
     setMultipleForms(updatedForms);
@@ -207,7 +207,7 @@ const InstituteManagement = () => {
     setEditingInstitute((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === 'name' && value.trim() && { slug: generateSlug(value) }),
+      ...(name === "name" && value.trim() && { slug: generateSlug(value) }),
     }));
   };
 
@@ -217,76 +217,76 @@ const InstituteManagement = () => {
       setMultipleForms((prev) => [
         ...prev,
         {
-          name: '',
-          slug: '',
-          eiin: '',
-          address: '',
-          phone: '',
-          email: '',
-          website: '',
-          type: 'school',
-          status: 'active',
+          name: "",
+          slug: "",
+          eiin: "",
+          address: "",
+          phone: "",
+          email: "",
+          website: "",
+          type: "school",
+          status: "active",
         },
       ]);
-      showMessage('info', 'New institute row added');
+      showMessage("info", "New institute row added");
     } else {
-      showMessage('error', 'Maximum 20 institutes can be added at once');
+      showMessage("error", "Maximum 20 institutes can be added at once");
     }
   };
 
   const removeInstituteRow = (index) => {
     if (multipleForms.length > 1) {
       setMultipleForms((prev) => prev.filter((_, i) => i !== index));
-      showMessage('info', 'Institute row removed');
+      showMessage("info", "Institute row removed");
     }
   };
 
   const copyToMultiple = () => {
     if (singleForm.name && singleForm.slug && singleForm.eiin) {
       setMultipleForms([{ ...singleForm }]);
-      setActiveTab('create-multiple');
-      showMessage('success', 'Form data copied to multiple institutes');
+      setActiveTab("create-multiple");
+      showMessage("success", "Form data copied to multiple institutes");
     } else {
-      showMessage('error', 'Please fill the single institute form first');
+      showMessage("error", "Please fill the single institute form first");
     }
   };
 
   const clearForms = () => {
-    if (activeTab === 'create') {
+    if (activeTab === "create") {
       setSingleForm({
-        name: '',
-        slug: '',
-        eiin: '',
-        address: '',
-        phone: '',
-        email: '',
-        website: '',
-        type: 'school',
-        status: 'active',
+        name: "",
+        slug: "",
+        eiin: "",
+        address: "",
+        phone: "",
+        email: "",
+        website: "",
+        type: "school",
+        status: "active",
       });
-      showMessage('info', 'Form cleared');
+      showMessage("info", "Form cleared");
     } else {
       setMultipleForms([
         {
-          name: '',
-          slug: '',
-          eiin: '',
-          address: '',
-          phone: '',
-          email: '',
-          website: '',
-          type: 'school',
-          status: 'active',
+          name: "",
+          slug: "",
+          eiin: "",
+          address: "",
+          phone: "",
+          email: "",
+          website: "",
+          type: "school",
+          status: "active",
         },
       ]);
-      showMessage('info', 'All forms cleared');
+      showMessage("info", "All forms cleared");
     }
   };
 
   // CRUD Operations
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isMultiple = activeTab === 'create-multiple';
+    const isMultiple = activeTab === "create-multiple";
     let dataToSubmit;
 
     if (isMultiple) {
@@ -296,8 +296,8 @@ const InstituteManagement = () => {
 
       if (validForms.length === 0) {
         showMessage(
-          'error',
-          'Please fill at least one institute form completely',
+          "error",
+          "Please fill at least one institute form completely",
         );
         return;
       }
@@ -305,7 +305,7 @@ const InstituteManagement = () => {
       for (const [index, form] of validForms.entries()) {
         const error = validateInstitute(form);
         if (error) {
-          showMessage('error', `Row ${index + 1}: ${error}`);
+          showMessage("error", `Row ${index + 1}: ${error}`);
           return;
         }
       }
@@ -314,7 +314,7 @@ const InstituteManagement = () => {
     } else {
       const error = validateInstitute(singleForm);
       if (error) {
-        showMessage('error', error);
+        showMessage("error", error);
         return;
       }
       dataToSubmit = singleForm;
@@ -327,38 +327,38 @@ const InstituteManagement = () => {
           ? `${
               result.count || result.data?.length || dataToSubmit.length
             } institutes created successfully!`
-          : 'Institute created successfully!';
+          : "Institute created successfully!";
 
-        showMessage('success', message);
+        showMessage("success", message);
         setSingleForm({
-          name: '',
-          slug: '',
-          eiin: '',
-          address: '',
-          phone: '',
-          email: '',
-          website: '',
-          type: 'school',
-          status: 'active',
+          name: "",
+          slug: "",
+          eiin: "",
+          address: "",
+          phone: "",
+          email: "",
+          website: "",
+          type: "school",
+          status: "active",
         });
         setMultipleForms([
           {
-            name: '',
-            slug: '',
-            eiin: '',
-            address: '',
-            phone: '',
-            email: '',
-            website: '',
-            type: 'school',
-            status: 'active',
+            name: "",
+            slug: "",
+            eiin: "",
+            address: "",
+            phone: "",
+            email: "",
+            website: "",
+            type: "school",
+            status: "active",
           },
         ]);
         refetch();
-        setActiveTab('view');
+        setActiveTab("view");
       }
     } catch (error) {
-      toast.error(error.data?.message || 'Something went wrong! Try again.');
+      toast.error(error.data?.message || "Something went wrong! Try again.");
     }
   };
 
@@ -368,7 +368,7 @@ const InstituteManagement = () => {
 
     const error = validateInstitute(editingInstitute);
     if (error) {
-      showMessage('error', error);
+      showMessage("error", error);
       return;
     }
 
@@ -389,25 +389,25 @@ const InstituteManagement = () => {
       }).unwrap();
 
       if (result.success) {
-        showMessage('success', 'Institute updated successfully!');
+        showMessage("success", "Institute updated successfully!");
         setEditingInstitute(null);
         setIsEditSheetOpen(false);
         refetch();
-        setActiveTab('view');
+        setActiveTab("view");
       }
     } catch (error) {
-      toast.error(error.data?.message || 'Something went wrong! Try again.');
+      toast.error(error.data?.message || "Something went wrong! Try again.");
     }
   };
 
   const handleBulkUpdate = async () => {
     if (selectedInstitutes.length === 0) {
-      showMessage('error', 'Please select institutes to update');
+      showMessage("error", "Please select institutes to update");
       return;
     }
 
     if (!bulkUpdateField || !bulkUpdateValue.trim()) {
-      showMessage('error', 'Please select a field and enter a value');
+      showMessage("error", "Please select a field and enter a value");
       return;
     }
 
@@ -420,24 +420,24 @@ const InstituteManagement = () => {
       const result = await updateInstitute(updates).unwrap();
       if (result.success) {
         showMessage(
-          'success',
+          "success",
           `${result.data.modifiedCount} institutes updated successfully!`,
         );
         setSelectedInstitutes([]);
-        setBulkUpdateField('');
-        setBulkUpdateValue('');
+        setBulkUpdateField("");
+        setBulkUpdateValue("");
         setSelectAll(false);
         setIsBulkUpdateOpen(false);
         refetch();
       }
     } catch (error) {
-      showMessage('error', error?.data?.message || 'Error updating institutes');
+      showMessage("error", error?.data?.message || "Error updating institutes");
     }
   };
 
   const handleDelete = async () => {
     if (!instituteToDelete && selectedInstitutes.length === 0) {
-      showMessage('error', 'Please select institutes to delete');
+      showMessage("error", "Please select institutes to delete");
       return;
     }
 
@@ -450,7 +450,7 @@ const InstituteManagement = () => {
       if (result.success) {
         const deletedCount = instituteToDelete ? 1 : result.data.deletedCount;
         showMessage(
-          'success',
+          "success",
           `${deletedCount} institute(s) deleted successfully!`,
         );
 
@@ -468,7 +468,7 @@ const InstituteManagement = () => {
         }
       }
     } catch (error) {
-      showMessage('error', error?.data?.message || 'Error deleting institutes');
+      showMessage("error", error?.data?.message || "Error deleting institutes");
     }
   };
 
@@ -573,7 +573,7 @@ const InstituteManagement = () => {
               </div>
 
               <button
-                onClick={() => setActiveTab('create')}
+                onClick={() => setActiveTab("create")}
                 className="px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
               >
                 <Plus className="w-4 h-4" />
@@ -594,11 +594,11 @@ const InstituteManagement = () => {
             >
               <div
                 className={`rounded-lg border p-4 ${
-                  message.type === 'error'
-                    ? 'bg-red-50 border-red-200 text-red-700'
-                    : message.type === 'success'
-                      ? 'bg-green-50 border-green-200 text-green-700'
-                      : 'bg-blue-50 border-blue-200 text-blue-700'
+                  message.type === "error"
+                    ? "bg-red-50 border-red-200 text-red-700"
+                    : message.type === "success"
+                      ? "bg-green-50 border-green-200 text-green-700"
+                      : "bg-blue-50 border-blue-200 text-blue-700"
                 }`}
               >
                 <div className="flex items-center">
@@ -615,7 +615,7 @@ const InstituteManagement = () => {
           {/* Mobile Search */}
           <div
             className={`lg:hidden border-b border-gray-200 px-6 py-4 transition-all duration-300 ${
-              isMobileMenuOpen ? 'block' : 'hidden'
+              isMobileMenuOpen ? "block" : "hidden"
             }`}
           >
             <div className="space-y-3">
@@ -652,21 +652,21 @@ const InstituteManagement = () => {
             <div className="flex overflow-x-auto scrollbar-hide">
               {[
                 {
-                  id: 'view',
-                  label: 'View Institutes',
+                  id: "view",
+                  label: "View Institutes",
                   icon: Eye,
                   count: pagination?.totalInstitutes,
                 },
-                { id: 'create', label: 'Create Single', icon: Plus },
-                { id: 'create-multiple', label: 'Create Multiple', icon: Copy },
+                { id: "create", label: "Create Single", icon: Plus },
+                { id: "create-multiple", label: "Create Multiple", icon: Copy },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-colors ${
                     activeTab === tab.id
-                      ? 'border-blue-600 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      ? "border-blue-600 text-blue-600 bg-blue-50"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
@@ -684,7 +684,7 @@ const InstituteManagement = () => {
           {/* Tab Content */}
           <div className="p-6">
             {/* View Tab */}
-            {activeTab === 'view' && (
+            {activeTab === "view" && (
               <div>
                 {loadingInstitutes ? (
                   <TableSkeleton />
@@ -698,11 +698,11 @@ const InstituteManagement = () => {
                     </h3>
                     <p className="max-w-sm mx-auto mb-8 text-gray-500">
                       {debouncedSearch
-                        ? 'Try adjusting your search terms or filters'
-                        : 'Get started by creating your first institute'}
+                        ? "Try adjusting your search terms or filters"
+                        : "Get started by creating your first institute"}
                     </p>
                     <button
-                      onClick={() => setActiveTab('create')}
+                      onClick={() => setActiveTab("create")}
                       className="flex items-center gap-2 px-6 py-3 mx-auto font-medium text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       <Plus className="w-4 h-4" />
@@ -715,7 +715,7 @@ const InstituteManagement = () => {
                     {selectedInstitutes.length > 0 && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         className="mb-6"
                       >
@@ -858,21 +858,21 @@ const InstituteManagement = () => {
                       <div className="mt-6">
                         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                           <div className="text-sm text-gray-600">
-                            Showing{' '}
+                            Showing{" "}
                             <span className="font-medium">
                               {(currentPage - 1) * itemsPerPage + 1}
-                            </span>{' '}
-                            to{' '}
+                            </span>{" "}
+                            to{" "}
                             <span className="font-medium">
                               {Math.min(
                                 currentPage * itemsPerPage,
                                 pagination.totalInstitutes,
                               )}
-                            </span>{' '}
-                            of{' '}
+                            </span>{" "}
+                            of{" "}
                             <span className="font-medium">
                               {pagination?.totalInstitutes}
-                            </span>{' '}
+                            </span>{" "}
                             entries
                           </div>
 
@@ -882,8 +882,8 @@ const InstituteManagement = () => {
                               disabled={currentPage === 1}
                               className={`p-2 rounded-lg border ${
                                 currentPage === 1
-                                  ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
                               }`}
                             >
                               <ChevronsLeft className="w-4 h-4" />
@@ -894,8 +894,8 @@ const InstituteManagement = () => {
                               disabled={currentPage === 1}
                               className={`p-2 rounded-lg border ${
                                 currentPage === 1
-                                  ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
                               }`}
                             >
                               <ChevronLeft className="w-4 h-4" />
@@ -924,8 +924,8 @@ const InstituteManagement = () => {
                                     onClick={() => goToPage(pageNum)}
                                     className={`min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border ${
                                       currentPage === pageNum
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        ? "bg-blue-600 text-white border-blue-600"
+                                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
                                     }`}
                                   >
                                     {pageNum}
@@ -939,8 +939,8 @@ const InstituteManagement = () => {
                               disabled={currentPage === pagination.totalPages}
                               className={`p-2 rounded-lg border ${
                                 currentPage === pagination.totalPages
-                                  ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
                               }`}
                             >
                               <ChevronRight className="w-4 h-4" />
@@ -951,8 +951,8 @@ const InstituteManagement = () => {
                               disabled={currentPage === pagination.totalPages}
                               className={`p-2 rounded-lg border ${
                                 currentPage === pagination.totalPages
-                                  ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
                               }`}
                             >
                               <ChevronsRight className="w-4 h-4" />
@@ -967,7 +967,7 @@ const InstituteManagement = () => {
             )}
 
             {/* Create Single Tab */}
-            {activeTab === 'create' && (
+            {activeTab === "create" && (
               <div>
                 <motion.form
                   onSubmit={handleSubmit}
@@ -1196,7 +1196,7 @@ const InstituteManagement = () => {
             )}
 
             {/* Create Multiple Tab */}
-            {activeTab === 'create-multiple' && (
+            {activeTab === "create-multiple" && (
               <div>
                 <motion.form
                   onSubmit={handleSubmit}
@@ -1285,7 +1285,7 @@ const InstituteManagement = () => {
                                     onChange={(e) =>
                                       handleMultipleInputChange(
                                         index,
-                                        'name',
+                                        "name",
                                         e.target.value,
                                       )
                                     }
@@ -1305,7 +1305,7 @@ const InstituteManagement = () => {
                                     onChange={(e) =>
                                       handleMultipleInputChange(
                                         index,
-                                        'eiin',
+                                        "eiin",
                                         e.target.value,
                                       )
                                     }
@@ -1325,7 +1325,7 @@ const InstituteManagement = () => {
                                     onChange={(e) =>
                                       handleMultipleInputChange(
                                         index,
-                                        'slug',
+                                        "slug",
                                         e.target.value,
                                       )
                                     }
@@ -1345,7 +1345,7 @@ const InstituteManagement = () => {
                                     onChange={(e) =>
                                       handleMultipleInputChange(
                                         index,
-                                        'phone',
+                                        "phone",
                                         e.target.value,
                                       )
                                     }
@@ -1364,7 +1364,7 @@ const InstituteManagement = () => {
                                     onChange={(e) =>
                                       handleMultipleInputChange(
                                         index,
-                                        'email',
+                                        "email",
                                         e.target.value,
                                       )
                                     }
@@ -1383,7 +1383,7 @@ const InstituteManagement = () => {
                                       onChange={(e) =>
                                         handleMultipleInputChange(
                                           index,
-                                          'type',
+                                          "type",
                                           e.target.value,
                                         )
                                       }
@@ -1413,7 +1413,7 @@ const InstituteManagement = () => {
                             {
                               multipleForms.filter((f) => f.name && f.eiin)
                                 .length
-                            }{' '}
+                            }{" "}
                           </span>
                           out of {multipleForms.length} forms are ready to
                           create
@@ -1430,21 +1430,21 @@ const InstituteManagement = () => {
                           {creating ? (
                             <>
                               <Loader2 className="w-4 h-4 animate-spin" />
-                              Creating{' '}
+                              Creating{" "}
                               {
                                 multipleForms.filter((f) => f.name && f.eiin)
                                   .length
-                              }{' '}
+                              }{" "}
                               Institutes...
                             </>
                           ) : (
                             <>
                               <Check className="w-4 h-4" />
-                              Create{' '}
+                              Create{" "}
                               {
                                 multipleForms.filter((f) => f.name && f.eiin)
                                   .length
-                              }{' '}
+                              }{" "}
                               Institutes
                             </>
                           )}
@@ -1534,7 +1534,7 @@ const InstituteManagement = () => {
                     Updating...
                   </>
                 ) : (
-                  'Update Institutes'
+                  "Update Institutes"
                 )}
               </button>
             </div>
@@ -1559,7 +1559,7 @@ const InstituteManagement = () => {
               </h3>
               <p className="mb-6 text-center text-gray-600">
                 {instituteToDelete
-                  ? 'This will permanently delete the selected institute.'
+                  ? "This will permanently delete the selected institute."
                   : `This will permanently delete ${selectedInstitutes.length} selected institutes.`}
                 <br />
                 This action cannot be undone.
@@ -1584,7 +1584,7 @@ const InstituteManagement = () => {
                       Deleting...
                     </>
                   ) : (
-                    'Delete'
+                    "Delete"
                   )}
                 </button>
               </div>
@@ -1597,7 +1597,7 @@ const InstituteManagement = () => {
       {isEditSheetOpen && (
         <div className="fixed inset-0 z-50 bg-black/50">
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
+            initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             className="absolute inset-y-0 right-0 w-full overflow-y-auto bg-white shadow-2xl sm:max-w-2xl"
           >
@@ -1696,7 +1696,7 @@ const InstituteManagement = () => {
                       <input
                         type="tel"
                         name="phone"
-                        value={editingInstitute.phone || ''}
+                        value={editingInstitute.phone || ""}
                         onChange={handleEditInputChange}
                         className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
@@ -1709,7 +1709,7 @@ const InstituteManagement = () => {
                       <input
                         type="email"
                         name="email"
-                        value={editingInstitute.email || ''}
+                        value={editingInstitute.email || ""}
                         onChange={handleEditInputChange}
                         className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
@@ -1722,7 +1722,7 @@ const InstituteManagement = () => {
                     </label>
                     <textarea
                       name="address"
-                      value={editingInstitute.address || ''}
+                      value={editingInstitute.address || ""}
                       onChange={handleEditInputChange}
                       rows={3}
                       className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
@@ -1742,7 +1742,7 @@ const InstituteManagement = () => {
                         Updating...
                       </>
                     ) : (
-                      'Update Institute'
+                      "Update Institute"
                     )}
                   </button>
                   <button

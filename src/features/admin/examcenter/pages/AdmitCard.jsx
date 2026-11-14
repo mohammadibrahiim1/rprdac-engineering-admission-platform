@@ -1,24 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   LayoutGrid,
   FileText,
   Loader2,
   AlertCircle,
   Search,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGetAdmitCardsQuery } from '../../../../../redux/features/student/studentApi';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-import AdmitCardPrintContainer from '../components/AdmitCard/AdmitCardPrintContainer';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import { useAdmitCardFilters } from '../hooks/admitcard/useAdmitCardFilters';
-import AdmitCardFilters from '../components/AdmitCard/AdmitCardFilters';
-import SingleAdmitCard from '../components/AdmitCard/SingleAdmitCard';
-import AdmitCardPagination from '../components/AdmitCard/AdmitCardPagination';
-import AdmitCardFormDashboard from '../components/AdmitCard/AdmitCardFormDashboard';
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+
+import { useGetAdmitCardsQuery } from "../../studentPanel/services/api/studentApi";
+import { useAdmitCardFilters } from "../hooks/admitcard/useAdmitCardFilters";
+import AdmitCardFormDashboard from "../components/AdmitCard/AdmitCardFormDashboard";
 
 const AdmitCard = () => {
-  const [activeTab, setActiveTab] = useState('form');
+  const [activeTab, setActiveTab] = useState("form");
   const {
     searchTerm,
     filter,
@@ -41,7 +38,7 @@ const AdmitCard = () => {
       {/* Sticky Premium Top Nav & Global Header */}
       <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-md print:hidden">
         <nav className="w-full border-b border-slate-100 px-4 h-11 flex items-center">
-          <BreadCrumbMenu />
+          <Breadcrumb />
         </nav>
         <div className="flex flex-col px-4 py-5">
           <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
@@ -60,22 +57,22 @@ const AdmitCard = () => {
         <div className="flex w-full px-4 py-1.5 bg-slate-100 border-b border-slate-200">
           <div className="flex gap-1 bg-slate-200/70 p-1 rounded">
             <button
-              onClick={() => setActiveTab('form')}
+              onClick={() => setActiveTab("form")}
               className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'form'
-                  ? 'bg-white text-slate-950 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
+                activeTab === "form"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
               <LayoutGrid size={14} />
               Create Admit Card
             </button>
             <button
-              onClick={() => setActiveTab('details')}
+              onClick={() => setActiveTab("details")}
               className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'details'
-                  ? 'bg-white text-slate-950 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
+                activeTab === "details"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
               <FileText size={14} />
@@ -87,7 +84,7 @@ const AdmitCard = () => {
         {/* Tab View switching implementation */}
         <div className="">
           <AnimatePresence mode="wait">
-            {activeTab === 'form' ? (
+            {activeTab === "form" ? (
               <motion.div
                 key="form-view"
                 initial={{ opacity: 0, y: 8 }}
@@ -129,13 +126,13 @@ const AdmitCard = () => {
                             Upcoming Lifecycle Auto-Deletion Schedule
                           </h4>
                           <p className="text-amber-700/90 mt-0.5">
-                            Admit Cards corresponding to range{' '}
+                            Admit Cards corresponding to range{" "}
                             <b className="text-amber-900">
                               {deleteInfo.idRange}
-                            </b>{' '}
-                            are slated for database flush cleanup within{' '}
+                            </b>{" "}
+                            are slated for database flush cleanup within{" "}
                             <b>
-                              {deleteInfo.remainingTime?.hours}h{' '}
+                              {deleteInfo.remainingTime?.hours}h{" "}
                               {deleteInfo.remainingTime?.minutes}m
                             </b>
                             .
@@ -161,7 +158,7 @@ const AdmitCard = () => {
                           <AlertCircle className="w-10 h-10 mb-3 text-red-500" />
                           <p className="text-xs font-medium text-red-600">
                             {error?.data?.message ||
-                              'Something went wrong.Please, try again later!'}
+                              "Something went wrong.Please, try again later!"}
                           </p>
                         </div>
                       ) : isLoading || isFetching ? (

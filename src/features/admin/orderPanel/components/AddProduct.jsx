@@ -1,8 +1,8 @@
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { ArrowLeft } from 'lucide-react';
-import { useCreateProductMutation } from '../../../../bookshop/services/productApi';
-import ProductForm from './ProductForm';
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
+import ProductForm from "./ProductForm";
+import { useCreateProductMutation } from "../services/productApi";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ const AddProduct = () => {
   const handleSubmit = async (formData) => {
     try {
       const result = await createProduct(formData).unwrap();
-      toast.success(result?.message || 'Product created successfully!');
+      toast.success(result?.message || "Product created successfully!");
     } catch (err) {
-      const msg = err?.data?.message || 'Failed to create product';
+      const msg = err?.data?.message || "Failed to create product";
       toast.error(msg);
       if (err?.data?.errors) {
         err.data.errors.forEach((e) => toast.error(`${e.field}: ${e.message}`));

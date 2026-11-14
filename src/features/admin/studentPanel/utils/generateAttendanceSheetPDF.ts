@@ -1,7 +1,7 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import watermarklogo from '../../../../../assets/img/log-rpr.png';
-import headerLogo from '../../../../../assets/img/rpr-attendance-logo.jpeg';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import watermarklogo from "../../../../assets/img/log-rpr.png";
+import headerLogo from "../../../../assets/img/rpr-attendance-logo.jpeg";
 
 // ======================================================
 // Types
@@ -46,7 +46,7 @@ const MIN_BODY_ROW_HEIGHT = 5.5;
 // ======================================================
 // Image Types
 // ======================================================
-type ImageFormat = 'PNG' | 'JPEG';
+type ImageFormat = "PNG" | "JPEG";
 
 // ======================================================
 // Utility Functions
@@ -55,10 +55,10 @@ function safeFileName(value: string): string {
   return (
     value
       .trim()
-      .replace(/[<>:"/\\|?*]/g, '_')
-      .replace(/[\s\S]/g, (char) => (char.charCodeAt(0) < 32 ? '_' : char))
-      .replace(/\s+/g, '_')
-      .slice(0, 80) || 'All'
+      .replace(/[<>:"/\\|?*]/g, "_")
+      .replace(/[\s\S]/g, (char) => (char.charCodeAt(0) < 32 ? "_" : char))
+      .replace(/\s+/g, "_")
+      .slice(0, 80) || "All"
   );
 }
 
@@ -69,22 +69,22 @@ function capitalizeWords(str: string): string {
 }
 
 function getStudentName(student: StudentPDFItem): string {
-  const value = student.name ?? student.fullName ?? student.studentName ?? '';
+  const value = student.name ?? student.fullName ?? student.studentName ?? "";
   return String(capitalizeWords(value).trim());
 }
 
 function getImageFormat(dataUrl: string): ImageFormat {
   const normalized = dataUrl.slice(0, 100).toLowerCase();
   if (
-    normalized.startsWith('data:image/jpeg') ||
-    normalized.startsWith('data:image/jpg')
+    normalized.startsWith("data:image/jpeg") ||
+    normalized.startsWith("data:image/jpg")
   ) {
-    return 'JPEG';
+    return "JPEG";
   }
-  if (normalized.startsWith('data:image/png')) {
-    return 'PNG';
+  if (normalized.startsWith("data:image/png")) {
+    return "PNG";
   }
-  throw new Error('Invalid image. Please provide a PNG or JPEG data URL.');
+  throw new Error("Invalid image. Please provide a PNG or JPEG data URL.");
 }
 
 // ======================================================
@@ -93,27 +93,27 @@ function getImageFormat(dataUrl: string): ImageFormat {
 function createImageDataUrl(imageUrl: string, opacity = 1): Promise<string> {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = 'anonymous';
+    image.crossOrigin = "anonymous";
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext("2d");
         if (!context) {
-          reject(new Error('Could not create canvas.'));
+          reject(new Error("Could not create canvas."));
           return;
         }
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.globalAlpha = Math.max(0, Math.min(1, opacity));
         context.drawImage(image, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
+        resolve(canvas.toDataURL("image/png"));
       } catch (error) {
         reject(error);
       }
     };
     image.onerror = () => {
-      reject(new Error('Failed to load the image.'));
+      reject(new Error("Failed to load the image."));
     };
     image.src = imageUrl;
   });
@@ -153,10 +153,10 @@ function drawHeader(
       imageHeight,
     );
   } catch {
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(17);
     doc.setTextColor(20, 75, 105);
-    doc.text('RPR', centerX, 11, { align: 'center' });
+    doc.text("RPR", centerX, 11, { align: "center" });
   }
 
   // Horizontal divider
@@ -165,27 +165,27 @@ function drawHeader(
   doc.line(MARGIN_X, 19.5, pageWidth - MARGIN_X, 19.5);
 
   // Attendance sheet title
-  doc.setFont('helvetica', 'bold');
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(...COLORS.text);
   doc.text(
-    `Attendance Sheet (Session: ${capitalizeWords(sessionName.trim()) || 'N/A'})`,
+    `Attendance Sheet (Session: ${capitalizeWords(sessionName.trim()) || "N/A"})`,
     centerX,
     24.5,
     {
-      align: 'center',
+      align: "center",
     },
   );
 
   // Batch name
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.text(
-    `Batch: ${capitalizeWords(batchName.trim()) || 'All Batches'}`,
+    `Batch: ${capitalizeWords(batchName.trim()) || "All Batches"}`,
     centerX,
     29,
     {
-      align: 'center',
+      align: "center",
     },
   );
 }
@@ -212,9 +212,9 @@ function drawWatermark(doc: jsPDF, watermarkDataUrl: string): void {
     const x = (pageWidth - imageWidth) / 2;
     const y = (pageHeight - imageHeight) / 2;
 
-    doc.addImage(watermarkDataUrl, 'PNG', x, y, imageWidth, imageHeight);
+    doc.addImage(watermarkDataUrl, "PNG", x, y, imageWidth, imageHeight);
   } catch (error) {
-    console.error('Could not render attendance watermark:', error);
+    console.error("Could not render attendance watermark:", error);
   }
 }
 
@@ -224,12 +224,12 @@ function drawWatermark(doc: jsPDF, watermarkDataUrl: string): void {
 
 export async function generateAttendanceSheetPDF(
   students: StudentPDFItem[] = [],
-  batchName = '',
-  sessionName = '',
+  batchName = "",
+  sessionName = "",
   options: AttendancePDFOptions = {},
 ): Promise<void> {
   if (!Array.isArray(students)) {
-    throw new TypeError('Students must be an array.');
+    throw new TypeError("Students must be an array.");
   }
 
   const attendanceColumns = Math.floor(
@@ -244,14 +244,14 @@ export async function generateAttendanceSheetPDF(
     attendanceColumns < 1 ||
     attendanceColumns > 30
   ) {
-    throw new RangeError('Attendance columns must be between 1 and 30.');
+    throw new RangeError("Attendance columns must be between 1 and 30.");
   }
   if (
     !Number.isFinite(studentsPerPage) ||
     studentsPerPage < 1 ||
     studentsPerPage > 100
   ) {
-    throw new RangeError('Students per page must be between 1 and 100.');
+    throw new RangeError("Students per page must be between 1 and 100.");
   }
 
   // Separate header logo & watermark
@@ -264,9 +264,9 @@ export async function generateAttendanceSheetPDF(
   ]);
 
   const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4',
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4",
     compress: true,
   });
 
@@ -294,7 +294,7 @@ export async function generateAttendanceSheetPDF(
   // ====================================================
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
     if (pageIndex > 0) {
-      doc.addPage('a4', 'landscape');
+      doc.addPage("a4", "landscape");
     }
 
     // Header logo
@@ -314,12 +314,12 @@ export async function generateAttendanceSheetPDF(
         ? pageStudents.map((student, index) => [
             startIndex + index + 1,
             getStudentName(student),
-            ...Array<string>(attendanceColumns).fill(''),
+            ...Array<string>(attendanceColumns).fill(""),
           ])
-        : [['', '', ...Array<string>(attendanceColumns).fill('')]];
+        : [["", "", ...Array<string>(attendanceColumns).fill("")]];
 
     const head = [
-      ['SL', 'Name', ...Array.from({ length: attendanceColumns }, () => '')],
+      ["SL", "Name", ...Array.from({ length: attendanceColumns }, () => "")],
     ];
 
     autoTable(doc, {
@@ -332,13 +332,13 @@ export async function generateAttendanceSheetPDF(
       },
       head,
       body: rows,
-      theme: 'grid',
+      theme: "grid",
       tableWidth: usableWidth,
-      showHead: 'everyPage',
-      pageBreak: 'avoid',
-      rowPageBreak: 'avoid',
+      showHead: "everyPage",
+      pageBreak: "avoid",
+      rowPageBreak: "avoid",
       styles: {
-        font: 'helvetica',
+        font: "helvetica",
         fontSize: 8,
         textColor: COLORS.text,
         lineColor: COLORS.border,
@@ -349,19 +349,19 @@ export async function generateAttendanceSheetPDF(
           bottom: 1,
           left: 1.1,
         },
-        valign: 'middle',
+        valign: "middle",
         minCellHeight: rowHeight,
-        overflow: 'linebreak',
+        overflow: "linebreak",
         fillColor: false,
       },
       headStyles: {
         fillColor: COLORS.headerBg,
         textColor: COLORS.text,
-        fontStyle: 'bold',
+        fontStyle: "bold",
         fontSize: 7.5,
         minCellHeight: HEADER_ROW_HEIGHT,
-        halign: 'left',
-        valign: 'middle',
+        halign: "left",
+        valign: "middle",
       },
       bodyStyles: {
         fillColor: false,
@@ -369,34 +369,34 @@ export async function generateAttendanceSheetPDF(
       columnStyles: {
         0: {
           cellWidth: slWidth,
-          halign: 'center',
+          halign: "center",
         },
         1: {
           cellWidth: nameWidth,
-          halign: 'left',
+          halign: "left",
         },
       },
       didParseCell: (data) => {
         // Force every attendance / sign column to the same larger width
         if (data.column.index >= 2) {
           data.cell.styles.cellWidth = attendanceWidth;
-          data.cell.styles.halign = 'center';
+          data.cell.styles.halign = "center";
         }
 
         // Center the SL header cell
-        if (data.section === 'head' && data.column.index === 0) {
-          data.cell.styles.halign = 'center';
+        if (data.section === "head" && data.column.index === 0) {
+          data.cell.styles.halign = "center";
         }
       },
       didDrawPage: () => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(7);
         doc.setTextColor(120, 120, 120);
         doc.text(
           `Page ${pageIndex + 1} of ${pageCount}`,
           pageWidth - MARGIN_X,
           pageHeight - 3,
-          { align: 'right' },
+          { align: "right" },
         );
       },
     });
@@ -405,13 +405,13 @@ export async function generateAttendanceSheetPDF(
   // ====================================================
   // Save PDF
   // ====================================================
-  const safeBatch = safeFileName(batchName || 'All');
-  const safeSession = safeFileName(sessionName || 'Session');
+  const safeBatch = safeFileName(batchName || "All");
+  const safeSession = safeFileName(sessionName || "Session");
   const fileName =
     options.fileName?.trim() ||
     `Attendance_Sheet_${safeBatch}_${safeSession}.pdf`;
 
   doc.save(
-    fileName.toLowerCase().endsWith('.pdf') ? fileName : `${fileName}.pdf`,
+    fileName.toLowerCase().endsWith(".pdf") ? fileName : `${fileName}.pdf`,
   );
 }

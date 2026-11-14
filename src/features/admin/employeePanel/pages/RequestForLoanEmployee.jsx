@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   ArrowRight,
   Loader2,
@@ -17,59 +17,59 @@ import {
   MoreHorizontal,
   Trash2,
   Edit3,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Components
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import EmployeeSelector from '../../../../../components/forms/EmployeeSelector';
+// import EmployeeSelector from "../../../../components/forms/EmployeeSelector";
 
 // API Hooks
-import { useUserRequestForLoanMutation } from '../../../../../redux/features/admin/adminApi';
+import { useUserRequestForLoanMutation } from "../../../../redux/features/admin/adminApi";
 import {
   useDeleteLoanMutation,
   useGetLoansQuery,
   useUpdateLoanDataMutation,
-} from '../../../../../redux/features/loan/loanApi';
-import toast from 'react-hot-toast';
+} from "../../../../redux/features/loan/loanApi";
+import { toast } from "sonner";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 // ================= VALIDATION SCHEMAS =================
 
 const schema = z.object({
-  employeeId: z.string().min(1, 'Please select an employee'),
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
+  employeeId: z.string().min(1, "Please select an employee"),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
 });
 
 const updateSchema = z.object({
-  amount: z.coerce.number().positive('Amount must be greater than 0'),
-  date: z.string().min(1, 'Date is required'),
-  status: z.enum(['pending', 'approve', 'rejected']),
+  amount: z.coerce.number().positive("Amount must be greater than 0"),
+  date: z.string().min(1, "Date is required"),
+  status: z.enum(["pending", "approve", "rejected"]),
 });
 
 // ================= STYLES (NOTION PRESETS) =================
 
 const STYLES = {
   input:
-    'w-full h-9 text-sm bg-[#F7F7F5] border border-[#EDECE9] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2383E2]/20 focus:border-[#2383E2] transition-all text-[#37352F]',
+    "w-full h-9 text-sm bg-[#F7F7F5] border border-[#EDECE9] rounded-md focus:outline-none focus:ring-2 focus:ring-[#2383E2]/20 focus:border-[#2383E2] transition-all text-[#37352F]",
   label:
-    'text-[11px] font-semibold text-[#7E7D77] mb-1.5 block uppercase tracking-wider',
+    "text-[11px] font-semibold text-[#7E7D77] mb-1.5 block uppercase tracking-wider",
   buttonPrimary:
-    'h-9 bg-[#2383E2] hover:bg-[#1C6AB8] text-white px-7 rounded text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50',
+    "h-9 bg-[#2383E2] hover:bg-[#1C6AB8] text-white px-7 rounded text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50",
   buttonSecondary:
-    'h-9 bg-white border border-[#EDECE9] hover:bg-[#F7F7F5] text-[#37352F] px-4 rounded-[4px] text-sm font-medium transition-all flex items-center justify-center gap-2',
-  card: 'bg-white border border-[#EDECE9] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.02)]',
+    "h-9 bg-white border border-[#EDECE9] hover:bg-[#F7F7F5] text-[#37352F] px-4 rounded-[4px] text-sm font-medium transition-all flex items-center justify-center gap-2",
+  card: "bg-white border border-[#EDECE9] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.02)]",
 };
 
 const RequestForLoanEmployee = () => {
   // --- States ---
-  const [status, setStatus] = useState('');
-  const [search, setSearch] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [page, setPage] = useState(1);
   const [editingLoan, setEditingLoan] = useState(null);
   const [selectedLoans, setSelectedLoans] = useState([]);
 
-  const panelType = 'staff';
+  const panelType = "staff";
 
   // --- API ---
   const {
@@ -100,7 +100,7 @@ const RequestForLoanEmployee = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { employeeId: '', amount: '' },
+    defaultValues: { employeeId: "", amount: "" },
   });
 
   const {
@@ -117,7 +117,7 @@ const RequestForLoanEmployee = () => {
       resetUpdate({
         amount: editingLoan.amount,
         status: editingLoan.status,
-        date: new Date(editingLoan.date).toISOString().split('T')[0],
+        date: new Date(editingLoan.date).toISOString().split("T")[0],
       });
     }
   }, [editingLoan, resetUpdate]);
@@ -146,11 +146,11 @@ const RequestForLoanEmployee = () => {
         userId: formData.employeeId,
         amount: Number(formData.amount),
       }).unwrap();
-      reset({ amount: '', employeeId: '' });
+      reset({ amount: "", employeeId: "" });
       toast.success(res?.message);
       refetch();
     } catch (err) {
-      toast.error(err?.data?.message || 'Request failed');
+      toast.error(err?.data?.message || "Request failed");
     }
   };
 
@@ -160,12 +160,12 @@ const RequestForLoanEmployee = () => {
       setEditingLoan(null);
       refetch();
     } catch (err) {
-      alert('Update failed');
+      alert("Update failed");
     }
   };
 
   const handleDeleteSelected = async (id) => {
-    if (!window.confirm('Delete selected loan requests permanently?')) return;
+    if (!window.confirm("Delete selected loan requests permanently?")) return;
     try {
       const res = await deleteLoan({ ids: selectedLoans }).unwrap();
       toast.success(res?.message);
@@ -183,7 +183,7 @@ const RequestForLoanEmployee = () => {
     <div className="min-h-screen bg-white text-[#37352F] selection:bg-[#2383E2]/10 font-sans">
       {/* Sticky Header */}
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#F1F1F0] h-12 flex items-center px-6">
-        <BreadCrumbMenu />
+        <Breadcrumb />
       </nav>
 
       <main className="px-4 py-14">
@@ -208,9 +208,9 @@ const RequestForLoanEmployee = () => {
             <div className="text-right">
               <p className={STYLES.label}>Approved Total</p>
               <p className="text-xl font-bold">
-                {stats?.totalApprovedAmount?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {stats?.totalApprovedAmount?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 }) || 0}
               </p>
             </div>
@@ -253,7 +253,7 @@ const RequestForLoanEmployee = () => {
                   </label>
                   <input
                     type="number"
-                    {...register('amount')}
+                    {...register("amount")}
                     placeholder="e.g. 15000"
                     className={STYLES.input}
                   />
@@ -272,7 +272,7 @@ const RequestForLoanEmployee = () => {
                   {isSubmitting ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    'Submit Record'
+                    "Submit Record"
                   )}
                 </button>
               </form>
@@ -305,7 +305,7 @@ const RequestForLoanEmployee = () => {
                   <input
                     type="date"
                     className={`${STYLES.input} pl-9 pr-6`}
-                    value={dateFilter || ''}
+                    value={dateFilter || ""}
                     onChange={(e) => setDateFilter(e.target.value)}
                   />
 
@@ -313,7 +313,7 @@ const RequestForLoanEmployee = () => {
                   {dateFilter && (
                     <button
                       type="button"
-                      onClick={() => setDateFilter('')}
+                      onClick={() => setDateFilter("")}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-[#A4A39E] hover:text-[#b12307] transition"
                     >
                       <X size={14} />
@@ -424,19 +424,19 @@ const RequestForLoanEmployee = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4 text-left font-sans font-semibold text-[#37352F]">
-                            {loan?.amount?.toLocaleString('en-US', {
-                              style: 'currency',
-                              currency: 'BDT',
+                            {loan?.amount?.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "BDT",
                             })}
                           </td>
                           <td className="px-4 py-4 text-left">
                             <StatusBadge status={loan?.status} />
                           </td>
                           <td className="px-4 py-4 text-left text-[#7E7D77] text-xs">
-                            {new Date(loan.date).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
+                            {new Date(loan.date).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
                             })}
                           </td>
                           <td className="px-4 py-4 text-left">
@@ -537,14 +537,14 @@ const RequestForLoanEmployee = () => {
                   <label className={STYLES.label}>Loan Amount</label>
                   <input
                     type="number"
-                    {...registerUpdate('amount')}
+                    {...registerUpdate("amount")}
                     className={STYLES.input}
                   />
                 </div>
                 <div>
                   <label className={STYLES.label}>Status</label>
                   <select
-                    {...registerUpdate('status')}
+                    {...registerUpdate("status")}
                     className={STYLES.input}
                   >
                     <option value="pending">Pending</option>
@@ -556,7 +556,7 @@ const RequestForLoanEmployee = () => {
                   <label className={STYLES.label}>Effective Date</label>
                   <input
                     type="date"
-                    {...registerUpdate('date')}
+                    {...registerUpdate("date")}
                     className={STYLES.input}
                   />
                 </div>
@@ -577,7 +577,7 @@ const RequestForLoanEmployee = () => {
                     {isUpdating ? (
                       <Loader2 size={16} className="animate-spin" />
                     ) : (
-                      'Save Changes'
+                      "Save Changes"
                     )}
                   </button>
                 </div>
@@ -593,9 +593,9 @@ const RequestForLoanEmployee = () => {
 // Sub-component for Status Badges
 const StatusBadge = ({ status }) => {
   const configs = {
-    approve: 'bg-[#E7F3EF] text-[#0D593E]',
-    pending: 'bg-[#FDECC8] text-[#965E00]',
-    rejected: 'bg-[#FFE2E5] text-[#821D24]',
+    approve: "bg-[#E7F3EF] text-[#0D593E]",
+    pending: "bg-[#FDECC8] text-[#965E00]",
+    rejected: "bg-[#FFE2E5] text-[#821D24]",
   };
   return (
     <span

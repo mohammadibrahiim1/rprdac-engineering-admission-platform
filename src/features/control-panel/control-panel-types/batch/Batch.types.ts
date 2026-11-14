@@ -6,6 +6,12 @@ export interface BatchRecord {
   [key: string]: unknown;
 }
 
+export interface BatchesApiResponse {
+  data: BatchRecord[];
+  success?: boolean;
+  message?: string;
+}
+
 export interface CreateBatchRequest {
   name: string;
   [key: string]: any;

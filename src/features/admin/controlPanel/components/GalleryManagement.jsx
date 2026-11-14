@@ -1,5 +1,4 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
   Loader2,
@@ -9,9 +8,9 @@ import {
   Check,
   Pencil,
   Image as ImageIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
-const SERVER = import.meta.env.VITE_SERVER_BASE_URL || '';
+const SERVER = import.meta.env.VITE_SERVER_BASE_URL || "";
 
 const GalleryManagement = ({ manager }) => {
   const {
@@ -201,7 +200,7 @@ const GalleryManagement = ({ manager }) => {
                     return (
                       <tr
                         key={item._id || item.id}
-                        className={`transition-colors ${isSelected ? 'bg-indigo-50/30' : 'hover:bg-slate-50/60'}`}
+                        className={`transition-colors ${isSelected ? "bg-indigo-50/30" : "hover:bg-slate-50/60"}`}
                       >
                         <td className="px-6 py-3.5">
                           <input
@@ -218,17 +217,17 @@ const GalleryManagement = ({ manager }) => {
                           <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-100">
                             <img
                               src={`${SERVER}${item?.url}`}
-                              alt={item.originalName || 'Gallery'}
+                              alt={item.originalName || "Gallery"}
                               className="w-full h-full object-cover"
                             />
                           </div>
                         </td>
                         <td className="px-6 py-3.5">
                           <p className="font-semibold text-slate-800 max-w-[200px] truncate">
-                            {item.originalName || 'Asset'}
+                            {item.originalName || "Asset"}
                           </p>
                           <p className="text-[10px] text-slate-400 uppercase">
-                            {item.mimetype || 'Image'}
+                            {item.mimetype || "Image"}
                           </p>
                         </td>
                         <td className="px-6 py-3.5 text-right space-x-1">

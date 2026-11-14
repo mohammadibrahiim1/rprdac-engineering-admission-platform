@@ -1,30 +1,30 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { toast } from "sonner";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
 const OrderUpdateModal = ({ order, onClose, onUpdate }) => {
-  const [status, setStatus] = useState('');
-  const [discount, setDiscount] = useState('');
+  const [status, setStatus] = useState("");
+  const [discount, setDiscount] = useState("");
   const [items, setItems] = useState(
-    order?.items?.map((item) => ({ ...item, sl_no: item.sl_no || '' })) || [],
+    order?.items?.map((item) => ({ ...item, sl_no: item.sl_no || "" })) || [],
   );
 
   // Close on ESC
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [onClose]);
 
   // Prevent scroll when modal open
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => (document.body.style.overflow = 'auto');
+    document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = "auto");
   }, []);
 
   // ✅ FIX: was called as handleSlNoChange(e.target.value) — missing index
@@ -42,9 +42,9 @@ const OrderUpdateModal = ({ order, onClose, onUpdate }) => {
     if (discount) {
       payload.discounts = [
         {
-          discountCode: 'MANUAL',
+          discountCode: "MANUAL",
           amount: Number(discount),
-          description: 'Manual Discount',
+          description: "Manual Discount",
         },
       ];
     }
@@ -58,13 +58,13 @@ const OrderUpdateModal = ({ order, onClose, onUpdate }) => {
     }
 
     if (Object.keys(payload).length === 0) {
-      return alert('Nothing to update');
+      return alert("Nothing to update");
     }
 
     try {
       const res = await fetch(`${SERVER}/api/order/${order._id}/update`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -72,12 +72,12 @@ const OrderUpdateModal = ({ order, onClose, onUpdate }) => {
 
       if (data.success) {
         onClose();
-        toast.success(res.message || 'Order update successful!');
+        toast.success(res.message || "Order update successful!");
       } else {
         toast.error(data.error?.message);
       }
     } catch (err) {
-      toast.error('Something went wrong. Please try again.');
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -172,7 +172,7 @@ const OrderUpdateModal = ({ order, onClose, onUpdate }) => {
                         type="text"
                         placeholder="Serial No."
                         className="px-3 py-2 text-sm bg-white border rounded-lg w-36 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={item.sl_no || ''}
+                        value={item.sl_no || ""}
                         // ✅ FIX: was handleSlNoChange(e.target.value) — index was missing
                         onChange={(e) =>
                           handleSlNoChange(index, e.target.value)

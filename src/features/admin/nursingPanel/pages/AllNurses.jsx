@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useFetchNursesQuery } from '../../../../../redux/features/Nursing/NursingApi';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,9 +15,10 @@ import {
   Home,
   ChevronRight as ChevronRightIcon,
   Filter,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { useFetchNursesQuery } from "@/redux/features/Nursing/NursingApi";
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
@@ -26,7 +26,7 @@ const itemVariants = {
 };
 
 const AllNurses = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isLimitOpen, setIsLimitOpen] = useState(false);
@@ -65,7 +65,7 @@ const AllNurses = () => {
       y: 0,
       transition: {
         delay: i * 0.05,
-        type: 'spring',
+        type: "spring",
         stiffness: 100,
       },
     }),
@@ -79,7 +79,7 @@ const AllNurses = () => {
         <div className="flex flex-col items-center justify-center">
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             className="mb-4"
           >
             <Loader className="w-8 h-8 text-blue-600" />
@@ -103,7 +103,7 @@ const AllNurses = () => {
           </h3>
           <p className="max-w-md mb-4 text-sm text-gray-600">
             {error?.data?.message ||
-              'An unexpected error occurred. Please try again later.'}
+              "An unexpected error occurred. Please try again later."}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -126,7 +126,7 @@ const AllNurses = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -151,7 +151,7 @@ const AllNurses = () => {
             </div>
             <div className="flex items-center gap-3">
               <Link
-                to={'/dashboard/nursing/duties/all'}
+                to={"/dashboard/nursing/duties/all"}
                 className="px-4 py-2 border border-blue-100 rounded-lg bg-blue-50"
               >
                 <p className="text-sm text-gray-600">All Duties</p>
@@ -190,7 +190,7 @@ const AllNurses = () => {
                   >
                     Show {limit}
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform ${isLimitOpen ? 'rotate-180' : ''}`}
+                      className={`h-4 w-4 transition-transform ${isLimitOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
@@ -208,8 +208,8 @@ const AllNurses = () => {
                             onClick={() => handleSelect(option)}
                             className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-50 transition-colors ${
                               limit === option
-                                ? 'bg-blue-50 text-blue-600'
-                                : 'text-gray-700'
+                                ? "bg-blue-50 text-blue-600"
+                                : "text-gray-700"
                             }`}
                           >
                             {option}
@@ -323,8 +323,8 @@ const AllNurses = () => {
 
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">
-                            {nus?.userType === 'staff'
-                              ? 'Employee'
+                            {nus?.userType === "staff"
+                              ? "Employee"
                               : nus?.userType}
                           </span>
                         </td>
@@ -339,8 +339,8 @@ const AllNurses = () => {
                           <span
                             className={`font-semibold ${
                               nus?.totalDuePayment > 0
-                                ? 'text-amber-600'
-                                : 'text-gray-400'
+                                ? "text-amber-600"
+                                : "text-gray-400"
                             }`}
                           >
                             {nus?.totalDuePayment?.toFixed(2) || 0} BDT
@@ -357,8 +357,8 @@ const AllNurses = () => {
                           <span
                             className={`font-semibold ${
                               nus?.totalLoanAmount > 0
-                                ? 'text-purple-600'
-                                : 'text-gray-400'
+                                ? "text-purple-600"
+                                : "text-gray-400"
                             }`}
                           >
                             {nus?.totalLoanAmount?.toFixed(2) || 0} BDT
@@ -375,8 +375,8 @@ const AllNurses = () => {
                             <span
                               className={`font-semibold ${
                                 nus?.dueLoanAmount > 0
-                                  ? 'text-red-600'
-                                  : 'text-gray-400'
+                                  ? "text-red-600"
+                                  : "text-gray-400"
                               }`}
                             >
                               {nus?.dueLoanAmount?.toFixed(2) || 0} BDT
@@ -425,11 +425,11 @@ const AllNurses = () => {
                           <p className="max-w-md mb-4 text-sm text-gray-600">
                             {searchQuery
                               ? `No results found for "${searchQuery}". Try adjusting your search.`
-                              : 'There are no nursing staff in the system yet.'}
+                              : "There are no nursing staff in the system yet."}
                           </p>
                           {searchQuery && (
                             <button
-                              onClick={() => setSearchQuery('')}
+                              onClick={() => setSearchQuery("")}
                               className="px-4 py-2 text-sm font-medium text-white transition-colors bg-gray-900 rounded-lg hover:bg-gray-800"
                             >
                               Clear Search

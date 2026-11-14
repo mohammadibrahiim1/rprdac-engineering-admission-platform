@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 import {
   Loader2,
   FileText,
@@ -22,12 +22,12 @@ import {
   CreditCard,
   Megaphone,
   Zap,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   useGetAnnouncementsQuery,
   useGetStudentAnnouncementsQuery,
-} from '../../../../redux/features/announcement/announcementApi';
-import BreadCrumbMenu from '../../../../components/BreadCrumbMenu';
+} from "../../../../redux/features/announcement/announcementApi";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
@@ -35,111 +35,111 @@ const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
    CONSTANTS
 ───────────────────────────────────────────────────────── */
 const announcementOptions = [
-  { id: 1, label: 'Class', value: 'class' },
-  { id: 2, label: 'Exam', value: 'exam' },
-  { id: 3, label: 'Result', value: 'result' },
-  { id: 4, label: 'Event', value: 'event' },
-  { id: 5, label: 'General', value: 'general' },
-  { id: 6, label: 'Admission', value: 'admission' },
-  { id: 7, label: 'Holiday', value: 'holiday' },
-  { id: 8, label: 'Meeting', value: 'meeting' },
-  { id: 9, label: 'Routine', value: 'routine' },
-  { id: 10, label: 'Notice', value: 'notice' },
-  { id: 11, label: 'Admit Card', value: 'admit_card' },
-  { id: 12, label: 'Fees', value: 'fees' },
-  { id: 13, label: 'Urgent', value: 'urgent' },
+  { id: 1, label: "Class", value: "class" },
+  { id: 2, label: "Exam", value: "exam" },
+  { id: 3, label: "Result", value: "result" },
+  { id: 4, label: "Event", value: "event" },
+  { id: 5, label: "General", value: "general" },
+  { id: 6, label: "Admission", value: "admission" },
+  { id: 7, label: "Holiday", value: "holiday" },
+  { id: 8, label: "Meeting", value: "meeting" },
+  { id: 9, label: "Routine", value: "routine" },
+  { id: 10, label: "Notice", value: "notice" },
+  { id: 11, label: "Admit Card", value: "admit_card" },
+  { id: 12, label: "Fees", value: "fees" },
+  { id: 13, label: "Urgent", value: "urgent" },
 ];
 
 const TYPE_CONFIG = {
   result: {
-    color: '#059669',
-    bg: '#ecfdf5',
-    border: '#a7f3d0',
-    text: '#065f46',
+    color: "#059669",
+    bg: "#ecfdf5",
+    border: "#a7f3d0",
+    text: "#065f46",
     icon: GraduationCap,
   },
   class: {
-    color: '#2563eb',
-    bg: '#eff6ff',
-    border: '#bfdbfe',
-    text: '#1e40af',
+    color: "#2563eb",
+    bg: "#eff6ff",
+    border: "#bfdbfe",
+    text: "#1e40af",
     icon: Users,
   },
   exam: {
-    color: '#d97706',
-    bg: '#fffbeb',
-    border: '#fde68a',
-    text: '#92400e',
+    color: "#d97706",
+    bg: "#fffbeb",
+    border: "#fde68a",
+    text: "#92400e",
     icon: BookOpen,
   },
   general: {
-    color: '#7c3aed',
-    bg: '#f5f3ff',
-    border: '#ddd6fe',
-    text: '#4c1d95',
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#ddd6fe",
+    text: "#4c1d95",
     icon: Sparkles,
   },
   event: {
-    color: '#db2777',
-    bg: '#fdf2f8',
-    border: '#fbcfe8',
-    text: '#831843',
+    color: "#db2777",
+    bg: "#fdf2f8",
+    border: "#fbcfe8",
+    text: "#831843",
     icon: Calendar,
   },
   admission: {
-    color: '#0891b2',
-    bg: '#ecfeff',
-    border: '#a5f3fc',
-    text: '#164e63',
+    color: "#0891b2",
+    bg: "#ecfeff",
+    border: "#a5f3fc",
+    text: "#164e63",
     icon: FileText,
   },
   holiday: {
-    color: '#16a34a',
-    bg: '#f0fdf4',
-    border: '#bbf7d0',
-    text: '#14532d',
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    border: "#bbf7d0",
+    text: "#14532d",
     icon: Sparkles,
   },
   meeting: {
-    color: '#9333ea',
-    bg: '#faf5ff',
-    border: '#e9d5ff',
-    text: '#581c87',
+    color: "#9333ea",
+    bg: "#faf5ff",
+    border: "#e9d5ff",
+    text: "#581c87",
     icon: Users,
   },
   routine: {
-    color: '#0284c7',
-    bg: '#f0f9ff',
-    border: '#bae6fd',
-    text: '#0c4a6e',
+    color: "#0284c7",
+    bg: "#f0f9ff",
+    border: "#bae6fd",
+    text: "#0c4a6e",
     icon: ClipboardList,
   },
   notice: {
-    color: '#dc2626',
-    bg: '#fef2f2',
-    border: '#fecaca',
-    text: '#7f1d1d',
+    color: "#dc2626",
+    bg: "#fef2f2",
+    border: "#fecaca",
+    text: "#7f1d1d",
     icon: Megaphone,
   },
   admit_card: {
-    color: '#7c3aed',
-    bg: '#f5f3ff',
-    border: '#ddd6fe',
-    text: '#4c1d95',
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#ddd6fe",
+    text: "#4c1d95",
     icon: CreditCard,
   },
   fees: {
-    color: '#b45309',
-    bg: '#fffbeb',
-    border: '#fde68a',
-    text: '#78350f',
+    color: "#b45309",
+    bg: "#fffbeb",
+    border: "#fde68a",
+    text: "#78350f",
     icon: Tag,
   },
   urgent: {
-    color: '#dc2626',
-    bg: '#fef2f2',
-    border: '#fecaca',
-    text: '#7f1d1d',
+    color: "#dc2626",
+    bg: "#fef2f2",
+    border: "#fecaca",
+    text: "#7f1d1d",
     icon: Zap,
   },
 };
@@ -148,12 +148,12 @@ const getCfg = (type) => TYPE_CONFIG[type] || TYPE_CONFIG.general;
 
 const fmtDate = (d) =>
   d
-    ? new Date(d).toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
+    ? new Date(d).toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
       })
-    : '';
+    : "";
 
 /* ─────────────────────────────────────────────────────────
    SUB-COMPONENTS
@@ -171,8 +171,8 @@ const NoticeRow = ({ item, isActive, onClick }) => {
       onClick={onClick}
       className={`relative group px-4 py-3.5 cursor-pointer border-b select-none transition-colors ${
         isActive
-          ? 'bg-[#F7F6F3] border-slate-100'
-          : 'bg-white hover:bg-[#FAFAF9] border-slate-100/80'
+          ? "bg-[#F7F6F3] border-slate-100"
+          : "bg-white hover:bg-[#FAFAF9] border-slate-100/80"
       }`}
     >
       {/* Active left bar */}
@@ -203,7 +203,7 @@ const NoticeRow = ({ item, isActive, onClick }) => {
               className="text-[10px] font-bold uppercase tracking-wider"
               style={{ color: text }}
             >
-              {item.type?.replace('_', ' ')}
+              {item.type?.replace("_", " ")}
             </span>
             <span className="text-[10px] text-slate-400 ml-2 flex-shrink-0 tabular-nums">
               {fmtDate(item?.createdAt)}
@@ -211,7 +211,7 @@ const NoticeRow = ({ item, isActive, onClick }) => {
           </div>
           <h4
             className={`text-[13px] font-semibold truncate leading-snug transition-colors ${
-              isActive ? '' : 'text-slate-700 group-hover:text-slate-900'
+              isActive ? "" : "text-slate-700 group-hover:text-slate-900"
             }`}
             style={isActive ? { color: text } : undefined}
           >
@@ -252,7 +252,7 @@ const NoticeDetail = ({ notice }) => {
             }}
           >
             <Icon size={11} style={{ color }} strokeWidth={2.4} />
-            {notice?.type?.replace('_', ' ')}
+            {notice?.type?.replace("_", " ")}
           </div>
           <div className="flex items-center gap-1.5 text-[12px] text-slate-400">
             <span>Program Date : </span>
@@ -354,16 +354,16 @@ const StudentNotice = () => {
   // ── State ────────────────────────────────────────────
   const [selectedNotice, setSelectedNotice] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < 768 : false,
+    typeof window !== "undefined" ? window.innerWidth < 768 : false,
   );
   const [query, setQuery] = useState({
     page: 1,
     limit: 50,
-    type: '',
-    date: '',
-    batch: '',
+    type: "",
+    date: "",
+    batch: "",
   });
 
   // ── API ──────────────────────────────────────────────
@@ -388,8 +388,8 @@ const StudentNotice = () => {
   // ── Responsive detection ─────────────────────────────
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   // ── Auto-select first notice on desktop ──────────────
@@ -411,8 +411,8 @@ const StudentNotice = () => {
   };
 
   const resetFilters = () => {
-    setQuery({ page: 1, limit: 50, type: '', date: '', batch: '' });
-    setSearchQuery('');
+    setQuery({ page: 1, limit: 50, type: "", date: "", batch: "" });
+    setSearchQuery("");
   };
 
   const hasFilter = !!(query.type || query.date || searchQuery.trim());
@@ -421,7 +421,7 @@ const StudentNotice = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-white font-sans text-slate-900">
       <header className="z-30 flex items-center justify-between flex-shrink-0 px-4 bg-white border-b border-slate-200/80 h-11">
-        <BreadCrumbMenu />
+        <Breadcrumb />
       </header>
 
       <div className="flex-shrink-0 px-4 pt-5 pb-3 bg-white border-b border-slate-100 sm:px-5">
@@ -448,7 +448,7 @@ const StudentNotice = () => {
           </motion.span>
           {student?.name && (
             <span className="hidden sm:inline text-[12px] text-slate-400 ml-1">
-              — {student.name}{' '}
+              — {student.name}{" "}
               {student?.batch && (
                 <span className="text-[10.5px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
                   {student.batch}
@@ -563,7 +563,7 @@ const StudentNotice = () => {
               </span>
             </div>
             <span className="text-[10px] font-bold text-slate-400 tabular-nums">
-              {filtered?.length} result{filtered.length !== 1 ? 's' : ''}
+              {filtered?.length} result{filtered.length !== 1 ? "s" : ""}
             </span>
           </div>
 
@@ -637,25 +637,25 @@ const StudentNotice = () => {
               onClick={() => setModalOpen(false)}
               className="fixed inset-0 z-40 bg-black/25 md:hidden"
               style={{
-                backdropFilter: 'blur(3px)',
-                WebkitBackdropFilter: 'blur(3px)',
+                backdropFilter: "blur(3px)",
+                WebkitBackdropFilter: "blur(3px)",
               }}
             />
 
             {/* Sheet */}
             <motion.div
               key="sheet"
-              initial={{ y: '100%' }}
+              initial={{ y: "100%" }}
               animate={{ y: 0 }}
-              exit={{ y: '100%' }}
+              exit={{ y: "100%" }}
               transition={{
-                type: 'spring',
+                type: "spring",
                 damping: 30,
                 stiffness: 320,
                 mass: 0.85,
               }}
               className="fixed bottom-0 left-0 right-0 z-50 flex flex-col overflow-hidden bg-white shadow-2xl rounded-t-2xl md:hidden"
-              style={{ maxHeight: '90dvh', minHeight: '40dvh' }}
+              style={{ maxHeight: "90dvh", minHeight: "40dvh" }}
             >
               {/* Drag handle */}
               <div className="flex justify-center flex-shrink-0 pt-3 pb-1">

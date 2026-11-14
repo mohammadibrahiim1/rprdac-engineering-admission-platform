@@ -1,11 +1,11 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { toast } from "sonner";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
 export const placeOrder = createAsyncThunk(
-  'order/placeOrder',
+  "order/placeOrder",
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
@@ -21,7 +21,7 @@ export const placeOrder = createAsyncThunk(
 );
 
 const orderSlice = createSlice({
-  name: 'order',
+  name: "order",
   initialState: {
     order: null,
     loading: false,

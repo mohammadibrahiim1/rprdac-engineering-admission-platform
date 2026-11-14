@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Search,
   Filter,
@@ -14,20 +14,20 @@ import {
   Clock,
   XCircle,
   TrendingUpIcon,
-} from 'lucide-react';
-import { useFetchEmployeeDutiesQuery } from '../../../../redux/features/staff/employeeApi';
-import { useGetSingleNurseAttendancesQuery } from '../../../../redux/features/Nursing/NursingApi';
-import { useGetTeacherClassesQuery } from '../../../../redux/features/teacher/teacherApi';
+} from "lucide-react";
+import { useFetchEmployeeDutiesQuery } from "@/redux/features/staff/employeeApi";
+import { useGetTeacherClassesQuery } from "@/redux/features/teacher/teacherApi";
+import { useGetSingleNurseAttendancesQuery } from "@/redux/features/Nursing/NursingApi";
 
-const StaffAllLoans = () => {
+const NurseAllLoan = () => {
   const auth = useSelector((state) => state?.auth?.user);
-  const [selectedYear, setSelectedYear] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({
-    key: 'date',
-    direction: 'desc',
+    key: "date",
+    direction: "desc",
   });
 
   // Data fetching
@@ -44,11 +44,11 @@ const StaffAllLoans = () => {
   // Get role-based data
   const getRoleData = () => {
     switch (auth?.userType) {
-      case 'teacher':
+      case "teacher":
         return teacherData?.statements || [];
-      case 'staff':
+      case "staff":
         return staffData?.statements || [];
-      case 'nursing':
+      case "nursing":
         return nursingData?.statements || [];
       default:
         return [];
@@ -57,9 +57,9 @@ const StaffAllLoans = () => {
 
   // Handle sorting
   const requestSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -89,10 +89,10 @@ const StaffAllLoans = () => {
     )
     .sort((a, b) => {
       if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
+        return sortConfig.direction === "asc" ? -1 : 1;
       }
       if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
+        return sortConfig.direction === "asc" ? 1 : -1;
       }
       return 0;
     });
@@ -101,18 +101,18 @@ const StaffAllLoans = () => {
   const StatusBadge = ({ status }) => {
     const statusConfig = {
       approve: {
-        bg: 'bg-emerald-50',
-        text: 'text-emerald-700',
+        bg: "bg-emerald-50",
+        text: "text-emerald-700",
         icon: <CheckCircle className="w-4 h-4" />,
       },
       pending: {
-        bg: 'bg-amber-50',
-        text: 'text-amber-700',
+        bg: "bg-amber-50",
+        text: "text-amber-700",
         icon: <Clock className="w-4 h-4" />,
       },
       rejected: {
-        bg: 'bg-red-50',
-        text: 'text-red-700',
+        bg: "bg-red-50",
+        text: "text-red-700",
         icon: <XCircle className="w-4 h-4" />,
       },
     };
@@ -178,7 +178,7 @@ const StaffAllLoans = () => {
                   </h1>
                   <div className="px-3 py-1 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-full">
                     <span className="text-sm font-medium text-indigo-700 capitalize">
-                      {auth?.userType === 'staff' ? 'Employee' : auth?.userType}
+                      {auth?.userType === "staff" ? "Employee" : auth?.userType}
                     </span>
                   </div>
                 </div>
@@ -195,7 +195,7 @@ const StaffAllLoans = () => {
                   <div className="flex items-center gap-2">
                     <TrendingUpIcon className="w-4 h-4 text-emerald-500" />
                     <span className="text-sm text-slate-600">
-                      Total Records:{' '}
+                      Total Records:{" "}
                       <span className="font-semibold text-slate-800">
                         {filteredLoans?.length}
                       </span>
@@ -203,11 +203,11 @@ const StaffAllLoans = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-slate-600">
-                      Total Loan:{' '}
+                      Total Loan:{" "}
                       <span className="font-bold text-emerald-600">
                         {filteredLoans
                           .reduce((sum, loan) => sum + loan.amount, 0)
-                          .toFixed(2)}{' '}
+                          .toFixed(2)}{" "}
                         BDT
                       </span>
                     </span>
@@ -328,7 +328,7 @@ const StaffAllLoans = () => {
                    appearance-none bg-white"
                 >
                   <option value="">All Status</option>
-                  {['approve', 'pending', 'rejected'].map((status) => (
+                  {["approve", "pending", "rejected"].map((status) => (
                     <option key={status} value={status}>
                       {status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
@@ -346,10 +346,10 @@ const StaffAllLoans = () => {
                 px-4 rounded-lg hover:bg-gray-800 transition-all text-sm font-medium
                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800"
               onClick={() => {
-                setSelectedYear('');
-                setSelectedMonth('');
-                setSelectedStatus('');
-                setSearchQuery('');
+                setSelectedYear("");
+                setSelectedMonth("");
+                setSelectedStatus("");
+                setSearchQuery("");
               }}
             >
               <Filter className="w-3.5 h-3.5" />
@@ -441,7 +441,7 @@ const StaffAllLoans = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {loan.date?.slice(0, 10) || 'N/A'}
+                          {loan.date?.slice(0, 10) || "N/A"}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -453,7 +453,7 @@ const StaffAllLoans = () => {
                             <Phone className="h-5 w-5 text-blue-600" />
                           </div>
                           <div className="text-sm text-gray-900">
-                            {loan.userDetails?.phone || 'N/A'}
+                            {loan.userDetails?.phone || "N/A"}
                           </div>
                         </div>
                       </td>
@@ -476,8 +476,8 @@ const StaffAllLoans = () => {
           {filteredLoans.length > 0 && (
             <div className="bg-gray-50 px-6 py-3 flex flex-col md:flex-row items-center justify-between border-t border-gray-200">
               <div className="text-sm text-gray-700 mb-2 md:mb-0">
-                Showing{' '}
-                <span className="font-medium">{filteredLoans.length}</span>{' '}
+                Showing{" "}
+                <span className="font-medium">{filteredLoans.length}</span>{" "}
                 loans
               </div>
               <div className="flex items-center space-x-4">
@@ -507,34 +507,9 @@ const StaffAllLoans = () => {
   );
 };
 
-// Reusable Select Component
-// const SelectInput = ({ label, options, value, onChange }) => (
-//   <div className="space-y-1">
-//     <label className="text-sm font-medium text-gray-700">{label}</label>
-//     <div className="relative">
-//       <select
-//         value={value}
-//         onChange={(e) => onChange(e.target.value)}
-//         className="w-full h-12 pl-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-//       >
-//         <option value="">All {label}</option>
-//         {options.map((option) => (
-//           <option key={option} value={option}>
-//             {option.charAt(0).toUpperCase() + option.slice(1)}
-//           </option>
-//         ))}
-//       </select>
-//       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 top-1/2 transform -translate-y-1/2">
-//         <ChevronDown className="h-5 w-5 text-gray-400" />
-//       </div>
-//     </div>
-//   </div>
-// );
-
-// Table Header with Sorting
 const TableHeader = ({ title, sortKey, sortConfig, onSort }) => {
   const isSorted = sortConfig.key === sortKey;
-  const isAscending = isSorted && sortConfig.direction === 'asc';
+  const isAscending = isSorted && sortConfig.direction === "asc";
 
   return (
     <th
@@ -561,4 +536,4 @@ const TableHeader = ({ title, sortKey, sortConfig, onSort }) => {
   );
 };
 
-export default StaffAllLoans;
+export default NurseAllLoan;

@@ -1,11 +1,11 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const nursingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     postNursingAttendance: builder.mutation({
       query: (data) => ({
-        url: '/nursing/create',
-        method: 'POST',
+        url: "/nursing/create",
+        method: "POST",
         body: data,
       }),
     }),
@@ -32,7 +32,7 @@ const nursingApi = baseApi.injectEndpoints({
     updateNursingAttendanceStatus: builder.mutation({
       query: ({ nursingId, status }) => ({
         url: `admin/update/status/${nursingId}`,
-        method: 'PUT',
+        method: "PUT",
         body: { status },
       }),
     }),
@@ -40,7 +40,7 @@ const nursingApi = baseApi.injectEndpoints({
     approvedAttendance: builder.mutation({
       query: ({ loanRequestId, status }) => ({
         url: `admin/approve-loan`,
-        method: 'POST',
+        method: "POST",
         body: { loanRequestId, status },
       }),
     }),
@@ -57,7 +57,7 @@ const nursingApi = baseApi.injectEndpoints({
         },
       }),
 
-      providesTags: ['NurseAttendances'],
+      providesTags: ["NurseAttendances"],
     }),
 
     fetchNursingAllAttendance: builder.query({
@@ -69,7 +69,7 @@ const nursingApi = baseApi.injectEndpoints({
 
     fetchNurses: builder.query({
       query: ({ searchQuery, page, limit }) => ({
-        url: '/nursing/allNurses',
+        url: "/nursing/allNurses",
         params: {
           searchQuery,
           page,
@@ -97,7 +97,7 @@ const nursingApi = baseApi.injectEndpoints({
     updateNursePayment: builder.mutation({
       query: ({ nursingId, payAmount, startDate, endDate, loanAmount }) => ({
         url: `/nursing/${nursingId}/update-payment`,
-        method: 'POST',
+        method: "POST",
         body: {
           payAmount,
           startDate,
@@ -110,7 +110,7 @@ const nursingApi = baseApi.injectEndpoints({
     //get nursing approved duties
     getNursingApprovedDuties: builder.query({
       query: ({ page, limit, search }) => ({
-        url: 'nursing/approved/all',
+        url: "nursing/approved/all",
         params: {
           page,
           limit,
@@ -122,20 +122,20 @@ const nursingApi = baseApi.injectEndpoints({
     //get all nursing user
     getallNursingUser: builder.query({
       query: (params = {}) => ({
-        url: 'user/nursing/all',
+        url: "user/nursing/all",
         params: {
           page: params.page || 1,
           limit: params.limit || 50, // Higher limit for search
-          search: params.search || '',
-          status: params.status || '',
-          isActive: params.isActive || '',
-          sortBy: params.sortBy || 'userName',
-          sortOrder: params.sortOrder || 'asc',
+          search: params.search || "",
+          status: params.status || "",
+          isActive: params.isActive || "",
+          sortBy: params.sortBy || "userName",
+          sortOrder: params.sortOrder || "asc",
         },
       }),
       // Only keep latest data to prevent cache buildup
       keepUnusedDataFor: 60, // 1 minute
-      providesTags: ['Nursing'],
+      providesTags: ["Nursing"],
     }),
 
     // get nursing all duties
@@ -150,23 +150,23 @@ const nursingApi = baseApi.injectEndpoints({
     updateNursingDuty: builder.mutation({
       query: ({ id, ...data }) => ({
         url: `/nursing/update/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ['Nursing'],
+      invalidatesTags: ["Nursing"],
     }),
 
     //DELETE
     deleteNursingDuty: builder.mutation({
       query: (ids) => ({
         url: `nursing/duty/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: ids,
       }),
       invalidatesTags: [
         {
-          type: 'Nursing',
-          id: 'LIST',
+          type: "Nursing",
+          id: "LIST",
         },
       ],
     }),
@@ -174,12 +174,12 @@ const nursingApi = baseApi.injectEndpoints({
     //process nursing payment
     processNursingPayment: builder.mutation({
       query: (paymentData) => ({
-        url: '/nursing/process-payment', // Matches backend route
-        method: 'POST',
+        url: "/nursing/process-payment", // Matches backend route
+        method: "POST",
         body: paymentData,
       }),
       // Invalidates tags to refresh lists after payment
-      invalidatesTags: ['Nursing', 'Invoice'],
+      invalidatesTags: ["Nursing", "Invoice"],
     }),
   }),
 });

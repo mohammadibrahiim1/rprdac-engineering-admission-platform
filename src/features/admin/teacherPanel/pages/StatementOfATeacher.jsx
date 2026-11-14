@@ -1,9 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import toast from 'react-hot-toast';
+import { useEffect, useState, useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "sonner";
 import {
   FileText,
   Loader2,
@@ -19,26 +19,26 @@ import {
   Banknote,
   Zap,
   User,
-} from 'lucide-react';
-import { useGetTeacherFinancialStatementQuery } from '../../../../../redux/features/teacher/teacherApi';
-import { useSelector } from 'react-redux';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import TeacherFilterSidebar from '../components/TeacherFilterSidebar';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
+} from "lucide-react";
+import { useGetTeacherFinancialStatementQuery } from "../../../../../redux/features/teacher/teacherApi";
+import { useSelector } from "react-redux";
+import TeacherFilterSidebar from "../components/TeacherFilterSidebar";
+import { formatDateDMY } from "../../../../../constants/dateFormat";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const StatementOfATeacher = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('classes');
+  const [activeTab, setActiveTab] = useState("classes");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [expandedMonths, setExpandedMonths] = useState({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const startDate = searchParams.get('startDate');
-  const endDate = searchParams.get('endDate');
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
 
   const batchFilters = useSelector((state) => state?.filters?.filters);
-  const selectedBatch = batchFilters?.batch?.title || '';
+  const selectedBatch = batchFilters?.batch?.title || "";
 
   const [summaryStats, setSummaryStats] = useState({
     totalClasses: 0,
@@ -49,14 +49,14 @@ const StatementOfATeacher = () => {
   });
 
   const [filters, setFilters] = useState({
-    search: '',
-    year: '',
-    month: '',
+    search: "",
+    year: "",
+    month: "",
     batch: [],
-    status: '',
-    paymentStatus: '',
-    department: '',
-    subject: '',
+    status: "",
+    paymentStatus: "",
+    department: "",
+    subject: "",
     startDate: startDate,
     endDate: endDate,
   });
@@ -83,14 +83,14 @@ const StatementOfATeacher = () => {
 
   const user = firstClass
     ? {
-        userName: firstClass.userName || 'Teacher',
-        phone: firstClass.phone || 'N/A',
-        userType: firstClass.userType || 'N/A',
+        userName: firstClass.userName || "Teacher",
+        phone: firstClass.phone || "N/A",
+        userType: firstClass.userType || "N/A",
       }
     : {
-        userName: 'Teacher',
-        phone: 'N/A',
-        userType: 'N/A',
+        userName: "Teacher",
+        phone: "N/A",
+        userType: "N/A",
       };
 
   // Calculate summary statistics
@@ -141,8 +141,8 @@ const StatementOfATeacher = () => {
     };
 
     handleResize(); // initialize
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Toggle month expansion
@@ -156,14 +156,14 @@ const StatementOfATeacher = () => {
   // Clear all filters
   const handleClearFilters = () => {
     setFilters({
-      year: '',
-      month: '',
-      status: '',
-      paymentStatus: '',
-      department: '',
-      subject: '',
-      startDate: '',
-      endDate: '',
+      year: "",
+      month: "",
+      status: "",
+      paymentStatus: "",
+      department: "",
+      subject: "",
+      startDate: "",
+      endDate: "",
     });
   };
 
@@ -172,42 +172,42 @@ const StatementOfATeacher = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const primaryFont = 'times';
+      const primaryFont = "times";
       let cursorY = margin + 20;
 
       const capitalize = (str) =>
         str
           ?.toLowerCase()
-          .split(' ')
+          .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ') || 'N/A';
+          .join(" ") || "N/A";
 
       /* ---------------- HEADER ---------------- */
 
       const drawHeader = () => {
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(16);
 
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
         doc.setFontSize(9);
 
         doc.text(
-          'M.A. Samad Villa In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com',
+          "M.A. Samad Villa In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setLineWidth(0.5);
@@ -220,7 +220,7 @@ const StatementOfATeacher = () => {
 
       const drawFooter = (pageNo, totalPages) => {
         doc.setFontSize(8);
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
 
         doc.text(
           `Generated: ${new Date().toLocaleString()}`,
@@ -233,7 +233,7 @@ const StatementOfATeacher = () => {
           pageWidth - margin,
           pageHeight - 6,
           {
-            align: 'right',
+            align: "right",
           },
         );
       };
@@ -246,8 +246,8 @@ const StatementOfATeacher = () => {
         doc.line(pageWidth - 70, signY, pageWidth - 20, signY);
 
         doc.setFontSize(10);
-        doc.text('Authorized Signature', pageWidth - 45, signY + 5, {
-          align: 'center',
+        doc.text("Authorized Signature", pageWidth - 45, signY + 5, {
+          align: "center",
         });
 
         cursorY = signY + 15;
@@ -271,8 +271,8 @@ const StatementOfATeacher = () => {
       });
 
       const monthKeys = Object.keys(dutiesByMonth).sort((a, b) => {
-        const [monthA, yearA] = a.split(', ');
-        const [monthB, yearB] = b.split(', ');
+        const [monthA, yearA] = a.split(", ");
+        const [monthB, yearB] = b.split(", ");
 
         return (
           new Date(`${monthA} 1 ${yearA}`) - new Date(`${monthB} 1 ${yearB}`)
@@ -284,27 +284,27 @@ const StatementOfATeacher = () => {
       /* ---------------- USER INFO ---------------- */
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
 
-      doc.text('Teacher Class Statement', pageWidth / 2, cursorY + 5, {
-        align: 'center',
+      doc.text("Teacher Class Statement", pageWidth / 2, cursorY + 5, {
+        align: "center",
       });
 
       cursorY += 15;
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'normal');
+      doc.setFont(primaryFont, "normal");
 
       doc.text(`Name: ${capitalize(user?.userName)}`, margin, cursorY);
 
-      doc.text(`Phone: ${user?.phone || 'N/A'}`, pageWidth - margin, cursorY, {
-        align: 'right',
+      doc.text(`Phone: ${user?.phone || "N/A"}`, pageWidth - margin, cursorY, {
+        align: "right",
       });
 
       cursorY += 6;
 
       doc.text(
-        `Period: ${filters.startDate || 'All'} to ${filters.endDate || 'All'}`,
+        `Period: ${filters.startDate || "All"} to ${filters.endDate || "All"}`,
         margin,
         cursorY,
       );
@@ -314,7 +314,7 @@ const StatementOfATeacher = () => {
         pageWidth - margin,
         cursorY,
         {
-          align: 'right',
+          align: "right",
         },
       );
 
@@ -333,7 +333,7 @@ const StatementOfATeacher = () => {
         const classes = dutiesByMonth[monthKey] || [];
         const loans = loansByMonth[monthKey] || [];
 
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(10);
 
         doc.text(monthKey, margin, cursorY);
@@ -347,19 +347,19 @@ const StatementOfATeacher = () => {
 
             totalClassAmount += amount;
 
-            if (d.paymentStatus?.toLowerCase() === 'paid') totalPaid += amount;
+            if (d.paymentStatus?.toLowerCase() === "paid") totalPaid += amount;
             else totalDue += amount;
 
             return [
-              formatDateDMY(d?.classDate?.slice(0, 10)) || 'N/A',
+              formatDateDMY(d?.classDate?.slice(0, 10)) || "N/A",
               capitalize(d?.userName),
               capitalize(d.batch),
-              d.department || 'N/A',
-              d.subject || 'N/A',
-              `${d.classTime} - ${d.classQuantity || 'N/A'} H`,
+              d.department || "N/A",
+              d.subject || "N/A",
+              `${d.classTime} - ${d.classQuantity || "N/A"} H`,
               `${amount.toFixed(2)} BDT`,
               capitalize(d.status),
-              capitalize(d.paymentStatus || 'N/A'),
+              capitalize(d.paymentStatus || "N/A"),
             ];
           });
 
@@ -368,28 +368,28 @@ const StatementOfATeacher = () => {
 
             head: [
               [
-                'Date',
-                'Name',
-                'Batch',
-                'Department',
-                'Subject',
-                'Total Time',
-                'Amount',
-                'Status',
-                'Payment Status',
+                "Date",
+                "Name",
+                "Batch",
+                "Department",
+                "Subject",
+                "Total Time",
+                "Amount",
+                "Status",
+                "Payment Status",
               ],
             ],
 
             body,
 
-            theme: 'grid',
+            theme: "grid",
 
-            showHead: 'firstPage',
+            showHead: "firstPage",
 
             headStyles: {
               fillColor: [240, 240, 240],
               textColor: 0,
-              fontStyle: 'bold',
+              fontStyle: "bold",
               lineWidth: 0.1,
             },
 
@@ -416,29 +416,29 @@ const StatementOfATeacher = () => {
             totalLoan += amount;
 
             return [
-              l?.date?.slice(0, 10) || 'N/A',
+              l?.date?.slice(0, 10) || "N/A",
               capitalize(l?.userDetails?.userName),
               `${amount.toFixed(2)} BDT`,
               capitalize(l?.status),
-              capitalize(l?.isPaid === true ? 'Paid' : 'Unpaid' || 'N/A'),
+              capitalize(l?.isPaid === true ? "Paid" : "Unpaid" || "N/A"),
             ];
           });
 
           autoTable(doc, {
             startY: cursorY,
 
-            head: [['Date', 'Name', 'Loan Amount', 'Status', 'Payment Status']],
+            head: [["Date", "Name", "Loan Amount", "Status", "Payment Status"]],
 
             body,
 
-            theme: 'grid',
+            theme: "grid",
 
-            showHead: 'firstPage',
+            showHead: "firstPage",
 
             headStyles: {
               fillColor: [240, 240, 240],
               textColor: 0,
-              fontStyle: 'bold',
+              fontStyle: "bold",
               lineWidth: 0.1,
             },
 
@@ -477,14 +477,14 @@ const StatementOfATeacher = () => {
             ],
           ],
 
-          theme: 'grid',
+          theme: "grid",
 
-          showHead: 'firstPage',
+          showHead: "firstPage",
 
           headStyles: {
             fillColor: [240, 240, 240],
             textColor: 0,
-            fontStyle: 'bold',
+            fontStyle: "bold",
             lineWidth: 0.1,
           },
 
@@ -507,15 +507,15 @@ const StatementOfATeacher = () => {
       const dueAfterLoan = totalDue - totalLoan;
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
 
-      doc.text('Summary', margin, cursorY);
+      doc.text("Summary", margin, cursorY);
       cursorY += 4;
 
       autoTable(doc, {
         startY: cursorY,
 
-        head: [['Total Amount', 'Paid', 'Due', 'Total Loan', 'Due After Loan']],
+        head: [["Total Amount", "Paid", "Due", "Total Loan", "Due After Loan"]],
 
         body: [
           [
@@ -527,12 +527,12 @@ const StatementOfATeacher = () => {
           ],
         ],
 
-        theme: 'grid',
+        theme: "grid",
 
         headStyles: {
           fillColor: [240, 240, 240],
           textColor: 0,
-          fontStyle: 'bold',
+          fontStyle: "bold",
           lineWidth: 0.1,
         },
 
@@ -560,22 +560,22 @@ const StatementOfATeacher = () => {
         drawFooter(i, totalPages);
       }
 
-      doc.save(`Teacher_Statement_${user?.userName || 'user'}.pdf`);
+      doc.save(`Teacher_Statement_${user?.userName || "user"}.pdf`);
 
       setIsGeneratingPDF(false);
-      toast.success('PDF generated successfully!');
+      toast.success("PDF generated successfully!");
     } catch (err) {
-      toast.error('Failed to generate PDF.');
+      toast.error("Failed to generate PDF.");
       setIsGeneratingPDF(false);
     }
   };
 
   // Calculate class statistics for each month
   const calculateClassStats = (classes) => {
-    const approvedClasses = classes.filter((c) => c.status === 'approve');
-    const paidClasses = classes.filter((c) => c.paymentStatus === 'paid');
+    const approvedClasses = classes.filter((c) => c.status === "approve");
+    const paidClasses = classes.filter((c) => c.paymentStatus === "paid");
     const unpaidClasses = classes.filter(
-      (c) => c.paymentStatus === 'unpaid' || !c.paymentStatus,
+      (c) => c.paymentStatus === "unpaid" || !c.paymentStatus,
     );
 
     return {
@@ -596,39 +596,39 @@ const StatementOfATeacher = () => {
 
   const stats = [
     {
-      label: 'Classes',
+      label: "Classes",
       value: summaryStats?.totalClasses || 0,
-      iconColor: 'bg-blue-500/20 text-blue-400',
+      iconColor: "bg-blue-500/20 text-blue-400",
       icon: <BookOpen className="w-5 h-5" />,
     },
     {
-      label: 'Earnings',
+      label: "Earnings",
       value: `${summaryStats?.totalAmount?.toLocaleString() || 0}`,
-      iconColor: 'bg-emerald-500/20 text-emerald-400',
+      iconColor: "bg-emerald-500/20 text-emerald-400",
       icon: <Banknote className="w-5 h-5" />,
     },
     {
-      label: 'Loans',
+      label: "Loans",
       value: `${summaryStats?.totalLoanAmount?.toLocaleString() || 0}`,
-      iconColor: 'bg-rose-500/20 text-rose-400',
+      iconColor: "bg-rose-500/20 text-rose-400",
       icon: <CreditCard className="w-5 h-5" />,
     },
   ];
 
   // Month color mapping
   const monthColors = {
-    January: 'bg-blue-500 text-white',
-    February: 'bg-pink-500 text-white',
-    March: 'bg-green-500 text-white',
-    April: 'bg-yellow-500 text-black',
-    May: 'bg-teal-500 text-white',
-    June: 'bg-red-500 text-white',
-    July: 'bg-purple-500 text-white',
-    August: 'bg-orange-500 text-black',
-    September: 'bg-blue-700 text-white',
-    October: 'bg-red-700 text-white',
-    November: 'bg-teal-800 text-white',
-    December: 'bg-cyan-500 text-white',
+    January: "bg-blue-500 text-white",
+    February: "bg-pink-500 text-white",
+    March: "bg-green-500 text-white",
+    April: "bg-yellow-500 text-black",
+    May: "bg-teal-500 text-white",
+    June: "bg-red-500 text-white",
+    July: "bg-purple-500 text-white",
+    August: "bg-orange-500 text-black",
+    September: "bg-blue-700 text-white",
+    October: "bg-red-700 text-white",
+    November: "bg-teal-800 text-white",
+    December: "bg-cyan-500 text-white",
   };
 
   if (isLoading) {
@@ -644,7 +644,7 @@ const StatementOfATeacher = () => {
     return (
       <div className="max-w-2xl p-8 mx-auto mt-10 text-center rounded bg-red-50">
         <p className="mt-2 mb-4 text-red-600">
-          {error?.data?.message || 'Failed to load teacher records'}
+          {error?.data?.message || "Failed to load teacher records"}
         </p>
         <button
           className="px-4 py-2 text-white transition-colors bg-blue-600 rounded hover:bg-blue-700"
@@ -661,7 +661,7 @@ const StatementOfATeacher = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -709,7 +709,7 @@ const StatementOfATeacher = () => {
                   Active User
                 </span>
                 <span className="text-sm font-bold text-[#37352F] tracking-tight">
-                  {user?.userName || 'Anonymous User'}
+                  {user?.userName || "Anonymous User"}
                 </span>
               </div>
 
@@ -811,7 +811,7 @@ const StatementOfATeacher = () => {
                             </h3>
                             <div className="text-xs text-[#001861]">
                               {statement?.yearlySummary?.totalApprovedClasses ||
-                                0}{' '}
+                                0}{" "}
                               Approved
                             </div>
                           </td>
@@ -882,7 +882,7 @@ const StatementOfATeacher = () => {
                                 {month?.monthSummary?.totalClasses || 0}
                               </div>
                               <div className="text-xs text-[#55004B]">
-                                {month?.monthSummary?.totalApprovedClasses || 0}{' '}
+                                {month?.monthSummary?.totalApprovedClasses || 0}{" "}
                                 Approved
                               </div>
                             </td>
@@ -976,7 +976,7 @@ const StatementOfATeacher = () => {
                                 <span
                                   className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
                                     monthColors[month?.month] ||
-                                    'bg-gray-500 text-white'
+                                    "bg-gray-500 text-white"
                                   } shadow`}
                                 >
                                   {month?.month} {statement.year}
@@ -1003,7 +1003,7 @@ const StatementOfATeacher = () => {
 
                                   <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded">
                                     <span className="font-bold text-green-800">
-                                      ৳{' '}
+                                      ৳{" "}
                                       {month?.monthSummary?.totalAmount?.toFixed(
                                         2,
                                       ) || 0}
@@ -1032,8 +1032,8 @@ const StatementOfATeacher = () => {
                                 <div
                                   className={`p-2 rounded-full transition-all duration-300 ${
                                     isExpanded
-                                      ? 'bg-[#001861] text-white'
-                                      : 'bg-[#55004B] text-white'
+                                      ? "bg-[#001861] text-white"
+                                      : "bg-[#55004B] text-white"
                                   }`}
                                 >
                                   {isExpanded ? (
@@ -1050,7 +1050,7 @@ const StatementOfATeacher = () => {
                               {isExpanded && (
                                 <motion.div
                                   initial={{ height: 0, opacity: 0 }}
-                                  animate={{ height: 'auto', opacity: 1 }}
+                                  animate={{ height: "auto", opacity: 1 }}
                                   exit={{ height: 0, opacity: 0 }}
                                   transition={{ duration: 0.4 }}
                                   className="overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
@@ -1061,12 +1061,12 @@ const StatementOfATeacher = () => {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setActiveTab('classes');
+                                          setActiveTab("classes");
                                         }}
                                         className={`flex items-center gap-2 px-2 py-1 font-medium text-[12px] uppercase transition-all duration-200 border-b-2 ${
-                                          activeTab === 'classes'
-                                            ? 'border-[#001861] text-[#001861] bg-blue-50'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                                          activeTab === "classes"
+                                            ? "border-[#001861] text-[#001861] bg-blue-50"
+                                            : "border-transparent text-gray-500 hover:text-gray-700"
                                         }`}
                                       >
                                         <BookOpen className="w-4 h-4" />
@@ -1080,12 +1080,12 @@ const StatementOfATeacher = () => {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setActiveTab('loans');
+                                          setActiveTab("loans");
                                         }}
                                         className={`flex items-center gap-2 px-4 py-1 font-medium text-xs uppercase transition-all duration-200 border-b-2 ${
-                                          activeTab === 'loans'
-                                            ? 'border-[#001861] text-[#001861] bg-purple-50'
-                                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                                          activeTab === "loans"
+                                            ? "border-[#001861] text-[#001861] bg-purple-50"
+                                            : "border-transparent text-gray-500 hover:text-gray-700"
                                         }`}
                                       >
                                         <CreditCard className="w-4 h-4" />
@@ -1099,7 +1099,7 @@ const StatementOfATeacher = () => {
 
                                     {/* Tab Content */}
                                     <AnimatePresence mode="wait">
-                                      {activeTab === 'classes' && (
+                                      {activeTab === "classes" && (
                                         <motion.div
                                           key="classes"
                                           initial={{ opacity: 0, x: 20 }}
@@ -1118,7 +1118,7 @@ const StatementOfATeacher = () => {
                                             <div className="flex items-center gap-3">
                                               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs uppercase font-semibold  text-[#55004B]">
                                                 {month?.monthSummary
-                                                  ?.totalClasses || 0}{' '}
+                                                  ?.totalClasses || 0}{" "}
                                                 total
                                               </span>
                                               <span className="inline-flex items-center px-2.5 py-1 text-xs uppercase font-semibold  text-green-800">
@@ -1166,10 +1166,10 @@ const StatementOfATeacher = () => {
                                                       (cls, i) => {
                                                         const isTop = i === 0;
                                                         const bg = isTop
-                                                          ? 'bg-[#3C6666] text-white'
+                                                          ? "bg-[#3C6666] text-white"
                                                           : i % 2 === 0
-                                                            ? 'bg-white text-[#3C6666]'
-                                                            : 'bg-[#f9f9f9] text-[#3C6666]';
+                                                            ? "bg-white text-[#3C6666]"
+                                                            : "bg-[#f9f9f9] text-[#3C6666]";
                                                         return (
                                                           <tr
                                                             key={cls?._id || i}
@@ -1180,17 +1180,17 @@ const StatementOfATeacher = () => {
                                                             </td>
                                                             <td className="px-3 py-3 text-xs">
                                                               {cls?.classDate ||
-                                                                'N/A'}
+                                                                "N/A"}
                                                             </td>
                                                             <td className="px-3 py-3 text-xs ">
                                                               <div>
                                                                 {cls?.classTime ||
-                                                                  'N/A'}
+                                                                  "N/A"}
                                                               </div>
                                                               <div className="text-xs">
-                                                                period :{' '}
+                                                                period :{" "}
                                                                 {cls?.period} •
-                                                                Hours :{' '}
+                                                                Hours :{" "}
                                                                 {
                                                                   cls?.classQuantity
                                                                 }
@@ -1199,20 +1199,20 @@ const StatementOfATeacher = () => {
                                                             <td className="px-3 py-3 text-xs ">
                                                               <div>
                                                                 {cls?.batch ||
-                                                                  '-'}
+                                                                  "-"}
                                                               </div>
                                                               <div className="text-xs ">
-                                                                Dept. :{' '}
+                                                                Dept. :{" "}
                                                                 {cls?.department ||
-                                                                  '-'}
+                                                                  "-"}
                                                               </div>
                                                             </td>
                                                             <td className="px-3 py-3 text-xs ">
                                                               {cls?.subject ||
-                                                                '-'}
+                                                                "-"}
                                                             </td>
                                                             <td className="px-3 py-3 text-xs font-bold text-left">
-                                                              ৳{' '}
+                                                              ৳{" "}
                                                               {cls?.totalFee?.toFixed(
                                                                 2,
                                                               ) || 0}
@@ -1221,29 +1221,29 @@ const StatementOfATeacher = () => {
                                                               <span
                                                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                   cls?.status ===
-                                                                  'approve'
-                                                                    ? 'bg-white text-green-700'
-                                                                    : ' text-yellow-500 capitalize'
+                                                                  "approve"
+                                                                    ? "bg-white text-green-700"
+                                                                    : " text-yellow-500 capitalize"
                                                                 }`}
                                                               >
                                                                 {cls?.status ===
-                                                                'approve'
-                                                                  ? 'Approved'
+                                                                "approve"
+                                                                  ? "Approved"
                                                                   : cls?.status ||
-                                                                    'N/A'}
+                                                                    "N/A"}
                                                               </span>
                                                             </td>
                                                             <td className="px-3 py-3">
                                                               <span
                                                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                   cls?.paymentStatus ===
-                                                                  'paid'
-                                                                    ? 'bg-emerald-100 text-emerald-800'
-                                                                    : 'bg-red-100 text-red-800'
+                                                                  "paid"
+                                                                    ? "bg-emerald-100 text-emerald-800"
+                                                                    : "bg-red-100 text-red-800"
                                                                 }`}
                                                               >
                                                                 {cls?.paymentStatus ||
-                                                                  'unpaid'}
+                                                                  "unpaid"}
                                                               </span>
                                                             </td>
                                                           </tr>
@@ -1273,7 +1273,7 @@ const StatementOfATeacher = () => {
                                         </motion.div>
                                       )}
 
-                                      {activeTab === 'loans' && (
+                                      {activeTab === "loans" && (
                                         <motion.div
                                           key="loans"
                                           initial={{ opacity: 0, x: 20 }}
@@ -1291,7 +1291,7 @@ const StatementOfATeacher = () => {
                                             </h3>
                                             <span className="inline-flex items-center text-xs font-semibold  text-[#55004B] uppercase">
                                               {month.monthSummary
-                                                ?.totalLoanRequest || 0}{' '}
+                                                ?.totalLoanRequest || 0}{" "}
                                               total
                                             </span>
                                           </div>
@@ -1326,10 +1326,10 @@ const StatementOfATeacher = () => {
                                                       (loan, i) => {
                                                         const isTop = i === 0;
                                                         const bg = isTop
-                                                          ? 'bg-[#001861] text-white'
+                                                          ? "bg-[#001861] text-white"
                                                           : i % 2 === 0
-                                                            ? 'bg-white text-[#55004B]'
-                                                            : 'bg-[#f9f9f9] text-[#001861]';
+                                                            ? "bg-white text-[#55004B]"
+                                                            : "bg-[#f9f9f9] text-[#001861]";
 
                                                         return (
                                                           <tr
@@ -1340,31 +1340,31 @@ const StatementOfATeacher = () => {
                                                               {loan?.date?.slice(
                                                                 0,
                                                                 10,
-                                                              ) || 'N/A'}
+                                                              ) || "N/A"}
                                                             </td>
                                                             <td className="px-3 py-3 text-xs capitalize">
                                                               {loan.userDetails
                                                                 ?.userName ||
-                                                                'N/A'}
+                                                                "N/A"}
                                                             </td>
                                                             <td className="px-3 py-3 text-xs font-bold text-left">
-                                                              ৳{' '}
+                                                              ৳{" "}
                                                               {loan.amount || 0}
                                                             </td>
                                                             <td className="px-3 py-3 text-center">
                                                               <span
                                                                 className={`inline-flex items-center text-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                   loan.status ===
-                                                                  'approve'
-                                                                    ? 'bg-green-100 text-green-800'
-                                                                    : 'bg-yellow-100 text-yellow-800 capitalize'
+                                                                  "approve"
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : "bg-yellow-100 text-yellow-800 capitalize"
                                                                 }`}
                                                               >
                                                                 {loan.status ===
-                                                                'approve'
-                                                                  ? 'Approved'
+                                                                "approve"
+                                                                  ? "Approved"
                                                                   : loan.status ||
-                                                                    'N/A'}
+                                                                    "N/A"}
                                                               </span>
                                                             </td>
                                                             <td className="px-3 py-3 text-center">
@@ -1372,14 +1372,14 @@ const StatementOfATeacher = () => {
                                                                 className={`inline-flex items-center text-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                   loan?.isPaid ===
                                                                   true
-                                                                    ? 'bg-green-100 text-green-800'
-                                                                    : 'bg-red-100 text-red-800 capitalize'
+                                                                    ? "bg-green-100 text-green-800"
+                                                                    : "bg-red-100 text-red-800 capitalize"
                                                                 }`}
                                                               >
                                                                 {loan?.isPaid ===
                                                                 true
-                                                                  ? 'Paid'
-                                                                  : 'Unpaid'}
+                                                                  ? "Paid"
+                                                                  : "Unpaid"}
                                                               </span>
                                                             </td>
                                                           </tr>

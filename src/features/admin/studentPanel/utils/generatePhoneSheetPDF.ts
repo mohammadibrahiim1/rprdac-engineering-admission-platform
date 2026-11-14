@@ -1,8 +1,9 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
-import watermarklogo from '../../../../../assets/img/log-rpr.png';
-import headerLogo from '../../../../../assets/img/rpr-attendance-logo.jpeg';
+import watermarklogo from "../../../../assets/img/log-rpr.png";
+
+import headerLogo from "../../../../assets/img/rpr-attendance-logo.jpeg";
 
 // ======================================================
 // Types
@@ -68,28 +69,28 @@ function getStudentName(student: PhoneSheetStudent): string {
     student.userName,
   ];
   const value = candidates.find(
-    (item) => typeof item === 'string' && item.trim() !== '',
+    (item) => typeof item === "string" && item.trim() !== "",
   );
-  return typeof value === 'string' ? capitalizeWords(value.trim()) : '';
+  return typeof value === "string" ? capitalizeWords(value.trim()) : "";
 }
 
 function getPhoneNumber(student: PhoneSheetStudent): string {
   const candidates = [student.phone, student.mobile, student.phoneNumber];
   const value = candidates.find(
-    (item) => item !== null && item !== undefined && String(item).trim() !== '',
+    (item) => item !== null && item !== undefined && String(item).trim() !== "",
   );
-  return value === undefined ? '' : String(value).trim();
+  return value === undefined ? "" : String(value).trim();
 }
 
 function makeSafeFileName(value: string): string {
   const result = value
     .trim()
-    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
-    .replace(/\s+/g, '_')
-    .replace(/[. ]+$/g, '')
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/[. ]+$/g, "")
     .slice(0, 120);
 
-  return result || 'Phone_Number_Sheet';
+  return result || "Phone_Number_Sheet";
 }
 
 /**
@@ -99,24 +100,24 @@ function makeSafeFileName(value: string): string {
 function createImageDataUrl(imageUrl: string, opacity = 1): Promise<string> {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = 'anonymous';
+    image.crossOrigin = "anonymous";
 
     image.onload = () => {
       try {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
 
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         if (!ctx) {
-          reject(new Error('Could not create canvas.'));
+          reject(new Error("Could not create canvas."));
           return;
         }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
         ctx.drawImage(image, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
+        resolve(canvas.toDataURL("image/png"));
       } catch (err) {
         reject(err);
       }
@@ -153,17 +154,17 @@ function drawHeader(
 
     doc.addImage(
       logoDataUrl,
-      'PNG',
+      "PNG",
       centerX - logoWidth / 2,
       SETTINGS.logoTop,
       logoWidth,
       logoHeight,
     );
   } catch (error) {
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(20, 75, 105);
-    doc.text('RPR', centerX, 12, { align: 'center' });
+    doc.text("RPR", centerX, 12, { align: "center" });
   }
 
   // Divider line
@@ -177,25 +178,25 @@ function drawHeader(
   );
 
   // Title
-  doc.setFont('helvetica', 'bold');
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
   doc.text(
-    `Phone Number Sheet (Session: ${capitalizeWords(sessionName.trim() || 'N/A')})`,
+    `Phone Number Sheet (Session: ${capitalizeWords(sessionName.trim() || "N/A")})`,
     centerX,
     SETTINGS.titleY,
-    { align: 'center' },
+    { align: "center" },
   );
 
   // Batch
-  doc.setFont('helvetica', 'normal');
+  doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text(
-    `Batch: ${capitalizeWords(batchName.trim() || 'All Batches')}`,
+    `Batch: ${capitalizeWords(batchName.trim() || "All Batches")}`,
     centerX,
     SETTINGS.batchY,
     {
-      align: 'center',
+      align: "center",
     },
   );
 }
@@ -219,9 +220,9 @@ function drawWatermark(doc: jsPDF, watermarkDataUrl: string): void {
     const x = (pageWidth - width) / 2;
     const y = (pageHeight - height) / 2;
 
-    doc.addImage(watermarkDataUrl, 'PNG', x, y, width, height);
+    doc.addImage(watermarkDataUrl, "PNG", x, y, width, height);
   } catch (error) {
-    console.error('Could not render phone-sheet watermark:', error);
+    console.error("Could not render phone-sheet watermark:", error);
   }
 }
 
@@ -230,17 +231,17 @@ function drawWatermark(doc: jsPDF, watermarkDataUrl: string): void {
 // ======================================================
 export async function generatePhoneSheetPDF(
   students: PhoneSheetStudent[] = [],
-  batchName = '',
-  sessionName = '',
+  batchName = "",
+  sessionName = "",
   options: PhoneSheetOptions = {},
 ): Promise<void> {
   if (!Array.isArray(students)) {
-    throw new TypeError('Students must be an array.');
+    throw new TypeError("Students must be an array.");
   }
 
   const rowsPerPage = options.rowsPerPage ?? 25;
   if (!Number.isInteger(rowsPerPage) || rowsPerPage < 1 || rowsPerPage > 60) {
-    throw new RangeError('rowsPerPage must be an integer between 1 and 60.');
+    throw new RangeError("rowsPerPage must be an integer between 1 and 60.");
   }
 
   // Header লোগোর জন্য headerLogo এবং Watermark লোগোর জন্য watermarklogo ব্যবহার করা হয়েছে
@@ -253,9 +254,9 @@ export async function generatePhoneSheetPDF(
   ]);
 
   const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
     compress: true,
   });
 
@@ -276,7 +277,7 @@ export async function generatePhoneSheetPDF(
   // ====================================================
   for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
     if (pageIndex > 0) {
-      doc.addPage('a4', 'portrait');
+      doc.addPage("a4", "portrait");
     }
 
     drawHeader(doc, logoDataUrl, sessionName, batchName);
@@ -291,14 +292,14 @@ export async function generatePhoneSheetPDF(
       (_, rowIndex) => {
         const student = pageStudents[rowIndex];
         const rowData: string[] = [
-          student ? String(startIndex + rowIndex + 1) : '',
-          student ? getStudentName(student) : '',
-          student ? getPhoneNumber(student) : '',
+          student ? String(startIndex + rowIndex + 1) : "",
+          student ? getStudentName(student) : "",
+          student ? getPhoneNumber(student) : "",
         ];
 
         // Fill remaining 12 empty columns to bring total columns to 15
         for (let i = 3; i < 15; i++) {
-          rowData.push('');
+          rowData.push("");
         }
 
         return rowData;
@@ -306,21 +307,21 @@ export async function generatePhoneSheetPDF(
     );
 
     const headRow = [
-      'SL',
-      'Name',
-      'Phone Number',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      "SL",
+      "Name",
+      "Phone Number",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
     ];
 
     autoTable(doc, {
@@ -333,21 +334,21 @@ export async function generatePhoneSheetPDF(
       },
       head: [headRow],
       body,
-      theme: 'grid',
+      theme: "grid",
       tableWidth: usableWidth,
-      showHead: 'everyPage',
-      pageBreak: 'avoid',
-      rowPageBreak: 'avoid',
+      showHead: "everyPage",
+      pageBreak: "avoid",
+      rowPageBreak: "avoid",
 
       styles: {
-        font: 'helvetica',
+        font: "helvetica",
         fontSize: 9, // Smaller font to fit 15 columns nicely on A4 portrait width
         textColor: SETTINGS.textColor,
         lineColor: SETTINGS.borderColor,
         lineWidth: 0.25,
         cellPadding: 1.5,
-        valign: 'middle',
-        overflow: 'linebreak',
+        valign: "middle",
+        overflow: "linebreak",
         minCellHeight: rowHeight,
         fillColor: false,
       },
@@ -355,11 +356,11 @@ export async function generatePhoneSheetPDF(
       headStyles: {
         fillColor: SETTINGS.headerColor,
         textColor: [0, 0, 0],
-        fontStyle: 'bold',
+        fontStyle: "bold",
         fontSize: 7.5,
         minCellHeight: 7,
-        valign: 'middle',
-        halign: 'center',
+        valign: "middle",
+        halign: "center",
       },
 
       bodyStyles: {
@@ -367,33 +368,33 @@ export async function generatePhoneSheetPDF(
       },
 
       columnStyles: {
-        0: { cellWidth: 10, halign: 'center' }, // SL
-        1: { cellWidth: 42, halign: 'left' }, // Name
-        2: { cellWidth: 28, halign: 'center' }, // Phone Number
+        0: { cellWidth: 10, halign: "center" }, // SL
+        1: { cellWidth: 42, halign: "left" }, // Name
+        2: { cellWidth: 28, halign: "center" }, // Phone Number
         // Remaining 12 columns share the remaining available width equally
-        3: { cellWidth: 'auto', halign: 'center' },
-        4: { cellWidth: 'auto', halign: 'center' },
-        5: { cellWidth: 'auto', halign: 'center' },
-        6: { cellWidth: 'auto', halign: 'center' },
-        7: { cellWidth: 'auto', halign: 'center' },
-        8: { cellWidth: 'auto', halign: 'center' },
-        9: { cellWidth: 'auto', halign: 'center' },
-        10: { cellWidth: 'auto', halign: 'center' },
-        11: { cellWidth: 'auto', halign: 'center' },
-        12: { cellWidth: 'auto', halign: 'center' },
-        13: { cellWidth: 'auto', halign: 'center' },
-        14: { cellWidth: 'auto', halign: 'center' },
+        3: { cellWidth: "auto", halign: "center" },
+        4: { cellWidth: "auto", halign: "center" },
+        5: { cellWidth: "auto", halign: "center" },
+        6: { cellWidth: "auto", halign: "center" },
+        7: { cellWidth: "auto", halign: "center" },
+        8: { cellWidth: "auto", halign: "center" },
+        9: { cellWidth: "auto", halign: "center" },
+        10: { cellWidth: "auto", halign: "center" },
+        11: { cellWidth: "auto", halign: "center" },
+        12: { cellWidth: "auto", halign: "center" },
+        13: { cellWidth: "auto", halign: "center" },
+        14: { cellWidth: "auto", halign: "center" },
       },
 
       didDrawPage: () => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor(110, 110, 110);
         doc.text(
           `Page ${pageIndex + 1} of ${pageCount}`,
           pageWidth - SETTINGS.marginX,
           pageHeight - 5,
-          { align: 'right' },
+          { align: "right" },
         );
       },
     });
@@ -404,10 +405,10 @@ export async function generatePhoneSheetPDF(
   // ====================================================
   const filename = makeSafeFileName(
     options.fileName ??
-      `Phone_Sheet_${batchName || 'All'}_${sessionName || 'Session'}`,
+      `Phone_Sheet_${batchName || "All"}_${sessionName || "Session"}`,
   );
 
   doc.save(
-    filename.toLowerCase().endsWith('.pdf') ? filename : `${filename}.pdf`,
+    filename.toLowerCase().endsWith(".pdf") ? filename : `${filename}.pdf`,
   );
 }

@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useGetBatchesQuery } from '../../../../../../redux/features/batch/batchApi';
+import { useState, useEffect } from "react";
+import { useGetBatchesQuery } from "../../../../../redux/features/batch/batchApi";
 
 export const useSystemLockBatchSearch = () => {
-  const [batchQuery, setBatchQuery] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [batchQuery, setBatchQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const handler = setTimeout(() => {

@@ -20,7 +20,7 @@ import {
   useCreateBatchMutation,
   useDeleteBatchMutation,
   useGetBatchesQuery,
-} from "../../../../../redux/features/batch/batchApi";
+} from "../../../../redux/features/batch/batchApi";
 
 import SubjectManagement from "../components/SubjectManagement";
 import InstituteManagement from "../components/InstituteManagement";

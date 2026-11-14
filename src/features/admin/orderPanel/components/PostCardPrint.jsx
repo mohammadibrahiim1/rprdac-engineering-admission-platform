@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import logo from '../../../../../assets/img/log-rpr.png';
+import React, { useEffect, useRef } from "react";
+import PropTypes from "prop-types";
+import logo from "../../../../assets/img/log-rpr.png";
 
 const PostCardPrint = ({ order, onAfterPrint }) => {
   const printRef = useRef();
@@ -14,13 +14,13 @@ const PostCardPrint = ({ order, onAfterPrint }) => {
     return () => clearTimeout(timer);
   }, [onAfterPrint]);
 
-  const printedDate = new Date().toLocaleString('en-US', {
-    timeZone: 'Asia/Dhaka',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  const printedDate = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Dhaka",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   // Helper function to check if text contains Bengali characters
@@ -82,10 +82,10 @@ const PostCardPrint = ({ order, onAfterPrint }) => {
             </h3>
             <p className="font-semibold text-sm text-gray-900">{order?.name}</p>
             <p className="text-gray-600">
-              Address: {order?.billingAddress?.street || 'N/A'}
+              Address: {order?.billingAddress?.street || "N/A"}
             </p>
             <p className="text-gray-600">
-              Phone: {order?.billingAddress?.phone || 'N/A'}
+              Phone: {order?.billingAddress?.phone || "N/A"}
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ const PostCardPrint = ({ order, onAfterPrint }) => {
             </thead>
             <tbody>
               {order?.items?.map((item, idx) => {
-                const textToCheck = `${item.title} ${item.edition || ''}`;
+                const textToCheck = `${item.title} ${item.edition || ""}`;
                 const containsBangla = isBangla(textToCheck);
                 return (
                   <tr key={idx} className="bg-white">
@@ -125,22 +125,22 @@ const PostCardPrint = ({ order, onAfterPrint }) => {
                       {idx + 1}
                     </td>
                     <td
-                      className={`px-3 py-2.5 border border-gray-300 ${containsBangla ? 'font-serifbn' : 'font-sans'}`}
+                      className={`px-3 py-2.5 border border-gray-300 ${containsBangla ? "font-serifbn" : "font-sans"}`}
                     >
-                      {item.title || 'N/A'}{' '}
+                      {item.title || "N/A"}{" "}
                       {item.edition && `(${item.edition})`}
                     </td>
                     <td className="px-3 py-2.5 border border-gray-300 text-center">
                       {item.quantity}
                     </td>
                     <td className="px-3 py-2.5 border border-gray-300 text-right">
-                      ৳ {item.eachItemPrice || 'N/A'}
+                      ৳ {item.eachItemPrice || "N/A"}
                     </td>
                     <td className="px-3 py-2.5 border border-gray-300 text-right">
-                      ৳ {item.totalAmount || 'N/A'}
+                      ৳ {item.totalAmount || "N/A"}
                     </td>
                     <td className="px-3 py-2.5 border border-gray-300 text-center font-mono text-[11px]">
-                      {order?.orderId || 'N/A'}
+                      {order?.orderId || "N/A"}
                     </td>
                   </tr>
                 );

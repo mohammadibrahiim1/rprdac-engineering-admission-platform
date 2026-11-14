@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   useCreateOrUpdateSliderMutation,
   useDeleteSlidersMutation,
   useGetAllSlidersQuery,
   useUpdateSlidersMutation,
-} from '../../../../../redux/features/slider/sliderApi';
-import { useForm } from 'react-hook-form';
+} from "../../../../../redux/features/slider/sliderApi";
+import { useForm } from "react-hook-form";
 
 export const useSliderManager = ({ data, close }) => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [sliderPreview, setSliderPreview] = useState(null);
   const [editSlider, setEditSlider] = useState(null);
   const [sliderData, setSliderData] = useState({
-    id: '',
-    text: '',
-    sub_text: '',
+    id: "",
+    text: "",
+    sub_text: "",
     sliderImage: null,
   });
 
@@ -25,8 +25,8 @@ export const useSliderManager = ({ data, close }) => {
     formState: { errors },
   } = useForm({
     values: {
-      text: data?.text || '',
-      sub_text: data?.sub_text || '',
+      text: data?.text || "",
+      sub_text: data?.sub_text || "",
     },
   });
 
@@ -54,22 +54,22 @@ export const useSliderManager = ({ data, close }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('id', sliderData.id);
-    formData.append('text', sliderData.text);
-    formData.append('sub_text', sliderData.sub_text);
+    formData.append("id", sliderData.id);
+    formData.append("text", sliderData.text);
+    formData.append("sub_text", sliderData.sub_text);
 
     if (sliderData.sliderImage) {
-      formData.append('sliderImage', sliderData.sliderImage);
+      formData.append("sliderImage", sliderData.sliderImage);
     }
 
     try {
       await createOrUpdateSlider(formData).unwrap();
-      toast.success('Slider saved successfully!');
+      toast.success("Slider saved successfully!");
       refetch();
-      setSliderData({ id: '', text: '', sub_text: '', sliderImage: null });
+      setSliderData({ id: "", text: "", sub_text: "", sliderImage: null });
       setSliderPreview(null);
     } catch (err) {
-      toast.error(err?.data?.message || 'Failed to save slider');
+      toast.error(err?.data?.message || "Failed to save slider");
     }
   };
 
@@ -77,11 +77,11 @@ export const useSliderManager = ({ data, close }) => {
     try {
       const formData = new FormData();
 
-      formData.append('text', formValues.text);
-      formData.append('sub_text', formValues.sub_text);
+      formData.append("text", formValues.text);
+      formData.append("sub_text", formValues.sub_text);
 
       if (formValues.sliderImage?.[0]) {
-        formData.append('sliderImage', formValues.sliderImage[0]);
+        formData.append("sliderImage", formValues.sliderImage[0]);
       }
 
       await updateSliders({
@@ -89,10 +89,10 @@ export const useSliderManager = ({ data, close }) => {
         formData,
       }).unwrap();
 
-      toast.success('Slider Updated Successfully');
+      toast.success("Slider Updated Successfully");
       close();
     } catch (err) {
-      toast.error(err?.data?.message || 'Update Failed');
+      toast.error(err?.data?.message || "Update Failed");
     }
   };
 
@@ -118,7 +118,7 @@ export const useSliderManager = ({ data, close }) => {
     const cleanIds = [...new Set(idArray.filter(Boolean).map(String))];
 
     if (!cleanIds.length) {
-      toast.error('Please select at least one item');
+      toast.error("Please select at least one item");
       return;
     }
 
@@ -127,11 +127,11 @@ export const useSliderManager = ({ data, close }) => {
 
     try {
       const response = await deleteSliders(cleanIds).unwrap();
-      toast.success(response?.message || 'Deleted successfully');
+      toast.success(response?.message || "Deleted successfully");
       refetch();
       setSelectedIds([]);
     } catch (err) {
-      toast.error(err?.data?.message || err?.error || 'Deletion failed');
+      toast.error(err?.data?.message || err?.error || "Deletion failed");
     }
   };
 

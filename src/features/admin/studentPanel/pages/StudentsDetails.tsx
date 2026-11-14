@@ -2,8 +2,8 @@ import React, { useRef, useEffect, FC, ReactNode } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Printer } from "lucide-react";
 import { useParams } from "react-router-dom";
-import rprLogo from "../../../../../assets/img/log-rpr.png";
-import signature from "../../../../../assets/img/rpr-director-sign.png";
+import rprLogo from "../../../../assets/img/log-rpr.png";
+import signature from "../../../../assets/img/rpr-director-sign.png";
 import { useGetStudentByIdQuery } from "../services/api/studentApi";
 
 /* ─── Interfaces ──────────────────────────────────────────────────────────── */

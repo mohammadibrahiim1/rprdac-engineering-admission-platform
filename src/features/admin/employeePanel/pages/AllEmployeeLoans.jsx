@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import { Search } from "lucide-react";
+import React, { useState } from "react";
 
-import { useLoaderData } from 'react-router-dom';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import { PiMagnifyingGlass } from 'react-icons/pi';
+import { useLoaderData } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 15;
 
 const AllEmployeeLoans = () => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const filterOptions = ['approve', 'pending'];
+  const filterOptions = ["approve", "pending"];
   const data = useLoaderData();
 
   const loans = data?.data;
@@ -25,7 +24,7 @@ const AllEmployeeLoans = () => {
   };
 
   const filteredLoans = loans?.filter((loan) => {
-    const normalizedSearch = search?.toLowerCase() || '';
+    const normalizedSearch = search?.toLowerCase() || "";
     const matchedSearch = loan?.createdAt
       ?.toLowerCase()
       ?.includes(normalizedSearch);
@@ -62,19 +61,12 @@ const AllEmployeeLoans = () => {
     }
   };
 
-  const userName = filteredLoans?.[0]?.user?.userName || 'No user found';
+  const userName = filteredLoans?.[0]?.user?.userName || "No user found";
 
   return (
     <div>
       <section>
         <div>
-          {/* <div className="gap-3 my-10 text-center text-primary">
-            <h1 className="col-span-5 text-3xl font-semibold capitalize">
-              Employee all loans
-            </h1>
-            <BreadCrumbMenu></BreadCrumbMenu>
-          </div> */}
-
           <div className="grid items-start justify-between grid-cols-12 gap-5">
             <div className="col-span-12 lg:col-span-3 ">
               <div className="w-full max-w-4xl p-4 mx-auto bg-white rounded-lg shadow-md md:p-6">
@@ -85,8 +77,8 @@ const AllEmployeeLoans = () => {
                   </h2>
                   <div className="flex items-center gap-3">
                     <button className="text-sm text-blue-600 hover:text-blue-800">
-                      Total {filteredLoans?.length || 0}{' '}
-                      {filteredLoans?.length > 1 ? 'loans' : 'loan'}
+                      Total {filteredLoans?.length || 0}{" "}
+                      {filteredLoans?.length > 1 ? "loans" : "loan"}
                     </button>
                   </div>
                 </div>
@@ -101,7 +93,7 @@ const AllEmployeeLoans = () => {
                       onChange={handleSearch}
                       className="w-full p-2 pl-10 text-sm border rounded-md"
                     />
-                    <PiMagnifyingGlass className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                    <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                   </div>
                 </div>
 
@@ -109,7 +101,7 @@ const AllEmployeeLoans = () => {
                 <div className="flex justify-between p-4 mb-4 bg-gray-100 rounded-md">
                   <div>
                     <span className="text-sm font-medium text-gray-600">
-                      Approved:{' '}
+                      Approved:{" "}
                     </span>
                     <span className="text-sm text-gray-800">
                       {data?.totalCounts?.approved || 0}
@@ -117,7 +109,7 @@ const AllEmployeeLoans = () => {
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-600">
-                      Pending:{' '}
+                      Pending:{" "}
                     </span>
                     <span className="text-sm text-gray-800">
                       {data?.totalCounts?.pending || 0}
@@ -125,7 +117,7 @@ const AllEmployeeLoans = () => {
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-600">
-                      Total :{' '}
+                      Total :{" "}
                     </span>
                     <span className="text-sm text-gray-800">
                       {data?.totalApprovedLoanAmount || 0} BDT
@@ -224,13 +216,13 @@ const AllEmployeeLoans = () => {
                             {createdAt.slice(0, 10)}
                           </td>
                           <td className="p-4 px-4 text-xs text-left align-middle border-t-0 border-l-0 border-r-0 whitespace-nowrap">
-                            {user?.userName ? user.userName : 'not found'}
+                            {user?.userName ? user.userName : "not found"}
                           </td>
                           <td className="p-4 px-4 text-xs text-left align-middle border-t-0 border-l-0 border-r-0 whitespace-nowrap">
-                            {user?.phone ? user?.phone : 'no contact found'}
+                            {user?.phone ? user?.phone : "no contact found"}
                           </td>
                           <td className="p-4 px-4 text-xs text-left align-middle border-t-0 border-l-0 border-r-0 whitespace-nowrap">
-                            {user?.userType ? user?.userType : 'no role found'}
+                            {user?.userType ? user?.userType : "no role found"}
                           </td>
 
                           <td className="p-4 px-4 text-xs text-left align-middle border-t-0 border-l-0 border-r-0 whitespace-nowrap">
@@ -239,12 +231,12 @@ const AllEmployeeLoans = () => {
                           <td className="border-b border-gray-100">
                             <span
                               className={
-                                status === 'approve'
-                                  ? ' btn btn-xs rounded btn-success font-semibold'
-                                  : ' btn-xs btn btn-warning rounded py-0 my-1 font-semibold'
+                                status === "approve"
+                                  ? " btn btn-xs rounded btn-success font-semibold"
+                                  : " btn-xs btn btn-warning rounded py-0 my-1 font-semibold"
                               }
                             >
-                              {status === 'approve' ? 'Approved' : status}
+                              {status === "approve" ? "Approved" : status}
                             </span>
                           </td>
                         </tr>

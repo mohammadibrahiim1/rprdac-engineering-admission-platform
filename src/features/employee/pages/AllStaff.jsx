@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
+import { motion } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
 import {
   Calendar,
   CalendarIcon,
@@ -14,11 +14,10 @@ import {
   X,
   ChevronLeftIcon,
   ChevronRightIcon,
-} from 'lucide-react';
-import { useFetchEmployeeDutiesQuery } from '../../../../redux/features/staff/employeeApi';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import toast from 'react-hot-toast';
+} from "lucide-react";
+// import { useFetchEmployeeDutiesQuery } from "../../../../redux/features/staff/employeeApi";
+
+import { useFetchEmployeeDutiesQuery } from "@/redux/features/staff/employeeApi";
 
 // Animation configurations
 const containerVariants = {
@@ -37,27 +36,27 @@ const itemVariants = {
   visible: {
     y: 0,
     opacity: 1,
-    transition: { type: 'spring', stiffness: 120 },
+    transition: { type: "spring", stiffness: 120 },
   },
 };
 
 // Style configurations
 const roleColors = {
-  teacher: 'bg-purple-100 text-purple-800',
-  staff: 'bg-blue-100 text-blue-800',
-  nursing: 'bg-teal-100 text-teal-800',
+  teacher: "bg-purple-100 text-purple-800",
+  staff: "bg-blue-100 text-blue-800",
+  nursing: "bg-teal-100 text-teal-800",
 };
 
 const statusColors = {
-  approve: 'bg-green-100 text-green-800 border border-green-200',
-  pending: 'bg-yellow-100 text-yellow-800 border border-yellow-200',
-  default: 'bg-gray-100 text-gray-800 border border-gray-200',
+  approve: "bg-green-100 text-green-800 border border-green-200",
+  pending: "bg-yellow-100 text-yellow-800 border border-yellow-200",
+  default: "bg-gray-100 text-gray-800 border border-gray-200",
 };
 
 const paymentStatusColors = {
-  paid: 'bg-blue-100 text-blue-800 border border-blue-200',
-  unpaid: 'bg-red-100 text-red-800 border border-red-200',
-  default: 'bg-gray-100 text-gray-800 border border-gray-200',
+  paid: "bg-blue-100 text-blue-800 border border-blue-200",
+  unpaid: "bg-red-100 text-red-800 border border-red-200",
+  default: "bg-gray-100 text-gray-800 border border-gray-200",
 };
 
 // Pagination component
@@ -99,7 +98,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Showing page <span className="font-medium">{currentPage}</span> of{' '}
+            Showing page <span className="font-medium">{currentPage}</span> of{" "}
             <span className="font-medium">{totalPages}</span>
           </p>
         </div>
@@ -123,8 +122,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 onClick={() => onPageChange(page)}
                 className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
                   currentPage === page
-                    ? 'z-10 bg-indigo-600 border-indigo-500 text-white'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    ? "z-10 bg-indigo-600 border-indigo-500 text-white"
+                    : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                 } border`}
               >
                 {page}
@@ -157,12 +156,12 @@ const AllStaff = () => {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const popoverRef = useRef();
   const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    selectedYear: '',
-    selectedMonth: '',
-    selectedStatus: '',
-    selectedPaymentStatus: '',
+    startDate: "",
+    endDate: "",
+    selectedYear: "",
+    selectedMonth: "",
+    selectedStatus: "",
+    selectedPaymentStatus: "",
   });
 
   // Pagination state
@@ -183,9 +182,9 @@ const AllStaff = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -218,7 +217,7 @@ const AllStaff = () => {
 
   const totalAmount = allDuties.reduce(
     (sum, item) =>
-      item.status === 'approve' ? sum + (item.totalDutyFee || 0) : sum,
+      item.status === "approve" ? sum + (item.totalDutyFee || 0) : sum,
     0,
   );
 
@@ -234,27 +233,27 @@ const AllStaff = () => {
 
   const handleClearFilters = () => {
     setFilters({
-      startDate: '',
-      endDate: '',
-      selectedYear: '',
-      selectedMonth: '',
-      selectedStatus: '',
-      selectedPaymentStatus: '',
+      startDate: "",
+      endDate: "",
+      selectedYear: "",
+      selectedMonth: "",
+      selectedStatus: "",
+      selectedPaymentStatus: "",
     });
   };
 
   // Format time function
   const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return '0s';
+    if (!seconds || isNaN(seconds)) return "0s";
 
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
 
-    let result = '';
+    let result = "";
     if (hours > 0) result += `${hours}h `;
     if (minutes > 0) result += `${minutes}m`;
 
-    return result.trim() || '0s';
+    return result.trim() || "0s";
   };
 
   return (
@@ -290,7 +289,7 @@ const AllStaff = () => {
                 </h1>
                 <div className="px-3 py-1 border border-indigo-200 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50">
                   <span className="text-sm font-medium text-indigo-700 capitalize">
-                    {auth?.userType === 'staff' ? 'Employee' : auth?.userType}
+                    {auth?.userType === "staff" ? "Employee" : auth?.userType}
                   </span>
                 </div>
               </div>
@@ -312,7 +311,7 @@ const AllStaff = () => {
                 <div className="flex items-center gap-2">
                   <TrendingUpIcon className="w-4 h-4 text-emerald-500" />
                   <span className="text-sm text-gray-600">
-                    Total Records:{' '}
+                    Total Records:{" "}
                     <span className="font-semibold text-gray-800">
                       {allDuties.length}
                     </span>
@@ -320,7 +319,7 @@ const AllStaff = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600">
-                    Total Earned:{' '}
+                    Total Earned:{" "}
                     <span className="font-bold text-emerald-600">
                       {totalAmount?.toFixed(2)} BDT
                     </span>
@@ -378,7 +377,7 @@ const AllStaff = () => {
             <button
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
               className={`w-full h-11 px-4 flex items-center justify-between gap-2 bg-white border ${
-                filters.startDate ? 'border-blue-500' : 'border-gray-300'
+                filters.startDate ? "border-blue-500" : "border-gray-300"
               } rounded-lg text-gray-900 hover:bg-gray-50 transition-colors`}
             >
               <div className="flex items-center gap-2">
@@ -398,8 +397,8 @@ const AllStaff = () => {
                     e.stopPropagation();
                     setFilters((prev) => ({
                       ...prev,
-                      startDate: '',
-                      endDate: '',
+                      startDate: "",
+                      endDate: "",
                     }));
                   }}
                 />
@@ -481,8 +480,8 @@ const AllStaff = () => {
               disabled={filters.startDate || filters.endDate}
               className={`w-full h-11 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 appearance-none bg-no-repeat bg-[center_right_1rem] ${
                 filters.startDate || filters.endDate
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-900'
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-900"
               }`}
               style={{
                 backgroundImage:
@@ -514,8 +513,8 @@ const AllStaff = () => {
               disabled={filters.startDate || filters.endDate}
               className={`w-full h-11 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 appearance-none bg-no-repeat bg-[center_right_1rem] ${
                 filters.startDate || filters.endDate
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white text-gray-900'
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-gray-900"
               }`}
               style={{
                 backgroundImage:
@@ -530,18 +529,18 @@ const AllStaff = () => {
               )
                 .sort((a, b) => {
                   const months = [
-                    'January',
-                    'February',
-                    'March',
-                    'April',
-                    'May',
-                    'June',
-                    'July',
-                    'August',
-                    'September',
-                    'October',
-                    'November',
-                    'December',
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
                   ];
                   return months.indexOf(a) - months.indexOf(b);
                 })
@@ -653,14 +652,14 @@ const AllStaff = () => {
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
                 {[
-                  { label: 'Date', icon: CalendarIcon },
-                  { label: 'Employee', icon: UserCircleIcon },
-                  { label: 'Work Details', icon: null },
-                  { label: 'Duty Time', icon: ClockIcon },
-                  { label: 'Duration', icon: ClockIcon },
-                  { label: 'Amount', icon: DollarSignIcon },
-                  { label: 'Payment Status', icon: null },
-                  { label: 'Status', icon: null },
+                  { label: "Date", icon: CalendarIcon },
+                  { label: "Employee", icon: UserCircleIcon },
+                  { label: "Work Details", icon: null },
+                  { label: "Duty Time", icon: ClockIcon },
+                  { label: "Duration", icon: ClockIcon },
+                  { label: "Amount", icon: DollarSignIcon },
+                  { label: "Payment Status", icon: null },
+                  { label: "Status", icon: null },
                 ]?.map((header, index) => (
                   <th
                     key={header.label}
@@ -787,11 +786,11 @@ const TableRow = ({ item, role, formatTime }) => (
           paymentStatusColors.default
         }`}
       >
-        {item?.paymentStatus === 'paid'
-          ? 'Paid'
-          : item?.paymentStatus === 'unpaid'
-            ? 'Unpaid'
-            : 'N/A'}
+        {item?.paymentStatus === "paid"
+          ? "Paid"
+          : item?.paymentStatus === "unpaid"
+            ? "Unpaid"
+            : "N/A"}
       </span>
     </td>
 

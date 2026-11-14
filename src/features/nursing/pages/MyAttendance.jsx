@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
-// import PropTypes from "prop-types";
+import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { useSelector } from "react-redux";
+
 import {
   CalendarIcon,
   DollarSignIcon,
@@ -20,11 +20,13 @@ import {
   AlertCircle,
   TrendingUpIcon,
   Calendar,
-} from 'lucide-react';
-import { useGetSingleNurseAttendancesQuery } from '../../../../redux/features/Nursing/NursingApi';
-import { jsPDF } from 'jspdf';
-import toast from 'react-hot-toast';
-import autoTable from 'jspdf-autotable';
+} from "lucide-react";
+
+import { jsPDF } from "jspdf";
+import { toast } from "sonner";
+import autoTable from "jspdf-autotable";
+
+import { useGetSingleNurseAttendancesQuery } from "@/redux/features/Nursing/NursingApi";
 
 // Animation configurations
 const containerVariants = {
@@ -44,7 +46,7 @@ const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      type: 'spring',
+      type: "spring",
       stiffness: 100,
       damping: 12,
     },
@@ -54,49 +56,49 @@ const itemVariants = {
 // Style configurations
 const statusConfig = {
   approve: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
     icon: CheckCircle,
-    label: 'Approved',
+    label: "Approved",
   },
   pending: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
     icon: Clock,
-    label: 'Pending',
+    label: "Pending",
   },
   rejected: {
-    bg: 'bg-red-50',
-    text: 'text-red-700',
-    border: 'border-red-200',
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
     icon: AlertCircle,
-    label: 'Rejected',
+    label: "Rejected",
   },
 };
 
 const paymentStatusConfig = {
   paid: {
-    bg: 'bg-green-50',
-    text: 'text-green-700',
-    border: 'border-green-200',
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
     icon: CheckCircle,
-    label: 'Paid',
+    label: "Paid",
   },
   unpaid: {
-    bg: 'bg-orange-50',
-    text: 'text-orange-700',
-    border: 'border-orange-200',
+    bg: "bg-orange-50",
+    text: "text-orange-700",
+    border: "border-orange-200",
     icon: Clock,
-    label: 'Unpaid',
+    label: "Unpaid",
   },
   processing: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
     icon: RefreshCw,
-    label: 'Processing',
+    label: "Processing",
   },
 };
 
@@ -125,12 +127,12 @@ const MyAttendance = () => {
   const popoverRef = useRef();
 
   const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    selectedYear: '',
-    selectedMonth: '',
-    selectedStatus: '',
-    selectedPaymentStatus: '',
+    startDate: "",
+    endDate: "",
+    selectedYear: "",
+    selectedMonth: "",
+    selectedStatus: "",
+    selectedPaymentStatus: "",
   });
 
   // Data fetching
@@ -184,7 +186,7 @@ const MyAttendance = () => {
   // Statistics
   const totalAmount = duties.reduce(
     (sum, item) =>
-      item.status === 'approve' ? sum + (item.totalAmount || 0) : sum,
+      item.status === "approve" ? sum + (item.totalAmount || 0) : sum,
     0,
   );
 
@@ -192,12 +194,12 @@ const MyAttendance = () => {
 
   const handleClearFilters = () => {
     setFilters({
-      startDate: '',
-      endDate: '',
-      selectedYear: '',
-      selectedMonth: '',
-      selectedStatus: '',
-      selectedPaymentStatus: '',
+      startDate: "",
+      endDate: "",
+      selectedYear: "",
+      selectedMonth: "",
+      selectedStatus: "",
+      selectedPaymentStatus: "",
     });
 
     setCurrentPage(1);
@@ -206,7 +208,7 @@ const MyAttendance = () => {
   // Time formatting
   const formatTimeToHMS = (seconds) => {
     if (seconds === undefined || seconds === null || isNaN(seconds))
-      return '0h 0m';
+      return "0h 0m";
     const totalSeconds = Math.floor(Number(seconds));
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -220,9 +222,9 @@ const MyAttendance = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
@@ -235,49 +237,49 @@ const MyAttendance = () => {
       const capitalize = (str) =>
         str
           ?.toLowerCase()
-          .split(' ')
+          .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ') || 'N/A';
+          .join(" ") || "N/A";
 
       const formatTime = (seconds) => {
-        if (!seconds || isNaN(seconds)) return '0 second';
+        if (!seconds || isNaN(seconds)) return "0 second";
 
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
 
         const parts = [];
-        if (h) parts.push(`${h} hour${h > 1 ? 's' : ''}`);
-        if (m) parts.push(`${m} minute${m > 1 ? 's' : ''}`);
-        if (s) parts.push(`${s} second${s > 1 ? 's' : ''}`);
+        if (h) parts.push(`${h} hour${h > 1 ? "s" : ""}`);
+        if (m) parts.push(`${m} minute${m > 1 ? "s" : ""}`);
+        if (s) parts.push(`${s} second${s > 1 ? "s" : ""}`);
 
-        return parts.join(' ') || '0 second';
+        return parts.join(" ") || "0 second";
       };
 
       const convertToAmPm = (timeStr) => {
-        if (!timeStr || !timeStr.includes(':')) return 'N/A';
-        const [hourStr, minuteStr] = timeStr.split(':');
+        if (!timeStr || !timeStr.includes(":")) return "N/A";
+        const [hourStr, minuteStr] = timeStr.split(":");
         let hour = parseInt(hourStr, 10);
         const minute = parseInt(minuteStr, 10);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const ampm = hour >= 12 ? "PM" : "AM";
         hour = hour % 12 || 12;
-        return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+        return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
       };
 
       const drawHeader = () => {
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(16);
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.text(
-          'M.A. Samad Villa-2 In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com',
+          "M.A. Samad Villa-2 In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setLineWidth(0.5);
@@ -288,7 +290,7 @@ const MyAttendance = () => {
 
       // NEW FOOTER FUNCTION WITH PAGE NUMBERS
       const drawFooter = (currentPage, totalPages) => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(7);
         doc.text(`Generated: ${generatedTime}`, margin, pageHeight - 5);
         doc.text(
@@ -296,7 +298,7 @@ const MyAttendance = () => {
           pageWidth - margin,
           pageHeight - 5,
           {
-            align: 'right',
+            align: "right",
           },
         );
       };
@@ -312,11 +314,11 @@ const MyAttendance = () => {
         );
         doc.setFontSize(10);
         doc.text(
-          'Authorized Signature',
+          "Authorized Signature",
           pageWidth - margin - 40,
           signLineY + 5,
           {
-            align: 'center',
+            align: "center",
           },
         );
         cursorY = signLineY + 12;
@@ -351,8 +353,8 @@ const MyAttendance = () => {
       });
 
       const monthKeys = Object.keys(dutiesByMonth).sort((a, b) => {
-        const [monthA, yearA] = a.split(', ');
-        const [monthB, yearB] = b.split(', ');
+        const [monthA, yearA] = a.split(", ");
+        const [monthB, yearB] = b.split(", ");
         const dateA = new Date(`${monthA} 1, ${yearA}`);
         const dateB = new Date(`${monthB} 1, ${yearB}`);
         return dateA - dateB;
@@ -366,54 +368,54 @@ const MyAttendance = () => {
           cursorY += 3;
         }
 
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
         doc.text(monthLabel, margin, cursorY);
         cursorY += 3;
 
         const tableData = rows.map((duty) => [
-          duty.date?.slice(0, 10) || 'N/A',
+          duty.date?.slice(0, 10) || "N/A",
           capitalize(duty.employeeName),
           capitalize(duty.messName),
           `${convertToAmPm(duty.dutyStartTime)} - ${convertToAmPm(duty.dutyEndTime)}`,
           formatTime(duty.totalDutyTime),
           `BDT ${(duty.totalAmount || 0).toFixed(2)}`,
           capitalize(duty.status),
-          capitalize(duty.paymentStatus || 'N/A'),
+          capitalize(duty.paymentStatus || "N/A"),
         ]);
 
         autoTable(doc, {
           startY: cursorY,
           head: [
             [
-              'Date',
-              'Name',
-              'Work',
-              'Duty Time',
-              'Total time',
-              'Amount',
-              'Status',
-              'Payment Status',
+              "Date",
+              "Name",
+              "Work",
+              "Duty Time",
+              "Total time",
+              "Amount",
+              "Status",
+              "Payment Status",
             ],
           ],
           body: tableData,
-          theme: 'grid',
+          theme: "grid",
           headStyles: {
             fillColor: [255, 255, 255],
             textColor: 0,
-            fontStyle: 'bold',
+            fontStyle: "bold",
             fontSize: 10,
             lineColor: [0, 0, 0],
             lineWidth: 0.3,
           },
           styles: {
-            font: 'helvetica',
+            font: "helvetica",
             fontSize: 9,
             cellPadding: 2,
             minCellHeight: rowHeight,
             fillColor: [255, 255, 255],
             textColor: 0,
-            fontStyle: 'normal',
+            fontStyle: "normal",
             lineColor: [0, 0, 0],
             lineWidth: 0.3,
           },
@@ -436,27 +438,27 @@ const MyAttendance = () => {
       drawHeader();
 
       // First page: User Info
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.text(`Nursing Duty Statement`, pageWidth / 2, cursorY + 5, {
-        align: 'center',
+        align: "center",
       });
       cursorY += 13;
 
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      doc.text(`Name: ${capitalize(user?.userName) || 'N/A'}`, margin, cursorY);
+      doc.text(`Name: ${capitalize(user?.userName) || "N/A"}`, margin, cursorY);
       doc.text(
-        `Phone: ${capitalize(user?.phone) || 'N/A'}`,
+        `Phone: ${capitalize(user?.phone) || "N/A"}`,
         pageWidth - margin,
         cursorY,
         {
-          align: 'right',
+          align: "right",
         },
       );
       cursorY += 6;
 
-      const periodText = `Period: ${filters.startDate || 'All'} to ${filters.endDate || 'All'}`;
+      const periodText = `Period: ${filters.startDate || "All"} to ${filters.endDate || "All"}`;
       doc.text(periodText, margin, cursorY);
       cursorY += 10;
 
@@ -479,7 +481,7 @@ const MyAttendance = () => {
         dutiesByMonth[monthKey].forEach((duty) => {
           const amount = duty?.totalAmount || 0;
           totalAmount += amount;
-          if (duty.paymentStatus?.toLowerCase() === 'paid') {
+          if (duty.paymentStatus?.toLowerCase() === "paid") {
             paidAmount += amount;
           } else {
             dueAmount += amount;
@@ -494,15 +496,15 @@ const MyAttendance = () => {
         drawHeader();
       }
 
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       cursorY += 8;
-      doc.text('Summary', margin, cursorY);
+      doc.text("Summary", margin, cursorY);
       cursorY += 3;
 
       autoTable(doc, {
         startY: cursorY,
-        head: [['Total Amount', 'Paid', 'Due']],
+        head: [["Total Amount", "Paid", "Due"]],
         body: [
           [
             `BDT ${totalAmount.toFixed(2)}`,
@@ -510,22 +512,22 @@ const MyAttendance = () => {
             `BDT ${dueAmount.toFixed(2)}`,
           ],
         ],
-        theme: 'grid',
+        theme: "grid",
         headStyles: {
           fillColor: [255, 255, 255],
           textColor: 0,
-          fontStyle: 'bold',
+          fontStyle: "bold",
           fontSize: 10,
           lineColor: [0, 0, 0],
           lineWidth: 0.3,
         },
         styles: {
-          font: 'helvetica',
+          font: "helvetica",
           fontSize: 10,
           cellPadding: 3,
           fillColor: [255, 255, 255],
           textColor: 0,
-          fontStyle: 'normal',
+          fontStyle: "normal",
           lineColor: [0, 0, 0],
           lineWidth: 0.3,
         },
@@ -552,22 +554,22 @@ const MyAttendance = () => {
       // Restore original page
       doc.setPage(originalPage);
 
-      doc.save(`Nursing_Statement_${user?.userName || 'user'}.pdf`);
+      doc.save(`Nursing_Statement_${user?.userName || "user"}.pdf`);
       // setIsGeneratingPDF(false);
-      toast.success('PDF generated successfully!');
+      toast.success("PDF generated successfully!");
     } catch (err) {
-      toast.error('Failed to generate PDF.');
+      toast.error("Failed to generate PDF.");
       // setIsGeneratingPDF(false);
     }
   };
 
   const formatTimeToAMPM = (timeStr) => {
-    const [hour, minute] = timeStr.split(':').map(Number);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const [hour, minute] = timeStr.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
     const formattedHour = hour % 12 || 12;
-    return `${formattedHour.toString().padStart(2, '0')}:${minute
+    return `${formattedHour.toString().padStart(2, "0")}:${minute
       .toString()
-      .padStart(2, '0')} ${ampm}`;
+      .padStart(2, "0")} ${ampm}`;
   };
 
   return (
@@ -603,7 +605,7 @@ const MyAttendance = () => {
                 </h1>
                 <div className="px-3 py-1 border border-indigo-200 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50">
                   <span className="text-sm font-medium text-indigo-700 capitalize">
-                    {auth?.userType === 'staff' ? 'Employee' : auth?.userType}
+                    {auth?.userType === "staff" ? "Employee" : auth?.userType}
                   </span>
                 </div>
               </div>
@@ -625,7 +627,7 @@ const MyAttendance = () => {
                 <div className="flex items-center gap-2">
                   <TrendingUpIcon className="w-4 h-4 text-emerald-500" />
                   <span className="text-sm text-slate-600">
-                    Total Records:{' '}
+                    Total Records:{" "}
                     <span className="font-semibold text-slate-800">
                       {duties.length}
                     </span>
@@ -633,7 +635,7 @@ const MyAttendance = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-600">
-                    Total Earned:{' '}
+                    Total Earned:{" "}
                     <span className="font-bold text-emerald-600">
                       {totalAmount?.toFixed(2)} BDT
                     </span>
@@ -687,7 +689,7 @@ const MyAttendance = () => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={`w-full h-11 px-4 flex items-center justify-between gap-2 bg-white border ${
-                filters.startDate ? 'border-blue-500' : 'border-gray-200'
+                filters.startDate ? "border-blue-500" : "border-gray-200"
               } rounded-lg text-gray-950 hover:bg-gray-50 transition-colors`}
             >
               <div className="flex items-center gap-2">
@@ -707,8 +709,8 @@ const MyAttendance = () => {
                     e.stopPropagation();
                     setFilters((prev) => ({
                       ...prev,
-                      startDate: '',
-                      endDate: '',
+                      startDate: "",
+                      endDate: "",
                     }));
                   }}
                 />
@@ -777,23 +779,23 @@ const MyAttendance = () => {
           {/* Reuse this template below for each Select input */}
           {[
             {
-              label: 'Year',
+              label: "Year",
               value: filters.selectedYear,
               onChange: (v) =>
                 setFilters((prev) => ({ ...prev, selectedYear: v })),
               options: [
-                { label: 'All Years', value: '' },
+                { label: "All Years", value: "" },
                 ...statements.map((s) => ({ label: s.year, value: s.year })),
               ],
               disabled: filters.startDate || filters.endDate,
             },
             {
-              label: 'Month',
+              label: "Month",
               value: filters.selectedMonth,
               onChange: (v) =>
                 setFilters((prev) => ({ ...prev, selectedMonth: v })),
               options: [
-                { label: 'All Months', value: '' },
+                { label: "All Months", value: "" },
                 ...statements
                   .flatMap((s) => s.months)
                   .sort((a, b) => monthOrder[a.month] - monthOrder[b.month])
@@ -802,25 +804,25 @@ const MyAttendance = () => {
               disabled: filters.startDate || filters.endDate,
             },
             {
-              label: 'Status',
+              label: "Status",
               value: filters.selectedStatus,
               onChange: (v) =>
                 setFilters((prev) => ({ ...prev, selectedStatus: v })),
               options: [
-                { label: 'All Status', value: '' },
-                { label: 'Pending', value: 'pending' },
-                { label: 'Approved', value: 'approve' },
+                { label: "All Status", value: "" },
+                { label: "Pending", value: "pending" },
+                { label: "Approved", value: "approve" },
               ],
             },
             {
-              label: 'Payment Status',
+              label: "Payment Status",
               value: filters.selectedPaymentStatus,
               onChange: (v) =>
                 setFilters((prev) => ({ ...prev, selectedPaymentStatus: v })),
               options: [
-                { label: 'Payment Status', value: '' },
-                { label: 'Paid', value: 'paid' },
-                { label: 'Unpaid', value: 'unpaid' },
+                { label: "Payment Status", value: "" },
+                { label: "Paid", value: "paid" },
+                { label: "Unpaid", value: "unpaid" },
               ],
             },
           ].map(
@@ -835,8 +837,8 @@ const MyAttendance = () => {
                   disabled={disabled}
                   className={`w-full h-11 px-4 border rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 appearance-none bg-no-repeat bg-[center_right_1rem] ${
                     disabled
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-950'
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-white text-gray-950"
                   }`}
                   style={{
                     backgroundImage:
@@ -880,19 +882,19 @@ const MyAttendance = () => {
             <thead className="border-b border-gray-200 bg-gradient-to-r from-slate-50 to-gray-50">
               <tr>
                 {[
-                  { label: 'Date', icon: CalendarIcon, width: 'w-24' },
-                  { label: 'Employee', icon: UserCircleIcon, width: 'w-32' },
-                  { label: 'Mess', icon: Building, width: 'w-32' },
-                  { label: 'Start', icon: Clock, width: 'w-16' },
-                  { label: 'End', icon: Clock, width: 'w-16' },
-                  { label: 'Duration', icon: Timer, width: 'w-24' },
-                  { label: 'Amount', icon: DollarSignIcon, width: 'w-32' },
+                  { label: "Date", icon: CalendarIcon, width: "w-24" },
+                  { label: "Employee", icon: UserCircleIcon, width: "w-32" },
+                  { label: "Mess", icon: Building, width: "w-32" },
+                  { label: "Start", icon: Clock, width: "w-16" },
+                  { label: "End", icon: Clock, width: "w-16" },
+                  { label: "Duration", icon: Timer, width: "w-24" },
+                  { label: "Amount", icon: DollarSignIcon, width: "w-32" },
                   {
-                    label: 'Payment Status',
+                    label: "Payment Status",
                     icon: BadgeDollarSign,
-                    width: 'w-32',
+                    width: "w-32",
                   },
-                  { label: 'Status', icon: CheckCircle, width: 'w-32' },
+                  { label: "Status", icon: CheckCircle, width: "w-32" },
                 ].map((header) => (
                   <th
                     key={header.label}
@@ -1035,8 +1037,8 @@ const MyAttendance = () => {
           <div className="px-6 py-4 border-t border-gray-100 bg-gray-50">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
-                Showing {startIndex + 1} to{' '}
-                {Math.min(startIndex + itemsPerPage, duties?.length)} of{' '}
+                Showing {startIndex + 1} to{" "}
+                {Math.min(startIndex + itemsPerPage, duties?.length)} of{" "}
                 {duties?.length} results
               </div>
 
@@ -1064,8 +1066,8 @@ const MyAttendance = () => {
                         onClick={() => setCurrentPage(pageNum)}
                         className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
                           currentPage === pageNum
-                            ? 'bg-indigo-600 text-white'
-                            : 'hover:bg-gray-100 text-gray-600'
+                            ? "bg-indigo-600 text-white"
+                            : "hover:bg-gray-100 text-gray-600"
                         }`}
                       >
                         {pageNum}

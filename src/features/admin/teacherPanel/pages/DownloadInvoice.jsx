@@ -1,32 +1,32 @@
-import { useState, useRef, useEffect } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useState, useRef, useEffect } from "react";
+import { useLoaderData } from "react-router-dom";
+
+import { useDeleteUserInvoiceMutation } from "../../../../redux/features/invoice/userInvoiceApi";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useReactToPrint } from "react-to-print";
 import {
-  PiMagnifyingGlass,
-  PiTrash,
-  PiX,
-  PiFileText,
-  PiChartBar,
-  PiReceipt,
-  PiClock,
-  PiCheckCircle,
-  PiPhone,
-  PiEnvelope,
-  PiMapPin,
-  PiEye,
-  PiPrinter,
-} from 'react-icons/pi';
-import { useDeleteUserInvoiceMutation } from '../../../../../redux/features/invoice/userInvoiceApi';
-import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { useReactToPrint } from 'react-to-print';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import { Zap } from 'lucide-react';
-import rprLogo from '../../../../../assets/img/log-rpr.png';
+  CheckCircle,
+  Clock,
+  Eye,
+  FileText,
+  Mail,
+  MapPin,
+  Phone,
+  Pickaxe,
+  Printer,
+  Receipt,
+  Search,
+  Trash,
+  Zap,
+} from "lucide-react";
+import rprLogo from "../../../../assets/img/log-rpr.png";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const DownloadInvoice = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [invoicesData] = useState(useLoaderData()?.data || []);
   const [previewInvoice, setPreviewInvoice] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -42,11 +42,11 @@ const DownloadInvoice = () => {
     };
 
     if (isPreviewOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isPreviewOpen]);
 
@@ -69,15 +69,15 @@ const DownloadInvoice = () => {
 
   const handleDeleteInvoice = async (invoiceId) => {
     const confirmed = window.confirm(
-      'Are you sure you want to delete this invoice?',
+      "Are you sure you want to delete this invoice?",
     );
     if (!confirmed) return;
 
     try {
       await deleteUserInvoice(invoiceId).unwrap();
-      toast.success('Invoice deleted successfully!');
+      toast.success("Invoice deleted successfully!");
     } catch (error) {
-      toast.error('Failed to delete invoice. Please try again.');
+      toast.error("Failed to delete invoice. Please try again.");
     }
   };
 
@@ -94,20 +94,20 @@ const DownloadInvoice = () => {
   // Format currency values
   const formatCurrency = (value) => {
     return (
-      new Intl.NumberFormat('en-BD', {
+      new Intl.NumberFormat("en-BD", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(value || 0) + ' BDT'
+      }).format(value || 0) + " BDT"
     );
   };
 
   // Format date
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-BD', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-BD", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -116,8 +116,8 @@ const DownloadInvoice = () => {
     if (!previewInvoice) return;
 
     const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
+      orientation: "portrait",
+      unit: "mm",
       format: [210, 148], // Half A4
     });
 
@@ -126,11 +126,11 @@ const DownloadInvoice = () => {
     let y = 12;
 
     // COMPANY TITLE
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(37, 99, 235);
 
-    doc.text('RPR DUET ADMISSION CARE', margin, y);
+    doc.text("RPR DUET ADMISSION CARE", margin, y);
 
     y += 6;
 
@@ -138,7 +138,7 @@ const DownloadInvoice = () => {
     doc.setTextColor(100);
 
     doc.text(
-      'M.A Samad Villa, In front of DUET Campus, Gazipur, Bangladesh',
+      "M.A Samad Villa, In front of DUET Campus, Gazipur, Bangladesh",
       margin,
       y,
     );
@@ -146,28 +146,28 @@ const DownloadInvoice = () => {
     y += 4;
 
     doc.text(
-      'Phone: +8801742590128 | Email: rpr.group2013@gmail.com',
+      "Phone: +8801742590128 | Email: rpr.group2013@gmail.com",
       margin,
       y,
     );
 
     // INVOICE TITLE
     doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(0);
 
-    doc.text('INVOICE', pageWidth - margin, 20, { align: 'right' });
+    doc.text("INVOICE", pageWidth - margin, 20, { align: "right" });
 
     doc.setFontSize(9);
     doc.text(`#${previewInvoice.invoiceNumber}`, pageWidth - margin, 25, {
-      align: 'right',
+      align: "right",
     });
 
     doc.text(
       `Date: ${new Date(previewInvoice.paidAt).toLocaleDateString()}`,
       pageWidth - margin,
       30,
-      { align: 'right' },
+      { align: "right" },
     );
 
     y = 36;
@@ -179,24 +179,24 @@ const DownloadInvoice = () => {
     y += 6;
 
     // BILL TO
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.text('Bill To:', margin, y);
+    doc.text("Bill To:", margin, y);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     y += 5;
 
-    doc.text(previewInvoice.userDetails?.fullName || '-', margin, y);
+    doc.text(previewInvoice.userDetails?.fullName || "-", margin, y);
 
     y += 4;
 
-    doc.text(`Phone: ${previewInvoice.userDetails?.phone || '-'}`, margin, y);
+    doc.text(`Phone: ${previewInvoice.userDetails?.phone || "-"}`, margin, y);
 
     y += 4;
 
     doc.text(
-      `User Type: ${previewInvoice.userDetails?.userType || '-'}`,
+      `User Type: ${previewInvoice.userDetails?.userType || "-"}`,
       margin,
       y,
     );
@@ -233,13 +233,13 @@ const DownloadInvoice = () => {
     if (previewInvoice.paymentDetails?.dutyAmountBreakdown?.length) {
       autoTable(doc, {
         startY: y,
-        head: [['Duty Date', 'Amount', 'Status']],
+        head: [["Duty Date", "Amount", "Status"]],
         body: previewInvoice.paymentDetails.dutyAmountBreakdown.map((d) => [
           new Date(d.date).toLocaleDateString(),
           `${d.amount} BDT`,
-          d.status || 'Paid',
+          d.status || "Paid",
         ]),
-        theme: 'grid',
+        theme: "grid",
         styles: {
           fontSize: 8,
         },
@@ -256,13 +256,13 @@ const DownloadInvoice = () => {
     if (previewInvoice.paymentDetails?.loanBreakdown?.length) {
       autoTable(doc, {
         startY: y,
-        head: [['Loan Date', 'Amount', 'Status']],
+        head: [["Loan Date", "Amount", "Status"]],
         body: previewInvoice.paymentDetails.loanBreakdown.map((l) => [
           new Date(l.date).toLocaleDateString(),
           `${l.amount} BDT`,
-          l.status || 'Paid',
+          l.status || "Paid",
         ]),
-        theme: 'grid',
+        theme: "grid",
         styles: {
           fontSize: 8,
         },
@@ -280,26 +280,26 @@ const DownloadInvoice = () => {
     const summaryX = pageWidth - 80;
 
     doc.setFillColor(248, 250, 252);
-    doc.rect(summaryX, y, 68, 32, 'F');
+    doc.rect(summaryX, y, 68, 32, "F");
 
     doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
 
-    doc.text('SUMMARY', summaryX + 3, y + 5);
+    doc.text("SUMMARY", summaryX + 3, y + 5);
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
 
     const summary = [
-      ['Due', previewInvoice.paymentDetails?.selectedDue],
-      ['Loan Deduct', previewInvoice.paymentDetails?.deductLoanAmount],
-      ['Paid', previewInvoice.paymentDetails?.amountPaid],
+      ["Due", previewInvoice.paymentDetails?.selectedDue],
+      ["Loan Deduct", previewInvoice.paymentDetails?.deductLoanAmount],
+      ["Paid", previewInvoice.paymentDetails?.amountPaid],
     ];
 
     let sY = y + 11;
 
     summary.forEach((s) => {
       doc.text(s[0], summaryX + 3, sY);
-      doc.text(`${s[1]} BDT`, summaryX + 65, sY, { align: 'right' });
+      doc.text(`${s[1]} BDT`, summaryX + 65, sY, { align: "right" });
       sY += 6;
     });
 
@@ -308,8 +308,8 @@ const DownloadInvoice = () => {
     doc.setFontSize(7);
     doc.setTextColor(120);
 
-    doc.text('This is a computer generated invoice', pageWidth / 2, 140, {
-      align: 'center',
+    doc.text("This is a computer generated invoice", pageWidth / 2, 140, {
+      align: "center",
     });
 
     doc.save(`Invoice-${previewInvoice.invoiceNumber}.pdf`);
@@ -338,7 +338,7 @@ const DownloadInvoice = () => {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { type: 'spring', damping: 25, stiffness: 300 },
+      transition: { type: "spring", damping: 25, stiffness: 300 },
     },
     exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
   };
@@ -350,25 +350,25 @@ const DownloadInvoice = () => {
   );
 
   // Status badge component
-  const StatusBadge = ({ status = 'paid' }) => {
+  const StatusBadge = ({ status = "paid" }) => {
     const statusConfig = {
       paid: {
-        bg: 'bg-emerald-50',
-        text: 'text-emerald-700',
-        border: 'border-emerald-200',
-        icon: PiCheckCircle,
+        bg: "bg-emerald-50",
+        text: "text-emerald-700",
+        border: "border-emerald-200",
+        icon: CheckCircle,
       },
       pending: {
-        bg: 'bg-amber-50',
-        text: 'text-amber-700',
-        border: 'border-amber-200',
-        icon: PiClock,
+        bg: "bg-amber-50",
+        text: "text-amber-700",
+        border: "border-amber-200",
+        icon: Clock,
       },
       overdue: {
-        bg: 'bg-rose-50',
-        text: 'text-rose-700',
-        border: 'border-rose-200',
-        icon: PiClock,
+        bg: "bg-rose-50",
+        text: "text-rose-700",
+        border: "border-rose-200",
+        icon: Clock,
       },
     };
 
@@ -445,7 +445,7 @@ const DownloadInvoice = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -491,7 +491,7 @@ const DownloadInvoice = () => {
                   </div>
                   <div>
                     <p className="text-xl font-semibold sm:text-2xl text-slate-900">
-                      {formatCurrency(totalAmount).split(' ')[0]}
+                      {formatCurrency(totalAmount).split(" ")[0]}
                     </p>
                     <p className="text-xs text-slate-600">Value</p>
                   </div>
@@ -507,7 +507,7 @@ const DownloadInvoice = () => {
         {/* Search */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <PiMagnifyingGlass className="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-slate-400" />
+            <Search className="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search by invoice #, customer, or month..."
@@ -554,7 +554,7 @@ const DownloadInvoice = () => {
                       <td className="px-4 py-4 sm:px-6">
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-lg bg-blue-50">
-                            <PiReceipt className="w-4 h-4 text-blue-600" />
+                            <Receipt className="w-4 h-4 text-blue-600" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-slate-900">
@@ -570,14 +570,14 @@ const DownloadInvoice = () => {
                       <td className="px-4 py-4 sm:px-6">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white uppercase rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
-                            {invoice.userDetails?.fullName?.charAt(0) || 'U'}
+                            {invoice.userDetails?.fullName?.charAt(0) || "U"}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-slate-900">
-                              {invoice.userDetails?.fullName || 'Unknown'}
+                              {invoice.userDetails?.fullName || "Unknown"}
                             </p>
                             <p className="text-xs text-slate-500">
-                              {invoice.userDetails?.phone || 'No phone'}
+                              {invoice.userDetails?.phone || "No phone"}
                             </p>
                           </div>
                         </div>
@@ -597,11 +597,11 @@ const DownloadInvoice = () => {
                       <td className="px-4 py-4 sm:px-6">
                         <div className="space-y-1">
                           <p className="text-xs text-slate-600">
-                            Loans:{' '}
+                            Loans:{" "}
                             {invoice?.paymentDetails?.numberOfLoansPaid || 0}
                           </p>
                           <p className="text-xs text-slate-600">
-                            New Balance:{' '}
+                            New Balance:{" "}
                             {formatCurrency(
                               invoice.paymentDetails?.newBalance || 0,
                             )}
@@ -624,7 +624,7 @@ const DownloadInvoice = () => {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                             title="View Invoice"
                           >
-                            <PiEye className="w-3.5 h-3.5" />
+                            <Eye className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">View</span>
                           </button>
                           <button
@@ -632,7 +632,7 @@ const DownloadInvoice = () => {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
                             title="Delete Invoice"
                           >
-                            <PiTrash className="w-3.5 h-3.5" />
+                            <Trash className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">Delete</span>
                           </button>
                         </div>
@@ -646,19 +646,19 @@ const DownloadInvoice = () => {
         ) : (
           <div className="flex flex-col items-center justify-center py-16 bg-white border rounded-xl border-slate-200">
             <div className="p-4 bg-slate-50 rounded-2xl">
-              <PiFileText className="w-12 h-12 text-slate-400" />
+              <FileText className="w-12 h-12 text-slate-400" />
             </div>
             <h3 className="mt-4 text-lg font-semibold text-slate-900">
               No invoices found
             </h3>
             <p className="mt-1 text-sm text-slate-600">
               {searchQuery
-                ? 'No invoices match your search criteria'
-                : 'Get started by creating your first invoice'}
+                ? "No invoices match your search criteria"
+                : "Get started by creating your first invoice"}
             </p>
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery('')}
+                onClick={() => setSearchQuery("")}
                 className="px-4 py-2 mt-4 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
               >
                 Clear Search
@@ -684,7 +684,7 @@ const DownloadInvoice = () => {
               <div className="flex items-center justify-between px-4 py-4 border-b sm:px-6 border-slate-200">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-blue-50">
-                    <PiFileText className="w-5 h-5 text-blue-600" />
+                    <FileText className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
                     <h2 className="text-base font-semibold sm:text-lg text-slate-900">
@@ -699,7 +699,7 @@ const DownloadInvoice = () => {
                   onClick={closePreview}
                   className="p-2 transition-colors rounded-lg hover:bg-slate-100"
                 >
-                  <PiX className="w-5 h-5 text-slate-500" />
+                  <Pickaxe className="w-5 h-5 text-slate-500" />
                 </button>
               </div>
 
@@ -709,15 +709,15 @@ const DownloadInvoice = () => {
                   ref={printRef}
                   className="mx-auto bg-white shadow-sm"
                   style={{
-                    width: '210mm',
-                    minHeight: '148.5mm', // Half A4 Height
-                    maxHeight: '148.5mm',
-                    padding: '8mm',
-                    boxSizing: 'border-box',
+                    width: "210mm",
+                    minHeight: "148.5mm", // Half A4 Height
+                    maxHeight: "148.5mm",
+                    padding: "8mm",
+                    boxSizing: "border-box",
                     fontFamily: "'Times New Roman', Times, serif",
-                    backgroundColor: 'white',
-                    position: 'relative',
-                    overflow: 'hidden',
+                    backgroundColor: "white",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
                   {/* Header */}
@@ -728,17 +728,17 @@ const DownloadInvoice = () => {
                       </h1>
                       <div className="mt-1 space-y-1 text-[11px] text-slate-600">
                         <p className="flex items-center gap-2">
-                          <PiMapPin className="flex-shrink-0 w-4 h-4 text-slate-400" />
+                          <MapPin className="flex-shrink-0 w-4 h-4 text-slate-400" />
                           <span>
                             M.A. Samad Villa, In front of DUET Campus, Gazipur
                           </span>
                         </p>
                         <p className="flex items-center gap-2">
-                          <PiPhone className="flex-shrink-0 w-4 h-4 text-slate-400" />
+                          <Phone className="flex-shrink-0 w-4 h-4 text-slate-400" />
                           <span>+880 1742 590 128</span>
                         </p>
                         <p className="flex items-center gap-2">
-                          <PiEnvelope className="flex-shrink-0 w-4 h-4 text-slate-400" />
+                          <Mail className="flex-shrink-0 w-4 h-4 text-slate-400" />
                           <span>rpr.group2013@gmail.com</span>
                         </p>
                       </div>
@@ -768,9 +768,9 @@ const DownloadInvoice = () => {
                           {previewInvoice.userDetails?.phone})
                         </p>
                         <p className="text-[12px] text-slate-600 capitalize">
-                          User Type:{' '}
-                          {previewInvoice.userDetails?.userType === 'staff'
-                            ? 'employee'
+                          User Type:{" "}
+                          {previewInvoice.userDetails?.userType === "staff"
+                            ? "employee"
                             : previewInvoice.userDetails?.userType}
                         </p>
                       </div>
@@ -785,7 +785,7 @@ const DownloadInvoice = () => {
                           <span className="text-slate-600">Date</span>
                           <span className="font-medium text-slate-900">
                             {formatDate(previewInvoice.paidAt)} (
-                            {formatDate(previewInvoice.startDate)} -{' '}
+                            {formatDate(previewInvoice.startDate)} -{" "}
                             {formatDate(previewInvoice.endDate)})
                           </span>
                         </div>
@@ -795,14 +795,14 @@ const DownloadInvoice = () => {
                           <span className="font-medium text-slate-900">
                             {previewInvoice.paymentDetails?.paymentMonthYear
                               ? previewInvoice.paymentDetails.paymentMonthYear
-                                  .split(',')
+                                  .split(",")
                                   .map((m) =>
-                                    new Date(m.trim()).toLocaleString('en-US', {
-                                      month: 'long',
+                                    new Date(m.trim()).toLocaleString("en-US", {
+                                      month: "long",
                                     }),
                                   )
-                                  .join(' & ')
-                              : 'N/A'}
+                                  .join(" & ")
+                              : "N/A"}
                           </span>
                         </div>
                       </div>
@@ -810,7 +810,7 @@ const DownloadInvoice = () => {
                   </div>
 
                   <div className="grid justify-center grid-cols-2 gap-2">
-                    {' '}
+                    {" "}
                     {/* Duty Breakdown Table */}
                     {previewInvoice?.paymentDetails?.dutyAmountBreakdown
                       ?.length > 0 && (
@@ -839,13 +839,13 @@ const DownloadInvoice = () => {
                                   {
                                     previewInvoice?.paymentDetails
                                       ?.numberOfDutiesPaid
-                                  }{' '}
+                                  }{" "}
                                   duties
                                 </td>
                                 <td className="py-1 font-semibold text-right text-slate-900">
                                   {previewInvoice?.paymentDetails?.selectedDue?.toLocaleString(
-                                    'en-US',
-                                    { style: 'currency', currency: 'BDT' },
+                                    "en-US",
+                                    { style: "currency", currency: "BDT" },
                                   )}
                                 </td>
                                 <td className="py-1 text-center">
@@ -892,8 +892,8 @@ const DownloadInvoice = () => {
                                 </td>
                                 <td className="py-1 font-medium text-right text-rose-600">
                                   {previewInvoice?.paymentDetails?.deductLoanAmount?.toLocaleString(
-                                    'en-US',
-                                    { style: 'currency', currency: 'BDT' },
+                                    "en-US",
+                                    { style: "currency", currency: "BDT" },
                                   )}
                                 </td>
                                 <td className="py-1 text-center">
@@ -914,7 +914,7 @@ const DownloadInvoice = () => {
                   <div className="flex justify-center w-full">
                     <div className="w-full">
                       <h1 className="text-[13px] text-center">
-                        Calculated in ( {formatDate(previewInvoice.startDate)} -{' '}
+                        Calculated in ( {formatDate(previewInvoice.startDate)} -{" "}
                         {formatDate(previewInvoice.endDate)})
                       </h1>
                       <table className="w-full text-[13px] overflow-hidden border rounded-lg border-slate-200">
@@ -926,10 +926,10 @@ const DownloadInvoice = () => {
 
                             <td className="px-4 font-medium text-right text-amber-600">
                               {previewInvoice.paymentDetails?.selectedDue?.toLocaleString(
-                                'en-US',
+                                "en-US",
                                 {
-                                  style: 'currency',
-                                  currency: 'BDT',
+                                  style: "currency",
+                                  currency: "BDT",
                                 },
                               )}
                             </td>
@@ -942,8 +942,8 @@ const DownloadInvoice = () => {
 
                             <td className="px-4 font-medium text-right text-amber-600">
                               {previewInvoice.paymentDetails?.deductLoanAmount?.toLocaleString(
-                                'en-US',
-                                { style: 'currency', currency: 'BDT' },
+                                "en-US",
+                                { style: "currency", currency: "BDT" },
                               )}
                             </td>
                           </tr>
@@ -954,9 +954,9 @@ const DownloadInvoice = () => {
                             </td>
 
                             <td className="px-4 font-semibold text-right text-emerald-600">
-                              {previewInvoice?.amount?.toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              {previewInvoice?.amount?.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </td>
                           </tr>
@@ -967,10 +967,10 @@ const DownloadInvoice = () => {
 
                             <td className="px-4 font-semibold text-right text-emerald-600">
                               {previewInvoice.paymentDetails?.amountPaid?.toLocaleString(
-                                'en-US',
+                                "en-US",
                                 {
-                                  style: 'currency',
-                                  currency: 'BDT',
+                                  style: "currency",
+                                  currency: "BDT",
                                 },
                               )}
                             </td>
@@ -1002,7 +1002,7 @@ const DownloadInvoice = () => {
                   onClick={handlePrint}
                   className="inline-flex items-center justify-center w-full gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-blue-600 rounded-lg sm:w-auto hover:bg-blue-700"
                 >
-                  <PiPrinter className="w-4 h-4" />
+                  <Printer className="w-4 h-4" />
                   Print Invoice
                 </button>
               </div>

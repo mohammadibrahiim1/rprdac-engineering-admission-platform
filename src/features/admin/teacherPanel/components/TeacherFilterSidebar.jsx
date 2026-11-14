@@ -1,18 +1,15 @@
-import { useMemo, useState } from 'react';
-import { Filter, Search } from 'lucide-react';
-import BatchSelector from '../../../../../components/forms/BatchSelector';
-import SubjectSelector from '../../../../../components/forms/SubjectSelector';
-import DepartmentSelector from '../../../../../components/forms/DepartmentSelector';
+import { useMemo, useState } from "react";
+import { Filter, Search } from "lucide-react";
 
 const departmentOptions = [
-  'ARCH',
-  'CE',
-  'CHE',
-  'CSE',
-  'EEE',
-  'FE',
-  'ME / IPE / MME',
-  'TE',
+  "ARCH",
+  "CE",
+  "CHE",
+  "CSE",
+  "EEE",
+  "FE",
+  "ME / IPE / MME",
+  "TE",
 ];
 
 const TeacherFilterSidebar = ({ filters, setFilters }) => {
@@ -27,18 +24,18 @@ const TeacherFilterSidebar = ({ filters, setFilters }) => {
   // 🔥 months sentence case
   const months = useMemo(
     () => [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ],
     [],
   );
@@ -53,27 +50,27 @@ const TeacherFilterSidebar = ({ filters, setFilters }) => {
 
   const handleReset = () => {
     setFilters({
-      year: '',
-      month: '',
+      year: "",
+      month: "",
       batch: [],
-      status: '',
-      paymentStatus: '',
-      startDate: '',
-      endDate: '',
-      search: '',
+      status: "",
+      paymentStatus: "",
+      startDate: "",
+      endDate: "",
+      search: "",
       page: 1,
       limit: 10,
-      department: '',
-      subject: '',
+      department: "",
+      subject: "",
     });
 
     setResetKey((p) => p + 1);
   };
 
   const inputBase =
-    'w-full px-3 py-2 text-[14px] bg-[#f7f7f5] border border-transparent rounded-md focus:outline-none focus:bg-white focus:border-[#2383e2] transition-all placeholder:text-gray-400 text-gray-800 shadow-sm';
+    "w-full px-3 py-2 text-[14px] bg-[#f7f7f5] border border-transparent rounded-md focus:outline-none focus:bg-white focus:border-[#2383e2] transition-all placeholder:text-gray-400 text-gray-800 shadow-sm";
   const labelBase =
-    'text-[12px] font-medium text-gray-500 mb-1 block uppercase';
+    "text-[12px] font-medium text-gray-500 mb-1 block uppercase";
 
   return (
     <aside className="w-full lg:w-80 shrink-0">
@@ -208,7 +205,7 @@ const TeacherFilterSidebar = ({ filters, setFilters }) => {
               resetKey={resetKey}
               departments={departmentOptions}
               onSelect={(d) =>
-                setFilters({ ...filters, department: d || '', page: 1 })
+                setFilters({ ...filters, department: d || "", page: 1 })
               }
               inputBase={inputBase}
               labelBase={labelBase}
@@ -219,7 +216,7 @@ const TeacherFilterSidebar = ({ filters, setFilters }) => {
               resetKey={resetKey}
               value={filters.subject}
               onChange={(s) =>
-                setFilters({ ...filters, subject: s || '', page: 1 })
+                setFilters({ ...filters, subject: s || "", page: 1 })
               }
               inputBase={inputBase}
               labelBase={labelBase}

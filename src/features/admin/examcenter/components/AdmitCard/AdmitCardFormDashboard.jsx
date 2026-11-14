@@ -1,7 +1,6 @@
-import React from 'react';
-import { useAdmitCardForm } from '../../hooks/admitcard/useAdmitCardForm';
-import AdmitCardFormFields from './AdmitCardFormFields';
-import AdmitCardPreview from './AdmitCardPreview';
+import { useAdmitCardForm } from "../../hooks/admitcard/useAdmitCardForm";
+import AdmitCardFormFields from "./AdmitCardFormFields";
+import AdmitCardPreview from "./AdmitCardPreview";
 
 const AdmitCardFormDashboard = () => {
   const { watchedValues, ...formProps } = useAdmitCardForm();

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   useGetGalleryImagesQuery,
   useUploadGalleryImagesMutation,
   useDeleteGalleryImagesMutation,
-} from '../../../../../redux/features/slider/sliderApi';
+} from "../../../../../redux/features/slider/sliderApi";
 
 export const useGalleryManager = () => {
   const [selectedIds, setSelectedIds] = useState([]);
@@ -28,19 +28,19 @@ export const useGalleryManager = () => {
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!galleryFiles.length) {
-      toast.error('Please select at least one image to upload.');
+      toast.error("Please select at least one image to upload.");
       return;
     }
 
     const formData = new FormData();
-    galleryFiles.forEach((file) => formData.append('gallery', file));
+    galleryFiles.forEach((file) => formData.append("gallery", file));
 
     try {
       await uploadGalleryImages(formData).unwrap();
-      toast.success('Gallery images uploaded successfully!');
+      toast.success("Gallery images uploaded successfully!");
       setGalleryFiles([]);
     } catch (err) {
-      toast.error(err?.data?.message || 'Failed to upload gallery images');
+      toast.error(err?.data?.message || "Failed to upload gallery images");
     }
   };
 
@@ -66,7 +66,7 @@ export const useGalleryManager = () => {
     const cleanIds = [...new Set(idArray.filter(Boolean).map(String))];
 
     if (!cleanIds.length) {
-      toast.error('Please select at least one item');
+      toast.error("Please select at least one item");
       return;
     }
 
@@ -77,10 +77,10 @@ export const useGalleryManager = () => {
 
     try {
       const response = await deleteImages(cleanIds).unwrap();
-      toast.success(response?.message || 'Deleted successfully');
+      toast.success(response?.message || "Deleted successfully");
       setSelectedIds([]);
     } catch (err) {
-      toast.error(err?.data?.message || err?.error || 'Deletion failed');
+      toast.error(err?.data?.message || err?.error || "Deletion failed");
     }
   };
 

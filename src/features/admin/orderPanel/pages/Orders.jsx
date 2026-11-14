@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   CheckCircle2,
@@ -29,19 +29,19 @@ import {
   CreditCard,
   Tag,
   Truck,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import ExcelJS from 'exceljs';
-import PostCardModal from '../components/PostCardModal';
+} from "lucide-react";
+import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import ExcelJS from "exceljs";
+import PostCardModal from "../components/PostCardModal";
 import {
   useDeleteOrderMutation,
   useGetOrdersQuery,
-} from '../../../../../redux/features/order/orderApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import OrderUpdateModal from '../components/OrderUpdateModal';
-import PostCardPrint from '../components/PostCardPrint';
+} from "../../../../redux/features/order/orderApi";
+import OrderUpdateModal from "../components/OrderUpdateModal";
+import PostCardPrint from "../components/PostCardPrint";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 /* ─── HELPERS ───────────────────────────────────────────────── */
 const isSameDate = (d1, d2) =>
@@ -54,44 +54,44 @@ const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 /* ─── STATUS CONFIG ─────────────────────────────────────────── */
 const STATUS_CONFIG = {
   pending: {
-    dot: 'bg-amber-400',
-    badge: 'bg-amber-50 text-amber-800 ring-amber-200',
-    label: 'Pending',
+    dot: "bg-amber-400",
+    badge: "bg-amber-50 text-amber-800 ring-amber-200",
+    label: "Pending",
   },
   approved: {
-    dot: 'bg-emerald-400',
-    badge: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
-    label: 'Approved',
+    dot: "bg-emerald-400",
+    badge: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+    label: "Approved",
   },
   processing: {
-    dot: 'bg-blue-400',
-    badge: 'bg-blue-50 text-blue-800 ring-blue-200',
-    label: 'Processing',
+    dot: "bg-blue-400",
+    badge: "bg-blue-50 text-blue-800 ring-blue-200",
+    label: "Processing",
   },
   shipping: {
-    dot: 'bg-violet-400',
-    badge: 'bg-violet-50 text-violet-800 ring-violet-200',
-    label: 'Shipping',
+    dot: "bg-violet-400",
+    badge: "bg-violet-50 text-violet-800 ring-violet-200",
+    label: "Shipping",
   },
   delivered: {
-    dot: 'bg-teal-500',
-    badge: 'bg-teal-50 text-teal-800 ring-teal-200',
-    label: 'Delivered',
+    dot: "bg-teal-500",
+    badge: "bg-teal-50 text-teal-800 ring-teal-200",
+    label: "Delivered",
   },
   cancelled: {
-    dot: 'bg-red-400',
-    badge: 'bg-red-50 text-red-700 ring-red-200',
-    label: 'Cancelled',
+    dot: "bg-red-400",
+    badge: "bg-red-50 text-red-700 ring-red-200",
+    label: "Cancelled",
   },
   refunded: {
-    dot: 'bg-gray-400',
-    badge: 'bg-gray-100 text-gray-600 ring-gray-200',
-    label: 'Refunded',
+    dot: "bg-gray-400",
+    badge: "bg-gray-100 text-gray-600 ring-gray-200",
+    label: "Refunded",
   },
   rejected: {
-    dot: 'bg-rose-400',
-    badge: 'bg-rose-50 text-rose-700 ring-rose-200',
-    label: 'Rejected',
+    dot: "bg-rose-400",
+    badge: "bg-rose-50 text-rose-700 ring-rose-200",
+    label: "Rejected",
   },
 };
 
@@ -124,10 +124,10 @@ const StatCard = ({
     className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-150 text-left w-full
       ${
         active
-          ? 'bg-blue-50 border-blue-200 shadow-sm'
-          : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
+          ? "bg-blue-50 border-blue-200 shadow-sm"
+          : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
       }
-      ${onClick ? 'cursor-pointer' : 'cursor-default'}
+      ${onClick ? "cursor-pointer" : "cursor-default"}
     `}
   >
     <div
@@ -148,10 +148,10 @@ const StatCard = ({
 
 /* ─── MAIN ORDERS PAGE ──────────────────────────────────────── */
 const Orders = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef(null);
   const searchRef = useRef(null);
@@ -165,7 +165,7 @@ const Orders = () => {
     page,
     limit,
     searchQuery,
-    status: selectedStatus === 'all' ? '' : selectedStatus,
+    status: selectedStatus === "all" ? "" : selectedStatus,
   });
 
   const [deleteOrder] = useDeleteOrderMutation();
@@ -175,14 +175,14 @@ const Orders = () => {
   const totalOrders = queryData?.totalOrders ?? 0;
 
   const statusOptions = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'processing', label: 'Processing' },
-    { value: 'shipping', label: 'Shipping' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'refunded', label: 'Refunded' },
+    { value: "all", label: "All statuses" },
+    { value: "pending", label: "Pending" },
+    { value: "approved", label: "Approved" },
+    { value: "processing", label: "Processing" },
+    { value: "shipping", label: "Shipping" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
+    { value: "refunded", label: "Refunded" },
   ];
 
   const todayOrders = useMemo(() => {
@@ -197,8 +197,8 @@ const Orders = () => {
       if (filterRef.current && !filterRef.current.contains(e.target))
         setIsFilterOpen(false);
     };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
   const handleSearchChange = (e) => {
@@ -212,29 +212,29 @@ const Orders = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this order?')) return;
+    if (!window.confirm("Delete this order?")) return;
     try {
       await deleteOrder(id).unwrap();
-      toast.success('Order deleted');
+      toast.success("Order deleted");
       await refetch();
     } catch (err) {
-      toast.error(err?.message || 'Failed to delete order');
+      toast.error(err?.message || "Failed to delete order");
     }
   };
 
   const clearFilters = () => {
-    setSelectedStatus('');
-    setSearchQuery('');
+    setSelectedStatus("");
+    setSearchQuery("");
     setPage(1);
     setIsFilterOpen(false);
   };
   const hasActiveFilters =
-    (selectedStatus && selectedStatus !== 'all') || searchQuery;
+    (selectedStatus && selectedStatus !== "all") || searchQuery;
 
   /* ── PDF Generator ──────────────────────────────────────── */
   const generateReceiptPDF = (order) => {
     try {
-      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
 
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -242,7 +242,7 @@ const Orders = () => {
       let y = 55;
 
       // SAFE TEXT
-      const T = (v) => (v === null || v === undefined ? '' : String(v));
+      const T = (v) => (v === null || v === undefined ? "" : String(v));
 
       // NOTO SERIF BENGALI FONT SETUP (VFS placeholder or standard fallback)
       // Note: jsPDF e bangla text er jonno Base64 string use korte hoy.
@@ -250,11 +250,11 @@ const Orders = () => {
       // doc.addFileVFS('NotoSerifBengali.ttf', 'YOUR_BASE64_STRING');
       // doc.addFont('NotoSerifBengali.ttf', 'NotoSerifBengali', 'normal');
 
-      const setFont = (text = '', bold = false) => {
+      const setFont = (text = "", bold = false) => {
         const isBangla = /[\u0980-\u09FF]/.test(T(text));
         doc.setFont(
-          isBangla ? 'helvetica' : 'helvetica',
-          bold ? 'bold' : 'normal',
+          isBangla ? "helvetica" : "helvetica",
+          bold ? "bold" : "normal",
         );
         // Safe fallback to helvetica or custom registered font if base64 is provided
       };
@@ -268,17 +268,17 @@ const Orders = () => {
       // =========================
       // HEADER (NOTION STYLE)
       // =========================
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(15);
-      doc.text('RPR DUET ADMISSION CARE', margin, y);
+      doc.text("RPR DUET ADMISSION CARE", margin, y);
 
       y += 14;
 
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(120);
       doc.text(
-        'M.A. Samad Villa, DUET Campus | 01742590128 | rpr.group2013@gmail.com',
+        "M.A. Samad Villa, DUET Campus | 01742590128 | rpr.group2013@gmail.com",
         margin,
         y,
       );
@@ -291,15 +291,15 @@ const Orders = () => {
       // TITLE + STATUS
       // =========================
       doc.setFontSize(22);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setTextColor(20);
-      doc.text('Invoice', margin, y);
+      doc.text("Invoice", margin, y);
 
-      const payStatus = T(order?.payment?.status || 'Paid');
+      const payStatus = T(order?.payment?.status || "Paid");
 
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(payStatus, pageWidth - margin, y, { align: 'right' });
+      doc.text(payStatus, pageWidth - margin, y, { align: "right" });
 
       y += 28;
 
@@ -307,34 +307,34 @@ const Orders = () => {
       // META (LEFT + RIGHT)
       // =========================
       const orderDate = order?.orderDate
-        ? new Date(order.orderDate).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
+        ? new Date(order.orderDate).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
           })
-        : '';
+        : "";
 
       const leftMeta = [
-        ['Order ID', `#${T(order?.orderId)}`],
-        ['Date', orderDate],
-        ['Session', T(order?.session)],
+        ["Order ID", `#${T(order?.orderId)}`],
+        ["Date", orderDate],
+        ["Session", T(order?.session)],
       ];
 
       const rightMeta = [
-        ['SL No', T(order?.sl_no)],
-        ['Payment', T(order?.payment?.method || 'N/A')],
-        ['Status', payStatus],
+        ["SL No", T(order?.sl_no)],
+        ["Payment", T(order?.payment?.method || "N/A")],
+        ["Status", payStatus],
       ];
 
       let leftY = y;
       let rightY = y;
 
       leftMeta.forEach(([k, v]) => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(120);
         doc.text(k, margin, leftY);
 
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(30);
         doc.text(v, margin + 80, leftY);
 
@@ -342,13 +342,13 @@ const Orders = () => {
       });
 
       rightMeta.forEach(([k, v]) => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(120);
         doc.text(k, pageWidth - margin - 150, rightY);
 
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(30);
-        doc.text(v, pageWidth - margin, rightY, { align: 'right' });
+        doc.text(v, pageWidth - margin, rightY, { align: "right" });
 
         rightY += 14;
       });
@@ -365,7 +365,7 @@ const Orders = () => {
 
       const fullName = T(
         order?.name ||
-          `${billing.firstName || ''} ${billing.lastName || ''}`.trim(),
+          `${billing.firstName || ""} ${billing.lastName || ""}`.trim(),
       );
 
       const phone = T(order?.phone || billing.phone);
@@ -374,14 +374,14 @@ const Orders = () => {
       const sectionGap = 240;
 
       // LEFT BLOCK
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(10);
       doc.setTextColor(90);
-      doc.text('Billing Information', margin, y);
+      doc.text("Billing Information", margin, y);
 
       y += 14;
 
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(30);
       doc.text(fullName, margin, y);
@@ -396,24 +396,24 @@ const Orders = () => {
       // RIGHT BLOCK
       let ry = y - 42;
 
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setTextColor(90);
-      doc.text('Admission Details', margin + sectionGap, ry);
+      doc.text("Admission Details", margin + sectionGap, ry);
 
       ry += 14;
 
       const adm = [
-        ['Institute', order?.institute],
-        ['Department', order?.department],
-        ['Session', order?.session],
+        ["Institute", order?.institute],
+        ["Department", order?.department],
+        ["Session", order?.session],
       ];
 
       adm.forEach(([k, v]) => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(120);
         doc.text(k, margin + sectionGap, ry);
 
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(30);
         doc.text(T(v), margin + sectionGap + 80, ry);
 
@@ -432,15 +432,15 @@ const Orders = () => {
         T(item?.title),
         T(item?.sl_no),
         T(item?.quantity || 1),
-        `${T(item?.eachItemPrice?.toFixed?.(2) || '0.00')}`,
-        `${T(item?.totalAmount?.toFixed?.(2) || '0.00')}`,
+        `${T(item?.eachItemPrice?.toFixed?.(2) || "0.00")}`,
+        `${T(item?.totalAmount?.toFixed?.(2) || "0.00")}`,
       ]);
 
       autoTable(doc, {
         startY: y,
-        head: [['Item', 'SL', 'Qty', 'Unit', 'Total']],
+        head: [["Item", "SL", "Qty", "Unit", "Total"]],
         body: rows,
-        theme: 'plain',
+        theme: "plain",
         styles: {
           fontSize: 10,
           cellPadding: 6,
@@ -448,12 +448,12 @@ const Orders = () => {
         },
         headStyles: {
           textColor: [120, 120, 120],
-          fontStyle: 'bold',
+          fontStyle: "bold",
         },
         columnStyles: {
-          2: { halign: 'center' },
-          3: { halign: 'right' },
-          4: { halign: 'right' },
+          2: { halign: "center" },
+          3: { halign: "right" },
+          4: { halign: "right" },
         },
         margin: { left: margin, right: margin },
       });
@@ -466,21 +466,21 @@ const Orders = () => {
       const discountObj = order?.discounts?.[0] || {};
 
       const summary = [
-        ['Subtotal', order?.subtotal],
-        ['Delivery', order?.payment?.deliveryCharge],
-        ['Discount', `- ${discountObj?.amount || 0}`],
+        ["Subtotal", order?.subtotal],
+        ["Delivery", order?.payment?.deliveryCharge],
+        ["Discount", `- ${discountObj?.amount || 0}`],
       ];
 
       const sx = pageWidth - margin - 180;
 
       summary.forEach(([k, v]) => {
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(120);
         doc.text(k, sx, y);
 
         doc.setTextColor(30);
         doc.text(`${T(v || 0)} BDT`, pageWidth - margin, y, {
-          align: 'right',
+          align: "right",
         });
 
         y += 16;
@@ -493,11 +493,11 @@ const Orders = () => {
 
       const totalPaid = T(order?.payment?.amountPaid || order?.totalAmount);
 
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text('Total Paid', sx, y);
+      doc.text("Total Paid", sx, y);
       doc.text(`${totalPaid} BDT`, pageWidth - margin, y, {
-        align: 'right',
+        align: "right",
       });
 
       // =========================
@@ -508,24 +508,24 @@ const Orders = () => {
       doc.setFontSize(9);
       doc.setTextColor(130);
 
-      doc.text('Thanks for your business', margin, footerY);
+      doc.text("Thanks for your business", margin, footerY);
       doc.text(
         `Printed: ${new Date().toLocaleDateString()}`,
         pageWidth / 2,
         footerY,
         {
-          align: 'center',
+          align: "center",
         },
       );
 
-      doc.text('Page 1', pageWidth - margin, footerY, {
-        align: 'right',
+      doc.text("Page 1", pageWidth - margin, footerY, {
+        align: "right",
       });
 
       // SAVE
       doc.save(`invoice_${T(order?.orderId)}.pdf`);
     } catch (err) {
-      toast.error('PDF failed');
+      toast.error("PDF failed");
     }
   };
 
@@ -533,84 +533,84 @@ const Orders = () => {
 
   const handleDownloadExcel = async () => {
     if (!orders?.length) {
-      toast.error('No orders to export!');
+      toast.error("No orders to export!");
       return;
     }
 
     try {
       // ১. ওয়ার্কবুক ও ওয়ার্কশিট তৈরি
       const workbook = new ExcelJS.Workbook();
-      const ws = workbook.addWorksheet('Orders');
+      const ws = workbook.addWorksheet("Orders");
 
       // ২. হেডার এবং ব্রান্ডিং রো যোগ করা
-      ws.addRow(['', 'RPR DUET Admission Care']);
+      ws.addRow(["", "RPR DUET Admission Care"]);
       ws.addRow([
-        '',
-        'M.A. Samad Villa In front of DUET Campus, Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com',
+        "",
+        "M.A. Samad Villa In front of DUET Campus, Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com",
       ]);
-      ws.addRow(['', 'Orders Sheet']);
+      ws.addRow(["", "Orders Sheet"]);
       ws.addRow([
-        'SL',
-        'Order ID',
-        'Name',
-        'Phone',
-        'Institute',
-        'Department',
-        'Session',
-        'Payment Method',
-        'Amount Paid',
-        'Payment Status',
-        'Txn ID',
-        'Items',
-        'Sl No',
-        'Quantity',
-        'Unit Price',
-        'Sub Total',
-        'Delivery Charge',
-        'Discount',
-        'Total Payable',
+        "SL",
+        "Order ID",
+        "Name",
+        "Phone",
+        "Institute",
+        "Department",
+        "Session",
+        "Payment Method",
+        "Amount Paid",
+        "Payment Status",
+        "Txn ID",
+        "Items",
+        "Sl No",
+        "Quantity",
+        "Unit Price",
+        "Sub Total",
+        "Delivery Charge",
+        "Discount",
+        "Total Payable",
       ]);
 
       // স্টাইলিং
       ws.getRow(1).font = { bold: true, size: 14 };
-      ws.getRow(2).font = { italic: true, size: 10, color: { argb: '555555' } };
-      ws.getRow(3).font = { bold: true, size: 11, color: { argb: '0047AB' } };
+      ws.getRow(2).font = { italic: true, size: 10, color: { argb: "555555" } };
+      ws.getRow(3).font = { bold: true, size: 11, color: { argb: "0047AB" } };
       ws.getRow(4).font = { bold: true };
 
       // ৩. অর্ডার ডেটা ম্যাপ করা
       const data = orders.map((order, i) => {
         const itemTitles =
-          order.items?.map((item) => item?.title || '').join(', ') || '—';
+          order.items?.map((item) => item?.title || "").join(", ") || "—";
         const itemSL =
-          order.items?.map((item) => item?.sl_no || '').join(', ') || '—';
+          order.items?.map((item) => item?.sl_no || "").join(", ") || "—";
         const itemQuantities =
-          order.items?.map((item) => item?.quantity || '').join(', ') || '—';
+          order.items?.map((item) => item?.quantity || "").join(", ") || "—";
         const itemPrices =
-          order.items?.map((item) => item?.eachItemPrice || '').join(', ') ||
-          '—';
+          order.items?.map((item) => item?.eachItemPrice || "").join(", ") ||
+          "—";
         const discounts =
-          order.discounts?.map((item) => item?.amount || '').join(', ') || '—';
+          order.discounts?.map((item) => item?.amount || "").join(", ") || "—";
 
         return [
           i + 1,
-          order.orderId || 'N/A',
-          order.name || '—',
-          order.phone || '—',
-          order.institute || '—',
-          order.department || '—',
-          order.session || '—',
-          order.payment?.method || '—',
-          order.payment?.amountPaid ? `৳${order.payment.amountPaid}` : '—',
-          order.payment?.status || '—',
-          order.payment?.transactionId || '—',
+          order.orderId || "N/A",
+          order.name || "—",
+          order.phone || "—",
+          order.institute || "—",
+          order.department || "—",
+          order.session || "—",
+          order.payment?.method || "—",
+          order.payment?.amountPaid ? `৳${order.payment.amountPaid}` : "—",
+          order.payment?.status || "—",
+          order.payment?.transactionId || "—",
           itemTitles,
           itemSL,
           itemQuantities,
           itemPrices,
-          order.subtotal || '—',
-          order.payment?.deliveryCharge || '—',
+          order.subtotal || "—",
+          order.payment?.deliveryCharge || "—",
           discounts,
-          order.totalAmount || '—',
+          order.totalAmount || "—",
         ];
       });
 
@@ -642,19 +642,19 @@ const Orders = () => {
       // ৫. বাফার তৈরি এবং ব্রাউজারের নেটিভ পদ্ধতিতে ডাউনলোড ট্রিগার করা
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
 
       const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
+      const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = 'Orders_RPR_DUET.xlsx';
+      anchor.download = "Orders_RPR_DUET.xlsx";
       anchor.click();
       window.URL.revokeObjectURL(url);
 
-      toast.success('Excel exported!');
+      toast.success("Excel exported!");
     } catch (error) {
-      toast.error('Failed to export orders. Please try again.');
+      toast.error("Failed to export orders. Please try again.");
     }
   };
 
@@ -678,12 +678,12 @@ const Orders = () => {
     <div className="min-h-screen bg-gray-50 font-[Inter,ui-sans-serif,system-ui,sans-serif]">
       {/* ── Sticky Header ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
-        <BreadCrumbMenu />
+        <Breadcrumb />
         <button
           onClick={() => refetch()}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all"
         >
-          <RefreshCw size={12} className={isFetching ? 'animate-spin' : ''} />
+          <RefreshCw size={12} className={isFetching ? "animate-spin" : ""} />
           <span className="hidden sm:inline">Refresh</span>
         </button>
       </header>
@@ -724,8 +724,8 @@ const Orders = () => {
             value={queryData?.statusStats?.pending || 0}
             iconClassName="text-amber-500"
             bgClassName="bg-amber-50"
-            onClick={() => handleStatusChange('pending')}
-            active={selectedStatus === 'pending'}
+            onClick={() => handleStatusChange("pending")}
+            active={selectedStatus === "pending"}
           />
           <StatCard
             icon={Package}
@@ -733,8 +733,8 @@ const Orders = () => {
             value={queryData?.statusStats?.processing || 0}
             iconClassName="text-blue-500"
             bgClassName="bg-blue-50"
-            onClick={() => handleStatusChange('processing')}
-            active={selectedStatus === 'processing'}
+            onClick={() => handleStatusChange("processing")}
+            active={selectedStatus === "processing"}
           />
           <StatCard
             icon={CheckCircle2}
@@ -742,8 +742,8 @@ const Orders = () => {
             value={queryData?.statusStats?.delivered || 0}
             iconClassName="text-emerald-500"
             bgClassName="bg-emerald-50"
-            onClick={() => handleStatusChange('delivered')}
-            active={selectedStatus === 'delivered'}
+            onClick={() => handleStatusChange("delivered")}
+            active={selectedStatus === "delivered"}
           />
           <StatCard
             icon={XCircle}
@@ -751,8 +751,8 @@ const Orders = () => {
             value={queryData?.statusStats?.cancelled || 0}
             iconClassName="text-red-500"
             bgClassName="bg-red-50"
-            onClick={() => handleStatusChange('cancelled')}
-            active={selectedStatus === 'cancelled'}
+            onClick={() => handleStatusChange("cancelled")}
+            active={selectedStatus === "cancelled"}
           />
         </div>
 
@@ -773,7 +773,7 @@ const Orders = () => {
               {searchQuery && (
                 <button
                   onClick={() => {
-                    setSearchQuery('');
+                    setSearchQuery("");
                     setPage(1);
                   }}
                   className="text-gray-400 hover:text-gray-600"
@@ -789,20 +789,20 @@ const Orders = () => {
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className={`inline-flex items-center gap-1.5 px-3 py-2 text-sm border rounded-lg transition-all
                   ${
-                    isFilterOpen || (selectedStatus && selectedStatus !== 'all')
-                      ? 'bg-blue-50 border-blue-300 text-blue-700'
-                      : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300'
+                    isFilterOpen || (selectedStatus && selectedStatus !== "all")
+                      ? "bg-blue-50 border-blue-300 text-blue-700"
+                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
                   }`}
               >
                 <Filter size={12} />
                 <span>
-                  {selectedStatus && selectedStatus !== 'all'
+                  {selectedStatus && selectedStatus !== "all"
                     ? STATUS_CONFIG[selectedStatus]?.label || selectedStatus
-                    : 'Filter'}
+                    : "Filter"}
                 </span>
                 <ChevronDown
                   size={11}
-                  className={`transition-transform duration-150 ${isFilterOpen ? 'rotate-180' : ''}`}
+                  className={`transition-transform duration-150 ${isFilterOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -818,16 +818,16 @@ const Orders = () => {
                     {statusOptions.map((opt) => {
                       const isActive =
                         selectedStatus === opt.value ||
-                        (!selectedStatus && opt.value === 'all');
+                        (!selectedStatus && opt.value === "all");
                       return (
                         <div
                           key={opt.value}
                           onClick={() => handleStatusChange(opt.value)}
                           className={`flex items-center justify-between px-3 py-2.5 text-sm cursor-pointer transition-colors
-                            ${isActive ? 'text-blue-700 font-medium bg-blue-50' : 'text-gray-700 hover:bg-gray-50'}`}
+                            ${isActive ? "text-blue-700 font-medium bg-blue-50" : "text-gray-700 hover:bg-gray-50"}`}
                         >
                           <div className="flex items-center gap-2">
-                            {opt.value !== 'all' &&
+                            {opt.value !== "all" &&
                               STATUS_CONFIG[opt.value] && (
                                 <span
                                   className={`w-2 h-2 rounded-full ${STATUS_CONFIG[opt.value].dot}`}
@@ -870,7 +870,7 @@ const Orders = () => {
         {error && (
           <div className="flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
             <AlertCircle size={15} className="shrink-0" />
-            {error?.data?.error || 'Failed to load orders. Please try again.'}
+            {error?.data?.error || "Failed to load orders. Please try again."}
           </div>
         )}
 
@@ -878,8 +878,8 @@ const Orders = () => {
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
             {isFetching
-              ? 'Loading...'
-              : `${totalOrders?.toLocaleString()} order${totalOrders !== 1 ? 's' : ''}`}
+              ? "Loading..."
+              : `${totalOrders?.toLocaleString()} order${totalOrders !== 1 ? "s" : ""}`}
           </span>
           {isFetching && (
             <RefreshCw size={11} className="text-gray-400 animate-spin" />
@@ -930,10 +930,10 @@ const Orders = () => {
         {totalPages > 1 && (
           <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-200">
             <span className="text-sm text-gray-500">
-              Showing{' '}
+              Showing{" "}
               <strong className="text-gray-800">
                 {(page - 1) * limit + 1}–{Math.min(page * limit, totalOrders)}
-              </strong>{' '}
+              </strong>{" "}
               of <strong className="text-gray-800">{totalOrders}</strong> orders
             </span>
 
@@ -971,8 +971,8 @@ const Orders = () => {
                   className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium border transition-all
                     ${
                       page === pn
-                        ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   {pn}
@@ -1011,19 +1011,19 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
       if (actionsRef.current && !actionsRef.current.contains(e.target))
         setShowActions(false);
     };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
   const createdStr = new Date(
     order?.orderDate || order?.createdAt,
-  ).toLocaleString('en-GB', {
-    timeZone: 'Asia/Dhaka',
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  ).toLocaleString("en-GB", {
+    timeZone: "Asia/Dhaka",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   const subtotal =
@@ -1041,7 +1041,7 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
       >
         <ChevronRight
           size={14}
-          className={`text-gray-400 shrink-0 transition-transform duration-150 ${expanded ? 'rotate-90' : ''}`}
+          className={`text-gray-400 shrink-0 transition-transform duration-150 ${expanded ? "rotate-90" : ""}`}
         />
 
         {/* Order ID */}
@@ -1056,23 +1056,23 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
 
         {/* Name */}
         <span className="flex-1 min-w-0 text-sm font-semibold text-gray-900 truncate">
-          {order?.name || '—'}
+          {order?.name || "—"}
         </span>
 
         {/* Phone — hidden on mobile */}
         <span className="text-xs text-gray-500 whitespace-nowrap shrink-0 hidden md:block w-[100px]">
-          {order?.phone || '—'}
+          {order?.phone || "—"}
         </span>
 
         {/* Institute — hidden on smaller screens */}
         <span className="text-xs text-gray-500 whitespace-nowrap shrink-0 hidden lg:block w-[100px] truncate">
-          {order?.institute || '—'}
+          {order?.institute || "—"}
         </span>
 
         {/* Items count */}
         <span className="hidden text-xs text-gray-400 whitespace-nowrap shrink-0 sm:block">
           {order?.items?.length ?? 0} item
-          {order?.items?.length !== 1 ? 's' : ''}
+          {order?.items?.length !== 1 ? "s" : ""}
         </span>
 
         {/* Total */}
@@ -1169,10 +1169,10 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
         {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            style={{ overflow: 'hidden' }}
+            style={{ overflow: "hidden" }}
           >
             <div className="border-t border-gray-100" />
 
@@ -1211,8 +1211,8 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                       label="Amount Paid"
                       value={
                         order.payment?.amountPaid
-                          ? `${order.payment.amountPaid?.toLocaleString('en-US', { style: 'currency', currency: 'BDT' })}`
-                          : '—'
+                          ? `${order.payment.amountPaid?.toLocaleString("en-US", { style: "currency", currency: "BDT" })}`
+                          : "—"
                       }
                     />
                     <TableRow
@@ -1220,30 +1220,30 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                       value={
                         <span
                           className={
-                            order.payment?.status === 'paid'
-                              ? 'text-emerald-600 font-semibold'
-                              : 'text-gray-700'
+                            order.payment?.status === "paid"
+                              ? "text-emerald-600 font-semibold"
+                              : "text-gray-700"
                           }
                         >
-                          {order.payment?.status || '—'}
+                          {order.payment?.status || "—"}
                         </span>
                       }
                     />
                     <TableRow
                       label="Txn ID"
-                      value={order.payment?.transactionId || '—'}
+                      value={order.payment?.transactionId || "—"}
                       mono
                     />
                     <TableRow
                       label="Delivery"
-                      value={`${delivery?.toLocaleString('en-US', { style: 'currency', currency: 'BDT' })}`}
+                      value={`${delivery?.toLocaleString("en-US", { style: "currency", currency: "BDT" })}`}
                     />
                     <TableRow
                       label="Discount"
                       value={
                         discount > 0
-                          ? `−${discount?.toLocaleString('en-US', { style: 'currency', currency: 'BDT' })}`
-                          : '—'
+                          ? `−${discount?.toLocaleString("en-US", { style: "currency", currency: "BDT" })}`
+                          : "—"
                       }
                       valueClass="text-red-500"
                       last
@@ -1264,11 +1264,11 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                   <tbody>
                     <TableRow
                       label="Method"
-                      value={order.shipping?.method || '—'}
+                      value={order.shipping?.method || "—"}
                     />
                     <TableRow
                       label="Tracking"
-                      value={order.shipping?.trackingNumber || '—'}
+                      value={order.shipping?.trackingNumber || "—"}
                       mono
                     />
                     <TableRow
@@ -1277,8 +1277,8 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                         order.shipping?.deliveredAt
                           ? new Date(
                               order.shipping.deliveredAt,
-                            ).toLocaleDateString('en-GB')
-                          : '—'
+                            ).toLocaleDateString("en-GB")
+                          : "—"
                       }
                       last
                     />
@@ -1330,7 +1330,7 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                         </td>
                         <td className="px-3 py-2.5 font-medium text-gray-800 max-w-[200px]">
                           <span className="block truncate">
-                            {item.title || '—'}
+                            {item.title || "—"}
                           </span>
                         </td>
                         <td className="px-3 py-2.5 text-center font-mono text-xs text-gray-500">
@@ -1342,15 +1342,15 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                           ×{item.quantity ?? 1}
                         </td>
                         <td className="px-3 py-2.5 text-right text-gray-600">
-                          {(item.eachItemPrice ?? 0)?.toLocaleString('en-US', {
-                            style: 'currency',
-                            currency: 'BDT',
+                          {(item.eachItemPrice ?? 0)?.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "BDT",
                           })}
                         </td>
                         <td className="px-3 py-2.5 text-right font-semibold text-gray-800">
-                          {(item.totalAmount ?? 0).toLocaleString('en-US', {
-                            style: 'currency',
-                            currency: 'BDT',
+                          {(item.totalAmount ?? 0).toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "BDT",
                           })}
                         </td>
                       </tr>
@@ -1365,9 +1365,9 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                         Subtotal
                       </td>
                       <td className="px-3 py-2 text-sm font-semibold text-right text-gray-700">
-                        {subtotal?.toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'BDT',
+                        {subtotal?.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "BDT",
                         })}
                       </td>
                     </tr>
@@ -1379,9 +1379,9 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                         Delivery Charge
                       </td>
                       <td className="px-3 py-2 text-sm font-semibold text-right text-gray-700">
-                        {delivery?.toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'BDT',
+                        {delivery?.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "BDT",
                         })}
                       </td>
                     </tr>
@@ -1394,13 +1394,13 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                           Discount
                           {order.discounts?.[0]?.description
                             ? ` (${order.discounts[0].description})`
-                            : ''}
+                            : ""}
                         </td>
                         <td className="px-3 py-2 text-sm font-semibold text-right text-red-500">
                           −
-                          {discount?.toLocaleString('en-US', {
-                            style: 'currency',
-                            currency: 'BDT',
+                          {discount?.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "BDT",
                           })}
                         </td>
                       </tr>
@@ -1413,9 +1413,9 @@ const OrderCard = ({ order, onDelete, onDownload, onRefetch }) => {
                         Total Payable
                       </td>
                       <td className="px-3 py-2.5 text-right text-base font-bold text-gray-900">
-                        {(order?.totalAmount ?? 0).toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'BDT',
+                        {(order?.totalAmount ?? 0).toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "BDT",
                         })}
                       </td>
                     </tr>
@@ -1484,7 +1484,7 @@ const ActionMenuItem = ({ icon: Icon, label, onClick, danger = false }) => (
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors text-left
-      ${danger ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-50'}`}
+      ${danger ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"}`}
   >
     <Icon size={13} className="shrink-0" />
     {label}
@@ -1511,16 +1511,16 @@ const TableRow = ({
   value,
   mono = false,
   last = false,
-  valueClass = '',
+  valueClass = "",
 }) => (
-  <tr className={!last ? 'border border-gray-200' : ''}>
+  <tr className={!last ? "border border-gray-200" : ""}>
     <td className="px-3 py-2 text-xs font-medium text-gray-500 bg-gray-50 w-[40%] whitespace-nowrap border border-gray-200">
       {label}
     </td>
     <td
-      className={`px-3 py-2 text-xs text-gray-800 break-all ${mono ? 'font-mono' : ''} ${valueClass}`}
+      className={`px-3 py-2 text-xs text-gray-800 break-all ${mono ? "font-mono" : ""} ${valueClass}`}
     >
-      {value ?? '—'}
+      {value ?? "—"}
     </td>
   </tr>
 );

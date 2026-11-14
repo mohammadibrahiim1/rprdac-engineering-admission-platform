@@ -21,8 +21,8 @@ import {
   XCircle,
 } from "lucide-react";
 
-import logo from "../../../../../assets/img/log-rpr.png";
-import signature from "../../../../../assets/img/rpr-director-sign.png";
+import logo from "../../../../assets/img/log-rpr.png";
+import signature from "../../../../assets/img/rpr-director-sign.png";
 
 // Hook Import
 import useStudentManager from "../hooks/useStudentManager";

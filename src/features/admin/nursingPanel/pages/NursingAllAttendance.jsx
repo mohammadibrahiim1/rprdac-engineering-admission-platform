@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { useFetchNursingAllAttendanceQuery } from '../../../../../redux/features/Nursing/NursingApi';
+import { useFetchNursingAllAttendanceQuery } from "@/redux/features/Nursing/NursingApi";
+import React, { useState } from "react";
 
 const NursingAllAttendance = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState("");
   const { data } = useFetchNursingAllAttendanceQuery({
     page,
     limit,
@@ -27,7 +27,7 @@ const NursingAllAttendance = () => {
 
   return (
     <div>
-      {' '}
+      {" "}
       <div className="overflow-x-auto">
         <div className="flex items-center justify-between py-2 ">
           <p className="text-md font-semibold text-[#000000]">
@@ -49,7 +49,7 @@ const NursingAllAttendance = () => {
           </div>
           <div>
             <label className="font-semibold me-1" htmlFor="limit">
-              Limit Per Page:{' '}
+              Limit Per Page:{" "}
             </label>
             <select
               className="font-bold select select-bordered select-sm focus:outline-none"
@@ -110,19 +110,19 @@ const NursingAllAttendance = () => {
                     <td className="flex items-center gap-2 bg-[#F8F5FF] text-[#8147E7] font-semibold ">
                       <span>{totalDutyTime} seconds</span>
                       <strong>
-                        ({Math.round(totalDutyTime / 3600)}{' '}
+                        ({Math.round(totalDutyTime / 3600)}{" "}
                         {Math.round(totalDutyTime / 3600) === 1
-                          ? 'hour'
-                          : 'hours'}
+                          ? "hour"
+                          : "hours"}
                         )
                       </strong>
                     </td>
                     <td className="">{totalAmount} BDT</td>
                     <td
                       className={
-                        status === 'pending'
-                          ? 'btn btn-sm rounded-none my-1 btn-warning text-xs capitalize'
-                          : 'btn btn-sm rounded-none my-1 btn-success text-xs capitalize'
+                        status === "pending"
+                          ? "btn btn-sm rounded-none my-1 btn-warning text-xs capitalize"
+                          : "btn btn-sm rounded-none my-1 btn-success text-xs capitalize"
                       }
                     >
                       {status}
@@ -145,7 +145,7 @@ const NursingAllAttendance = () => {
                 Total approved amount =
               </th>
               <th className="bg-[#F8F5FF] text-[#fb2e86]">
-                {' '}
+                {" "}
                 {data?.totalApprovedAmount} BDT
               </th>
             </tr>

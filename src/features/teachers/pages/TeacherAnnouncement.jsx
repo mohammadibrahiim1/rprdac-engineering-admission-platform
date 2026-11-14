@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useGetBatchesQuery } from '../../../../redux/features/batch/batchApi';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useGetBatchesQuery } from "../../../../redux/features/batch/batchApi";
 import {
   useDeleteTeacherAnnouncementMutation,
   useGetTeacherAllAnnouncementsQuery,
   usePostTeacherAnnouncementMutation,
   useUpdateTeacherAnnouncementMutation,
-} from '../../../../redux/features/teacher/teacherApi';
-import { useGetOnlyTeachersQuery } from '../../../../redux/features/users/userApi';
-import toast from 'react-hot-toast';
+} from "../../../../redux/features/teacher/teacherApi";
+import { useGetOnlyTeachersQuery } from "../../../../redux/features/users/userApi";
+import { toast } from "sonner";
 import {
   Plus,
   X,
@@ -28,172 +28,172 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
 // Subject options constant
 const SUBJECT_OPTIONS = [
   {
-    label: 'Mathematics',
+    label: "Mathematics",
     options: [
-      'Algebra (Mathematics)',
-      'Trigonometry (Mathematics)',
-      'Co-ordinate Geometry (Mathematics)',
-      'Differential / Integral Calculus (Mathematics)',
-      'Matrix (Mathematics)',
+      "Algebra (Mathematics)",
+      "Trigonometry (Mathematics)",
+      "Co-ordinate Geometry (Mathematics)",
+      "Differential / Integral Calculus (Mathematics)",
+      "Matrix (Mathematics)",
     ],
   },
   {
-    label: 'Physics',
+    label: "Physics",
     options: [
-      'Physical Part (Physics)',
-      'Sound (Physics)',
-      'Light (Physics)',
-      'Heat (Physics)',
-      'Atomic Physics (Physics)',
-      'Modern Physics (Physics)',
+      "Physical Part (Physics)",
+      "Sound (Physics)",
+      "Light (Physics)",
+      "Heat (Physics)",
+      "Atomic Physics (Physics)",
+      "Modern Physics (Physics)",
     ],
   },
   {
-    label: 'Chemistry',
+    label: "Chemistry",
     options: [
-      'Physical Part (Chemistry)',
-      'Math Part (Chemistry)',
-      'Metal Part (Chemistry)',
-      'Organic Part (Chemistry)',
+      "Physical Part (Chemistry)",
+      "Math Part (Chemistry)",
+      "Metal Part (Chemistry)",
+      "Organic Part (Chemistry)",
     ],
   },
   {
-    label: 'English',
-    options: ['English'],
+    label: "English",
+    options: ["English"],
   },
   {
-    label: 'ARCH',
+    label: "ARCH",
     options: [
-      'Theory (ARCH)',
-      'Basic Drawing (ARCH)',
-      'Analytical Drawing (ARCH)',
-      'Composition of Forms 1 (ARCH)',
-      'Composition of Forms 2 (ARCH)',
-      'Human Figure (ARCH)',
-      'Perspective (ARCH)',
-      'History of Architecture (ARCH)',
-      'Construction Process (ARCH)',
-      'Estimating & Costing (ARCH)',
-      'Surveying (ARCH)',
+      "Theory (ARCH)",
+      "Basic Drawing (ARCH)",
+      "Analytical Drawing (ARCH)",
+      "Composition of Forms 1 (ARCH)",
+      "Composition of Forms 2 (ARCH)",
+      "Human Figure (ARCH)",
+      "Perspective (ARCH)",
+      "History of Architecture (ARCH)",
+      "Construction Process (ARCH)",
+      "Estimating & Costing (ARCH)",
+      "Surveying (ARCH)",
     ],
   },
   {
-    label: 'CE',
+    label: "CE",
     options: [
-      'Engineering Materials (CE)',
-      'Surveying (CE)',
-      'Structural Mechanics (CE)',
-      'Strength of Materials (CE)',
-      'Hydraulics (CE)',
-      'Soil Mechanics (CE)',
-      'Reinforced Cement Concrete (CE)',
-      'Design of Structure (CE)',
-      'Transportation Engineering (CE)',
-      'Estimating and Construction Process (CE)',
-      'Geotechnical Engineering (CE)',
+      "Engineering Materials (CE)",
+      "Surveying (CE)",
+      "Structural Mechanics (CE)",
+      "Strength of Materials (CE)",
+      "Hydraulics (CE)",
+      "Soil Mechanics (CE)",
+      "Reinforced Cement Concrete (CE)",
+      "Design of Structure (CE)",
+      "Transportation Engineering (CE)",
+      "Estimating and Construction Process (CE)",
+      "Geotechnical Engineering (CE)",
     ],
   },
   {
-    label: 'EEE',
+    label: "EEE",
     options: [
-      'DC Circuits (EEE)',
-      'Electronics (EEE)',
-      'AC Circuits (EEE)',
-      'AC Machine (EEE)',
-      'DC Machine (EEE)',
-      'Power System (EEE)',
-      'Telecommunication (EEE)',
-      'Digital Electronics (EEE)',
+      "DC Circuits (EEE)",
+      "Electronics (EEE)",
+      "AC Circuits (EEE)",
+      "AC Machine (EEE)",
+      "DC Machine (EEE)",
+      "Power System (EEE)",
+      "Telecommunication (EEE)",
+      "Digital Electronics (EEE)",
     ],
   },
   {
-    label: 'ME',
+    label: "ME",
     options: [
-      'Engineering Mechanics (ME)',
-      'Strength of Materials (ME)',
-      'Thermodynamics and Heat Engine (ME)',
-      'Hydraulics / Fluid Mechanics and Fluid Machineries (ME)',
-      'Basic Electricity and Electronics (ME)',
-      'Engineering Drawing (ME)',
-      'Theory Part (ME)',
+      "Engineering Mechanics (ME)",
+      "Strength of Materials (ME)",
+      "Thermodynamics and Heat Engine (ME)",
+      "Hydraulics / Fluid Mechanics and Fluid Machineries (ME)",
+      "Basic Electricity and Electronics (ME)",
+      "Engineering Drawing (ME)",
+      "Theory Part (ME)",
     ],
   },
   {
-    label: 'CSE',
+    label: "CSE",
     options: [
-      'Computer Fundamentals (CSE)',
-      'Basic Programming (CSE)',
-      'Object Oriented Programming(C++/Phython) (CSE)',
-      'Discrete Mathematics (CSE)',
-      'Data Structure (CSE)',
-      'Database Management (CSE)',
-      'Software Development (CSE)',
-      'Operating System (CSE)',
-      'Microprocessor & Microcomputer (CSE)',
-      'Data Communication & Computer Network (CSE)',
-      'Computer Graphics (CSE)',
-      'Digital Electronics (CSE)',
+      "Computer Fundamentals (CSE)",
+      "Basic Programming (CSE)",
+      "Object Oriented Programming(C++/Phython) (CSE)",
+      "Discrete Mathematics (CSE)",
+      "Data Structure (CSE)",
+      "Database Management (CSE)",
+      "Software Development (CSE)",
+      "Operating System (CSE)",
+      "Microprocessor & Microcomputer (CSE)",
+      "Data Communication & Computer Network (CSE)",
+      "Computer Graphics (CSE)",
+      "Digital Electronics (CSE)",
     ],
   },
   {
-    label: 'TE',
+    label: "TE",
     options: [
-      'Introduction to Textile Engineering (TE)',
-      'Textile Fibres (TE)',
-      'Yarn Manufacturing Technology (TE)',
-      'Processing Stages of Yarn Manufacturing (TE)',
-      'Jute Technology (TE)',
-      'Fabric Manufacturing Technology (TE)',
-      'Wet Processing Technology (TE)',
-      'Garments Manufacturing Technology (TE)',
-      'Pattern Making & Garments Design (TE)',
-      'Textile Testing (TE)',
-      'Fabric Structure and Clothing Analysis (TE)',
-      'Engineering Drawing (TE)',
+      "Introduction to Textile Engineering (TE)",
+      "Textile Fibres (TE)",
+      "Yarn Manufacturing Technology (TE)",
+      "Processing Stages of Yarn Manufacturing (TE)",
+      "Jute Technology (TE)",
+      "Fabric Manufacturing Technology (TE)",
+      "Wet Processing Technology (TE)",
+      "Garments Manufacturing Technology (TE)",
+      "Pattern Making & Garments Design (TE)",
+      "Textile Testing (TE)",
+      "Fabric Structure and Clothing Analysis (TE)",
+      "Engineering Drawing (TE)",
     ],
   },
   {
-    label: 'CHE',
+    label: "CHE",
     options: [
-      'Basic Stoichiometry (ChE)',
-      'Unit Operation (ChE)',
-      'Energy (ChE)',
-      'Chemical Process Industries and Safety (ChE)',
-      'Engineering Mechanics (ChE)',
-      'Industrial Management (ChE)',
-      'Basic Electricity and Electronics (ChE)',
-      'Basics of Computer and Programming (ChE)',
+      "Basic Stoichiometry (ChE)",
+      "Unit Operation (ChE)",
+      "Energy (ChE)",
+      "Chemical Process Industries and Safety (ChE)",
+      "Engineering Mechanics (ChE)",
+      "Industrial Management (ChE)",
+      "Basic Electricity and Electronics (ChE)",
+      "Basics of Computer and Programming (ChE)",
     ],
   },
   {
-    label: 'FE',
+    label: "FE",
     options: [
-      'Food Engineering and Technology (FE)',
-      'Food Packaging and Preservation (FE)',
-      'Food Chemistry and Nutrition (FE)',
-      'Food Microbiology (FE)',
-      'Food Safety (FE)',
-      'Electrical and Electronic Engineering Fundamentals (FE)',
+      "Food Engineering and Technology (FE)",
+      "Food Packaging and Preservation (FE)",
+      "Food Chemistry and Nutrition (FE)",
+      "Food Microbiology (FE)",
+      "Food Safety (FE)",
+      "Electrical and Electronic Engineering Fundamentals (FE)",
     ],
   },
 ];
 
 const TeacherAnnouncement = () => {
   // State management
-  const [viewMode, setViewMode] = useState('list');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterBatch, setFilterBatch] = useState('');
-  const [filterDate, setFilterDate] = useState('');
+  const [viewMode, setViewMode] = useState("list");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterBatch, setFilterBatch] = useState("");
+  const [filterDate, setFilterDate] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -205,37 +205,37 @@ const TeacherAnnouncement = () => {
   // Teacher selection states
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [filteredTeachers, setFilteredTeachers] = useState([]);
-  const [teacherQuery, setTeacherQuery] = useState('');
+  const [teacherQuery, setTeacherQuery] = useState("");
   const [isTeacherDropdownOpen, setIsTeacherDropdownOpen] = useState(false);
   const teacherDropdownRef = useRef(null);
 
   // Batch selection states
   const [filteredBatches, setFilteredBatches] = useState([]);
-  const [batchQuery, setBatchQuery] = useState('');
+  const [batchQuery, setBatchQuery] = useState("");
   const [isBatchDropdownOpen, setIsBatchDropdownOpen] = useState(false);
   const batchDropdownRef = useRef(null);
 
   // Batch filter states
-  const [filterBatchQuery, setFilterBatchQuery] = useState('');
+  const [filterBatchQuery, setFilterBatchQuery] = useState("");
   const [isFilterBatchDropdownOpen, setIsFilterBatchDropdownOpen] =
     useState(false);
   const filterBatchDropdownRef = useRef(null);
 
   // Form state
   const [formData, setFormData] = useState({
-    teacher: { id: '', name: '', phone: '' },
-    title: '',
-    batch: '',
-    type: '',
-    date: '',
-    time: '',
-    subject: '',
-    roomNumber: '',
-    content: '',
+    teacher: { id: "", name: "", phone: "" },
+    title: "",
+    batch: "",
+    type: "",
+    date: "",
+    time: "",
+    subject: "",
+    roomNumber: "",
+    content: "",
   });
 
   // Constants
-  const ANNOUNCEMENT_TYPES = ['class', 'exam', 'event', 'other'];
+  const ANNOUNCEMENT_TYPES = ["class", "exam", "event", "other"];
 
   // Data fetching
   const { data: teachersData, isLoading: isTeachersLoading } =
@@ -265,7 +265,7 @@ const TeacherAnnouncement = () => {
         );
         setExpiringData(res.data.data || []);
       } catch (error) {
-        toast.error(error.data?.message || 'Something went wrong! Try again.');
+        toast.error(error.data?.message || "Something went wrong! Try again.");
       } finally {
         setIsLoading(false);
       }
@@ -292,26 +292,26 @@ const TeacherAnnouncement = () => {
 
   // Helper functions
   const getTimeAgo = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
     return formatDistanceToNow(date, { addSuffix: true });
   };
 
   const formatDisplayDate = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const getTypeColor = (type) => {
     const colors = {
-      class: 'bg-blue-50 text-blue-700 border-blue-200',
-      exam: 'bg-amber-50 text-amber-700 border-amber-200',
-      event: 'bg-purple-50 text-purple-700 border-purple-200',
-      other: 'bg-gray-50 text-gray-700 border-gray-200',
+      class: "bg-blue-50 text-blue-700 border-blue-200",
+      exam: "bg-amber-50 text-amber-700 border-amber-200",
+      event: "bg-purple-50 text-purple-700 border-purple-200",
+      other: "bg-gray-50 text-gray-700 border-gray-200",
     };
     return colors[type] || colors.other;
   };
@@ -335,9 +335,9 @@ const TeacherAnnouncement = () => {
     setFormData((prev) => ({
       ...prev,
       teacher: {
-        id: teacher._id || '',
-        name: teacher.userName || '',
-        phone: teacher.phone || '',
+        id: teacher._id || "",
+        name: teacher.userName || "",
+        phone: teacher.phone || "",
       },
     }));
   };
@@ -414,9 +414,9 @@ const TeacherAnnouncement = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -431,7 +431,7 @@ const TeacherAnnouncement = () => {
     setIsLoading(true);
 
     try {
-      const dateOnly = formData.date ? formData.date.split('T')[0] : '';
+      const dateOnly = formData.date ? formData.date.split("T")[0] : "";
       const dataToSend = {
         ...formData,
         date: dateOnly,
@@ -452,13 +452,13 @@ const TeacherAnnouncement = () => {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
       refetch();
-      setViewMode('list');
+      setViewMode("list");
       resetForm();
     } catch (error) {
       if (error?.data?.errors) {
         setErrors(error.data.errors);
       } else {
-        toast.error(error?.data?.message || 'Something went wrong');
+        toast.error(error?.data?.message || "Something went wrong");
       }
     } finally {
       setIsLoading(false);
@@ -467,58 +467,58 @@ const TeacherAnnouncement = () => {
 
   const resetForm = () => {
     setFormData({
-      teacher: { id: '', name: '', phone: '' },
-      title: '',
-      batch: '',
-      type: '',
-      date: '',
-      time: '',
-      subject: '',
-      roomNumber: '',
-      content: '',
+      teacher: { id: "", name: "", phone: "" },
+      title: "",
+      batch: "",
+      type: "",
+      date: "",
+      time: "",
+      subject: "",
+      roomNumber: "",
+      content: "",
     });
     setSelectedTeacher(null);
-    setTeacherQuery('');
-    setBatchQuery('');
+    setTeacherQuery("");
+    setBatchQuery("");
     setEditingId(null);
   };
 
   const handleEditClick = (announcement) => {
-    const dateForInput = announcement.date ? `${announcement.date}T00:00` : '';
+    const dateForInput = announcement.date ? `${announcement.date}T00:00` : "";
     setFormData({
       ...announcement,
       date: dateForInput,
       teacher: {
-        id: announcement.teacher?._id || announcement.teacher?.id || '',
-        name: announcement.teacher?.name || '',
-        phone: announcement.teacher?.phone || '',
+        id: announcement.teacher?._id || announcement.teacher?.id || "",
+        name: announcement.teacher?.name || "",
+        phone: announcement.teacher?.phone || "",
       },
     });
     setSelectedTeacher(announcement.teacher);
-    setTeacherQuery(announcement.teacher?.name || '');
-    setBatchQuery(announcement.batch || '');
+    setTeacherQuery(announcement.teacher?.name || "");
+    setBatchQuery(announcement.batch || "");
     setEditingId(announcement._id);
-    setViewMode('form');
+    setViewMode("form");
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this announcement?')) {
+    if (window.confirm("Are you sure you want to delete this announcement?")) {
       try {
         await deleteTeacherAnnouncement(id).unwrap();
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
         refetch();
       } catch (error) {
-        toast.error('Failed to delete announcement');
+        toast.error("Failed to delete announcement");
       }
     }
   };
 
   const clearFilters = () => {
-    setSearchTerm('');
-    setFilterBatch('');
-    setFilterDate('');
-    setFilterBatchQuery('');
+    setSearchTerm("");
+    setFilterBatch("");
+    setFilterDate("");
+    setFilterBatchQuery("");
     setPage(1);
   };
 
@@ -550,7 +550,7 @@ const TeacherAnnouncement = () => {
     const endPage = Math.min(totalPages - 1, page + 1);
 
     if (startPage > 2) {
-      pages.push('...');
+      pages.push("...");
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -558,7 +558,7 @@ const TeacherAnnouncement = () => {
     }
 
     if (endPage < totalPages - 1) {
-      pages.push('...');
+      pages.push("...");
     }
 
     if (totalPages > 1) {
@@ -604,22 +604,22 @@ const TeacherAnnouncement = () => {
   // Stats data
   const statsData = [
     {
-      label: 'Total Announcements',
+      label: "Total Announcements",
       value: pagination.total || 0,
       icon: Bell,
-      color: 'blue',
+      color: "blue",
     },
     {
-      label: 'Active Teachers',
+      label: "Active Teachers",
       value: teachers.length,
       icon: Users,
-      color: 'green',
+      color: "green",
     },
     {
-      label: 'Upcoming Deletions',
+      label: "Upcoming Deletions",
       value: expiringData.length,
       icon: AlertCircle,
-      color: 'amber',
+      color: "amber",
     },
   ];
 
@@ -682,7 +682,7 @@ const TeacherAnnouncement = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setViewMode('form')}
+            onClick={() => setViewMode("form")}
             className="inline-flex items-center gap-2 px-6 py-3 mt-5 font-semibold text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
           >
             <Plus className="w-5 h-5" />
@@ -776,7 +776,7 @@ const TeacherAnnouncement = () => {
                       />
                       <ChevronDown
                         className={`w-4 h-4 text-gray-400 ml-2 transition-transform ${
-                          isFilterBatchDropdownOpen ? 'rotate-180' : ''
+                          isFilterBatchDropdownOpen ? "rotate-180" : ""
                         }`}
                       />
                     </div>
@@ -786,19 +786,19 @@ const TeacherAnnouncement = () => {
                       filteredBatches?.length > 0 && (
                         <ul className="absolute z-20 w-full py-1 mt-1 overflow-y-auto text-sm bg-white border border-gray-200 rounded-md shadow-lg max-h-60">
                           <li
-                            onClick={() => handleFilterBatchSelect('')}
+                            onClick={() => handleFilterBatchSelect("")}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
+                              if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
-                                handleFilterBatchSelect('');
+                                handleFilterBatchSelect("");
                               }
                             }}
                             tabIndex={0}
                             role="button"
                             className={`px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors ${
-                              filterBatch === ''
-                                ? 'bg-blue-50 font-medium text-blue-700'
-                                : 'text-gray-700'
+                              filterBatch === ""
+                                ? "bg-blue-50 font-medium text-blue-700"
+                                : "text-gray-700"
                             }`}
                           >
                             All Batches
@@ -811,8 +811,8 @@ const TeacherAnnouncement = () => {
                               }
                               className={`px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors ${
                                 filterBatch === batch.title
-                                  ? 'bg-blue-50 font-medium text-blue-700'
-                                  : 'text-gray-700'
+                                  ? "bg-blue-50 font-medium text-blue-700"
+                                  : "text-gray-700"
                               }`}
                             >
                               {batch?.title}
@@ -907,7 +907,7 @@ const TeacherAnnouncement = () => {
             <div className="px-6 py-4 border-b border-slate-200/60 bg-slate-50/50">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-semibold text-slate-900">
-                  All Announcements{' '}
+                  All Announcements{" "}
                   <span className="ml-2 font-normal text-slate-600">
                     ({pagination?.total || 0})
                   </span>
@@ -1041,9 +1041,9 @@ const TeacherAnnouncement = () => {
                                   <Clock className="w-4 h-4 text-slate-400" />
                                   {new Date(
                                     `1970-01-01T${announcement?.time}:00`,
-                                  ).toLocaleTimeString('en-US', {
-                                    hour: 'numeric',
-                                    minute: '2-digit',
+                                  ).toLocaleTimeString("en-US", {
+                                    hour: "numeric",
+                                    minute: "2-digit",
                                     hour12: true,
                                   })}
                                 </div>
@@ -1083,8 +1083,8 @@ const TeacherAnnouncement = () => {
                           </h3>
                           <p className="max-w-sm text-slate-500">
                             {searchTerm || filterBatch || filterDate
-                              ? 'Try adjusting your search or filters'
-                              : 'Get started by creating your first announcement'}
+                              ? "Try adjusting your search or filters"
+                              : "Get started by creating your first announcement"}
                           </p>
                         </div>
                       </td>
@@ -1102,18 +1102,18 @@ const TeacherAnnouncement = () => {
               className="flex flex-col items-center justify-between gap-4 p-6 bg-white border shadow-sm sm:flex-row rounded-2xl border-slate-200/60"
             >
               <div className="text-sm text-slate-600">
-                Showing{' '}
+                Showing{" "}
                 <span className="font-semibold text-slate-800">
                   {(page - 1) * limit + 1}
-                </span>{' '}
-                to{' '}
+                </span>{" "}
+                to{" "}
                 <span className="font-semibold text-slate-800">
                   {Math.min(page * limit, pagination.total)}
-                </span>{' '}
-                of{' '}
+                </span>{" "}
+                of{" "}
                 <span className="font-semibold text-slate-800">
                   {pagination.total}
-                </span>{' '}
+                </span>{" "}
                 entries
               </div>
 
@@ -1137,15 +1137,15 @@ const TeacherAnnouncement = () => {
                       type="button"
                       key={index}
                       onClick={() =>
-                        typeof pageNum === 'number' && handlePageChange(pageNum)
+                        typeof pageNum === "number" && handlePageChange(pageNum)
                       }
-                      disabled={pageNum === '...'}
+                      disabled={pageNum === "..."}
                       className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
                         page === pageNum
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : pageNum === '...'
-                            ? 'text-slate-400 cursor-default'
-                            : 'text-slate-600 hover:bg-slate-100'
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : pageNum === "..."
+                            ? "text-slate-400 cursor-default"
+                            : "text-slate-600 hover:bg-slate-100"
                       }`}
                     >
                       {pageNum}
@@ -1172,7 +1172,7 @@ const TeacherAnnouncement = () => {
 
       {/* Create/Edit Announcement Form Modal */}
       <AnimatePresence>
-        {viewMode === 'form' && (
+        {viewMode === "form" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1187,11 +1187,11 @@ const TeacherAnnouncement = () => {
             >
               <div className="sticky top-0 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200/60 rounded-t-2xl">
                 <h2 className="text-xl font-semibold text-slate-800">
-                  {editingId ? 'Edit Announcement' : 'Create New Announcement'}
+                  {editingId ? "Edit Announcement" : "Create New Announcement"}
                 </h2>
                 <button
                   onClick={() => {
-                    setViewMode('list');
+                    setViewMode("list");
                     resetForm();
                   }}
                   className="p-2 transition-all duration-200 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
@@ -1236,7 +1236,7 @@ const TeacherAnnouncement = () => {
                         />
                         <ChevronDown
                           className={`w-4 h-4 text-gray-400 ml-2 transition-transform ${
-                            isTeacherDropdownOpen ? 'rotate-180' : ''
+                            isTeacherDropdownOpen ? "rotate-180" : ""
                           }`}
                         />
                       </div>
@@ -1245,7 +1245,7 @@ const TeacherAnnouncement = () => {
                         <ul className="absolute z-20 w-full py-1 mt-1 overflow-y-auto text-sm capitalize bg-white border border-gray-200 rounded-md shadow-lg max-h-60">
                           {isTeachersLoading ? (
                             <li className="flex items-center justify-center px-3 py-2 text-gray-500">
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />{' '}
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
                               Loading...
                             </li>
                           ) : filteredTeachers?.length > 0 ? (
@@ -1255,8 +1255,8 @@ const TeacherAnnouncement = () => {
                                 onClick={() => handleTeacherSelect(teacher)}
                                 className={`px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors ${
                                   selectedTeacher?._id === teacher._id
-                                    ? 'bg-blue-50 font-medium text-blue-700'
-                                    : 'text-gray-700'
+                                    ? "bg-blue-50 font-medium text-blue-700"
+                                    : "text-gray-700"
                                 }`}
                               >
                                 <div className="flex items-center gap-2">
@@ -1306,7 +1306,7 @@ const TeacherAnnouncement = () => {
                           />
                           <ChevronDown
                             className={`w-4 h-4 text-gray-400 ml-2 transition-transform ${
-                              isBatchDropdownOpen ? 'rotate-180' : ''
+                              isBatchDropdownOpen ? "rotate-180" : ""
                             }`}
                           />
                         </div>
@@ -1320,8 +1320,8 @@ const TeacherAnnouncement = () => {
                                 onClick={() => handleBatchSelect(batch.title)}
                                 className={`px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors ${
                                   formData.batch === batch.title
-                                    ? 'bg-blue-50 font-medium text-blue-700'
-                                    : 'text-gray-700'
+                                    ? "bg-blue-50 font-medium text-blue-700"
+                                    : "text-gray-700"
                                 }`}
                               >
                                 {batch?.title}
@@ -1363,13 +1363,13 @@ const TeacherAnnouncement = () => {
                         type="date"
                         required
                         name="date"
-                        value={formData.date.split('T')[0]}
+                        value={formData.date.split("T")[0]}
                         onChange={(e) => {
                           setFormData((prev) => ({
                             ...prev,
                             date: e.target.value
                               ? `${e.target.value}T00:00`
-                              : '',
+                              : "",
                           }));
                         }}
                         className="w-full px-4 py-3 transition-all duration-200 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1455,7 +1455,7 @@ const TeacherAnnouncement = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
-                      setViewMode('list');
+                      setViewMode("list");
                       resetForm();
                     }}
                     className="px-6 py-3 font-semibold transition-all duration-200 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50"
@@ -1472,13 +1472,13 @@ const TeacherAnnouncement = () => {
                     {isLoading && (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>{editingId ? 'Updating...' : 'Creating...'}</span>
+                        <span>{editingId ? "Updating..." : "Creating..."}</span>
                       </>
                     )}
                     {!isLoading &&
                       (editingId
-                        ? 'Update Announcement'
-                        : 'Create Announcement')}
+                        ? "Update Announcement"
+                        : "Create Announcement")}
                   </motion.button>
                 </div>
               </form>

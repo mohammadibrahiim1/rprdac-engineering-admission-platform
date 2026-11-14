@@ -1,12 +1,12 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const teacherApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // post teacher attendance(active-admin)
     postTeacherAttendance: builder.mutation({
       query: (data) => ({
-        url: '/class/create',
-        method: 'POST',
+        url: "/class/create",
+        method: "POST",
         body: data,
       }),
     }),
@@ -14,7 +14,7 @@ const teacherApi = baseApi.injectEndpoints({
     // get teachers
     getTeachers: builder.query({
       query: ({ searchQuery, page, limit, filterStatus }) => ({
-        url: '/user/teacher',
+        url: "/user/teacher",
         params: { searchQuery, page, limit, filterStatus },
       }),
     }),
@@ -45,7 +45,7 @@ const teacherApi = baseApi.injectEndpoints({
     updateCourseStatus: builder.mutation({
       query: ({ classId, status }) => ({
         url: `admin/teacher/class/status/${classId}`,
-        method: 'PUT',
+        method: "PUT",
         body: { status },
       }),
     }),
@@ -54,7 +54,7 @@ const teacherApi = baseApi.injectEndpoints({
     updateLoanStatus: builder.mutation({
       query: ({ status, loanRequestId }) => ({
         url: `admin/approve-loan`,
-        method: 'PUT',
+        method: "PUT",
         body: { status, loanRequestId },
       }),
     }),
@@ -63,7 +63,7 @@ const teacherApi = baseApi.injectEndpoints({
     teacherPayment: builder.mutation({
       query: ({ userId, payAmount }) => ({
         url: `/admin/user/payment/${userId}`,
-        method: 'PUT',
+        method: "PUT",
         body: { payAmount },
       }),
     }),
@@ -72,7 +72,7 @@ const teacherApi = baseApi.injectEndpoints({
     approvedLoan: builder.mutation({
       query: ({ loanRequestId, status }) => ({
         url: `admin/approve-loan`,
-        method: 'POST',
+        method: "POST",
         body: { loanRequestId, status },
       }),
     }),
@@ -81,7 +81,7 @@ const teacherApi = baseApi.injectEndpoints({
     cancelCourse: builder.mutation({
       query: (courseId) => ({
         url: `admin/class/delete/${courseId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
     }),
 
@@ -104,7 +104,7 @@ const teacherApi = baseApi.injectEndpoints({
     teacherPayLoan: builder.mutation({
       query: ({ userId, payAmount }) => ({
         url: `loan/pay-loan/${userId}`,
-        method: 'PUT',
+        method: "PUT",
         body: {
           payAmount,
         },
@@ -115,10 +115,10 @@ const teacherApi = baseApi.injectEndpoints({
     deleteTeacherClass: builder.mutation({
       query: (ids) => ({
         url: `/class/teacher/class/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: ids,
       }),
-      invalidatesTags: ['Class'],
+      invalidatesTags: ["Class"],
     }),
 
     // get all pending loans
@@ -138,8 +138,8 @@ const teacherApi = baseApi.injectEndpoints({
     // announcement api
     postTeacherAnnouncement: builder.mutation({
       query: (announcementData) => ({
-        url: '/teacher/announcement',
-        method: 'POST',
+        url: "/teacher/announcement",
+        method: "POST",
         body: announcementData,
       }),
     }),
@@ -162,9 +162,9 @@ const teacherApi = baseApi.injectEndpoints({
         if (search) {
           params.search = search;
         }
-        return { url: '/announcements/all', params };
+        return { url: "/announcements/all", params };
       },
-      providesTags: ['TeacherAnnouncements'],
+      providesTags: ["TeacherAnnouncements"],
     }),
 
     //teacher announcement by id
@@ -178,18 +178,18 @@ const teacherApi = baseApi.injectEndpoints({
     updateTeacherAnnouncement: builder.mutation({
       query: ({ id, updatedData }) => ({
         url: `/teacher/update/announcement/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: updatedData,
       }),
-      invalidatesTags: ['StudentAnnouncement'],
+      invalidatesTags: ["StudentAnnouncement"],
     }),
 
     deleteTeacherAnnouncement: builder.mutation({
       query: (id) => ({
         url: `/teacher/delete/announcement/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['StudentAnnouncements'], // Update this tag based on your caching
+      invalidatesTags: ["StudentAnnouncements"], // Update this tag based on your caching
     }),
 
     // get all classes(active-admin)
@@ -200,14 +200,14 @@ const teacherApi = baseApi.injectEndpoints({
           url: `class/teacher/classes?${queryString}`,
         };
       },
-      providesTags: ['Class'],
+      providesTags: ["Class"],
     }),
 
     // POST mutation to generate invoice
     updatePaymentAndGenerateTeacherInvoice: builder.mutation({
       query: (body) => ({
-        url: 'class/teacher/update/payment',
-        method: 'POST',
+        url: "class/teacher/update/payment",
+        method: "POST",
         body,
       }),
     }),
@@ -235,7 +235,7 @@ const teacherApi = baseApi.injectEndpoints({
           limit,
         },
       }),
-      providesTags: ['Classes'],
+      providesTags: ["Classes"],
     }),
 
     // get approved data of users
@@ -249,27 +249,27 @@ const teacherApi = baseApi.injectEndpoints({
     // get all teacher class list(active-admin)
     getTeacherClassList: builder.query({
       query: (params) => ({
-        url: 'class/get/teacher/all/class',
+        url: "class/get/teacher/all/class",
         params,
       }),
-      providesTags: ['Class'],
+      providesTags: ["Class"],
     }),
 
     // update teacher class(active-admin)
     updateClass: builder.mutation({
       query: ({ id, data }) => ({
         url: `class/teacher/class/update/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ['Class'],
+      invalidatesTags: ["Class"],
     }),
 
     // teacher payment and generate invoice(active-admin)
     teacherPaymentAndGenerateInvoice: builder.mutation({
       query: (data) => ({
         url: `/class/teacher/payment`,
-        method: 'POST',
+        method: "POST",
         body: data,
       }),
     }),

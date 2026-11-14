@@ -2,12 +2,12 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { useAllUsers } from "../hooks/useAllUsers";
-import BreadCrumbMenu from "../../../../../components/BreadCrumbMenu";
 import { UserStatsCards } from "../components/UserStatusCards";
 import { UserToolbar } from "../components/UserToolbar";
 import { exportUsersToExcel } from "../utils/user.exportExcel";
 import { UserTable } from "../components/UserTable";
 import { User } from "../types/User.types";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const AllUsers: React.FC = () => {
   const {
@@ -44,7 +44,7 @@ const AllUsers: React.FC = () => {
       {/* Top Navbar */}
       <nav className="sticky top-0 z-30 flex items-center justify-between h-[45px] px-5 bg-white/80 backdrop-blur-md border-b border-[#37352f]/10">
         <div className="flex items-center gap-2 text-sm">
-          <BreadCrumbMenu />
+          <Breadcrumb />
         </div>
         <div className="flex items-center gap-2">
           <button

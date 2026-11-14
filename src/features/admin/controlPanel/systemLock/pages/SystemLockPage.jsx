@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Plus,
   RefreshCw,
@@ -6,12 +6,12 @@ import {
   Lock,
   Shield,
   Search,
-} from 'lucide-react';
-import BreadCrumbMenu from '../../../../../../components/BreadCrumbMenu';
-import { useGetAllSystemLocksQuery } from '../api/systemLockApi';
-import { useSystemLockActions } from '../hooks/useSystemLockActions';
-import { SystemLockModal } from '../components/SystemLockModal';
-import { SystemLockTable } from '../components/SystemLockTable';
+} from "lucide-react";
+
+import { useGetAllSystemLocksQuery } from "../api/systemLockApi";
+import { useSystemLockActions } from "../hooks/useSystemLockActions";
+import { SystemLockModal } from "../components/SystemLockModal";
+import { SystemLockTable } from "../components/SystemLockTable";
 
 export default function SystemLockPage() {
   const {
@@ -45,9 +45,9 @@ export default function SystemLockPage() {
             <div className="flex items-center gap-3">
               <div
                 className="p-2.5 rounded-md border border-[#143F6B15]"
-                style={{ backgroundColor: '#143F6B0D' }}
+                style={{ backgroundColor: "#143F6B0D" }}
               >
-                <Shield className="w-5 h-5" style={{ color: '#143F6B' }} />
+                <Shield className="w-5 h-5" style={{ color: "#143F6B" }} />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -63,7 +63,7 @@ export default function SystemLockPage() {
             <button
               onClick={handleOpenCreateModal}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs sm:text-sm font-semibold text-white shadow-sm transition-all active:scale-[0.98] hover:shadow-md"
-              style={{ backgroundColor: '#143F6B' }}
+              style={{ backgroundColor: "#143F6B" }}
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               Add System Lock
@@ -87,7 +87,7 @@ export default function SystemLockPage() {
               />
             </div>
             <div className="text-xs font-medium text-gray-500 self-end sm:self-center">
-              Total Locks:{' '}
+              Total Locks:{" "}
               <span className="font-semibold text-gray-800">
                 {filteredLocks?.length}
               </span>
@@ -101,7 +101,7 @@ export default function SystemLockPage() {
             <div className="flex flex-col items-center justify-center py-24 bg-white rounded-md border border-gray-200/80 shadow-2xs">
               <RefreshCw
                 className="w-7 h-7 animate-spin mb-3"
-                style={{ color: '#143F6B' }}
+                style={{ color: "#143F6B" }}
               />
               <p className="text-xs font-medium text-gray-500">
                 Please wait...
@@ -111,18 +111,18 @@ export default function SystemLockPage() {
             <div className="flex items-center gap-3 p-4 bg-red-50/80 border border-red-100 rounded-md text-red-700">
               <AlertCircle className="w-5 h-5 shrink-0 text-red-600" />
               <span className="text-xs sm:text-sm font-medium">
-                {error?.message || 'Interna server error!'}
+                {error?.message || "Interna server error!"}
               </span>
             </div>
           ) : locksData?.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-md border border-gray-200/80 shadow-2xs px-4">
               <div
                 className="w-14 h-14 mx-auto rounded-md flex items-center justify-center mb-4"
-                style={{ backgroundColor: '#143F6B0D' }}
+                style={{ backgroundColor: "#143F6B0D" }}
               >
                 <Lock
                   className="w-7 h-7 stroke-[1.5]"
-                  style={{ color: '#143F6B' }}
+                  style={{ color: "#143F6B" }}
                 />
               </div>
               <h3 className="text-base font-semibold text-gray-900 mb-1">
@@ -135,7 +135,7 @@ export default function SystemLockPage() {
               <button
                 onClick={handleOpenCreateModal}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md text-xs sm:text-sm font-semibold text-white transition-all shadow-sm active:scale-[0.98]"
-                style={{ backgroundColor: '#143F6B' }}
+                style={{ backgroundColor: "#143F6B" }}
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 Create First Lock

@@ -1,8 +1,8 @@
 // @ts-nocheck
 
 // src/features/examcenter/components/GreenCard/GreenCardPreview.jsx
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 import {
   CheckSquare,
   Square,
@@ -10,9 +10,8 @@ import {
   Trash2,
   Loader2,
   Download,
-} from 'lucide-react';
-import GreenAdmitCard from './GreenAdmitCard';
-import Loading from '../../../../../../components/Loader';
+} from "lucide-react";
+import GreenAdmitCard from "./GreenAdmitCard";
 
 const chunkArray = (array, size) => {
   if (!array || !Array.isArray(array)) return [];
@@ -45,11 +44,11 @@ const GreenCardPreview = ({
   handleDelete,
   printRef,
 }) => {
-  if (view !== 'preview') return null;
+  if (view !== "preview") return null;
 
   // Limit "all"
   const parsedLimit =
-    limit === 'all' ? tableData?.length : parseInt(limit, 10) || 10;
+    limit === "all" ? tableData?.length : parseInt(limit, 10) || 10;
   const limitedTableData = tableData ? tableData.slice(0, parsedLimit) : [];
 
   const cardsToPrint =
@@ -143,7 +142,7 @@ const GreenCardPreview = ({
               ) : (
                 <Square size={18} className="text-slate-400" />
               )}
-              {selectedIds?.length === 0 ? 'Select All' : 'Deselect All'}
+              {selectedIds?.length === 0 ? "Select All" : "Deselect All"}
             </button>
 
             <button
@@ -152,7 +151,7 @@ const GreenCardPreview = ({
               className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded font-bold text-sm shadow-md shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Printer size={18} />
-              Print {selectedIds?.length > 0 ? `(${selectedIds?.length})` : ''}
+              Print {selectedIds?.length > 0 ? `(${selectedIds?.length})` : ""}
             </button>
           </div>
         </div>
@@ -174,7 +173,7 @@ const GreenCardPreview = ({
           <div className="flex items-center gap-2">
             <input
               name="startId"
-              value={range?.startId || ''}
+              value={range?.startId || ""}
               onChange={handleRangeChange}
               placeholder="Start ID"
               className="w-24 h-10 rounded border border-slate-300 px-3 text-sm text-center text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -182,7 +181,7 @@ const GreenCardPreview = ({
             <span className="text-slate-400 font-medium">-</span>
             <input
               name="endId"
-              value={range?.endId || ''}
+              value={range?.endId || ""}
               onChange={handleRangeChange}
               placeholder="End ID"
               className="w-24 h-10 rounded border border-slate-300 px-3 text-sm text-center text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -219,9 +218,7 @@ const GreenCardPreview = ({
 
       {/* --- Selection Grid / Loading --- */}
       {loadingCards ? (
-        <div className="py-12">
-          <Loading />
-        </div>
+        <div className="py-12">Loading...</div>
       ) : (
         <div className="space-y-4">
           {/* Visible selection cards (UI only, hidden on print) */}
@@ -242,7 +239,7 @@ const GreenCardPreview = ({
                 </div>
                 {/* Admit Card Component */}
                 <div
-                  className={`rounded transition-all ${selectedIds?.includes(student._id) ? '' : 'hover:shadow-md'}`}
+                  className={`rounded transition-all ${selectedIds?.includes(student._id) ? "" : "hover:shadow-md"}`}
                 >
                   <GreenAdmitCard data={student} />
                 </div>

@@ -4,37 +4,28 @@ import React, {
   useState,
   useMemo,
   useCallback,
-} from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+} from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useFetchEmployeeDutiesQuery } from "../../../../redux/features/staff/employeeApi";
 import {
-  useFetchEmployeeDutiesQuery,
-  useUpdateEmployeePaymentMutation,
-} from '../../../../../redux/features/staff/employeeApi';
-import {
-  Calendar,
-  FileText,
   Loader2,
-  X,
-  ChevronLeft,
   Download,
-  RefreshCw,
-  CheckCircle,
   AlertCircle,
   Zap,
   SearchX,
   ChevronUp,
   ChevronDown,
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { format, isValid, parseISO } from 'date-fns';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import EmployeeFilterSidebar from '../components/EmployeeFilterSidebar';
-import { formatDutyTime } from '../../../../../constants/formateDutyTime';
-import { formatTimeAMPM } from '../../../../../constants/timeFormat';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { format, isValid, parseISO } from "date-fns";
+import EmployeeFilterSidebar from "../components/EmployeeFilterSidebar";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { formatTimeAMPM } from "@/constants/timeFormat";
+import { formatDutyTime } from "@/constants/formateDutyTime";
+import { formatDateDMY } from "@/constants/dateFormat";
 
 const StatementOfAEmployee = () => {
   const { id } = useParams();
@@ -43,13 +34,13 @@ const StatementOfAEmployee = () => {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    search: '',
-    startDate: '',
-    endDate: '',
-    month: '',
-    year: '',
-    status: '',
-    paymentStatus: '',
+    search: "",
+    startDate: "",
+    endDate: "",
+    month: "",
+    year: "",
+    status: "",
+    paymentStatus: "",
   });
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -120,18 +111,18 @@ const StatementOfAEmployee = () => {
 
   // Month colors
   const monthColors = {
-    January: 'bg-blue-100 text-blue-800 border-blue-200',
-    February: 'bg-pink-100 text-pink-800 border-pink-200',
-    March: 'bg-green-100 text-green-800 border-green-200',
-    April: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    May: 'bg-teal-100 text-teal-800 border-teal-200',
-    June: 'bg-red-100 text-red-800 border-red-200',
-    July: 'bg-purple-100 text-purple-800 border-purple-200',
-    August: 'bg-orange-100 text-orange-800 border-orange-200',
-    September: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    October: 'bg-amber-100 text-amber-800 border-amber-200',
-    November: 'bg-cyan-100 text-cyan-800 border-cyan-200',
-    December: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    January: "bg-blue-100 text-blue-800 border-blue-200",
+    February: "bg-pink-100 text-pink-800 border-pink-200",
+    March: "bg-green-100 text-green-800 border-green-200",
+    April: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    May: "bg-teal-100 text-teal-800 border-teal-200",
+    June: "bg-red-100 text-red-800 border-red-200",
+    July: "bg-purple-100 text-purple-800 border-purple-200",
+    August: "bg-orange-100 text-orange-800 border-orange-200",
+    September: "bg-indigo-100 text-indigo-800 border-indigo-200",
+    October: "bg-amber-100 text-amber-800 border-amber-200",
+    November: "bg-cyan-100 text-cyan-800 border-cyan-200",
+    December: "bg-emerald-100 text-emerald-800 border-emerald-200",
   };
 
   const generatePDFStatement = () => {
@@ -139,41 +130,41 @@ const StatementOfAEmployee = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const primaryFont = 'times';
+      const primaryFont = "times";
       let cursorY = margin + 20;
 
       const capitalize = (str) => {
-        if (typeof str !== 'string') return 'N/A';
+        if (typeof str !== "string") return "N/A";
         return str
           .toLowerCase()
-          .split(' ')
-          .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ''))
-          .join(' ');
+          .split(" ")
+          .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ""))
+          .join(" ");
       };
 
       // ✅ FIX 2: Ensure formatTimeAMPM always gets string
       const safeFormatTime = (time) => {
-        if (!time || typeof time !== 'string') return '00:00';
+        if (!time || typeof time !== "string") return "00:00";
         return formatTimeAMPM(time);
       };
 
       // ✅ FIX 3: Ensure formatDate always gets valid value
       const safeFormatDate = (date) => {
         try {
-          if (!date) return 'N/A';
+          if (!date) return "N/A";
 
           let parsedDate;
 
           // যদি string হয় (API থেকে আসা)
-          if (typeof date === 'string') {
+          if (typeof date === "string") {
             parsedDate = parseISO(date);
           }
           // যদি already Date object হয়
@@ -182,36 +173,36 @@ const StatementOfAEmployee = () => {
           }
           // অন্য কিছু হলে reject
           else {
-            return 'N/A';
+            return "N/A";
           }
 
           // invalid date check
-          if (!isValid(parsedDate)) return 'N/A';
+          if (!isValid(parsedDate)) return "N/A";
 
-          return format(parsedDate, 'dd-MM-yyyy');
+          return format(parsedDate, "dd-MM-yyyy");
         } catch (err) {
-          return 'N/A';
+          return "N/A";
         }
       };
 
       /* ---------------- HEADER ---------------- */
 
       const drawHeader = () => {
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(16);
 
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
         doc.setFontSize(9);
 
         doc.text(
-          'M.A. Samad Villa In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com',
+          "M.A. Samad Villa In front of DUET Campus Gazipur, Bangladesh | +880 1742 590 128 | rpr.group2013@gmail.com",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setLineWidth(0.5);
@@ -224,7 +215,7 @@ const StatementOfAEmployee = () => {
 
       const drawFooter = (pageNo, totalPages) => {
         doc.setFontSize(8);
-        doc.setFont(primaryFont, 'normal');
+        doc.setFont(primaryFont, "normal");
 
         doc.text(
           `Generated: ${new Date().toLocaleString()}`,
@@ -237,7 +228,7 @@ const StatementOfAEmployee = () => {
           pageWidth - margin,
           pageHeight - 6,
           {
-            align: 'right',
+            align: "right",
           },
         );
       };
@@ -250,8 +241,8 @@ const StatementOfAEmployee = () => {
         doc.line(pageWidth - 70, signY, pageWidth - 20, signY);
 
         doc.setFontSize(10);
-        doc.text('Authorized Signature', pageWidth - 45, signY + 5, {
-          align: 'center',
+        doc.text("Authorized Signature", pageWidth - 45, signY + 5, {
+          align: "center",
         });
 
         cursorY = signY + 15;
@@ -282,8 +273,8 @@ const StatementOfAEmployee = () => {
       });
 
       const monthKeys = Object.keys(dutiesByMonth).sort((a, b) => {
-        const [monthA, yearA] = a.split(', ');
-        const [monthB, yearB] = b.split(', ');
+        const [monthA, yearA] = a.split(", ");
+        const [monthB, yearB] = b.split(", ");
 
         return (
           new Date(`${monthA} 1 ${yearA}`) - new Date(`${monthB} 1 ${yearB}`)
@@ -295,27 +286,27 @@ const StatementOfAEmployee = () => {
       /* ---------------- USER INFO ---------------- */
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
 
-      doc.text('Employee Duty Statement', pageWidth / 2, cursorY + 5, {
-        align: 'center',
+      doc.text("Employee Duty Statement", pageWidth / 2, cursorY + 5, {
+        align: "center",
       });
 
       cursorY += 15;
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'normal');
+      doc.setFont(primaryFont, "normal");
 
       doc.text(`Name: ${capitalize(user?.userName)}`, margin, cursorY);
 
-      doc.text(`Phone: ${user?.phone || 'N/A'}`, pageWidth - margin, cursorY, {
-        align: 'right',
+      doc.text(`Phone: ${user?.phone || "N/A"}`, pageWidth - margin, cursorY, {
+        align: "right",
       });
 
       cursorY += 6;
 
       doc.text(
-        `Period: ${filters.startDate || 'All'} to ${filters.endDate || 'All'}`,
+        `Period: ${filters.startDate || "All"} to ${filters.endDate || "All"}`,
         margin,
         cursorY,
       );
@@ -325,7 +316,7 @@ const StatementOfAEmployee = () => {
         pageWidth - margin,
         cursorY,
         {
-          align: 'right',
+          align: "right",
         },
       );
 
@@ -344,7 +335,7 @@ const StatementOfAEmployee = () => {
         const duties = dutiesByMonth[monthKey] || [];
         const loans = loansByMonth[monthKey] || [];
 
-        doc.setFont(primaryFont, 'bold');
+        doc.setFont(primaryFont, "bold");
         doc.setFontSize(10);
 
         doc.text(monthKey, margin, cursorY);
@@ -357,7 +348,7 @@ const StatementOfAEmployee = () => {
 
             totalDutyAmount += amount;
 
-            if (d?.paymentStatus?.toLowerCase() === 'paid') {
+            if (d?.paymentStatus?.toLowerCase() === "paid") {
               totalPaid += amount;
             } else {
               totalDue += amount;
@@ -368,10 +359,10 @@ const StatementOfAEmployee = () => {
               capitalize(d?.employeeName),
               capitalize(d?.workDetails),
               `${safeFormatTime(d?.dutyStartTime)} - ${safeFormatTime(d?.dutyEndTime)}`,
-              d?.totalDutyTime ? formatDutyTime(d.totalDutyTime) : 'N/A',
-              amount.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'BDT',
+              d?.totalDutyTime ? formatDutyTime(d.totalDutyTime) : "N/A",
+              amount.toLocaleString("en-US", {
+                style: "currency",
+                currency: "BDT",
               }),
               capitalize(d?.status),
               capitalize(d?.paymentStatus),
@@ -382,24 +373,24 @@ const StatementOfAEmployee = () => {
             startY: cursorY,
             head: [
               [
-                'Date',
-                'Name',
-                'Work Details',
-                'Duty Start-End Time',
-                'Duration',
-                'Amount',
-                'Status',
-                'Payment Status',
+                "Date",
+                "Name",
+                "Work Details",
+                "Duty Start-End Time",
+                "Duration",
+                "Amount",
+                "Status",
+                "Payment Status",
               ],
             ],
             body,
             // ... rest of your styles stay exactly the same
-            theme: 'grid',
-            showHead: 'firstPage',
+            theme: "grid",
+            showHead: "firstPage",
             headStyles: {
               fillColor: [240, 240, 240],
               textColor: 0,
-              fontStyle: 'bold',
+              fontStyle: "bold",
               lineWidth: 0.1,
             },
             styles: {
@@ -422,25 +413,25 @@ const StatementOfAEmployee = () => {
             totalLoan += amount;
 
             return [
-              l?.date ? String(l.date).slice(0, 10) : 'N/A',
+              l?.date ? String(l.date).slice(0, 10) : "N/A",
               capitalize(l?.userDetails?.userName),
               `${amount.toFixed(2)} BDT`,
               capitalize(l?.status),
-              capitalize(l?.isPaid ? 'Paid' : 'Unpaid'),
+              capitalize(l?.isPaid ? "Paid" : "Unpaid"),
             ];
           });
 
           autoTable(doc, {
             startY: cursorY,
-            head: [['Date', 'Name', 'Loan Amount', 'Status', 'Payment Status']],
+            head: [["Date", "Name", "Loan Amount", "Status", "Payment Status"]],
             body,
             // ... rest of your styles stay exactly the same
-            theme: 'grid',
-            showHead: 'firstPage',
+            theme: "grid",
+            showHead: "firstPage",
             headStyles: {
               fillColor: [240, 240, 240],
               textColor: 0,
-              fontStyle: 'bold',
+              fontStyle: "bold",
               lineWidth: 0.1,
             },
             styles: {
@@ -477,14 +468,14 @@ const StatementOfAEmployee = () => {
             ],
           ],
 
-          theme: 'grid',
+          theme: "grid",
 
-          showHead: 'firstPage',
+          showHead: "firstPage",
 
           headStyles: {
             fillColor: [240, 240, 240],
             textColor: 0,
-            fontStyle: 'bold',
+            fontStyle: "bold",
             lineWidth: 0.1,
           },
 
@@ -507,32 +498,32 @@ const StatementOfAEmployee = () => {
       const dueAfterLoan = totalDue - totalLoan;
 
       doc.setFontSize(10);
-      doc.setFont(primaryFont, 'bold');
+      doc.setFont(primaryFont, "bold");
 
-      doc.text('Summary', margin, cursorY);
+      doc.text("Summary", margin, cursorY);
       cursorY += 4;
 
       autoTable(doc, {
         startY: cursorY,
 
-        head: [['Total Amount', 'Paid', 'Due', 'Total Loan', 'Due After Loan']],
+        head: [["Total Amount", "Paid", "Due", "Total Loan", "Due After Loan"]],
 
         body: [
           [
-            `BDT ${totalDutyAmount.toFixed(2) || 'N/A'}`,
-            `BDT ${totalPaid.toFixed(2) || 'N/A'}`,
-            `BDT ${totalDue.toFixed(2) || 'N/A'}`,
-            `BDT ${totalLoan.toFixed(2) || 'N/A'}`,
-            `BDT ${dueAfterLoan.toFixed(2) || 'N/A'}`,
+            `BDT ${totalDutyAmount.toFixed(2) || "N/A"}`,
+            `BDT ${totalPaid.toFixed(2) || "N/A"}`,
+            `BDT ${totalDue.toFixed(2) || "N/A"}`,
+            `BDT ${totalLoan.toFixed(2) || "N/A"}`,
+            `BDT ${dueAfterLoan.toFixed(2) || "N/A"}`,
           ],
         ],
 
-        theme: 'grid',
+        theme: "grid",
 
         headStyles: {
           fillColor: [240, 240, 240],
           textColor: 0,
-          fontStyle: 'bold',
+          fontStyle: "bold",
           lineWidth: 0.1,
         },
 
@@ -560,12 +551,12 @@ const StatementOfAEmployee = () => {
         drawFooter(i, totalPages);
       }
 
-      doc.save(`statement_of_${user?.userName || 'user'}.pdf`);
+      doc.save(`statement_of_${user?.userName || "user"}.pdf`);
 
       setIsGeneratingPDF(false);
-      toast.success('PDF generated successfully!');
+      toast.success("PDF generated successfully!");
     } catch (err) {
-      toast.error('Failed to generate PDF.');
+      toast.error("Failed to generate PDF.");
       setIsGeneratingPDF(false);
     }
   };
@@ -576,37 +567,37 @@ const StatementOfAEmployee = () => {
         setIsDatePickerOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Options for filters
   const statusOptions = useMemo(
     () => [
-      { value: '', label: 'All Status' },
-      { value: 'pending', label: 'Pending' },
-      { value: 'approve', label: 'Approved' },
+      { value: "", label: "All Status" },
+      { value: "pending", label: "Pending" },
+      { value: "approve", label: "Approved" },
     ],
     [],
   );
 
   const paymentStatusOptions = useMemo(
     () => [
-      { value: '', label: 'All Payments' },
-      { value: 'paid', label: 'Paid' },
-      { value: 'unpaid', label: 'Unpaid' },
+      { value: "", label: "All Payments" },
+      { value: "paid", label: "Paid" },
+      { value: "unpaid", label: "Unpaid" },
     ],
     [],
   );
 
   const monthOptions = useMemo(
     () => [
-      { value: '', label: 'All Months' },
+      { value: "", label: "All Months" },
       ...Array.from({ length: 12 }, (_, i) => {
         const date = new Date(0, i);
         return {
-          value: format(date, 'MMMM'),
-          label: format(date, 'MMMM'),
+          value: format(date, "MMMM"),
+          label: format(date, "MMMM"),
         };
       }),
     ],
@@ -616,7 +607,7 @@ const StatementOfAEmployee = () => {
   const yearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return [
-      { value: '', label: 'All Years' },
+      { value: "", label: "All Years" },
       ...Array.from({ length: 5 }, (_, i) => ({
         value: (currentYear - i).toString(),
         label: (currentYear - i).toString(),
@@ -641,7 +632,7 @@ const StatementOfAEmployee = () => {
           Failed to load
         </h3>
         <p className="mt-2 text-sm text-red-600">
-          {error?.data?.message || 'Something went wrong'}
+          {error?.data?.message || "Something went wrong"}
         </p>
         <button
           onClick={refetch}
@@ -657,13 +648,13 @@ const StatementOfAEmployee = () => {
     setFilters({
       page: 1,
       limit: 10,
-      search: '',
-      startDate: '',
-      endDate: '',
-      month: '',
-      year: '',
-      status: '',
-      paymentStatus: '',
+      search: "",
+      startDate: "",
+      endDate: "",
+      month: "",
+      year: "",
+      status: "",
+      paymentStatus: "",
     });
   };
 
@@ -685,7 +676,7 @@ const StatementOfAEmployee = () => {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: 'easeOut',
+        ease: "easeOut",
       },
     },
   };
@@ -713,7 +704,7 @@ const StatementOfAEmployee = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -789,9 +780,9 @@ const StatementOfAEmployee = () => {
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border`}
               >
                 Total Amount (
-                {grandTotal.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {grandTotal.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
                 )
               </button>
@@ -820,9 +811,9 @@ const StatementOfAEmployee = () => {
                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all border`}
               >
                 Net Payable (
-                {payableTotal?.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                {payableTotal?.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 })}
                 )
               </button>
@@ -881,9 +872,9 @@ const StatementOfAEmployee = () => {
                               {(
                                 statement.yearlySummary?.totalApprovedAmount ||
                                 0
-                              ).toLocaleString('en-US', {
-                                style: 'currency',
-                                currency: 'BDT',
+                              ).toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "BDT",
                               })}
                             </td>
                           </tr>
@@ -893,7 +884,7 @@ const StatementOfAEmployee = () => {
                             {expandedYears?.has(statement.year) && (
                               <motion.tr
                                 initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
+                                animate={{ opacity: 1, height: "auto" }}
                                 exit={{ opacity: 0, height: 0 }}
                               >
                                 <td colSpan={6} className="p-0">
@@ -922,41 +913,41 @@ const StatementOfAEmployee = () => {
                                                   <ChevronDown className="w-4 h-4" />
                                                 )}
                                                 <span
-                                                  className={`px-3 py-1 rounded-full text-xs font-medium ${monthColors[month.month] || 'bg-gray-100 text-gray-800'}`}
+                                                  className={`px-3 py-1 rounded-full text-xs font-medium ${monthColors[month.month] || "bg-gray-100 text-gray-800"}`}
                                                 >
                                                   {month.month}
                                                 </span>
                                               </div>
                                               <div className="flex items-center gap-4 text-[12px]">
                                                 <span>
-                                                  Duties:{' '}
+                                                  Duties:{" "}
                                                   {month.monthSummary
                                                     ?.totalDuties || 0}
                                                 </span>
                                                 <span>
-                                                  Loans:{' '}
+                                                  Loans:{" "}
                                                   {month?.monthSummary
                                                     ?.totalLoanRequest || 0}
                                                 </span>
                                                 <span className="font-semibold">
-                                                  Total :{' '}
+                                                  Total :{" "}
                                                   {(
                                                     month.monthSummary
                                                       ?.totalApprovedAmount || 0
-                                                  ).toLocaleString('en-US', {
-                                                    style: 'currency',
-                                                    currency: 'BDT',
+                                                  ).toLocaleString("en-US", {
+                                                    style: "currency",
+                                                    currency: "BDT",
                                                   })}
                                                 </span>
                                                 <span className="font-semibold">
-                                                  Loan :{' '}
+                                                  Loan :{" "}
                                                   {(
                                                     month.monthSummary
                                                       ?.totalApprovedLoanAmount ||
                                                     0
-                                                  ).toLocaleString('en-US', {
-                                                    style: 'currency',
-                                                    currency: 'BDT',
+                                                  ).toLocaleString("en-US", {
+                                                    style: "currency",
+                                                    currency: "BDT",
                                                   })}
                                                 </span>
                                               </div>
@@ -974,7 +965,7 @@ const StatementOfAEmployee = () => {
                                                   }}
                                                   animate={{
                                                     opacity: 1,
-                                                    height: 'auto',
+                                                    height: "auto",
                                                   }}
                                                   exit={{
                                                     opacity: 0,
@@ -1044,7 +1035,7 @@ const StatementOfAEmployee = () => {
                                                                     {formatTimeAMPM(
                                                                       duty.dutyStartTime,
                                                                     )}
-                                                                    -{' '}
+                                                                    -{" "}
                                                                     {formatTimeAMPM(
                                                                       duty.dutyEndTime,
                                                                     )}
@@ -1059,12 +1050,12 @@ const StatementOfAEmployee = () => {
                                                                       duty.totalDutyFee ||
                                                                       0
                                                                     ).toLocaleString(
-                                                                      'en-US',
+                                                                      "en-US",
                                                                       {
                                                                         style:
-                                                                          'currency',
+                                                                          "currency",
                                                                         currency:
-                                                                          'BDT',
+                                                                          "BDT",
                                                                       },
                                                                     )}
                                                                   </td>
@@ -1072,9 +1063,9 @@ const StatementOfAEmployee = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded capitalize text-xs font-medium ${
                                                                         duty.status ===
-                                                                        'approve'
-                                                                          ? 'bg-green-100 text-green-800'
-                                                                          : 'bg-yellow-100 text-yellow-800'
+                                                                        "approve"
+                                                                          ? "bg-green-100 text-green-800"
+                                                                          : "bg-yellow-100 text-yellow-800"
                                                                       }`}
                                                                     >
                                                                       {
@@ -1086,13 +1077,13 @@ const StatementOfAEmployee = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded text-xs font-medium capitalize ${
                                                                         duty.paymentStatus ===
-                                                                        'paid'
-                                                                          ? 'bg-blue-100 text-blue-800'
-                                                                          : 'bg-red-100 text-red-800'
+                                                                        "paid"
+                                                                          ? "bg-blue-100 text-blue-800"
+                                                                          : "bg-red-100 text-red-800"
                                                                       }`}
                                                                     >
                                                                       {duty.paymentStatus ||
-                                                                        'unpaid'}
+                                                                        "unpaid"}
                                                                     </span>
                                                                   </td>
                                                                 </tr>
@@ -1160,9 +1151,9 @@ const StatementOfAEmployee = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                         loan.status ===
-                                                                        'approve'
-                                                                          ? 'bg-green-100 text-green-800'
-                                                                          : 'bg-yellow-100 text-yellow-800'
+                                                                        "approve"
+                                                                          ? "bg-green-100 text-green-800"
+                                                                          : "bg-yellow-100 text-yellow-800"
                                                                       }`}
                                                                     >
                                                                       {
@@ -1174,13 +1165,13 @@ const StatementOfAEmployee = () => {
                                                                     <span
                                                                       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                                                         loan.isPaid
-                                                                          ? 'bg-blue-100 text-blue-800'
-                                                                          : 'bg-red-100 text-red-800'
+                                                                          ? "bg-blue-100 text-blue-800"
+                                                                          : "bg-red-100 text-red-800"
                                                                       }`}
                                                                     >
                                                                       {loan.isPaid
-                                                                        ? 'Paid'
-                                                                        : 'Unpaid'}
+                                                                        ? "Paid"
+                                                                        : "Unpaid"}
                                                                     </span>
                                                                   </td>
                                                                 </tr>

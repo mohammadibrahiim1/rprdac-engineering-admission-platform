@@ -1,14 +1,14 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const batchApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createBatch: builder.mutation({
       query: (batchesData) => ({
-        url: 'batch/create',
-        method: 'POST',
+        url: "batch/create",
+        method: "POST",
         body: batchesData,
       }),
-      invalidatesTags: ['Batch'],
+      invalidatesTags: ["Batch"],
     }),
 
     // get batches
@@ -16,17 +16,17 @@ const batchApi = baseApi.injectEndpoints({
       query: (search) => ({
         url: `batch/all?search=${search}`,
       }),
-      providesTags: ['Batch'],
+      providesTags: ["Batch"],
     }),
 
     //delete batch
     deleteBatch: builder.mutation({
       query: ({ id, ids }) => ({
         url: id ? `batch/delete/${id}` : `batch/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: ids ? { ids } : undefined,
       }),
-      invalidatesTags: ['Batch'],
+      invalidatesTags: ["Batch"],
     }),
   }),
 });

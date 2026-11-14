@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useFieldArray, useForm, useWatch } from 'react-hook-form';
+import React, { useEffect } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   Globe,
   MapPin,
@@ -17,16 +17,16 @@ import {
   Phone,
   Settings,
   Type,
-} from 'lucide-react';
+} from "lucide-react";
 
-import toast from 'react-hot-toast';
+import { toast } from "sonner";
 import {
   useCreateShippingMutation,
   useDeleteShippingMutation,
   useGetShippingSettingsQuery,
   useUpdateShippingSettingsMutation,
-} from '../services/shippingApi';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
+} from "../services/shippingApi";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const Shipping = () => {
   // 1. RTK Query hooks
@@ -52,22 +52,22 @@ const Shipping = () => {
   } = useForm({
     defaultValues: {
       deliveryArea: {
-        inside: { name: 'Gazipur', charge: 70 },
-        outside: { name: 'Outside Gazipur', charge: 120 },
+        inside: { name: "Gazipur", charge: 70 },
+        outside: { name: "Outside Gazipur", charge: 120 },
       },
-      bookShipping: { fixedCharge: 60, coverage: 'All Bangladesh' },
-      pickupStore: { enabled: true, phone: '', location: '', instruction: '' },
-      courier: { name: 'Steadfast' },
+      bookShipping: { fixedCharge: 60, coverage: "All Bangladesh" },
+      pickupStore: { enabled: true, phone: "", location: "", instruction: "" },
+      courier: { name: "Steadfast" },
     },
   });
 
   const insideCustom = useFieldArray({
     control,
-    name: 'deliveryArea.inside.customFields',
+    name: "deliveryArea.inside.customFields",
   });
   const outsideCustom = useFieldArray({
     control,
-    name: 'deliveryArea.outside.customFields',
+    name: "deliveryArea.outside.customFields",
   });
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const Shipping = () => {
   }, [initialData, reset]);
 
   // Watch for "Self Pickup" toggle
-  const isPickupEnabled = useWatch({ control, name: 'pickupStore.enabled' });
+  const isPickupEnabled = useWatch({ control, name: "pickupStore.enabled" });
 
   // 3. Handle Create or Update
   // const onFormSubmit = async (formData) => {
@@ -102,7 +102,7 @@ const Shipping = () => {
         zone.customFields.forEach((field) => {
           if (field.key) {
             obj[field.key] =
-              !isNaN(field.value) && field.value !== ''
+              !isNaN(field.value) && field.value !== ""
                 ? Number(field.value)
                 : field.value;
           }
@@ -126,22 +126,22 @@ const Shipping = () => {
       } else {
         await createShipping(finalData).unwrap();
       }
-      toast.success('Saved successfully');
+      toast.success("Saved successfully");
       refetch();
     } catch (err) {
-      toast.error('Error saving data');
+      toast.error("Error saving data");
     }
   };
 
   // 4. Handle Delete/Reset
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to reset shipping settings?')) {
+    if (window.confirm("Are you sure you want to reset shipping settings?")) {
       try {
         await deleteShipping(initialData._id).unwrap();
-        toast.success('Settings reset to default');
+        toast.success("Settings reset to default");
         refetch();
       } catch (err) {
-        toast.error('Delete failed');
+        toast.error("Delete failed");
       }
     }
   };
@@ -155,7 +155,7 @@ const Shipping = () => {
         </span>
         <button
           type="button"
-          onClick={() => append({ key: '', value: '' })}
+          onClick={() => append({ key: "", value: "" })}
           className="text-gray-400 hover:text-green-600"
         >
           <Plus size={14} />
@@ -204,7 +204,7 @@ const Shipping = () => {
   return (
     <div className="min-h-screen bg-white text-[#37352f] flex flex-col selection:bg-blue-100">
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-[#edece9] px-4 py-3 flex items-center justify-between">
-        <BreadCrumbMenu />
+        <Breadcrumb />
       </header>
 
       <main className="flex flex-col flex-1 overflow-hidden lg:flex-row">
@@ -212,7 +212,7 @@ const Shipping = () => {
         <div className="w-full lg:w-[45%] border-r border-[#edece9] overflow-y-auto p-6 lg:p-10 space-y-10 custom-scrollbar">
           <div className="max-w-xl mx-auto">
             <h1 className="mb-2 text-3xl font-bold tracking-tight">
-              {initialData ? 'Edit Logistics' : 'Setup Shipping'}
+              {initialData ? "Edit Logistics" : "Setup Shipping"}
             </h1>
             <p className="mb-8 text-sm text-gray-500">
               Update your delivery rates and regional configuration. These
@@ -233,7 +233,7 @@ const Shipping = () => {
                         Inside Name
                       </span>
                       <input
-                        {...register('deliveryArea.inside.name')}
+                        {...register("deliveryArea.inside.name")}
                         className="w-full bg-white border border-[#edece9] rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-100 outline-none"
                       />
                     </div>
@@ -243,7 +243,7 @@ const Shipping = () => {
                       </span>
                       <input
                         type="number"
-                        {...register('deliveryArea.inside.charge')}
+                        {...register("deliveryArea.inside.charge")}
                         className="w-full bg-white border border-[#edece9] rounded-md px-3 py-2 text-sm font-mono outline-none"
                       />
                     </div>
@@ -260,7 +260,7 @@ const Shipping = () => {
                         Outside Name
                       </span>
                       <input
-                        {...register('deliveryArea.outside.name')}
+                        {...register("deliveryArea.outside.name")}
                         className="w-full bg-white border border-[#edece9] rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-100 outline-none"
                       />
                     </div>
@@ -270,7 +270,7 @@ const Shipping = () => {
                       </span>
                       <input
                         type="number"
-                        {...register('deliveryArea.outside.charge')}
+                        {...register("deliveryArea.outside.charge")}
                         className="w-full bg-white border border-[#edece9] rounded-md px-3 py-2 text-sm font-mono outline-none"
                       />
                     </div>
@@ -295,12 +295,12 @@ const Shipping = () => {
                     <input
                       type="number"
                       placeholder="Charge"
-                      {...register('bookShipping.fixedCharge')}
+                      {...register("bookShipping.fixedCharge")}
                       className="w-full pb-1 text-sm border-b border-transparent outline-none focus:border-blue-400"
                     />
                     <input
                       placeholder="Coverage"
-                      {...register('bookShipping.coverage')}
+                      {...register("bookShipping.coverage")}
                       className="w-full text-xs text-gray-400 border-b border-transparent outline-none focus:border-blue-400"
                     />
                   </div>
@@ -313,7 +313,7 @@ const Shipping = () => {
                   <div className="p-4 border border-[#edece9] rounded-xl bg-white shadow-sm">
                     <input
                       placeholder="Partner Name"
-                      {...register('courier.name')}
+                      {...register("courier.name")}
                       className="w-full pb-1 text-sm font-medium border-b border-transparent outline-none focus:border-blue-400"
                     />
                   </div>
@@ -336,14 +336,14 @@ const Shipping = () => {
                         },
                       })
                     }
-                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isPickupEnabled ? 'bg-blue-500' : 'bg-gray-300'}`}
+                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors ${isPickupEnabled ? "bg-blue-500" : "bg-gray-300"}`}
                   >
                     <div
-                      className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${isPickupEnabled ? 'translate-x-5' : ''}`}
+                      className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${isPickupEnabled ? "translate-x-5" : ""}`}
                     />
                     <input
                       type="checkbox"
-                      {...register('pickupStore.enabled')}
+                      {...register("pickupStore.enabled")}
                       className="hidden"
                     />
                   </div>
@@ -355,7 +355,7 @@ const Shipping = () => {
                       <MapPin size={14} className="text-gray-400" />
                       <input
                         placeholder="Store Address"
-                        {...register('pickupStore.location')}
+                        {...register("pickupStore.location")}
                         className="w-full py-1 text-sm bg-transparent border-b border-gray-200 outline-none"
                       />
                     </div>
@@ -363,7 +363,7 @@ const Shipping = () => {
                       <Phone size={14} className="text-gray-400" />
                       <input
                         placeholder="Contact Phone"
-                        {...register('pickupStore.phone')}
+                        {...register("pickupStore.phone")}
                         className="w-full py-1 text-sm bg-transparent border-b border-gray-200 outline-none"
                       />
                     </div>
@@ -371,7 +371,7 @@ const Shipping = () => {
                       <Phone size={14} className="text-gray-400" />
                       <input
                         placeholder="instruction"
-                        {...register('pickupStore.instruction')}
+                        {...register("pickupStore.instruction")}
                         className="w-full py-1 text-sm bg-transparent border-b border-gray-200 outline-none"
                       />
                     </div>
@@ -389,7 +389,7 @@ const Shipping = () => {
                 ) : (
                   <Save size={16} />
                 )}
-                {initialData ? 'Update Changes' : 'Create Now'}
+                {initialData ? "Update Changes" : "Create Now"}
               </button>
             </form>
           </div>
@@ -434,45 +434,45 @@ const Shipping = () => {
                   <tr className="border-b border-[#edece9] hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 border-r border-[#edece9] font-medium flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-400 rounded-full" />
-                      {initialData?.deliveryArea?.inside?.name || 'Inside'}
+                      {initialData?.deliveryArea?.inside?.name || "Inside"}
                     </td>
                     <td className="px-4 py-3 border-r border-[#edece9] text-gray-400 italic">
                       Delivery Charge
                     </td>
                     <td className="px-4 py-3 font-mono font-bold text-blue-600">
-                      {initialData?.deliveryArea?.inside?.charge ?? '--'} BDT
+                      {initialData?.deliveryArea?.inside?.charge ?? "--"} BDT
                     </td>
                   </tr>
                   {/* Outside */}
                   <tr className="border-b border-[#edece9] hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 border-r border-[#edece9] font-medium flex items-center gap-2">
                       <div className="w-2 h-2 bg-orange-400 rounded-full" />
-                      {initialData?.deliveryArea?.outside?.name || 'Outside'}
+                      {initialData?.deliveryArea?.outside?.name || "Outside"}
                     </td>
                     <td className="px-4 py-3 border-r border-[#edece9] text-gray-400 italic">
                       Delivery Charge
                     </td>
                     <td className="px-4 py-3 font-mono font-bold text-orange-600">
-                      {initialData?.deliveryArea?.outside?.charge ?? '--'} BDT
+                      {initialData?.deliveryArea?.outside?.charge ?? "--"} BDT
                     </td>
                   </tr>
                   {/* Books */}
                   <tr className="border-b border-[#edece9] hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 border-r border-[#edece9] font-medium flex items-center gap-2">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full" />{' '}
+                      <div className="w-2 h-2 bg-purple-400 rounded-full" />{" "}
                       Book Rate
                     </td>
                     <td className="px-4 py-3 border-r border-[#edece9] text-gray-400 italic">
                       Fixed Charge
                     </td>
                     <td className="px-4 py-3 font-mono">
-                      {initialData?.bookShipping?.fixedCharge ?? '--'} BDT
+                      {initialData?.bookShipping?.fixedCharge ?? "--"} BDT
                     </td>
                   </tr>
                   {/* Pickup */}
                   <tr className="border-b border-[#edece9] hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 border-r border-[#edece9] font-medium flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full" />{' '}
+                      <div className="w-2 h-2 bg-green-400 rounded-full" />{" "}
                       Pickup Status
                     </td>
                     <td className="px-4 py-3 border-r border-[#edece9] text-gray-400 italic">
@@ -480,11 +480,11 @@ const Shipping = () => {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${initialData?.pickupStore?.enabled ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${initialData?.pickupStore?.enabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
                       >
                         {initialData?.pickupStore?.enabled
-                          ? 'Active'
-                          : 'Disabled'}
+                          ? "Active"
+                          : "Disabled"}
                       </span>
                     </td>
                   </tr>

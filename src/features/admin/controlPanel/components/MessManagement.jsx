@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Search, Building, Edit, Loader } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Trash2, Plus, Search, Building, Edit, Loader } from "lucide-react";
+
 import {
   useGetMessesQuery,
   usePostMessMutation,
-} from '../../../../../redux/features/mess/messApi';
+} from "@/redux/features/mess/messApi";
 
 const MessManagement = () => {
   // State management
-  const [activeTab, setActiveTab] = useState('view');
-  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState("view");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "" });
   const limit = 10;
 
   // RTK Query hooks
@@ -38,11 +39,11 @@ const MessManagement = () => {
 
   // Form state
   const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
-    totalSeats: '',
-    availableSeats: '',
-    rooms: [{ roomNumber: '', seats: '' }],
+    name: "",
+    slug: "",
+    totalSeats: "",
+    availableSeats: "",
+    rooms: [{ roomNumber: "", seats: "" }],
   });
 
   // Debounce search
@@ -57,13 +58,13 @@ const MessManagement = () => {
   // Handle messages
   useEffect(() => {
     if (fetchError) {
-      showMessage('error', 'Failed to fetch messes');
+      showMessage("error", "Failed to fetch messes");
     }
   }, [fetchError]);
 
   const showMessage = (type, text, duration = 5000) => {
     setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), duration);
+    setTimeout(() => setMessage({ type: "", text: "" }), duration);
   };
 
   // Form handlers
@@ -72,7 +73,7 @@ const MessManagement = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === 'name' && { slug: generateSlug(value) }),
+      ...(name === "name" && { slug: generateSlug(value) }),
     }));
   };
 
@@ -80,10 +81,10 @@ const MessManagement = () => {
     return name
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
   const handleRoomChange = (index, e) => {
@@ -96,7 +97,7 @@ const MessManagement = () => {
   const addRoomField = () => {
     setFormData((prev) => ({
       ...prev,
-      rooms: [...prev.rooms, { roomNumber: '', seats: '' }],
+      rooms: [...prev.rooms, { roomNumber: "", seats: "" }],
     }));
   };
 
@@ -111,13 +112,13 @@ const MessManagement = () => {
 
   const clearForm = () => {
     setFormData({
-      name: '',
-      slug: '',
-      totalSeats: '',
-      availableSeats: '',
-      rooms: [{ roomNumber: '', seats: '' }],
+      name: "",
+      slug: "",
+      totalSeats: "",
+      availableSeats: "",
+      rooms: [{ roomNumber: "", seats: "" }],
     });
-    showMessage('info', 'Form cleared');
+    showMessage("info", "Form cleared");
   };
 
   // Form submission
@@ -126,7 +127,7 @@ const MessManagement = () => {
 
     // Validate form
     if (!formData.name.trim() || !formData.slug.trim()) {
-      showMessage('error', 'Please fill in all required fields');
+      showMessage("error", "Please fill in all required fields");
       return;
     }
 
@@ -144,12 +145,12 @@ const MessManagement = () => {
       };
 
       await postMess(messData).unwrap();
-      showMessage('success', 'Mess created successfully!');
+      showMessage("success", "Mess created successfully!");
       clearForm();
       refetch();
-      setActiveTab('view');
+      setActiveTab("view");
     } catch (error) {
-      showMessage('error', error?.data?.message || 'Failed to create mess');
+      showMessage("error", error?.data?.message || "Failed to create mess");
     }
   };
 
@@ -180,14 +181,14 @@ const MessManagement = () => {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-      if (current > 3) pages.push('...');
+      if (current > 3) pages.push("...");
 
       const start = Math.max(2, current - 1);
       const end = Math.min(totalPages - 1, current + 1);
 
       for (let i = start; i <= end; i++) pages.push(i);
 
-      if (current < totalPages - 2) pages.push('...');
+      if (current < totalPages - 2) pages.push("...");
       if (totalPages > 1) pages.push(totalPages);
     }
 
@@ -206,16 +207,16 @@ const MessManagement = () => {
     <div className="py-16 text-center">
       <Building className="w-16 h-16 mx-auto mb-4 text-gray-300" />
       <h3 className="mb-2 text-lg font-semibold text-gray-900">
-        {debouncedSearch ? 'No messes found' : 'No messes available'}
+        {debouncedSearch ? "No messes found" : "No messes available"}
       </h3>
       <p className="max-w-sm mx-auto text-gray-500">
         {debouncedSearch
           ? "Try adjusting your search terms to find what you're looking for."
-          : 'Get started by creating your first mess facility.'}
+          : "Get started by creating your first mess facility."}
       </p>
       {!debouncedSearch && (
         <button
-          onClick={() => setActiveTab('create')}
+          onClick={() => setActiveTab("create")}
           className="px-6 py-2 mt-4 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           Create Mess
@@ -242,26 +243,26 @@ const MessManagement = () => {
         {message.text && (
           <div
             className={`mb-6 rounded-lg p-4 border ${
-              message.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : message.type === 'error'
-                  ? 'bg-red-50 border-red-200 text-red-800'
-                  : 'bg-blue-50 border-blue-200 text-blue-800'
+              message.type === "success"
+                ? "bg-green-50 border-green-200 text-green-800"
+                : message.type === "error"
+                  ? "bg-red-50 border-red-200 text-red-800"
+                  : "bg-blue-50 border-blue-200 text-blue-800"
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <span className="flex-shrink-0 mr-3">
-                  {message.type === 'success'
-                    ? '✅'
-                    : message.type === 'error'
-                      ? '❌'
-                      : 'ℹ️'}
+                  {message.type === "success"
+                    ? "✅"
+                    : message.type === "error"
+                      ? "❌"
+                      : "ℹ️"}
                 </span>
                 <span className="font-medium">{message.text}</span>
               </div>
               <button
-                onClick={() => setMessage({ type: '', text: '' })}
+                onClick={() => setMessage({ type: "", text: "" })}
                 className="text-gray-400 hover:text-gray-600"
               >
                 ×
@@ -276,11 +277,11 @@ const MessManagement = () => {
           <div className="border-b border-gray-200">
             <nav className="flex -mb-px">
               <button
-                onClick={() => setActiveTab('create')}
+                onClick={() => setActiveTab("create")}
                 className={`flex-1 py-5 px-6 text-center font-semibold text-sm border-b-2 transition-colors ${
-                  activeTab === 'create'
-                    ? 'border-blue-600 text-blue-700 bg-blue-25'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "create"
+                    ? "border-blue-600 text-blue-700 bg-blue-25"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -289,11 +290,11 @@ const MessManagement = () => {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab('view')}
+                onClick={() => setActiveTab("view")}
                 className={`flex-1 py-5 px-6 text-center font-semibold text-sm border-b-2 transition-colors ${
-                  activeTab === 'view'
-                    ? 'border-blue-600 text-blue-700 bg-blue-25'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  activeTab === "view"
+                    ? "border-blue-600 text-blue-700 bg-blue-25"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -307,7 +308,7 @@ const MessManagement = () => {
           {/* Tab Content */}
           <div className="p-6">
             {/* Create Mess Tab */}
-            {activeTab === 'create' && (
+            {activeTab === "create" && (
               <div className="max-w-4xl mx-auto">
                 <div className="mb-6">
                   <h2 className="text-xl font-bold text-gray-900">
@@ -433,7 +434,7 @@ const MessManagement = () => {
                           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                             <div>
                               <label className="block mb-2 text-sm font-medium text-gray-700">
-                                Room Number{' '}
+                                Room Number{" "}
                                 <span className="text-red-500">*</span>
                               </label>
                               <input
@@ -490,7 +491,7 @@ const MessManagement = () => {
                           Creating...
                         </span>
                       ) : (
-                        'Create Mess'
+                        "Create Mess"
                       )}
                     </button>
                   </div>
@@ -499,7 +500,7 @@ const MessManagement = () => {
             )}
 
             {/* View Messes Tab */}
-            {activeTab === 'view' && (
+            {activeTab === "view" && (
               <div className="space-y-6">
                 {/* Search and Controls */}
                 <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
@@ -588,8 +589,8 @@ const MessManagement = () => {
                                   <span
                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                       mess.availableSeats > 0
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800'
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-red-100 text-red-800"
                                     }`}
                                   >
                                     {mess.availableSeats}
@@ -627,18 +628,18 @@ const MessManagement = () => {
                 {pagination.totalPages > 1 && (
                   <div className="flex flex-col items-center justify-between gap-4 pt-6 border-t border-gray-200 sm:flex-row">
                     <div className="text-sm text-gray-700">
-                      Showing{' '}
+                      Showing{" "}
                       <span className="font-semibold">
                         {(page - 1) * limit + 1}
-                      </span>{' '}
-                      to{' '}
+                      </span>{" "}
+                      to{" "}
                       <span className="font-semibold">
                         {Math.min(page * limit, pagination.totalMesses)}
-                      </span>{' '}
-                      of{' '}
+                      </span>{" "}
+                      of{" "}
                       <span className="font-semibold">
                         {pagination.totalMesses}
-                      </span>{' '}
+                      </span>{" "}
                       results
                     </div>
 
@@ -656,15 +657,15 @@ const MessManagement = () => {
                           <button
                             key={index}
                             onClick={() =>
-                              typeof pageNum === 'number' && goToPage(pageNum)
+                              typeof pageNum === "number" && goToPage(pageNum)
                             }
-                            disabled={pageNum === '...'}
+                            disabled={pageNum === "..."}
                             className={`px-3.5 py-2 border text-sm font-semibold rounded-lg min-w-[44px] transition-colors ${
                               pageNum === page
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                : pageNum === '...'
-                                  ? 'border-transparent text-gray-500 cursor-default'
-                                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                : pageNum === "..."
+                                  ? "border-transparent text-gray-500 cursor-default"
+                                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
                             }`}
                           >
                             {pageNum}

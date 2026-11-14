@@ -40,6 +40,18 @@ export const TAG_TYPES = [
   "Institute",
   "AcademicInfo",
   "StudentInvoices",
+  "Mess",
+  "Product",
+  "Employee",
+  "Duty",
+  "EmployeeDuties",
+  "EmployeeAttendances",
+  "Announcement",
+  "Invoice",
+  "Routine",
+  "Loans",
+  "Shipping",
+  "AdmissionStaff",
 ] as const;
 
 // Base query for opaque session authentication

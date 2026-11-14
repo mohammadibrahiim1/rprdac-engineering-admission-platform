@@ -1,7 +1,6 @@
-// @ts-ignore
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Webcam from 'react-webcam';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Webcam from "react-webcam";
 import {
   Camera,
   Upload,
@@ -19,9 +18,9 @@ import {
   ArrowRight,
   Ban,
   CheckCircle2,
-} from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { useGreenCardForm } from '../../hooks/useGreenCardForm';
+} from "lucide-react";
+import { toast } from "sonner";
+import { useGreenCardForm } from "../../hooks/useGreenCardForm";
 
 // @ts-ignore
 const CreateGreenCard = (props) => {
@@ -61,16 +60,16 @@ const CreateGreenCard = (props) => {
 
   // Conditions for Payment Fields
   const showAccountNumber = [
-    'bkash',
-    'nagad',
-    'rocket',
-    'bank transfer',
+    "bkash",
+    "nagad",
+    "rocket",
+    "bank transfer",
   ].includes(paymentMethod);
-  const showTransactionId = ['bkash', 'nagad', 'rocket'].includes(
+  const showTransactionId = ["bkash", "nagad", "rocket"].includes(
     paymentMethod,
   );
 
-  if (view !== 'create') return null;
+  if (view !== "create") return null;
 
   return (
     <motion.div
@@ -107,14 +106,14 @@ const CreateGreenCard = (props) => {
                   <button
                     type="button"
                     onClick={() => setUseCamera(false)}
-                    className={`px-4 py-2 text-xs font-semibold rounded-lg border transition-all ${!useCamera ? 'bg-slate-900 text-white shadow-md border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                    className={`px-4 py-2 text-xs font-semibold rounded-lg border transition-all ${!useCamera ? "bg-slate-900 text-white shadow-md border-slate-900" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
                   >
                     <Upload size={14} className="inline mr-1.5" /> Upload
                   </button>
                   <button
                     type="button"
                     onClick={() => setUseCamera(true)}
-                    className={`px-4 py-2 text-xs font-semibold rounded-lg border transition-all ${useCamera ? 'bg-slate-900 text-white shadow-md border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                    className={`px-4 py-2 text-xs font-semibold rounded-lg border transition-all ${useCamera ? "bg-slate-900 text-white shadow-md border-slate-900" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
                   >
                     <Camera size={14} className="inline mr-1.5" /> Camera
                   </button>
@@ -131,8 +130,8 @@ const CreateGreenCard = (props) => {
                         // @ts-ignore
                         if (file && file.size <= 100 * 1024) setPhoto(file);
                         else {
-                          toast.error('Max 100KB allowed');
-                          e.target.value = '';
+                          toast.error("Max 100KB allowed");
+                          e.target.value = "";
                         }
                       }}
                     />
@@ -155,8 +154,8 @@ const CreateGreenCard = (props) => {
                             const blob = await res.blob();
                             // @ts-ignore
                             setPhoto(
-                              new File([blob], 'webcam.jpg', {
-                                type: 'image/jpeg',
+                              new File([blob], "webcam.jpg", {
+                                type: "image/jpeg",
                               }),
                             );
                             setUseCamera(false);
@@ -197,7 +196,7 @@ const CreateGreenCard = (props) => {
                 <input
                   {...register(
                     // @ts-ignore
-                    'studentName',
+                    "studentName",
                     { required: true },
                   )}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -212,7 +211,7 @@ const CreateGreenCard = (props) => {
                 <input
                   {...register(
                     // @ts-ignore
-                    'studentId',
+                    "studentId",
                     { required: true },
                   )}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -231,10 +230,10 @@ const CreateGreenCard = (props) => {
                 >
                   <span
                     className={
-                      selectedIns ? 'text-slate-900' : 'text-slate-400'
+                      selectedIns ? "text-slate-900" : "text-slate-400"
                     }
                   >
-                    {selectedIns || 'Select institute...'}
+                    {selectedIns || "Select institute..."}
                   </span>
                   <span className="text-xs text-slate-400">▼</span>
                 </div>
@@ -264,7 +263,7 @@ const CreateGreenCard = (props) => {
                             }}
                             className="px-4 py-2.5 text-sm hover:bg-slate-50 cursor-pointer flex justify-between items-center"
                           >
-                            {inst.name}{' '}
+                            {inst.name}{" "}
                             {selectedIns === inst.name && (
                               <CheckCircle2
                                 size={14}
@@ -286,7 +285,7 @@ const CreateGreenCard = (props) => {
                 <select
                   {...register(
                     // @ts-ignore
-                    'department',
+                    "department",
                     { required: true },
                   )}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -310,7 +309,7 @@ const CreateGreenCard = (props) => {
                 <input
                   {...register(
                     // @ts-ignore
-                    'studentPhone',
+                    "studentPhone",
                     { required: true, pattern: /^01[3-9]\d{8}$/ },
                   )}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -325,7 +324,7 @@ const CreateGreenCard = (props) => {
                 <select
                   {...register(
                     // @ts-ignore
-                    'academicYear',
+                    "academicYear",
                     { required: true },
                   )}
                   defaultValue={currentSession}
@@ -349,7 +348,7 @@ const CreateGreenCard = (props) => {
                 <select
                   {...register(
                     // @ts-ignore
-                    'examType',
+                    "examType",
                     { required: true },
                   )}
                   className="w-full p-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -376,7 +375,7 @@ const CreateGreenCard = (props) => {
                     </label>
                     <input
                       type="number"
-                      {...register('amount', { valueAsNumber: true, min: 0 })}
+                      {...register("amount", { valueAsNumber: true, min: 0 })}
                       className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                     />
                   </div>
@@ -385,7 +384,7 @@ const CreateGreenCard = (props) => {
                       <Wallet size={14} /> Method
                     </label>
                     <select
-                      {...register('payment.method')}
+                      {...register("payment.method")}
                       className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-slate-700"
                     >
                       <option value="cash">Cash</option>
@@ -402,7 +401,7 @@ const CreateGreenCard = (props) => {
                   {(showAccountNumber || showTransactionId) && (
                     <motion.div
                       initial={{ opacity: 0, height: 0, y: -10 }}
-                      animate={{ opacity: 1, height: 'auto', y: 0 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
                       exit={{ opacity: 0, height: 0, y: -10 }}
                       className="grid grid-cols-1 gap-4 pt-2 overflow-hidden"
                     >
@@ -412,7 +411,7 @@ const CreateGreenCard = (props) => {
                             Account Number
                           </label>
                           <input
-                            {...register('payment.accountNumber', {
+                            {...register("payment.accountNumber", {
                               required: showAccountNumber,
                             })}
                             className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
@@ -426,7 +425,7 @@ const CreateGreenCard = (props) => {
                             Transaction ID
                           </label>
                           <input
-                            {...register('payment.transactionId', {
+                            {...register("payment.transactionId", {
                               required: showTransactionId,
                             })}
                             className="w-full p-2.5 text-sm bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 uppercase"
@@ -456,7 +455,7 @@ const CreateGreenCard = (props) => {
         <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
           <button
             type="button"
-            onClick={() => setView('list')}
+            onClick={() => setView("list")}
             className="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2"
           >
             <Ban size={16} /> Cancel

@@ -1,4 +1,4 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,7 +11,7 @@ const adminApi = baseApi.injectEndpoints({
     cancelLoan: builder.mutation({
       query: ({ loanRequestId }) => ({
         url: `loan/cancel/${loanRequestId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
     }),
 
@@ -23,14 +23,14 @@ const adminApi = baseApi.injectEndpoints({
     // get all pending loan request
     getAllLoanRequests: builder.query({
       query: (status) => ({
-        url: `/admin/loans/all?status=${status || ''}`,
+        url: `/admin/loans/all?status=${status || ""}`,
       }),
     }),
 
     // get all user invoices
     getUserInvoices: builder.query({
       query: () => ({
-        url: '/admin/invoices/all',
+        url: "/admin/invoices/all",
       }),
     }),
 
@@ -49,16 +49,16 @@ const adminApi = baseApi.injectEndpoints({
     deleteSolutionCopy: builder.mutation({
       query: (id) => ({
         url: `/solutionCopy/delete/${id}`, // Ensure the endpoint matches your backend route
-        method: 'DELETE', // Correcting any space issues in the method name
+        method: "DELETE", // Correcting any space issues in the method name
       }),
-      invalidatesTags: ['Solution'],
+      invalidatesTags: ["Solution"],
     }),
 
     // Define the loan request endpoint(active for teacher)
     userRequestForLoan: builder.mutation({
       query: (loanData) => ({
-        url: '/loan/request-loan', // Replace with your loan request endpoint
-        method: 'POST',
+        url: "/loan/request-loan", // Replace with your loan request endpoint
+        method: "POST",
         body: loanData,
       }),
     }),

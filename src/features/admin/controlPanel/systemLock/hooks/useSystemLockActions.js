@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   useCreateSystemLockMutation,
   useUpdateSystemLockMutation,
   useDeleteSystemLockMutation,
   useGetAllSystemLocksQuery,
-} from '../api/systemLockApi';
-import { buildLockPayload } from '../utils/buildLockPayload';
-import { MESSAGES } from '../constants/messages';
-import toast from 'react-hot-toast';
+} from "../api/systemLockApi";
+import { buildLockPayload } from "../utils/buildLockPayload";
+import { MESSAGES } from "../constants/messages";
+import { toast } from "sonner";
 
 export const useSystemLockActions = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedLock, setSelectedLock] = useState(null);
-  const [actionError, setActionError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [actionError, setActionError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [createLock, { isLoading: isCreating }] = useCreateSystemLockMutation();
   const [updateLock, { isLoading: isUpdating }] = useUpdateSystemLockMutation();
@@ -37,31 +37,31 @@ export const useSystemLockActions = () => {
 
   const handleOpenCreateModal = () => {
     setSelectedLock(null);
-    setActionError('');
+    setActionError("");
     setModalOpen(true);
   };
 
   const handleOpenEditModal = (lock) => {
     setSelectedLock(lock);
-    setActionError('');
+    setActionError("");
     setModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedLock(null);
-    setActionError('');
+    setActionError("");
   };
 
   // create lock system
   const handleCreate = async (formData, onSuccess) => {
-    setActionError('');
+    setActionError("");
     try {
       const payload = buildLockPayload(formData, null); // Selected Lock null
 
       const res = await createLock(payload).unwrap();
-      toast.success(res?.message || 'Successfully saved lock system.');
-      if (typeof onSuccess === 'function') onSuccess();
+      toast.success(res?.message || "Successfully saved lock system.");
+      if (typeof onSuccess === "function") onSuccess();
     } catch (err) {
       const errorMessage =
         err?.data?.message || err?.message || MESSAGES.OPERATION_FAILED;
@@ -72,14 +72,14 @@ export const useSystemLockActions = () => {
 
   // update lock system
   const handleUpdate = async (formData, selectedLock, onSuccess) => {
-    setActionError('');
+    setActionError("");
     try {
       const payload = buildLockPayload(formData, selectedLock);
 
       const res = await updateLock(payload).unwrap();
 
-      toast.success(res?.message || 'Successfully updated lock system.');
-      if (typeof onSuccess === 'function') onSuccess();
+      toast.success(res?.message || "Successfully updated lock system.");
+      if (typeof onSuccess === "function") onSuccess();
     } catch (err) {
       const errorMessage =
         err?.data?.message || err?.message || MESSAGES.OPERATION_FAILED;
@@ -92,10 +92,10 @@ export const useSystemLockActions = () => {
     if (window.confirm(MESSAGES.DELETE_CONFIRMATION)) {
       try {
         const res = await deleteLock({
-          actionType: 'DELETE_FULL_DOCUMENT',
+          actionType: "DELETE_FULL_DOCUMENT",
           targetId: id,
         }).unwrap();
-        toast.success(res?.message || 'Lock deleted successfully!');
+        toast.success(res?.message || "Lock deleted successfully!");
         if (onSuccess) onSuccess();
       } catch (err) {
         toast.error(err?.data?.message || MESSAGES.DELETE_FAILED);

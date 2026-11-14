@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Trash2,
@@ -13,18 +13,18 @@ import {
   LayoutDashboard,
   Loader2,
   AlertCircle,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+} from "lucide-react";
+import { toast } from "sonner";
 import {
   useAddAcademicInfoMutation,
   useDeleteAcademicInfoMutation,
   useGetAcademicInfosQuery,
   useUpdateAcademicInfoMutation,
-} from '../../../../../redux/features/academic/academicApi';
+} from "../../../../redux/features/academic/academicApi";
 
 // --- Main Component ---
 const AcademicInfo = () => {
-  const [activeTab, setActiveTab] = useState('manage'); // 'add' or 'manage'
+  const [activeTab, setActiveTab] = useState("manage"); // 'add' or 'manage'
   const [addAcademicInfo, { isLoading: isAdding }] =
     useAddAcademicInfoMutation();
 
@@ -37,23 +37,23 @@ const AcademicInfo = () => {
   });
 
   const [inputs, setInputs] = useState({
-    sscGroup: '',
-    sscBoard: '',
-    sscYear: '',
-    diplomaGroup: '',
-    diplomaYear: '',
+    sscGroup: "",
+    sscBoard: "",
+    sscYear: "",
+    diplomaGroup: "",
+    diplomaYear: "",
   });
 
   // Simplified Handle Add for cleaner code
   const handleAddItem = (section, field, value, inputKey) => {
     if (!value) return;
-    const isYear = field === 'passingYears';
+    const isYear = field === "passingYears";
     const exists = formData[section][field].some((item) =>
       isYear ? item.year === value.year : item.name === value.name,
     );
 
     if (exists) {
-      toast.error(`${isYear ? 'Year' : 'Item'} already added.`);
+      toast.error(`${isYear ? "Year" : "Item"} already added.`);
       return;
     }
 
@@ -64,7 +64,7 @@ const AcademicInfo = () => {
         [field]: [...prev[section][field], { id: Date.now(), ...value }],
       },
     }));
-    setInputs((prev) => ({ ...prev, [inputKey]: '' }));
+    setInputs((prev) => ({ ...prev, [inputKey]: "" }));
   };
 
   const handleRemoveItem = (section, field, id) => {
@@ -87,10 +87,10 @@ const AcademicInfo = () => {
           sscInformation: { groups: [], boards: [], passingYears: [] },
           diplomaInformation: { groups: [], passingYears: [] },
         });
-        setActiveTab('manage');
+        setActiveTab("manage");
       }
     } catch (err) {
-      toast.error(err?.data?.message || 'Submission failed');
+      toast.error(err?.data?.message || "Submission failed");
     }
   };
 
@@ -109,14 +109,14 @@ const AcademicInfo = () => {
 
         <div className="flex p-1 rounded-lg bg-slate-100">
           <TabButton
-            active={activeTab === 'manage'}
-            onClick={() => setActiveTab('manage')}
+            active={activeTab === "manage"}
+            onClick={() => setActiveTab("manage")}
             icon={<LayoutDashboard size={16} />}
             label="View Data"
           />
           <TabButton
-            active={activeTab === 'add'}
-            onClick={() => setActiveTab('add')}
+            active={activeTab === "add"}
+            onClick={() => setActiveTab("add")}
             icon={<Plus size={16} />}
             label="Add New"
           />
@@ -125,7 +125,7 @@ const AcademicInfo = () => {
 
       <main>
         <AnimatePresence mode="wait">
-          {activeTab === 'add' ? (
+          {activeTab === "add" ? (
             <motion.div
               key="add-form"
               initial={{ opacity: 0, y: 10 }}
@@ -146,15 +146,15 @@ const AcademicInfo = () => {
                         onChange={(v) => setInputs({ ...inputs, sscGroup: v })}
                         onAdd={() =>
                           handleAddItem(
-                            'sscInformation',
-                            'groups',
+                            "sscInformation",
+                            "groups",
                             { name: inputs.sscGroup.trim() },
-                            'sscGroup',
+                            "sscGroup",
                           )
                         }
                         list={formData.sscInformation.groups}
                         onRemove={(id) =>
-                          handleRemoveItem('sscInformation', 'groups', id)
+                          handleRemoveItem("sscInformation", "groups", id)
                         }
                       />
                       <TagInput
@@ -163,15 +163,15 @@ const AcademicInfo = () => {
                         onChange={(v) => setInputs({ ...inputs, sscBoard: v })}
                         onAdd={() =>
                           handleAddItem(
-                            'sscInformation',
-                            'boards',
+                            "sscInformation",
+                            "boards",
                             { name: inputs.sscBoard.trim() },
-                            'sscBoard',
+                            "sscBoard",
                           )
                         }
                         list={formData.sscInformation.boards}
                         onRemove={(id) =>
-                          handleRemoveItem('sscInformation', 'boards', id)
+                          handleRemoveItem("sscInformation", "boards", id)
                         }
                       />
                       <TagInput
@@ -181,16 +181,16 @@ const AcademicInfo = () => {
                         onChange={(v) => setInputs({ ...inputs, sscYear: v })}
                         onAdd={() =>
                           handleAddItem(
-                            'sscInformation',
-                            'passingYears',
+                            "sscInformation",
+                            "passingYears",
                             { year: Number(inputs.sscYear) },
-                            'sscYear',
+                            "sscYear",
                           )
                         }
                         list={formData.sscInformation.passingYears}
                         displayKey="year"
                         onRemove={(id) =>
-                          handleRemoveItem('sscInformation', 'passingYears', id)
+                          handleRemoveItem("sscInformation", "passingYears", id)
                         }
                       />
                     </div>
@@ -209,15 +209,15 @@ const AcademicInfo = () => {
                         }
                         onAdd={() =>
                           handleAddItem(
-                            'diplomaInformation',
-                            'groups',
+                            "diplomaInformation",
+                            "groups",
                             { name: inputs.diplomaGroup.trim() },
-                            'diplomaGroup',
+                            "diplomaGroup",
                           )
                         }
                         list={formData.diplomaInformation.groups}
                         onRemove={(id) =>
-                          handleRemoveItem('diplomaInformation', 'groups', id)
+                          handleRemoveItem("diplomaInformation", "groups", id)
                         }
                       />
                       <TagInput
@@ -229,18 +229,18 @@ const AcademicInfo = () => {
                         }
                         onAdd={() =>
                           handleAddItem(
-                            'diplomaInformation',
-                            'passingYears',
+                            "diplomaInformation",
+                            "passingYears",
                             { year: Number(inputs.diplomaYear) },
-                            'diplomaYear',
+                            "diplomaYear",
                           )
                         }
                         list={formData.diplomaInformation.passingYears}
                         displayKey="year"
                         onRemove={(id) =>
                           handleRemoveItem(
-                            'diplomaInformation',
-                            'passingYears',
+                            "diplomaInformation",
+                            "passingYears",
                             id,
                           )
                         }
@@ -314,8 +314,8 @@ const TabButton = ({ active, onClick, icon, label }) => (
     onClick={onClick}
     className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
       active
-        ? 'bg-white text-slate-900 shadow-sm'
-        : 'text-slate-500 hover:text-slate-700'
+        ? "bg-white text-slate-900 shadow-sm"
+        : "text-slate-500 hover:text-slate-700"
     }`}
   >
     {icon}
@@ -330,8 +330,8 @@ const TagInput = ({
   onAdd,
   onRemove,
   list,
-  type = 'text',
-  displayKey = 'name',
+  type = "text",
+  displayKey = "name",
 }) => (
   <div className="space-y-2">
     <label className="text-xs font-bold tracking-wider uppercase text-slate-400">
@@ -342,7 +342,7 @@ const TagInput = ({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), onAdd())}
+        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), onAdd())}
         placeholder={`Add ${label.toLowerCase()}...`}
         className="flex-1 h-10 px-3 text-sm transition-all bg-white border rounded-lg outline-none border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       />
@@ -402,7 +402,7 @@ const AcademicManager = ({ data }) => {
   const handleUpdate = async () => {
     try {
       const updates = [];
-      ['sscInformation', 'diplomaInformation'].forEach((section) => {
+      ["sscInformation", "diplomaInformation"].forEach((section) => {
         Object.keys(formData[section]).forEach((field) => {
           if (formData[section][field]?.length) {
             updates.push({
@@ -416,20 +416,20 @@ const AcademicManager = ({ data }) => {
       for (const update of updates) {
         await updateAcademicInfo({ id: data._id, ...update }).unwrap();
       }
-      toast.success('Updated successfully');
+      toast.success("Updated successfully");
       setEditMode(false);
     } catch (err) {
-      toast.error('Update failed');
+      toast.error("Update failed");
     }
   };
 
   const handleDelete = async () => {
     try {
       await deleteAcademicInfo({ id: data._id, itemIds: selectedIds }).unwrap();
-      toast.success('Selected items deleted');
+      toast.success("Selected items deleted");
       setSelectedIds([]);
     } catch (err) {
-      toast.error('Delete failed');
+      toast.error("Delete failed");
     }
   };
 
@@ -453,7 +453,7 @@ const AcademicManager = ({ data }) => {
                 onClick={handleUpdate}
                 className="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
-                <Check size={14} /> {isUpdating ? 'Saving...' : 'Save'}
+                <Check size={14} /> {isUpdating ? "Saving..." : "Save"}
               </button>
               <button
                 onClick={() => setEditMode(false)}
@@ -562,8 +562,8 @@ const DataRow = ({
   selectedIds,
   onToggle,
   onEdit,
-  type = 'text',
-  valueKey = 'name',
+  type = "text",
+  valueKey = "name",
 }) => (
   <tr>
     <td className="px-6 py-4 font-semibold align-top text-slate-700 whitespace-nowrap">

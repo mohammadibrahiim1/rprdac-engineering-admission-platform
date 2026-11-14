@@ -1,13 +1,13 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { Banknote, Filter, Save, X } from 'lucide-react';
-import React, { useEffect, useMemo } from 'react';
-import BatchSelector from '../../../../../components/forms/BatchSelector';
-import SubjectSelector from '../../../../../components/forms/SubjectSelector';
-import DepartmentSelector from '../../../../../components/forms/DepartmentSelector';
-import TimeSlotSelector from '../../../../../components/forms/TimeSlotSelector';
-import toast from 'react-hot-toast';
-import { Controller, useForm } from 'react-hook-form';
-import { useUpdateClassMutation } from '../../../../../redux/features/teacher/teacherApi';
+import { AnimatePresence, motion } from "framer-motion";
+import { Banknote, Filter, Save, X } from "lucide-react";
+import React, { useEffect, useMemo } from "react";
+import BatchSelector from "@/components/common/BatchSelector";
+import SubjectSelector from "@/components/common/SubjectSelector";
+import DepartmentSelector from "@/components/common/DepartmentSelector";
+import TimeSlotSelector from "@/components/common/TimeSlotSelector";
+import { toast } from "sonner";
+import { Controller, useForm } from "react-hook-form";
+import { useUpdateClassMutation } from "../../../../redux/features/teacher/teacherApi";
 
 const CLASS_FEE = 213.33;
 
@@ -32,7 +32,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
   }, [data, reset]);
 
   // ⭐ Watch classQuantity (🔥 Important)
-  const classQuantity = watch('classQuantity');
+  const classQuantity = watch("classQuantity");
 
   // ⭐ Auto Fee Calculation Engine
   useEffect(() => {
@@ -40,7 +40,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
 
     const total = quantity > 0 ? Number((quantity * CLASS_FEE).toFixed(2)) : 0;
 
-    setValue('totalFee', total, {
+    setValue("totalFee", total, {
       shouldDirty: true,
     });
   }, [classQuantity, setValue]);
@@ -55,7 +55,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
       });
 
       if (!Object.keys(updatedData).length) {
-        toast.success('Nothing changed');
+        toast.success("Nothing changed");
         return;
       }
 
@@ -64,28 +64,28 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
         data: updatedData,
       }).unwrap();
 
-      toast.success('Class updated successfully');
+      toast.success("Class updated successfully");
       onClose();
     } catch (error) {
-      toast.error(error?.data?.message || 'Update failed');
+      toast.error(error?.data?.message || "Update failed");
     }
   };
 
   // ⭐ Month List
   const months = useMemo(
     () => [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ],
     [],
   );
@@ -98,10 +98,10 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
   if (!data) return null;
 
   const inputBase =
-    'w-full px-3 py-2 text-[14px] bg-[#f7f7f5] border border-transparent rounded-md focus:outline-none focus:bg-white focus:border-[#2383e2] transition-all placeholder:text-gray-400 text-gray-800 shadow-sm';
+    "w-full px-3 py-2 text-[14px] bg-[#f7f7f5] border border-transparent rounded-md focus:outline-none focus:bg-white focus:border-[#2383e2] transition-all placeholder:text-gray-400 text-gray-800 shadow-sm";
 
   const labelBase =
-    'text-[12px] font-medium text-gray-500 mb-1 block uppercase';
+    "text-[12px] font-medium text-gray-500 mb-1 block uppercase";
 
   return (
     <AnimatePresence>
@@ -146,7 +146,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
               <div className="grid gap-4 md:grid-cols-4">
                 <div>
                   <label className={labelBase}>Year</label>
-                  <select {...register('yearName')} className={inputBase}>
+                  <select {...register("yearName")} className={inputBase}>
                     {years.map((y) => (
                       <option key={y} value={String(y)}>
                         {y}
@@ -157,7 +157,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
 
                 <div>
                   <label className={labelBase}>Month</label>
-                  <select {...register('monthName')} className={inputBase}>
+                  <select {...register("monthName")} className={inputBase}>
                     {months.map((m) => (
                       <option key={m} value={m}>
                         {m}
@@ -169,7 +169,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
                 <div>
                   <label className={labelBase}>Class Fee</label>
                   <input
-                    {...register('classFee')}
+                    {...register("classFee")}
                     disabled
                     className={inputBase}
                   />
@@ -178,7 +178,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
                 <div>
                   <label className={labelBase}>Class Date</label>
                   <input
-                    {...register('classDate')}
+                    {...register("classDate")}
                     type="date"
                     className={inputBase}
                   />
@@ -247,7 +247,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
                 <div>
                   <label className={labelBase}>Batch Count</label>
                   <input
-                    {...register('batchCount')}
+                    {...register("batchCount")}
                     type="number"
                     className={inputBase}
                   />
@@ -256,7 +256,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
                 <div>
                   <label className={labelBase}>Duration</label>
                   <input
-                    {...register('classQuantity')}
+                    {...register("classQuantity")}
                     type="number"
                     step={0.5}
                     className={inputBase}
@@ -266,7 +266,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
                 <div>
                   <label className={labelBase}>Period</label>
                   <input
-                    {...register('period')}
+                    {...register("period")}
                     type="number"
                     className={inputBase}
                     step={0.5}
@@ -275,7 +275,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
 
                 <div>
                   <label className={labelBase}>Status</label>
-                  <select {...register('status')} className={inputBase}>
+                  <select {...register("status")} className={inputBase}>
                     <option value="approve">Approve</option>
                     <option value="pending">Pending</option>
                     <option value="cancel">Cancel</option>
@@ -290,7 +290,7 @@ const EditClassModal = ({ isModalOpen, onClose, data }) => {
                 </label>
 
                 <input
-                  {...register('totalFee', { valueAsNumber: true })}
+                  {...register("totalFee", { valueAsNumber: true })}
                   type="number"
                   disabled
                   className={inputBase}

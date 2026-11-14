@@ -1,10 +1,10 @@
-import { baseApi } from '../baseApi';
+import { baseApi } from "@/api/baseApi";
 
 const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query({
       query: ({ search, page, limit, userType, status }) => ({
-        url: '/user/all',
+        url: "/user/all",
         params: { search, page, limit, userType, status },
       }),
     }),
@@ -12,7 +12,7 @@ const userApi = baseApi.injectEndpoints({
     deleteUser: builder.mutation({
       query: (userId) => ({
         url: `user/delete/${userId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
     }),
 
@@ -25,26 +25,26 @@ const userApi = baseApi.injectEndpoints({
     updateSingleUser: builder.mutation({
       query: ({ userId, formData }) => ({
         url: `/user/update/${userId}`,
-        method: 'PUT',
+        method: "PUT",
         body: formData,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
     }),
 
     // assign responsibility as office assistant
     assignUserResponsibility: builder.mutation({
       query: ({ userId, panels }) => ({
         url: `user/${userId}/assign-responsibility`,
-        method: 'PUT',
+        method: "PUT",
         body: { panels },
       }),
-      invalidatesTags: ['Users'],
+      invalidatesTags: ["Users"],
     }),
 
     updateUserStatus: builder.mutation({
       query: ({ userId, status }) => ({
         url: `auth/user/update/${userId}`,
-        method: 'PUT',
+        method: "PUT",
         body: { status },
       }),
     }),
@@ -52,7 +52,7 @@ const userApi = baseApi.injectEndpoints({
     //get admission users
     getAdmissionUsers: builder.query({
       query: ({ search, page, limit, userType }) => ({
-        url: '/user/admission-users/all',
+        url: "/user/admission-users/all",
         params: { page, limit, search, userType },
       }),
     }),
@@ -61,10 +61,10 @@ const userApi = baseApi.injectEndpoints({
     removeUserResponsibility: builder.mutation({
       query: ({ roleId, code }) => ({
         url: `user/update/responsibility/${roleId}`,
-        method: 'DELETE',
+        method: "DELETE",
         body: { code },
       }),
-      invalidatesTags: ['Users'],
+      invalidatesTags: ["Users"],
     }),
 
     getCheckUserStatus: builder.query({
@@ -73,7 +73,7 @@ const userApi = baseApi.injectEndpoints({
 
     getOnlyTeachers: builder.query({
       query: (search) => ({
-        url: '/user/add/teacher',
+        url: "/user/add/teacher",
         params: {
           search,
         },
@@ -84,17 +84,17 @@ const userApi = baseApi.injectEndpoints({
     updateAdmissionUserAccount: builder.mutation({
       query: ({ id, ...updateData }) => ({
         url: `user/update/admission-user/${id}`,
-        method: 'PUT',
+        method: "PUT",
         body: updateData,
       }),
-      invalidatesTags: ['AdmissionUser'],
+      invalidatesTags: ["AdmissionUser"],
     }),
 
     //delete admission user
     deleteAdmissionUsers: builder.mutation({
       query: (ids) => ({
         url: `user/admission-user/delete`,
-        method: 'DELETE',
+        method: "DELETE",
         body: { ids },
       }),
     }),

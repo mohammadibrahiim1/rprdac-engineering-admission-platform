@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Filter,
@@ -24,12 +24,12 @@ import {
   ArrowDown,
   Info,
   Banknote,
-} from 'lucide-react';
-import BreadCrumbMenu from '../../../../components/BreadCrumbMenu';
-import { useGetTeacherClassesQuery } from '../../../../redux/features/teacher/teacherApi';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import toast from 'react-hot-toast';
+} from "lucide-react";
+
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "sonner";
+import { useGetTeacherClassesQuery } from "@/redux/features/teacher/teacherApi";
 
 /* ─────────────────────────────────────────────
    Global styles
@@ -95,18 +95,18 @@ const GLOBAL_STYLES = `
 /* ─────────────────────────────────────────────
    Small reusable components
 ───────────────────────────────────────────── */
-const Badge = ({ variant = 'gray', children }) => {
+const Badge = ({ variant = "gray", children }) => {
   const styles = {
-    green: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    amber: 'bg-amber-50 text-amber-700 border-amber-100',
-    blue: 'bg-blue-50 text-blue-700 border-blue-100',
-    gray: 'bg-gray-100 text-gray-500 border-gray-200',
+    green: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    amber: "bg-amber-50 text-amber-700 border-amber-100",
+    blue: "bg-blue-50 text-blue-700 border-blue-100",
+    gray: "bg-gray-100 text-gray-500 border-gray-200",
   };
   const dots = {
-    green: 'bg-emerald-500',
-    amber: 'bg-amber-400',
-    blue: 'bg-blue-500',
-    gray: 'bg-gray-400',
+    green: "bg-emerald-500",
+    amber: "bg-amber-400",
+    blue: "bg-blue-500",
+    gray: "bg-gray-400",
   };
 
   return (
@@ -125,7 +125,7 @@ const SortIcon = ({ col, sortConfig }) => {
   if (sortConfig.key !== col) {
     return <ArrowUpDown className="flex-shrink-0 w-3 h-3 opacity-25" />;
   }
-  return sortConfig.direction === 'ascending' ? (
+  return sortConfig.direction === "ascending" ? (
     <ArrowUp className="flex-shrink-0 w-3 h-3 text-slate-700" />
   ) : (
     <ArrowDown className="flex-shrink-0 w-3 h-3 text-slate-700" />
@@ -164,20 +164,20 @@ const FilterField = ({ label, name, options, isObj, value, onChange }) => (
 const capitalize = (str) =>
   str
     ?.toLowerCase()
-    .split(' ')
-    .map((w) => (w[0] ? w[0].toUpperCase() + w.slice(1) : ''))
-    .join(' ') || 'N/A';
+    .split(" ")
+    .map((w) => (w[0] ? w[0].toUpperCase() + w.slice(1) : ""))
+    .join(" ") || "N/A";
 
 const formatDate = (date) => {
-  if (!date) return '—';
+  if (!date) return "—";
   try {
-    return new Date(date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    return new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   } catch {
-    return '—';
+    return "—";
   }
 };
 
@@ -189,21 +189,21 @@ const MyClasses = () => {
 
   // ── State ──
   const [filters, setFilters] = useState({
-    year: '',
-    month: '',
-    batch: '',
-    paymentStatus: '',
-    status: '',
-    startDate: '',
-    endDate: '',
+    year: "",
+    month: "",
+    batch: "",
+    paymentStatus: "",
+    status: "",
+    startDate: "",
+    endDate: "",
   });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [groupedData, setGroupedData] = useState({});
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: null,
-    direction: 'ascending',
+    direction: "ascending",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const ROWS_PER_PAGE = 10;
@@ -217,7 +217,7 @@ const MyClasses = () => {
     refetch,
   } = useGetTeacherClassesQuery(
     { teacherId: user?._id },
-    { skip: user?.userType !== 'teacher' },
+    { skip: user?.userType !== "teacher" },
   );
 
   // ── Filter + Sort Logic ──
@@ -283,14 +283,14 @@ const MyClasses = () => {
         const aVal = a[sortConfig.key];
         const bVal = b[sortConfig.key];
 
-        if (['totalFee', 'totalDutyFee'].includes(sortConfig.key)) {
-          return sortConfig.direction === 'ascending'
+        if (["totalFee", "totalDutyFee"].includes(sortConfig.key)) {
+          return sortConfig.direction === "ascending"
             ? (aVal || 0) - (bVal || 0)
             : (bVal || 0) - (aVal || 0);
         }
 
-        if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+        if (aVal < bVal) return sortConfig.direction === "ascending" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "ascending" ? 1 : -1;
         return 0;
       });
     }
@@ -312,9 +312,9 @@ const MyClasses = () => {
     setSortConfig((prev) => ({
       key,
       direction:
-        prev.key === key && prev.direction === 'ascending'
-          ? 'descending'
-          : 'ascending',
+        prev.key === key && prev.direction === "ascending"
+          ? "descending"
+          : "ascending",
     }));
   }, []);
 
@@ -325,16 +325,16 @@ const MyClasses = () => {
 
   const clearFilters = useCallback(() => {
     setFilters({
-      year: '',
-      month: '',
-      batch: '',
-      paymentStatus: '',
-      status: '',
-      startDate: '',
-      endDate: '',
+      year: "",
+      month: "",
+      batch: "",
+      paymentStatus: "",
+      status: "",
+      startDate: "",
+      endDate: "",
     });
-    setSearchQuery('');
-    setSortConfig({ key: null, direction: 'ascending' });
+    setSearchQuery("");
+    setSortConfig({ key: null, direction: "ascending" });
     setCurrentPage(1);
   }, []);
 
@@ -360,7 +360,7 @@ const MyClasses = () => {
     ].filter(Boolean);
 
   const tableData = Object.values(groupedData).flat();
-  const recordCountLabel = `${tableData.length} record${tableData.length !== 1 ? 's' : ''}`;
+  const recordCountLabel = `${tableData.length} record${tableData.length !== 1 ? "s" : ""}`;
   const totalPages = Math.max(1, Math.ceil(tableData.length / ROWS_PER_PAGE));
   const paginatedData = tableData.slice(
     (currentPage - 1) * ROWS_PER_PAGE,
@@ -372,8 +372,8 @@ const MyClasses = () => {
     const all = Object.values(groupedData).flat();
     return {
       total: all.length,
-      approved: all.filter((i) => i.status === 'approve').length,
-      pending: all.filter((i) => i.status !== 'approve').length,
+      approved: all.filter((i) => i.status === "approve").length,
+      pending: all.filter((i) => i.status !== "approve").length,
       earnings: all.reduce(
         (sum, i) => sum + (i.totalDutyFee || i.totalFee || 0),
         0,
@@ -403,24 +403,24 @@ const MyClasses = () => {
   }, [totalPages, currentPage]);
 
   const filterGroups = [
-    { name: 'year', label: 'Year', options: getYears(), isObj: false },
-    { name: 'month', label: 'Month', options: getMonths(), isObj: false },
-    { name: 'batch', label: 'Batch', options: getBatches(), isObj: false },
+    { name: "year", label: "Year", options: getYears(), isObj: false },
+    { name: "month", label: "Month", options: getMonths(), isObj: false },
+    { name: "batch", label: "Batch", options: getBatches(), isObj: false },
     {
-      name: 'status',
-      label: 'Status',
+      name: "status",
+      label: "Status",
       options: [
-        { value: 'approve', label: 'Approved' },
-        { value: 'pending', label: 'Pending' },
+        { value: "approve", label: "Approved" },
+        { value: "pending", label: "Pending" },
       ],
       isObj: true,
     },
     {
-      name: 'paymentStatus',
-      label: 'Payment',
+      name: "paymentStatus",
+      label: "Payment",
       options: [
-        { value: 'paid', label: 'Paid' },
-        { value: 'unpaid', label: 'Unpaid' },
+        { value: "paid", label: "Paid" },
+        { value: "unpaid", label: "Unpaid" },
       ],
       isObj: true,
     },
@@ -429,7 +429,7 @@ const MyClasses = () => {
   // ── PDF Export (now inside component) ──
   const downloadPDF = useCallback(() => {
     if (!teacherData?.statements?.length) {
-      toast.error('No data available to export');
+      toast.error("No data available to export");
       return;
     }
 
@@ -437,9 +437,9 @@ const MyClasses = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
       const margin = 15;
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -447,8 +447,8 @@ const MyClasses = () => {
       let currentY = margin + 20;
 
       const tableOptions = {
-        theme: 'grid',
-        showHead: 'firstPage',
+        theme: "grid",
+        showHead: "firstPage",
         headStyles: {
           fillColor: false,
           textColor: 0,
@@ -465,19 +465,19 @@ const MyClasses = () => {
       };
 
       const addHeader = () => {
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(16);
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.text(
-          'M.A. Samad Villa In front of DUET Campus Gazipur | +880 1742 590 128 | rpr.group2013@gmail.com',
+          "M.A. Samad Villa In front of DUET Campus Gazipur | +880 1742 590 128 | rpr.group2013@gmail.com",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setLineWidth(0.5);
@@ -487,7 +487,7 @@ const MyClasses = () => {
 
       const addFooter = (pageNum, totalPages) => {
         doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.text(
           `Generated: ${new Date().toLocaleString()}`,
           margin,
@@ -498,7 +498,7 @@ const MyClasses = () => {
           pageWidth - margin,
           pageHeight - 6,
           {
-            align: 'right',
+            align: "right",
           },
         );
       };
@@ -519,8 +519,8 @@ const MyClasses = () => {
       });
 
       const monthKeys = Object.keys(dutiesByMonth).sort((a, b) => {
-        const [monthA, yearA] = a.split(', ');
-        const [monthB, yearB] = b.split(', ');
+        const [monthA, yearA] = a.split(", ");
+        const [monthB, yearB] = b.split(", ");
         return (
           new Date(`${monthA} 1 ${yearA}`) - new Date(`${monthB} 1 ${yearB}`)
         );
@@ -530,22 +530,22 @@ const MyClasses = () => {
       addHeader();
 
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Teacher Class Statement', pageWidth / 2, currentY + 5, {
-        align: 'center',
+      doc.setFont("helvetica", "bold");
+      doc.text("Teacher Class Statement", pageWidth / 2, currentY + 5, {
+        align: "center",
       });
       currentY += 15;
 
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.text(`Name: ${capitalize(user?.userName)}`, margin, currentY);
-      doc.text(`Phone: ${user?.phone || 'N/A'}`, pageWidth - margin, currentY, {
-        align: 'right',
+      doc.text(`Phone: ${user?.phone || "N/A"}`, pageWidth - margin, currentY, {
+        align: "right",
       });
       currentY += 6;
 
       doc.text(
-        `Period: ${filters.startDate || 'All'} → ${filters.endDate || 'All'}`,
+        `Period: ${filters.startDate || "All"} → ${filters.endDate || "All"}`,
         margin,
         currentY,
       );
@@ -554,7 +554,7 @@ const MyClasses = () => {
         pageWidth - margin,
         currentY,
         {
-          align: 'right',
+          align: "right",
         },
       );
       currentY += 10;
@@ -568,7 +568,7 @@ const MyClasses = () => {
         const classes = dutiesByMonth[monthKey] || [];
         const loans = loansByMonth[monthKey] || [];
 
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
         doc.text(monthKey, margin, currentY);
         currentY += 4;
@@ -580,37 +580,37 @@ const MyClasses = () => {
             startY: currentY,
             head: [
               [
-                'Date',
-                'Name',
-                'Batch',
-                'Dept',
-                'Subject',
-                'Time',
-                'Amount',
-                'Status',
-                'Payment',
+                "Date",
+                "Name",
+                "Batch",
+                "Dept",
+                "Subject",
+                "Time",
+                "Amount",
+                "Status",
+                "Payment",
               ],
             ],
             body: classes.map((item) => {
               const amount = item.totalFee || 0;
               totalAmount += amount;
 
-              if (item.paymentStatus?.toLowerCase() === 'paid') {
+              if (item.paymentStatus?.toLowerCase() === "paid") {
                 totalPaid += amount;
               } else {
                 totalDue += amount;
               }
 
               return [
-                item?.classDate?.slice(0, 10) || 'N/A',
+                item?.classDate?.slice(0, 10) || "N/A",
                 capitalize(item?.userName),
                 capitalize(item.batch),
-                item.department || 'N/A',
-                item.subject || 'N/A',
-                `${item.classTime}-${item.classQuantity || 'N/A'}H`,
+                item.department || "N/A",
+                item.subject || "N/A",
+                `${item.classTime}-${item.classQuantity || "N/A"}H`,
                 `${amount.toFixed(2)} BDT`,
                 capitalize(item.status),
-                capitalize(item.paymentStatus || 'N/A'),
+                capitalize(item.paymentStatus || "N/A"),
               ];
             }),
           });
@@ -622,17 +622,17 @@ const MyClasses = () => {
           autoTable(doc, {
             ...tableOptions,
             startY: currentY,
-            head: [['Date', 'Name', 'Loan Amt', 'Status', 'Payment']],
+            head: [["Date", "Name", "Loan Amt", "Status", "Payment"]],
             body: loans.map((loan) => {
               const amount = loan.amount || 0;
               totalLoan += amount;
 
               return [
-                loan?.date?.slice(0, 10) || 'N/A',
+                loan?.date?.slice(0, 10) || "N/A",
                 capitalize(loan?.userDetails?.userName),
                 `${amount.toFixed(2)} BDT`,
                 capitalize(loan?.status),
-                loan?.isPaid ? 'Paid' : 'Unpaid',
+                loan?.isPaid ? "Paid" : "Unpaid",
               ];
             }),
           });
@@ -665,14 +665,14 @@ const MyClasses = () => {
 
       // Summary
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Summary', margin, currentY);
+      doc.setFont("helvetica", "bold");
+      doc.text("Summary", margin, currentY);
       currentY += 4;
 
       autoTable(doc, {
         ...tableOptions,
         startY: currentY,
-        head: [['Total', 'Paid', 'Due', 'Loan', 'Due After Loan']],
+        head: [["Total", "Paid", "Due", "Loan", "Due After Loan"]],
         body: [
           [
             `BDT ${totalAmount.toFixed(2)}`,
@@ -692,11 +692,11 @@ const MyClasses = () => {
       }
 
       // Save
-      const fileName = `Teacher_Statement_${user?.userName || 'user'}.pdf`;
+      const fileName = `Teacher_Statement_${user?.userName || "user"}.pdf`;
       doc.save(fileName);
-      toast.success('PDF generated successfully!');
+      toast.success("PDF generated successfully!");
     } catch (err) {
-      toast.error('PDF generation failed.');
+      toast.error("PDF generation failed.");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -722,13 +722,6 @@ const MyClasses = () => {
       <style>{GLOBAL_STYLES}</style>
 
       <div className="min-h-screen bg-[#f7f7f5]">
-        {/* Sticky Header */}
-        <header className="sticky top-0 z-30 bg-[#f7f7f5]/90 backdrop-blur-md border-b border-[var(--border)]">
-          <div className="flex items-center px-4 py-2.5">
-            <BreadCrumbMenu />
-          </div>
-        </header>
-
         <div className="px-4">
           {/* Page Title */}
           <header className="my-10 space-y-2">
@@ -780,30 +773,30 @@ const MyClasses = () => {
             {[
               {
                 icon: <Grid3X3 className="w-3 h-3" />,
-                label: 'Total',
+                label: "Total",
                 value: stats.total,
-                color: 'text-slate-500',
+                color: "text-slate-500",
               },
               {
                 icon: <CheckCircle className="w-3 h-3" />,
-                label: 'Approved',
+                label: "Approved",
                 value: stats.approved,
-                color: 'text-emerald-600',
+                color: "text-emerald-600",
               },
               {
                 icon: <AlertCircle className="w-3 h-3" />,
-                label: 'Pending',
+                label: "Pending",
                 value: stats.pending,
-                color: 'text-amber-500',
+                color: "text-amber-500",
               },
               {
                 icon: <Wallet className="w-3 h-3" />,
-                label: 'Earnings',
-                value: stats.earnings.toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'BDT',
+                label: "Earnings",
+                value: stats.earnings.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "BDT",
                 }),
-                color: 'text-blue-600',
+                color: "text-blue-600",
               },
             ].map(({ icon, label, value, color }) => (
               <span
@@ -870,7 +863,7 @@ const MyClasses = () => {
                       type="date"
                       value={filters.startDate}
                       onChange={(e) =>
-                        handleFilterChange('startDate', e.target.value)
+                        handleFilterChange("startDate", e.target.value)
                       }
                       className="w-full px-2.5 py-[7px] text-[12px] bg-white border border-[var(--border)] rounded-[var(--r)] focus:outline-none focus:ring-1 focus:ring-slate-400 text-[var(--text-2)]"
                     />
@@ -882,7 +875,7 @@ const MyClasses = () => {
                       type="date"
                       value={filters.endDate}
                       onChange={(e) =>
-                        handleFilterChange('endDate', e.target.value)
+                        handleFilterChange("endDate", e.target.value)
                       }
                       className="w-full px-2.5 py-[7px] text-[12px] bg-white border border-[var(--border)] rounded-[var(--r)] focus:outline-none focus:ring-1 focus:ring-slate-400 text-[var(--text-2)] mt-1.5"
                     />
@@ -892,7 +885,7 @@ const MyClasses = () => {
                     {activeFilterCount > 0 && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         className="pt-1 overflow-hidden"
                       >
@@ -910,7 +903,7 @@ const MyClasses = () => {
                                   {value}
                                   <button
                                     type="button"
-                                    onClick={() => handleFilterChange(key, '')}
+                                    onClick={() => handleFilterChange(key, "")}
                                     className="w-3.5 h-3.5 flex items-center justify-center rounded hover:bg-slate-200"
                                   >
                                     <X className="w-2.5 h-2.5" />
@@ -950,8 +943,8 @@ const MyClasses = () => {
                     onClick={() => setIsMobileFilterOpen(true)}
                     className={`lg:hidden inline-flex items-center gap-1.5 px-3 py-[7px] text-[12px] font-medium rounded-[var(--r)] border transition-all ${
                       activeFilterCount > 0
-                        ? 'bg-slate-900 text-white border-slate-900'
-                        : 'bg-white text-slate-600 border-[var(--border)] hover:border-slate-300'
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-white text-slate-600 border-[var(--border)] hover:border-slate-300"
                     }`}
                   >
                     <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -966,7 +959,7 @@ const MyClasses = () => {
                     className="inline-flex items-center justify-center w-8 h-8 bg-white border border-[var(--border)] rounded-[var(--r)] hover:border-slate-300 disabled:opacity-40"
                   >
                     <RefreshCw
-                      className={`w-3.5 h-3.5 text-slate-500 ${isFetching ? 'animate-spin' : ''}`}
+                      className={`w-3.5 h-3.5 text-slate-500 ${isFetching ? "animate-spin" : ""}`}
                     />
                   </button>
 
@@ -995,7 +988,7 @@ const MyClasses = () => {
                 {activeFilterCount > 0 && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     className="flex flex-wrap gap-1.5 mb-3 overflow-hidden lg:hidden"
                   >
@@ -1006,11 +999,11 @@ const MyClasses = () => {
                             key={key}
                             className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-[var(--border)] text-[11px] text-slate-600 rounded-full font-medium"
                           >
-                            <span className="text-slate-400">{key}:</span>{' '}
+                            <span className="text-slate-400">{key}:</span>{" "}
                             {value}
                             <button
                               type="button"
-                              onClick={() => handleFilterChange(key, '')}
+                              onClick={() => handleFilterChange(key, "")}
                               className="ml-0.5 hover:text-slate-900"
                             >
                               <X className="w-2.5 h-2.5" />
@@ -1027,8 +1020,8 @@ const MyClasses = () => {
                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border-2)] bg-[#fafafa]">
                   <span className="text-[11.5px] text-slate-400 font-medium">
                     {tableData.length > 0
-                      ? `${recordCountLabel}${searchQuery ? ' · filtered' : ''}`
-                      : 'No records'}
+                      ? `${recordCountLabel}${searchQuery ? " · filtered" : ""}`
+                      : "No records"}
                   </span>
                   {totalPages > 1 && (
                     <span className="text-[11px] text-slate-300">
@@ -1043,7 +1036,7 @@ const MyClasses = () => {
                       <AlertCircle className="w-5 h-5 text-red-400" />
                     </div>
                     <p className="text-[13px] text-slate-500">
-                      {error?.data?.message || 'Failed to load data'}
+                      {error?.data?.message || "Failed to load data"}
                     </p>
                     <button
                       type="button"
@@ -1063,8 +1056,8 @@ const MyClasses = () => {
                     </p>
                     <p className="text-[12px] text-slate-400">
                       {activeFilterCount || searchQuery
-                        ? 'Try adjusting your filters or search'
-                        : 'No classes scheduled yet'}
+                        ? "Try adjusting your filters or search"
+                        : "No classes scheduled yet"}
                     </p>
                     {(activeFilterCount > 0 || searchQuery) && (
                       <button
@@ -1087,10 +1080,10 @@ const MyClasses = () => {
                             <th>
                               <button
                                 type="button"
-                                onClick={() => handleSort('classDate')}
+                                onClick={() => handleSort("classDate")}
                                 className="inline-flex items-center gap-1 hover:text-slate-700"
                               >
-                                DATE{' '}
+                                DATE{" "}
                                 <SortIcon
                                   col="classDate"
                                   sortConfig={sortConfig}
@@ -1102,10 +1095,10 @@ const MyClasses = () => {
                             <th>
                               <button
                                 type="button"
-                                onClick={() => handleSort('subject')}
+                                onClick={() => handleSort("subject")}
                                 className="inline-flex items-center gap-1 hover:text-slate-700"
                               >
-                                SUBJECT{' '}
+                                SUBJECT{" "}
                                 <SortIcon
                                   col="subject"
                                   sortConfig={sortConfig}
@@ -1116,10 +1109,10 @@ const MyClasses = () => {
                             <th>
                               <button
                                 type="button"
-                                onClick={() => handleSort('totalFee')}
+                                onClick={() => handleSort("totalFee")}
                                 className="inline-flex items-center gap-1 hover:text-slate-700"
                               >
-                                FEE{' '}
+                                FEE{" "}
                                 <SortIcon
                                   col="totalFee"
                                   sortConfig={sortConfig}
@@ -1143,7 +1136,7 @@ const MyClasses = () => {
                               </td>
                               <td>
                                 <p className="text-sm font-medium leading-tight capitalize text-slate-800 whitespace-nowrap">
-                                  {item.teacherInfo?.userName || '—'}
+                                  {item.teacherInfo?.userName || "—"}
                                 </p>
                                 {item.teacherInfo?.phone && (
                                   <p className="flex items-center gap-0.5 text-[12px] text-slate-400 mt-0.5">
@@ -1154,55 +1147,55 @@ const MyClasses = () => {
                               </td>
                               <td>
                                 <Badge variant="blue">
-                                  {item.batch || '—'}
+                                  {item.batch || "—"}
                                 </Badge>
                               </td>
                               <td className="max-w-[140px]">
                                 <span className="block text-[12.5px] text-slate-600">
-                                  {item.subject || '—'}
+                                  {item.subject || "—"}
                                 </span>
                               </td>
                               <td className="whitespace-nowrap">
                                 <span className="inline-flex items-center gap-1 text-[12px] text-slate-500">
                                   <Clock className="flex-shrink-0 w-3 h-3 text-slate-300" />
-                                  {item.period ? `${item.period}h` : '—'}
+                                  {item.period ? `${item.period}h` : "—"}
                                 </span>
                               </td>
                               <td className="whitespace-nowrap">
                                 <span className="text-[13px] font-semibold text-slate-800">
                                   {item.totalFee
                                     ? Number(item.totalFee).toLocaleString(
-                                        'en-US',
+                                        "en-US",
                                         {
-                                          style: 'currency',
-                                          currency: 'BDT',
+                                          style: "currency",
+                                          currency: "BDT",
                                         },
                                       )
-                                    : '—'}
+                                    : "—"}
                                 </span>
                               </td>
                               <td>
                                 <Badge
                                   variant={
-                                    item.paymentStatus === 'paid'
-                                      ? 'green'
-                                      : 'amber'
+                                    item.paymentStatus === "paid"
+                                      ? "green"
+                                      : "amber"
                                   }
                                 >
-                                  {item.paymentStatus === 'paid'
-                                    ? 'Paid'
-                                    : 'Unpaid'}
+                                  {item.paymentStatus === "paid"
+                                    ? "Paid"
+                                    : "Unpaid"}
                                 </Badge>
                               </td>
                               <td>
                                 <Badge
                                   variant={
-                                    item.status === 'approve' ? 'green' : 'gray'
+                                    item.status === "approve" ? "green" : "gray"
                                   }
                                 >
-                                  {item.status === 'approve'
-                                    ? 'Approved'
-                                    : 'Pending'}
+                                  {item.status === "approve"
+                                    ? "Approved"
+                                    : "Pending"}
                                 </Badge>
                               </td>
                             </motion.tr>
@@ -1219,7 +1212,7 @@ const MyClasses = () => {
                           {Math.min(
                             currentPage * ROWS_PER_PAGE,
                             tableData.length,
-                          )}{' '}
+                          )}{" "}
                           of {tableData.length}
                         </span>
 
@@ -1241,8 +1234,8 @@ const MyClasses = () => {
                               onClick={() => setCurrentPage(page)}
                               className={`inline-flex items-center justify-center w-7 h-7 rounded-[var(--r)] text-[12px] font-medium border ${
                                 currentPage === page
-                                  ? 'bg-slate-900 text-white border-slate-900'
-                                  : 'bg-white border-[var(--border)] text-slate-600 hover:bg-slate-50'
+                                  ? "bg-slate-900 text-white border-slate-900"
+                                  : "bg-white border-[var(--border)] text-slate-600 hover:bg-slate-50"
                               }`}
                             >
                               {page}
@@ -1283,10 +1276,10 @@ const MyClasses = () => {
             />
             <motion.aside
               key="drawer"
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 260 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 260 }}
               className="fixed top-0 right-0 z-50 h-full w-[260px] bg-white border-l border-[var(--border)] shadow-xl lg:hidden flex flex-col"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-[#fafafa]">
@@ -1333,7 +1326,7 @@ const MyClasses = () => {
                     type="date"
                     value={filters.startDate}
                     onChange={(e) =>
-                      handleFilterChange('startDate', e.target.value)
+                      handleFilterChange("startDate", e.target.value)
                     }
                     className="w-full px-2.5 py-[7px] text-[12px] bg-white border border-[var(--border)] rounded-[var(--r)] focus:outline-none focus:ring-1 focus:ring-slate-400"
                   />
@@ -1341,7 +1334,7 @@ const MyClasses = () => {
                     type="date"
                     value={filters.endDate}
                     onChange={(e) =>
-                      handleFilterChange('endDate', e.target.value)
+                      handleFilterChange("endDate", e.target.value)
                     }
                     className="w-full px-2.5 py-[7px] text-[12px] bg-white border border-[var(--border)] rounded-[var(--r)] focus:outline-none focus:ring-1 focus:ring-slate-400 mt-1.5"
                   />

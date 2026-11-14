@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-// import { useGetClassesQuery, useUpdateClassMutation } from "./classApi";
-import { motion, AnimatePresence } from 'framer-motion';
-import { jsPDF } from 'jspdf';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { jsPDF } from "jspdf";
 import {
   Search,
   Download,
@@ -19,33 +18,35 @@ import {
   Users,
   Zap,
   Trash2,
-} from 'lucide-react';
+} from "lucide-react";
+
+import autoTable from "jspdf-autotable";
+import { toast } from "sonner";
+import EditClassModal from "../components/EditClassModal";
+import TeacherFilterSidebar from "../components/TeacherFilterSidebar";
+
 import {
   useDeleteTeacherClassMutation,
   useGetTeacherClassListQuery,
   useUpdateClassMutation,
   useUpdateCourseStatusMutation,
-} from '../../../../../redux/features/teacher/teacherApi';
-import autoTable from 'jspdf-autotable';
-import toast from 'react-hot-toast';
-import BreadCrumbMenu from '../../../../../components/BreadCrumbMenu';
-import EditClassModal from '../components/EditClassModal';
-import TeacherFilterSidebar from '../components/TeacherFilterSidebar';
-import { formatDateDMY } from '../../../../../constants/dateFormat';
+} from "@/redux/features/teacher/teacherApi";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { formatDateDMY } from "@/constants/dateFormat";
 
 const AllTeacherClasses = () => {
   // States
   const [filters, setFilters] = useState({
-    search: '',
+    search: "",
     batch: [],
-    status: '',
-    paymentStatus: '',
-    year: '',
-    month: '',
-    startDate: '',
-    endDate: '',
-    department: '',
-    subject: '',
+    status: "",
+    paymentStatus: "",
+    year: "",
+    month: "",
+    startDate: "",
+    endDate: "",
+    department: "",
+    subject: "",
     page: 1,
     limit: 10,
   });
@@ -73,9 +74,9 @@ const AllTeacherClasses = () => {
 
     try {
       const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
       });
 
       const margin = 15;
@@ -87,25 +88,25 @@ const AllTeacherClasses = () => {
       const capitalize = (str) =>
         str
           ?.toLowerCase()
-          .split(' ')
+          .split(" ")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ') || 'N/A';
+          .join(" ") || "N/A";
 
       const drawHeader = () => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(18);
-        doc.text('RPR DUET ADMISSION CARE', pageWidth / 2, margin + 5, {
-          align: 'center',
+        doc.text("RPR DUET ADMISSION CARE", pageWidth / 2, margin + 5, {
+          align: "center",
         });
 
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.text(
-          'M.A. Samad Villa, In front of DUET Campus, Gazipur | +880 1742 590 128',
+          "M.A. Samad Villa, In front of DUET Campus, Gazipur | +880 1742 590 128",
           pageWidth / 2,
           margin + 11,
-          { align: 'center' },
+          { align: "center" },
         );
 
         doc.setDrawColor(0, 0, 0);
@@ -116,12 +117,12 @@ const AllTeacherClasses = () => {
 
       const drawFooter = (pageNum) => {
         doc.setTextColor(0, 0, 0);
-        doc.setFont('helvetica', 'normal');
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         const now = new Date().toLocaleString();
         doc.text(`Generated: ${now}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNum}`, pageWidth - margin, pageHeight - 10, {
-          align: 'right',
+          align: "right",
         });
       };
 
@@ -139,23 +140,23 @@ const AllTeacherClasses = () => {
       drawHeader();
 
       const teacher = rawData[0]?.teacher;
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text('Teacher Class Statement', pageWidth / 2, cursorY, {
-        align: 'center',
+      doc.text("Teacher Class Statement", pageWidth / 2, cursorY, {
+        align: "center",
       });
       cursorY += 6;
 
-      doc.setFont('helvetica', 'normal');
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
 
       const dateRangeText =
         filters?.startDate && filters?.endDate
           ? `Date Range: ${formatDateDMY(filters?.startDate)} to ${formatDateDMY(filters?.endDate)}`
-          : 'Date Range: All';
+          : "Date Range: All";
 
       doc.text(dateRangeText, pageWidth / 2, cursorY, {
-        align: 'center',
+        align: "center",
       });
 
       cursorY += 10;
@@ -163,20 +164,20 @@ const AllTeacherClasses = () => {
       // --- Main Tables per Month ---
       monthKeys.forEach((monthKey) => {
         const monthData = dutiesByMonth[monthKey];
-        doc.setFont('helvetica', 'bold');
+        doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
         doc.text(monthKey, margin, cursorY);
         cursorY += 3;
 
         const tableRows = monthData?.map((item) => [
           formatDateDMY(item.classDate)
-            ? formatDateDMY(item.classDate.split('T')[0])
-            : 'N/A',
+            ? formatDateDMY(item.classDate.split("T")[0])
+            : "N/A",
           capitalize(item.teacher?.userName),
-          item?.batch || 'N/A',
-          item?.subject || 'N/A',
-          item?.department || 'N/A',
-          `${item.classTime || 'N/A'} | ${item.classQuantity} H | ${item.period || 'N/A'}`,
+          item?.batch || "N/A",
+          item?.subject || "N/A",
+          item?.department || "N/A",
+          `${item.classTime || "N/A"} | ${item.classQuantity} H | ${item.period || "N/A"}`,
           `${(item.totalFee || 0).toFixed(2)} BDT`,
           capitalize(item.status),
           capitalize(item.paymentStatus),
@@ -186,36 +187,36 @@ const AllTeacherClasses = () => {
           startY: cursorY,
           head: [
             [
-              'Date',
-              'Name',
-              'Batch',
-              'Subject',
-              'Department',
-              'Class Schedule',
-              'Amount',
-              'Status',
-              'Payment',
+              "Date",
+              "Name",
+              "Batch",
+              "Subject",
+              "Department",
+              "Class Schedule",
+              "Amount",
+              "Status",
+              "Payment",
             ],
           ],
           body: tableRows,
-          theme: 'grid',
+          theme: "grid",
           headStyles: {
             fillColor: [255, 255, 255],
             textColor: [0, 0, 0],
-            fontStyle: 'bold',
+            fontStyle: "bold",
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
-            halign: 'center',
+            halign: "center",
           },
           styles: {
             fontSize: 8,
-            halign: 'center',
+            halign: "center",
             textColor: [0, 0, 0],
             lineColor: [0, 0, 0],
           },
           columnStyles: {
-            2: { cellWidth: 'auto' },
-            6: { fontStyle: 'bold' },
+            2: { cellWidth: "auto" },
+            6: { fontStyle: "bold" },
           },
           margin: { left: margin, right: margin },
           didDrawPage: (data) => {
@@ -232,7 +233,7 @@ const AllTeacherClasses = () => {
         unpaid = 0;
       rawData.forEach((d) => {
         total += d.totalFee || 0;
-        if (d.paymentStatus?.toLowerCase() === 'paid') paid += d.totalFee || 0;
+        if (d.paymentStatus?.toLowerCase() === "paid") paid += d.totalFee || 0;
         else unpaid += d.totalFee || 0;
       });
 
@@ -242,18 +243,18 @@ const AllTeacherClasses = () => {
         cursorY = margin + 20;
       }
 
-      doc.setFont('helvetica', 'bold');
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
-      doc.text('ACCOUNT SUMMARY', margin, cursorY);
+      doc.text("ACCOUNT SUMMARY", margin, cursorY);
       cursorY += 4;
 
       autoTable(doc, {
         startY: cursorY,
         head: [
           [
-            'Total Payable Amount',
-            'Total Paid Amount',
-            'Total Due/Unpaid Amount',
+            "Total Payable Amount",
+            "Total Paid Amount",
+            "Total Due/Unpaid Amount",
           ],
         ],
         body: [
@@ -263,18 +264,18 @@ const AllTeacherClasses = () => {
             `${unpaid.toFixed(2)} BDT`,
           ],
         ],
-        theme: 'grid',
+        theme: "grid",
         headStyles: {
           fillColor: [240, 240, 240], // Light Gray Header
           textColor: [0, 0, 0],
-          fontStyle: 'bold',
-          halign: 'center',
+          fontStyle: "bold",
+          halign: "center",
           lineColor: [0, 0, 0],
           lineWidth: 0.2,
         },
         styles: {
           fontSize: 10,
-          halign: 'center',
+          halign: "center",
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           cellPadding: 4,
@@ -287,15 +288,15 @@ const AllTeacherClasses = () => {
       doc.setDrawColor(0, 0, 0);
       doc.line(pageWidth - margin - 60, cursorY, pageWidth - margin, cursorY);
       doc.setFontSize(10);
-      doc.text('Authorized Signature', pageWidth - margin - 30, cursorY + 5, {
-        align: 'center',
+      doc.text("Authorized Signature", pageWidth - margin - 30, cursorY + 5, {
+        align: "center",
       });
 
-      doc.save(`Statement_${teacher?.userName || 'Teacher'}.pdf`);
+      doc.save(`Statement_${teacher?.userName || "Teacher"}.pdf`);
       setIsGeneratingPDF(false);
-      toast.success('PDF Downloaded Successfully!');
+      toast.success("PDF Downloaded Successfully!");
     } catch (err) {
-      toast.error('Error generating PDF');
+      toast.error("Error generating PDF");
       setIsGeneratingPDF(false);
     }
   };
@@ -311,7 +312,7 @@ const AllTeacherClasses = () => {
 
       const res = await updateCourseStatus({
         classId: id,
-        status: 'approve',
+        status: "approve",
       }).unwrap();
       toast.success(res?.message);
       refetch();
@@ -329,19 +330,19 @@ const AllTeacherClasses = () => {
         ...editFormData,
       }).unwrap();
       setEditingId(null);
-      toast.success(res?.message || 'Updated successful!');
+      toast.success(res?.message || "Updated successful!");
     } catch (err) {
-      toast.error(err?.data?.message || 'Update failed!');
+      toast.error(err?.data?.message || "Update failed!");
     }
   };
 
   const handleDeleteClass = async (courseId) => {
     try {
       const res = await deleteTeacherClass({ courseId }).unwrap();
-      toast.success(res?.message || 'Successfully delete class!');
+      toast.success(res?.message || "Successfully delete class!");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || 'Failed to delete class');
+      toast.error(error?.data?.message || "Failed to delete class");
     }
   };
 
@@ -350,7 +351,7 @@ const AllTeacherClasses = () => {
       <header className="sticky top-0 border-b border-gray-100 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 py-3 max-w-screen-2xl sm:px-12">
           <div className="flex items-center gap-2 overflow-hidden">
-            <BreadCrumbMenu />
+            <Breadcrumb />
           </div>
         </div>
       </header>
@@ -377,15 +378,15 @@ const AllTeacherClasses = () => {
           <main className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center justify-between mb-4">
               <h1 className="text-[12px] font-semibold text-slate-800">
-                Total {data?.data?.length}{' '}
-                {data?.data?.length === 1 ? 'Class' : 'Classes'} Found
+                Total {data?.data?.length}{" "}
+                {data?.data?.length === 1 ? "Class" : "Classes"} Found
               </h1>
               {/* actions */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
                 <motion.button
                   whileHover={{
                     scale: 1.05,
-                    boxShadow: '0px 0px 20px rgba(45,212,191,0.35)',
+                    boxShadow: "0px 0px 20px rgba(45,212,191,0.35)",
                   }}
                   whileTap={{ scale: 0.96 }}
                   onClick={generatePDFStatement}
@@ -397,7 +398,7 @@ const AllTeacherClasses = () => {
                     size={18}
                     className="transition-transform group-hover:-translate-y-0.5"
                   />
-                  {isGeneratingPDF ? 'Please wait...' : 'Save Statement'}
+                  {isGeneratingPDF ? "Please wait..." : "Save Statement"}
                 </motion.button>
               </div>
             </div>
@@ -459,7 +460,7 @@ const AllTeacherClasses = () => {
                       <tr>
                         <td colSpan="12" className="py-20 text-center">
                           <h3 className="text-base font-semibold text-red-500">
-                            {error?.data?.message || 'Internal server error!'}
+                            {error?.data?.message || "Internal server error!"}
                           </h3>
                         </td>
                       </tr>
@@ -505,7 +506,7 @@ const AllTeacherClasses = () => {
                                     {item?.teacher?.userName}
                                   </div>
                                   <div className="text-[10px] text-slate-500 mt-0.5">
-                                    ID: {item?.teacher?.userId} •{' '}
+                                    ID: {item?.teacher?.userId} •{" "}
                                     {item?.teacher?.phone}
                                   </div>
                                 </div>
@@ -524,8 +525,8 @@ const AllTeacherClasses = () => {
                                   </span>
                                   <span className="flex items-center gap-1 text-[10px] text-slate-500">
                                     <Clock size={12} /> {item?.classTime} (
-                                    {item?.period}{' '}
-                                    {item?.period > 1 ? 'Periods' : 'Period'})
+                                    {item?.period}{" "}
+                                    {item?.period > 1 ? "Periods" : "Period"})
                                   </span>
                                 </div>
                               </div>
@@ -536,11 +537,11 @@ const AllTeacherClasses = () => {
                               <div className="space-y-1">
                                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">
                                   <Users size={12} /> {item?.batch} (
-                                  {item?.batchCount}{' '}
-                                  {item?.batchCount > 1 ? 'Batches' : 'Batch'})
+                                  {item?.batchCount}{" "}
+                                  {item?.batchCount > 1 ? "Batches" : "Batch"})
                                 </div>
                                 <div className="text-[10px] text-slate-500 pl-1">
-                                  {item?.department} • {item?.classQuantity}{' '}
+                                  {item?.department} • {item?.classQuantity}{" "}
                                   Hours
                                 </div>
                               </div>
@@ -549,16 +550,16 @@ const AllTeacherClasses = () => {
                             {/* Finance */}
                             <td className="px-6 py-4">
                               <div className="text-[12px] font-bold text-slate-900">
-                                {item.totalFee?.toLocaleString('en-US', {
-                                  style: 'currency',
-                                  currency: 'BDT',
+                                {item.totalFee?.toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "BDT",
                                 })}
                               </div>
                               <div
                                 className={`text-[10px] font-bold uppercase tracking-tight mt-0.5 ${
-                                  item.paymentStatus === 'paid'
-                                    ? 'text-[#558A8A]'
-                                    : 'text-amber-600'
+                                  item.paymentStatus === "paid"
+                                    ? "text-[#558A8A]"
+                                    : "text-amber-600"
                                 }`}
                               >
                                 {item?.paymentStatus}
@@ -585,13 +586,13 @@ const AllTeacherClasses = () => {
                               ) : (
                                 <span
                                   className={`rounded text-[10px] font-bold uppercase tracking-wider ${
-                                    item.status === 'approve'
-                                      ? 'bg-emerald-50 text-[#558A8A] border border-emerald-100 btn btn-xs disabled'
-                                      : 'btn btn-xs btn-soft btn-warning'
+                                    item.status === "approve"
+                                      ? "bg-emerald-50 text-[#558A8A] border border-emerald-100 btn btn-xs disabled"
+                                      : "btn btn-xs btn-soft btn-warning"
                                   }`}
                                 >
-                                  {item?.status === 'approve'
-                                    ? 'approved'
+                                  {item?.status === "approve"
+                                    ? "approved"
                                     : item?.status}
                                 </span>
                               )}
@@ -601,21 +602,21 @@ const AllTeacherClasses = () => {
                             <td className="px-6 py-4">
                               <button
                                 onClick={() =>
-                                  handleApprove(item?._id, 'approve')
+                                  handleApprove(item?._id, "approve")
                                 }
                                 disabled={
-                                  item.status === 'approve' ||
+                                  item.status === "approve" ||
                                   activeId === item?._id
                                 }
                                 className={`text-[10px] font-bold uppercase tracking-tight text-center rounded btn btn-xs btn-success text-white ${
-                                  item.status === 'approve'
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : ''
+                                  item.status === "approve"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                               >
                                 {activeId === item?._id
-                                  ? 'Updating...'
-                                  : 'Approve'}
+                                  ? "Updating..."
+                                  : "Approve"}
                               </button>
                             </td>
                             {/* <td className="px-6 py-4">
@@ -639,7 +640,7 @@ const AllTeacherClasses = () => {
                                       className="p-2 text-white transition-all bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700"
                                     >
                                       {isUpdating ? (
-                                        'Updating...'
+                                        "Updating..."
                                       ) : (
                                         <save size={16} />
                                       )}
@@ -658,7 +659,7 @@ const AllTeacherClasses = () => {
                                       className="p-2 transition-all rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50"
                                     >
                                       <Edit2 size={16} />
-                                    </button>{' '}
+                                    </button>{" "}
                                     |
                                     <button
                                       onClick={() =>
@@ -668,7 +669,7 @@ const AllTeacherClasses = () => {
                                       className="p-2 transition-all rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50"
                                     >
                                       {isDeletingClass ? (
-                                        'Deleting...'
+                                        "Deleting..."
                                       ) : (
                                         <Trash2 size={16} />
                                       )}
@@ -688,8 +689,8 @@ const AllTeacherClasses = () => {
               {/* --- Pagination Footer --- */}
               <div className="flex flex-col items-center justify-between gap-4 p-5 border-t sm:flex-row bg-slate-50/50 border-slate-200">
                 <span className="text-xs font-medium text-slate-500">
-                  Showing Page{' '}
-                  <span className="text-slate-900">{filters?.page}</span> of{' '}
+                  Showing Page{" "}
+                  <span className="text-slate-900">{filters?.page}</span> of{" "}
                   <span className="text-slate-900">
                     {data?.totalPages || 1}
                   </span>

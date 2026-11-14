@@ -1,13 +1,7 @@
-// @ts-ignore
-import React from 'react';
-// @ts-ignore
-import logo from '../../../../../../assets/img/log-rpr.png';
-// @ts-ignore
-import signature from '../../../../../../assets/img/rpr-director-sign.png';
-// @ts-ignore
+import logo from "../../../../../assets/img/log-rpr.png";
+import signature from "../../../../../assets/img/rpr-director-sign.png";
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
-// @ts-ignore
 const GreenAdmitCard = ({ data }) => (
   <div className="admit-card-container w-[380px] bg-white border border-green-200 shadow-sm rounded-sm overflow-hidden font-sans print:shadow-none print:border print:m-0 break-inside-avoid">
     {/* Header – green gradient */}
