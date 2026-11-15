@@ -7,7 +7,6 @@ import {
   useTable,
 } from "@tanstack/react-table";
 import { Edit3 } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,8 +37,6 @@ export function ExamList({
   onToggleStatus,
   getBatchNames,
 }: ExamListProps) {
-  console.log("exams list", exams);
-
   const columns = useMemo(
     () =>
       columnHelper.columns([
