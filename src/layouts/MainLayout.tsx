@@ -21,7 +21,7 @@ const MainLayoutContent = () => {
     <div className="flex min-h-svh w-full bg-slate-100/60">
       <AppSidebar />
       <main className="flex-1 overflow-hidden">
-        <div className="mx-auto gap-4 px-4 py-3 sm:px-4 lg:px-4">
+        <div className="mx-auto">
           <Outlet />
         </div>
       </main>

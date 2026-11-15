@@ -258,7 +258,7 @@ export function ExamMarksEntryForm() {
                   onValueChange={handleExamChange}
                   value={selectedExamId || ""}
                 >
-                  <SelectTrigger id="examId" className="h-9 text-xs">
+                  <SelectTrigger id="examId" className="h-9 text-xs w-full">
                     <SelectValue
                       placeholder={
                         !selectedBatchId
