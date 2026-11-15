@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { Filter, Search } from "lucide-react";
 
+import BatchSelector from "@/components/common/BatchSelector";
+import DepartmentSelector from "@/components/common/DepartmentSelector";
+import SubjectSelector from "@/components/common/SubjectSelector";
+
 const departmentOptions = [
   "ARCH",
   "CE",

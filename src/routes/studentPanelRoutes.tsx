@@ -15,7 +15,7 @@ export const StudentPanelRoutes = [
     handle: { title: "Comprehensive Student Matrix" },
   },
   {
-    path: "student/details/:id",
+    path: "details/:id",
     element: <StudentsDetails />,
     handle: { title: "Profile File Inspection" },
   },

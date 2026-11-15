@@ -33,7 +33,6 @@ export function useLoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     setGeneralError(null);
 
-    // Turnstile টোকেন চেক (যদি এনভায়রনমেন্টে সাইট কি থাকে)
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
       setGeneralError("Please complete the security verification.");
       return;
@@ -49,14 +48,13 @@ export function useLoginForm() {
       );
 
       if (login.fulfilled.match(resultAction)) {
-        navigate("/dashboard");
+        navigate("/welcome");
       } else {
         const errorMsg =
           (resultAction.payload as string) ||
           "Login failed. Please check your credentials.";
         setGeneralError(errorMsg);
 
-        // ফেইল করলে টার্নস্টাইল রিসেট করা
         setTurnstileWidgetKey((prev) => prev + 1);
         setTurnstileToken("");
       }

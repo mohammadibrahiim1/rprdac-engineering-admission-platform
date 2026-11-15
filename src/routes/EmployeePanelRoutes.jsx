@@ -22,24 +22,24 @@ export const EmployeePanelRoutes = [
     handle: { title: "Corporate Employees Roster" },
   },
   {
-    path: "/dashboard/employee/statements/:id",
+    path: "statements/:id",
     element: <StatementOfAEmployee />,
     handle: { title: "Employee Payroll Statement" },
   },
   {
-    path: "/dashboard/employee/loan/:id",
+    path: "loan/:id",
     element: <AllEmployeeLoans />,
     loader: async ({ params }) =>
       fetch(`${SERVER}/api/employee/single/loans/${params?.id}`),
     handle: { title: "Employee Loan Overview" },
   },
   {
-    path: "employee/duties",
+    path: "duties",
     element: <AllStaff />,
     handle: { title: "Staff Assigned Rosters" },
   },
   {
-    path: "employee/duties/assign",
+    path: "duties/assign",
     element: <StaffAttendance />,
     handle: { title: "Record Staff Attendance" },
   },
@@ -54,7 +54,7 @@ export const EmployeePanelRoutes = [
     handle: { title: "Generate Corporate Tasks" },
   },
   {
-    path: "employee/loans",
+    path: "loans",
     element: <StaffAllLoans />,
     handle: { title: "Staff Personal Loans" },
   },

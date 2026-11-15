@@ -1516,7 +1516,7 @@ export default function StudentAllInvoices() {
               }}
               className="inline-flex items-center justify-center w-24 h-24 p-5 text-4xl bg-white border shadow-md select-none rounded border-slate-200/80"
             >
-              <PiInvoice className="w-auto h-auto" />
+              <Receipt className="w-auto h-auto" />
             </motion.div>
 
             <div className="space-y-1">

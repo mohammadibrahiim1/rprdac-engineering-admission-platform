@@ -13,7 +13,7 @@ const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
 
 export const NursingPanelRoutes = [
   {
-    path: "nursing/duties/summary",
+    path: "duties/summary",
     element: (
       //<AdmissionPrivateRoute panelName="nursing">
       <NursingDutiesSummary />
@@ -31,12 +31,12 @@ export const NursingPanelRoutes = [
     handle: { title: "All Registered Nurses" },
   },
   {
-    path: "/dashboard/nursing/statement/:id",
+    path: "statement/:id",
     element: <StatementOfANursing />,
     handle: { title: "Nurse Performance Statement" },
   },
   {
-    path: "/dashboard/nursing/duties/all",
+    path: "duties/all",
     element: (
       //<AdmissionPrivateRoute panelName="nursing">
       <NursingAllDuties />
@@ -59,29 +59,29 @@ export const NursingPanelRoutes = [
     handle: { title: "Nurse Attendance Sheet" },
   },
   {
-    path: "nursing/myAttendance",
+    path: "myAttendance",
     element: <MyAttendance />,
     handle: { title: "My Duty Attendance" },
   },
   {
-    path: "nursing/allAttendance",
+    path: "allAttendance",
     element: <NursingAllAttendance />,
     handle: { title: "Overall Nursing Attendance" },
   },
-  {
-    path: "nursing-loan-request",
-    element: (
-      //<AdmissionPrivateRoute panelName="nursing">
-      <NursingLoanRequest />
-      //</AdmissionPrivateRoute>
-    ),
-    handle: { title: "Apply For Nurse Loan" },
-  },
-  {
-    path: "nurse/all-loans",
-    element: <NurseAllLoan />,
-    handle: { title: "Nurse Loan Ledger" },
-  },
+  // {
+  //   path: "nursing-loan-request",
+  //   element: (
+  //     //<AdmissionPrivateRoute panelName="nursing">
+  //     <NursingLoanRequest />
+  //     //</AdmissionPrivateRoute>
+  //   ),
+  //   handle: { title: "Apply For Nurse Loan" },
+  // },
+  // {
+  //   path: "nurse/all-loans",
+  //   element: <NurseAllLoan />,
+  //   handle: { title: "Nurse Loan Ledger" },
+  // },
   // {
   //   path: "/dashboard/nursing/loans/:id",
   //   element: <Loans />,

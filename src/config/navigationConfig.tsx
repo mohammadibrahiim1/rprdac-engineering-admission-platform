@@ -45,7 +45,7 @@ import {
 export interface NavSubItem {
   title: string;
   url: string;
-  icon?: React.ElementType; // JSX এলিমেন্টের পরিবর্তে কম্পোনেন্ট টাইপ রাখা হয়েছে
+  icon?: React.ElementType;
 }
 
 export interface NavMainItem {
@@ -101,34 +101,22 @@ export const pageTitles: Record<string, string> = {
   "/dashboard/student/student-admit/registry": "Admit Card Registry",
   "/dashboard/student/invoices/student": "All Invoices",
   "/dashboard/student/transaction/student": "All Transactions",
-  "/dashboard/student/student/profile": "My Profile",
-  "/dashboard/student/student/notice": "My Notices",
 
   // Teacher Panel
   "/dashboard/teacher/admin/add-teacher-class": "Add Teacher Class",
   "/dashboard/teacher/all-teachers": "All Teachers",
   "/dashboard/teacher/all/teachers/class": "All Classes",
-  "/dashboard/teacher/admin/teacher/request/loan": "Apply For Loan",
-  "/dashboard/teacher/teacher/announcement": "My Announcements",
-  "/dashboard/teacher/my-classes": "My Classes",
-  "/dashboard/teacher/teacher/all-loans": "Loan History",
+  "/dashboard/teacher/request/loan": "Apply For Loan",
 
   // Employee Panel
   "/dashboard/employee/admin/duties/create": "Add Employee Duty",
   "/dashboard/employee/admin/employees": "All Employees",
   "/dashboard/employee/admin/duties/employees": "All Duties",
-  "/dashboard/employee/admin/loans/requests": "Apply For Loan",
-  "/dashboard/employee/employee/duties/assign": "Add My Duty",
-  "/dashboard/employee/employee/duties": "My Assigned Duties",
-  "/dashboard/employee/employee/loans": "My Loan History",
 
   // Nursing Panel
   "/dashboard/nursing/admin/addNursing": "Assign Nursing Duty",
-  "/dashboard/nursing/nursing/duties/summary": "All Nursings",
-  "/dashboard/nursing/nursing/duties/all": "All Duties",
-  "/dashboard/nursing/nursing-loan-request": "Apply For Loan",
-  "/dashboard/nursing/nursing/myAttendance": "My Assigned Shifts",
-  "/dashboard/nursing/nurse/all-loans": "My Loan History",
+  "/dashboard/nursing/duties/summary": "All Nursings",
+  "/dashboard/nursing/duties/all": "All Duties",
 
   // Announcements Panel
   "/dashboard/user/admin/announcement/all": "Announcement",
@@ -205,43 +193,33 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: "All Students",
-          url: "/student/admin/student/all",
+          url: "student/admin/student/all",
           icon: Users,
         },
         {
           title: "Enroll Student",
-          url: "/student/student-enrollment",
+          url: "student/student-enrollment",
           icon: FileEdit,
         },
         {
           title: "Finance",
-          url: "/student/ers/student",
+          url: "student/ers/student",
           icon: DollarSign,
         },
         {
           title: "Admit Card Registry",
-          url: "/student/student-admit/registry",
+          url: "student/student-admit/registry",
           icon: Receipt,
         },
         {
           title: "All Invoices",
-          url: "/student/invoices/student",
+          url: "student/invoices/student",
           icon: Receipt,
         },
         {
           title: "All Transactions",
-          url: "/student/transaction/student",
+          url: "student/transaction/student",
           icon: Receipt,
-        },
-        {
-          title: "My Profile",
-          url: "/student/student/profile",
-          icon: UserSquare,
-        },
-        {
-          title: "My Notices",
-          url: "/student/student/notice",
-          icon: Volume2,
         },
       ],
     },
@@ -251,38 +229,23 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: "Add Teacher Class",
-          url: "/teacher/admin/add-teacher-class",
+          url: "teacher/admin/add-teacher-class",
           icon: BookOpen,
         },
         {
           title: "All Teachers",
-          url: "/teacher/all-teachers",
+          url: "teacher/all-teachers",
           icon: Users,
         },
         {
           title: "All Classes",
-          url: "/teacher/all/teachers/class",
+          url: "teacher/all/teachers/class",
           icon: School,
         },
         {
           title: "Apply For Loan",
-          url: "/teacher/admin/teacher/request/loan",
+          url: "teacher/request/loan",
           icon: HandCoins,
-        },
-        {
-          title: "My Announcements",
-          url: "/teacher/teacher/announcement",
-          icon: Megaphone,
-        },
-        {
-          title: "My Classes",
-          url: "/teacher/my-classes",
-          icon: FileText,
-        },
-        {
-          title: "Loan History",
-          url: "/teacher/teacher/all-loans",
-          icon: Volume2,
         },
       ],
     },
@@ -292,38 +255,18 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: "Add Employee Duty",
-          url: "/employee/admin/duties/create",
+          url: "employee/admin/duties/create",
           icon: ListChecks,
         },
         {
           title: "All Employees",
-          url: "/employee/admin/employees",
+          url: "employee/admin/employees",
           icon: Users,
         },
         {
           title: "All Duties",
-          url: "/employee/admin/duties/employees",
+          url: "employee/admin/duties/employees",
           icon: Workflow,
-        },
-        {
-          title: "Apply For Loan",
-          url: "/employee/admin/loans/requests",
-          icon: HandCoins,
-        },
-        {
-          title: "Add My Duty",
-          url: "/employee/employee/duties/assign",
-          icon: ClipboardCheck,
-        },
-        {
-          title: "My Assigned Duties",
-          url: "/employee/employee/duties",
-          icon: FileClock,
-        },
-        {
-          title: "My Loan History",
-          url: "/employee/employee/loans",
-          icon: Volume2,
         },
       ],
     },
@@ -333,33 +276,18 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: "Assign Nursing Duty",
-          url: "/nursing/admin/addNursing",
+          url: "nursing/admin/addNursing",
           icon: ListChecks,
         },
         {
           title: "All Nursings",
-          url: "/nursing/nursing/duties/summary",
+          url: "nursing/duties/summary",
           icon: Users,
         },
         {
           title: "All Duties",
-          url: "/nursing/nursing/duties/all",
+          url: "nursing/duties/all",
           icon: Users,
-        },
-        {
-          title: "Apply For Loan",
-          url: "/nursing/nursing-loan-request",
-          icon: HandCoins,
-        },
-        {
-          title: "My Assigned Shifts",
-          url: "/nursing/nursing/myAttendance",
-          icon: FileClock,
-        },
-        {
-          title: "My Loan History",
-          url: "/nursing/nurse/all-loans",
-          icon: Volume2,
         },
       ],
     },
@@ -433,16 +361,6 @@ export const sidebarData: SidebarData = {
           icon: CardSim,
         },
       ],
-    },
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
     },
   ],
 

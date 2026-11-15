@@ -23,7 +23,9 @@ import {
   Megaphone,
   Zap,
 } from "lucide-react";
-// import { useGetAnnouncementsQuery } from "../redux/features/announcement/announcementApi";
+
+import { useGetAnnouncementsQuery } from "@/redux/features/announcement/announcementApi";
+
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 const SERVER = import.meta.env.VITE_SERVER_BASE_URL;
@@ -345,7 +347,7 @@ const EmptyDetail = () => (
 /* ─────────────────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────────────────── */
-const StudentNotice = () => {
+const DisplayTeacherAnnouncementById = () => {
   const { user } = useSelector((state) => state?.auth);
 
   // ── State ────────────────────────────────────────────
@@ -719,4 +721,4 @@ const StudentNotice = () => {
   );
 };
 
-export default StudentNotice;
+export default DisplayTeacherAnnouncementById;

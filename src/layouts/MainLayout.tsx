@@ -1,7 +1,5 @@
-// src/layouts/MainLayout.tsx
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -21,18 +19,12 @@ const MainLayoutContent = () => {
 
   return (
     <div className="flex min-h-svh w-full bg-slate-100/60">
-      {/* Newly generated Shadcn AppSidebar */}
       <AppSidebar />
-
-      {/* Main Content wrapper with Inset behavior */}
-      {/* <SidebarInset className="flex min-w-0 flex-1 flex-col bg-slate-50 transition-all duration-200"> */}
-      {/* Dynamic Page Outlet */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto">
+      <main className="flex-1 overflow-hidden">
+        <div className="mx-auto gap-4 px-4 py-3 sm:px-4 lg:px-4">
           <Outlet />
         </div>
       </main>
-      {/* </SidebarInset> */}
     </div>
   );
 };

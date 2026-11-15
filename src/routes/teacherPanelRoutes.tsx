@@ -1,18 +1,10 @@
 import AdminAddTeacherClass from "@/features/admin/teacherPanel/pages/AdminAddTeacherClass";
 import AllTeacherClasses from "@/features/admin/teacherPanel/pages/AllTeacherClasses";
 import AllTeachers from "@/features/admin/teacherPanel/pages/AllTeachers";
+import DisplayTeacherAnnouncementById from "@/features/admin/teacherPanel/pages/DisplayTeacherAnnouncementById";
 import RequestForLoan from "@/features/admin/teacherPanel/pages/RequestForLoan";
 import MyClasses from "@/features/teachers/pages/MyClasses";
 import TeacherAllLoanRequest from "@/features/teachers/pages/TeacherAllLoanRequest";
-import {
-  BookOpen,
-  Users,
-  School,
-  HandCoins,
-  Megaphone,
-  FileText,
-  Volume2,
-} from "lucide-react";
 
 export const teacherPanelRoutes = [
   {
@@ -28,19 +20,19 @@ export const teacherPanelRoutes = [
     element: <AllTeacherClasses />,
   },
   {
-    path: "admin/teacher/request/loan",
+    path: "request/loan",
     element: <RequestForLoan />,
   },
-  // {
-  //   path: "teacher/announcement",
-  //   element: <DisplayTeacherAnnouncementById />,
-  // },
+  {
+    path: "announcement",
+    element: <DisplayTeacherAnnouncementById />,
+  },
   {
     path: "my-classes",
     element: <MyClasses />,
   },
   {
-    path: "teacher/all-loans",
+    path: "all-loans",
     element: <TeacherAllLoanRequest />,
   },
 ];
