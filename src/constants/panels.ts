@@ -11,4 +11,5 @@ export const ALL_PANELS: PanelType[] = [
   "control",
   "account",
   "examcenter",
+  "exam", // Added exam panel as it contains ex1, ex2... keys
 ];

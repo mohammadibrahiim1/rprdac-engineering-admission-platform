@@ -1,8 +1,7 @@
-import * as React from "react";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, MoreHorizontal, TerminalIcon } from "lucide-react";
+import { ChevronRight, TerminalIcon } from "lucide-react";
 import { sidebarData } from "@/config/navigationConfig";
 import { useAppSelector } from "@/hooks/storeHooks";
 import {
@@ -16,10 +15,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/nav-user";
-
-/* -------------------------------------------------------------------------- */
-/*                             Multi-Panel Themes                             */
-/* -------------------------------------------------------------------------- */
 
 const PANEL_THEMES: Record<
   string,
@@ -108,8 +103,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>(
     {},
   );
-  const [activeMobileMenu, setActiveMobileMenu] = useState<string | null>(null);
+  const [, setActiveMobileMenu] = useState<string | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  const userType = authUser?.userType?.toLowerCase() || "";
+  const isAdmin = userType === "admin" || userType === "superadmin";
+
+  const allowedPanels = (authUser?.allowedPanels || []).map((p: string) =>
+    p.toLowerCase().trim(),
+  );
+  const allowedRoutes = (authUser?.allowedRoutes || []).map((r: string) =>
+    r.toLowerCase().trim(),
+  );
 
   const user = {
     name: authUser?.userName || "Administrator",
@@ -117,7 +122,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     avatar: authUser?.profilePicture || "",
   };
 
-  // Safe Icon Renderer (Handles both Component Reference & JSX Element)
   const renderIcon = (
     IconComponent?: React.ElementType | React.ReactNode,
     className = "h-4 w-4",
@@ -128,7 +132,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return <Icon className={className} />;
   };
 
-  // Close active mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -151,8 +154,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setExpandedPanels((prev) => ({ ...prev, [panelName]: !prev[panelName] }));
   };
 
-  // Sub Navigation Link Renderer
+  // Direct Panel Access Verification
+  const hasPanelAccess = (item: any) => {
+    if (isAdmin) return true;
+    const itemTitle = (item.title || item.name || "").toLowerCase().trim();
+    const itemKey = (item.routeKey || item.key || "").toLowerCase().trim();
+
+    return allowedPanels.some(
+      (panel) =>
+        panel === itemTitle || panel === itemKey || itemTitle.includes(panel),
+    );
+  };
+
+  // Direct Route/Sub-item Access Verification
+  const hasRouteAccess = (sub: any) => {
+    if (isAdmin) return true;
+    const subKey = (sub.routeKey || sub.key || "").toLowerCase().trim();
+    const subUrl = (sub.url || sub.path || "").toLowerCase().trim();
+    const subTitle = (sub.title || sub.name || "").toLowerCase().trim();
+
+    return allowedRoutes.some(
+      (route) =>
+        route === subKey ||
+        route === subTitle ||
+        subUrl.includes(route) ||
+        route.includes(subKey),
+    );
+  };
+
   const SubNavLink = ({ sub, theme }: { sub: any; theme: any }) => {
+    if (!isAdmin && !hasRouteAccess(sub)) return null;
     const active = isRouteActive(sub.url || sub.path);
     return (
       <Link
@@ -186,17 +217,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     );
   };
 
-  // Render Section Items (MainNav, Secondary, Projects, Workspaces) with Accordion
   const renderNavItem = (item: any, themeKey = "default") => {
-    const theme = PANEL_THEMES[themeKey] || PANEL_THEMES.default;
     const hasSubItems = item?.items && item.items.length > 0;
-    const isChildActive = hasSubItems
-      ? item.items.some((sr: any) => isRouteActive(sr.url || sr.path))
-      : isRouteActive(item.url);
-    const isCurrentExpanded =
-      expandedPanels[item.title || item.name] ?? isChildActive;
 
-    if (!hasSubItems) {
+    // Filter sub-items strictly based on allowedRoutes
+    const filteredSubItems = hasSubItems
+      ? item.items.filter((sub: any) => isAdmin || hasRouteAccess(sub))
+      : [];
+
+    const itemHasPanelAccess = hasPanelAccess(item);
+
+    // If the panel itself isn't allowed AND no valid filtered sub-routes remain, hide it
+    if (!itemHasPanelAccess && filteredSubItems.length === 0) {
+      return null;
+    }
+
+    const theme = PANEL_THEMES[themeKey] || PANEL_THEMES.default;
+
+    if (!hasSubItems || filteredSubItems.length === 0) {
+      if (!itemHasPanelAccess && !hasRouteAccess(item)) return null;
+      const isChildActive = isRouteActive(item.url);
       return (
         <Link
           key={item.title || item.name}
@@ -224,6 +264,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Link>
       );
     }
+
+    const isChildActive = filteredSubItems.some((sr: any) =>
+      isRouteActive(sr.url || sr.path),
+    );
+    const isCurrentExpanded =
+      expandedPanels[item.title || item.name] ?? isChildActive;
 
     return (
       <div key={item.title || item.name} className="mb-1">
@@ -277,9 +323,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="overflow-hidden"
             >
               <div className="pt-0.5 pb-1">
-                {item?.items?.map((sub: any) => (
+                {filteredSubItems.map((sub: any) => (
                   <SubNavLink
-                    key={sub.key || sub.url || sub.path}
+                    key={sub.routeKey || sub.url || sub.path}
                     sub={sub}
                     theme={theme}
                   />
@@ -292,392 +338,156 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     );
   };
 
-  return (
-    <>
-      {/* ─── DESKTOP SIDEBAR VIEW ─── */}
-      <Sidebar
-        variant="inset"
-        {...props}
-        className="hidden lg:flex border-r border-slate-200/80 bg-white z-40 shadow-sm"
-      >
-        <SidebarHeader className="border-b border-slate-100 px-5 py-4">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton size="lg" render={<Link to="/" />}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20">
-                  <TerminalIcon className="size-5" />
-                </div>
-                {isExpanded && (
-                  <div className="grid flex-1 text-left leading-tight pl-1">
-                    <span className="truncate font-extrabold text-sm text-slate-900">
-                      RPRDAC Admin
-                    </span>
-                    <span className="truncate text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
-                      Control Center
-                    </span>
-                  </div>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarHeader>
+  const renderNavSection = (
+    items: any[],
+    sectionTitle: string,
+    themesList: string[],
+  ) => {
+    const renderedItems = items
+      .map((item, idx) => {
+        const chosenTheme = themesList[idx % themesList.length];
+        return renderNavItem(item, chosenTheme);
+      })
+      .filter(Boolean);
 
-        <SidebarContent className="px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200">
-          {/* 1. Main Navigation */}
-          {sidebarData?.navMain?.length > 0 && (
-            <div>
-              {isExpanded && (
-                <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
-                  Main Menus
-                </p>
-              )}
-              {sidebarData.navMain.map((item: any, idx: number) => {
-                const themesList = [
-                  "exam",
-                  "student",
-                  "teacher",
-                  "employee",
-                  "nursing",
-                  "control",
-                ];
-                const chosenTheme = themesList[idx % themesList.length];
-                return renderNavItem(item, chosenTheme);
-              })}
-            </div>
-          )}
+    if (renderedItems.length === 0) return null;
 
-          {/* 2. Secondary Navigation */}
-          {sidebarData?.navSecondary?.length > 0 && (
-            <div className="pt-4 border-t border-slate-100">
-              {isExpanded && (
-                <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
-                  Secondary Modules
-                </p>
-              )}
-              {sidebarData?.navSecondary?.map((item: any, idx: number) => {
-                const themesList = [
-                  "announcement",
-                  "user",
-                  "order",
-                  "examcenter",
-                  "default",
-                ];
-                const chosenTheme = themesList[idx % themesList.length];
-                return renderNavItem(item, chosenTheme);
-              })}
-            </div>
-          )}
-
-          {/* 3. Projects */}
-          {sidebarData?.projects?.length > 0 && (
-            <div className="pt-4 border-t border-slate-100">
-              {isExpanded && (
-                <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
-                  Projects
-                </p>
-              )}
-              {sidebarData.projects.map((proj: any) => {
-                const active = isRouteActive(proj.url);
-                const theme = PANEL_THEMES.control;
-                return (
-                  <Link
-                    key={proj.name}
-                    to={proj.url || "#"}
-                    className={`flex items-center gap-3 p-2.5 rounded mb-1 group transition-all duration-200 ${
-                      active
-                        ? `${theme.activeBg} ${theme.activeText} shadow-sm font-semibold`
-                        : "hover:bg-slate-100 text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    <div
-                      className={`p-1.5 rounded shrink-0 ${
-                        active
-                          ? theme.iconBg
-                          : "bg-orange-500/10 text-orange-600"
-                      }`}
-                    >
-                      {renderIcon(proj.icon, "h-4 w-4")}
-                    </div>
-                    {isExpanded && (
-                      <span className="text-[13px] font-semibold truncate">
-                        {proj.name}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
-          {/* 4. Workspaces */}
-          {sidebarData?.workspaces?.length > 0 && (
-            <div className="pt-4 border-t border-slate-100">
-              {isExpanded && (
-                <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
-                  Workspaces & Access
-                </p>
-              )}
-              {sidebarData.workspaces.map((ws: any) => {
-                const active = isRouteActive(ws.url);
-                const theme = PANEL_THEMES.account;
-                return (
-                  <Link
-                    key={ws.name}
-                    to={ws.url || "#"}
-                    className={`flex items-center gap-3 p-2.5 rounded mb-1 group transition-all duration-200 ${
-                      active
-                        ? `${theme.activeBg} ${theme.activeText} shadow-sm font-semibold`
-                        : "hover:bg-slate-100 text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    <div
-                      className={`p-1.5 rounded shrink-0 ${
-                        active
-                          ? theme.iconBg
-                          : "bg-purple-500/10 text-purple-600"
-                      }`}
-                    >
-                      {renderIcon(ws.icon, "h-4 w-4")}
-                    </div>
-                    {isExpanded && (
-                      <span className="text-[13px] font-semibold truncate">
-                        {ws.name}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </SidebarContent>
-
-        <SidebarFooter className="border-t border-slate-100 p-3">
-          <NavUser user={user} />
-        </SidebarFooter>
-      </Sidebar>
-
-      {/* ─── MOBILE & TABLET BOTTOM NAVBAR VIEW ─── */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_24px_rgba(15,23,42,0.08)] z-50 flex lg:hidden items-center justify-around px-2 selection:bg-transparent">
-        {/* Render first 3 main items */}
-        {sidebarData?.navMain?.slice(0, 3)?.map((item: any, idx: number) => {
-          const themesList = ["exam", "student", "teacher"];
-          const theme =
-            PANEL_THEMES[themesList[idx % themesList.length]] ||
-            PANEL_THEMES.default;
-          const isChildActive = item?.items?.some((sr: any) =>
-            isRouteActive(sr.url || sr.path),
-          );
-
-          return (
-            <button
-              type="button"
-              key={item.title || item.name}
-              onClick={() =>
-                setActiveMobileMenu(
-                  activeMobileMenu === item.title ? null : item.title,
-                )
-              }
-              className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors relative ${
-                isChildActive
-                  ? theme.activeText
-                  : "text-slate-500 hover:text-slate-900"
-              }`}
-            >
-              <div className="p-1 rounded-lg">
-                {renderIcon(item.icon, "h-4 w-4")}
-              </div>
-              <span className="text-[10px] font-bold tracking-tight max-w-[72px] truncate">
-                {item.title}
-              </span>
-              {isChildActive && (
-                <span
-                  className={`absolute top-1.5 right-1/2 translate-x-3 w-1.5 h-1.5 rounded-full ${theme.dotBg}`}
-                />
-              )}
-            </button>
-          );
-        })}
-
-        {/* More Button */}
-        <button
-          type="button"
-          onClick={() =>
-            setActiveMobileMenu(
-              activeMobileMenu === "more_options" ? null : "more_options",
-            )
-          }
-          className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-            activeMobileMenu === "more_options"
-              ? "text-indigo-600 font-bold"
-              : "text-slate-500 hover:text-slate-900"
-          }`}
-        >
-          <MoreHorizontal className="w-5 h-5 stroke-[2.2]" />
-          <span className="text-[10px] font-bold tracking-tight">More</span>
-        </button>
-
-        {/* Mobile Popup Drawer */}
-        <AnimatePresence>
-          {activeMobileMenu && (
-            <motion.div
-              ref={mobileMenuRef}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={{ type: "spring", duration: 0.35, bounce: 0.1 }}
-              className="absolute bottom-20 left-4 right-4 bg-white border border-slate-200/80 rounded-2xl max-h-[70vh] overflow-y-auto shadow-2xl p-4 flex flex-col gap-3 z-50 scrollbar-thin"
-            >
-              {activeMobileMenu === "more_options" ? (
-                <>
-                  <div className="px-3 py-1 text-slate-400 font-extrabold text-[11px] uppercase tracking-widest border-b border-slate-100 pb-2">
-                    All Management Modules
-                  </div>
-
-                  {/* Rest of NavMain */}
-                  {sidebarData?.navMain?.slice(3).map((item: any) => (
-                    <div
-                      key={item.title}
-                      className="flex flex-col border-b border-slate-100 pb-2 mb-1"
-                    >
-                      <div className="flex items-center gap-2 px-3 py-1 font-bold text-xs uppercase tracking-wider text-indigo-600">
-                        {renderIcon(item.icon, "h-4 w-4")}
-                        <span>{item.title}</span>
-                      </div>
-                      {item.items?.map((sub: any) => (
-                        <Link
-                          key={sub.url || sub.path}
-                          to={sub.url || sub.path}
-                          onClick={() => setActiveMobileMenu(null)}
-                          className={`flex items-center gap-3 p-2.5 rounded text-sm font-semibold transition-all ${
-                            isRouteActive(sub.url || sub.path)
-                              ? "bg-indigo-50 text-indigo-600 font-bold"
-                              : "hover:bg-slate-50 text-slate-700"
-                          }`}
-                        >
-                          {sub.icon && (
-                            <span className="shrink-0 text-slate-400">
-                              {renderIcon(sub.icon, "h-4 w-4")}
-                            </span>
-                          )}
-                          <span className="truncate">
-                            {sub.title || sub.name}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  ))}
-
-                  {/* NavSecondary */}
-                  {sidebarData?.navSecondary?.map((secItem: any) => (
-                    <div
-                      key={secItem.title}
-                      className="flex flex-col border-b border-slate-100 pb-2 mb-1"
-                    >
-                      <div className="flex items-center gap-2 px-3 py-1 font-bold text-xs uppercase tracking-wider text-violet-600">
-                        {renderIcon(secItem.icon, "h-4 w-4")}
-                        <span>{secItem.title}</span>
-                      </div>
-                      {secItem.items?.map((sub: any) => (
-                        <Link
-                          key={sub.url || sub.path}
-                          to={sub.url || sub.path}
-                          onClick={() => setActiveMobileMenu(null)}
-                          className={`flex items-center gap-3 p-2.5 rounded text-sm font-semibold transition-all ${
-                            isRouteActive(sub.url || sub.path)
-                              ? "bg-violet-50 text-violet-600 font-bold"
-                              : "hover:bg-slate-50 text-slate-700"
-                          }`}
-                        >
-                          {sub.icon && (
-                            <span className="shrink-0 text-slate-400">
-                              {renderIcon(sub.icon, "h-4 w-4")}
-                            </span>
-                          )}
-                          <span className="truncate">
-                            {sub.title || sub.name}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  ))}
-
-                  {/* Projects */}
-                  {sidebarData?.projects?.length > 0 && (
-                    <div className="flex flex-col border-b border-slate-100 pb-2 mb-1">
-                      <div className="px-3 py-1 font-bold text-xs uppercase tracking-wider text-orange-600">
-                        Projects
-                      </div>
-                      {sidebarData.projects.map((proj: any) => (
-                        <Link
-                          key={proj.name}
-                          to={proj.url}
-                          onClick={() => setActiveMobileMenu(null)}
-                          className="flex items-center gap-3 p-2.5 rounded text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                        >
-                          {renderIcon(proj.icon, "h-4 w-4")}
-                          <span>{proj.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Workspaces */}
-                  {sidebarData?.workspaces?.length > 0 && (
-                    <div className="flex flex-col">
-                      <div className="px-3 py-1 font-bold text-xs uppercase tracking-wider text-purple-600">
-                        Workspaces
-                      </div>
-                      {sidebarData.workspaces.map((ws: any) => (
-                        <Link
-                          key={ws.name}
-                          to={ws.url}
-                          onClick={() => setActiveMobileMenu(null)}
-                          className="flex items-center gap-3 p-2.5 rounded text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                        >
-                          {renderIcon(ws.icon, "h-4 w-4")}
-                          <span>{ws.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div className="px-3 py-1 text-slate-400 font-extrabold text-xs uppercase tracking-widest mb-1 border-b border-slate-100 pb-2">
-                    {activeMobileMenu} Shortcuts
-                  </div>
-                  {(() => {
-                    const currentMainItem = sidebarData.navMain.find(
-                      (item: any) => item.title === activeMobileMenu,
-                    );
-                    return currentMainItem?.items?.map((sub: any) => (
-                      <Link
-                        key={sub.url || sub.path}
-                        to={sub.url || sub.path}
-                        onClick={() => setActiveMobileMenu(null)}
-                        className={`flex items-center gap-3 p-2.5 rounded text-sm font-semibold transition-all ${
-                          isRouteActive(sub.url || sub.path)
-                            ? "bg-indigo-50 text-indigo-600 font-bold"
-                            : "hover:bg-slate-50 text-slate-700"
-                        }`}
-                      >
-                        {sub.icon && (
-                          <span className="shrink-0">
-                            {renderIcon(sub.icon, "h-4 w-4")}
-                          </span>
-                        )}
-                        <span className="truncate">
-                          {sub.title || sub.name}
-                        </span>
-                      </Link>
-                    ));
-                  })()}
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+    return (
+      <div className="pt-4 first:pt-0 border-t first:border-t-0 border-slate-100">
+        {isExpanded && sectionTitle && (
+          <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
+            {sectionTitle}
+          </p>
+        )}
+        {renderedItems}
       </div>
-    </>
+    );
+  };
+
+  return (
+    <Sidebar
+      variant="inset"
+      {...props}
+      className="hidden lg:flex border-r border-slate-200/80 bg-white z-40 shadow-sm"
+    >
+      <SidebarHeader className="border-b border-slate-100 px-5 py-4">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" render={<Link to="/" />}>
+              <div className="flex aspect-square size-10 items-center justify-center rounded bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20">
+                <TerminalIcon className="size-5" />
+              </div>
+              {isExpanded && (
+                <div className="grid flex-1 text-left leading-tight pl-1">
+                  <span className="truncate font-extrabold text-sm text-slate-900">
+                    RPRDAC Admin
+                  </span>
+                  <span className="truncate text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                    Control Center
+                  </span>
+                </div>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+      <SidebarContent className="px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200">
+        {renderNavSection(sidebarData?.navMain || [], "Main Menus", [
+          "exam",
+          "exam",
+          "student",
+          "teacher",
+          "employee",
+          "nursing",
+        ])}
+
+        {renderNavSection(
+          sidebarData?.navSecondary || [],
+          "Secondary Modules",
+          ["announcement", "user", "order", "examcenter"],
+        )}
+
+        {isAdmin && sidebarData?.projects?.length > 0 && (
+          <div className="pt-4 border-t border-slate-100">
+            {isExpanded && (
+              <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
+                Control Panel (Projects)
+              </p>
+            )}
+            {sidebarData.projects.map((proj: any) => {
+              const active = isRouteActive(proj.url);
+              const theme = PANEL_THEMES.control;
+              return (
+                <Link
+                  key={proj.routeKey || proj.name}
+                  to={proj.url || "#"}
+                  className={`flex items-center gap-3 p-2.5 rounded mb-1 group transition-all duration-200 ${
+                    active
+                      ? `${theme.activeBg} ${theme.activeText} shadow-sm font-semibold`
+                      : "hover:bg-slate-100 text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <div
+                    className={`p-1.5 rounded shrink-0 ${
+                      active ? theme.iconBg : "bg-orange-500/10 text-orange-600"
+                    }`}
+                  >
+                    {renderIcon(proj.icon, "h-4 w-4")}
+                  </div>
+                  {isExpanded && (
+                    <span className="text-[13px] font-semibold truncate">
+                      {proj.title || proj.name}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {isAdmin && sidebarData?.workspaces?.length > 0 && (
+          <div className="pt-4 border-t border-slate-100">
+            {isExpanded && (
+              <p className="px-3 mb-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-sans">
+                Workspaces & Access
+              </p>
+            )}
+            {sidebarData.workspaces.map((ws: any) => {
+              const active = isRouteActive(ws.url);
+              const theme = PANEL_THEMES.account;
+              return (
+                <Link
+                  key={ws.routeKey || ws.name}
+                  to={ws.url || "#"}
+                  className={`flex items-center gap-3 p-2.5 rounded mb-1 group transition-all duration-200 ${
+                    active
+                      ? `${theme.activeBg} ${theme.activeText} shadow-sm font-semibold`
+                      : "hover:bg-slate-100 text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <div
+                    className={`p-1.5 rounded shrink-0 ${
+                      active ? theme.iconBg : "bg-purple-500/10 text-purple-600"
+                    }`}
+                  >
+                    {renderIcon(ws.icon, "h-4 w-4")}
+                  </div>
+                  {isExpanded && (
+                    <span className="text-[13px] font-semibold truncate">
+                      {ws.title || ws.name}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-slate-100 p-3">
+        <NavUser user={user} />
+      </SidebarFooter>
+    </Sidebar>
   );
 }

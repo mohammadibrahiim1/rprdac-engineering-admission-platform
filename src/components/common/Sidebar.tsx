@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GraduationCap, ChevronLeft, X, BookOpen } from "lucide-react";
-import { navigationGroups } from "../../config/navigationConfig";
+
 import {
   Sidebar as ShadcnSidebar,
   SidebarHeader,
@@ -17,7 +17,7 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
-const Sidebar = ({ onClose }: SidebarProps) => {
+const Sidebar = ({}: SidebarProps) => {
   const { state, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
   const isOpen = state === "expanded";
 
@@ -75,7 +75,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
       </SidebarHeader>
 
       {/* NAVIGATION CONTENT */}
-      <SidebarContent className="space-y-6 px-3 py-6">
+      <SidebarContent className="space-y-6 px-3 py-6 scrollbar-thin scrollbar-thumb-slate-200">
         {navigationGroups?.map((group) => (
           <div key={group.title} className="space-y-1.5">
             {(isOpen || isMobile) && (
@@ -90,7 +90,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
 
                 return (
                   <NavLink
-                    key={item.path}
+                    key={item.routeKey}
                     to={item.path}
                     end
                     onClick={() => isMobile && setOpenMobile(false)}

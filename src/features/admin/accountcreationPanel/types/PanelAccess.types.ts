@@ -14,7 +14,8 @@ export type PanelType =
   | "user"
   | "control"
   | "account"
-  | "examcenter";
+  | "examcenter"
+  | "exam";
 
 export type UserRole =
   | "admin"
@@ -25,15 +26,12 @@ export type UserRole =
   | string;
 
 /* -------------------------------------------------------------------------- */
-/*                              Route Config Types                            */
+/*                            Route Config Types                              */
 /* -------------------------------------------------------------------------- */
 
 export interface RouteItem {
   key: string;
   name: string;
-  path: string;
-  icon?: ComponentType<{ size?: number; className?: string }>;
-  roles: UserRole[];
 }
 
 export interface PanelConfig {
@@ -51,7 +49,7 @@ export interface RouteConfig {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                               Access User                                  */
+/*                                Access User                                 */
 /* -------------------------------------------------------------------------- */
 
 export interface AccessUser {
@@ -70,7 +68,7 @@ export interface GetAllUsersPanelsResponse {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              Removal State                                 */
+/*                               Removal State                                */
 /* -------------------------------------------------------------------------- */
 
 export interface RemovalState {
@@ -81,7 +79,7 @@ export interface RemovalState {
 export type RemovalMap = Record<string, RemovalState>;
 
 /* -------------------------------------------------------------------------- */
-/*                            API Payload Types                               */
+/*                           API Payload Types                                */
 /* -------------------------------------------------------------------------- */
 
 export interface AssignPanelPayload {
@@ -103,7 +101,6 @@ export interface SetPasswordPayload {
 }
 
 export interface PanelLoginPayload {
-  // adjust according to your real login body
   userId?: string;
   panelName?: string;
   password?: string;
@@ -119,7 +116,7 @@ export interface ManageUserPanelAccessPayload {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                           Generic API Response                             */
+/*                         Generic API Response                               */
 /* -------------------------------------------------------------------------- */
 
 export interface ApiSuccessResponse {

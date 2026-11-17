@@ -9,17 +9,13 @@ import {
   Megaphone,
   UserCog,
   PackageSearch,
-  LifeBuoy,
-  Send,
   FileEdit,
   BookOpen,
   School,
   HandCoins,
-  FileText,
+  Workflow,
   Volume2,
   ListChecks,
-  Workflow,
-  FileClock,
   Banknote,
   BarChart3,
   Upload,
@@ -31,21 +27,24 @@ import {
   FileDigit,
   List,
   DollarSign,
-  UserSquare,
   Truck,
-  ClipboardCheck,
   Receipt,
   CardSim,
 } from "lucide-react";
 
-/* -------------------------------------------------------------------------- */
-/*                                   Types                                    */
-/* -------------------------------------------------------------------------- */
+export interface RouteConfigItem {
+  key: string;
+  panel: string;
+  title: string;
+  path: string;
+  icon?: React.ElementType;
+}
 
 export interface NavSubItem {
   title: string;
   url: string;
   icon?: React.ElementType;
+  routeKey?: string;
 }
 
 export interface NavMainItem {
@@ -56,119 +55,408 @@ export interface NavMainItem {
   items?: NavSubItem[];
 }
 
-export interface NavSecondaryItem {
-  title: string;
-  url: string;
-  icon?: React.ElementType;
-  items?: NavSubItem[];
-}
-
-export interface ProjectItem {
-  name: string;
-  url: string;
-  icon?: React.ElementType;
-}
-
 export interface SidebarData {
   navMain: NavMainItem[];
-  navSecondary: NavSecondaryItem[];
-  projects: ProjectItem[];
-  workspaces: ProjectItem[];
+  navSecondary: NavMainItem[];
+  projects: NavSubItem[];
+  workspaces: NavSubItem[];
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                Page Titles                                 */
+/*                        CENTRAL ROUTE CONFIG (SINGLE SOURCE)                */
 /* -------------------------------------------------------------------------- */
 
-export const pageTitles: Record<string, string> = {
-  "/dashboard": "Dashboard",
+export const APP_ROUTES: Record<string, RouteConfigItem> = {
+  // Overview (Dashboard)
+  DASHBOARD: {
+    key: "d1",
+    panel: "overview",
+    title: "Dashboard",
+    path: "/dashboard",
+    icon: LayoutDashboard,
+  },
 
-  // Exam Management
-  "/dashboard/exam/all": "Exam Management",
-  "/dashboard/exam/create": "Create Exam",
-  "/dashboard/exam/marks": "Student Marks Entry",
-  "/dashboard/exam/results": "Results & Merit List",
-  "/dashboard/exam/batch-results": "Batch Results",
-  "/dashboard/exam/mcq-upload": "MCQ Upload",
-  "/dashboard/exam/students": "Student Management",
-  "/dashboard/exam/lookup": "Student Result Lookup",
-  "/dashboard/exam/data-management": "Data Management",
+  // Exam Management (ex1, ex2...)
+  EXAM_ALL: {
+    key: "ex1",
+    panel: "exam",
+    title: "Exam Management",
+    path: "/dashboard/exam/all",
+    icon: ClipboardList,
+  },
+  EXAM_CREATE: {
+    key: "ex2",
+    panel: "exam",
+    title: "Create Exam",
+    path: "/dashboard/exam/create",
+    icon: ClipboardList,
+  },
+  EXAM_MARKS: {
+    key: "ex3",
+    panel: "exam",
+    title: "Student Marks Entry",
+    path: "/dashboard/exam/marks",
+    icon: ClipboardList,
+  },
+  EXAM_RESULTS: {
+    key: "ex4",
+    panel: "exam",
+    title: "Results & Merit List",
+    path: "/dashboard/exam/results",
+    icon: ClipboardList,
+  },
+  EXAM_BATCH_RESULTS: {
+    key: "ex5",
+    panel: "exam",
+    title: "Batch Results",
+    path: "/dashboard/exam/batch-results",
+    icon: ClipboardList,
+  },
+  EXAM_MCQ_UPLOAD: {
+    key: "ex6",
+    panel: "exam",
+    title: "MCQ Upload",
+    path: "/dashboard/exam/mcq-upload",
+    icon: ClipboardList,
+  },
+  EXAM_STUDENTS: {
+    key: "ex7",
+    panel: "exam",
+    title: "Student Management",
+    path: "/dashboard/exam/students",
+    icon: ClipboardList,
+  },
+  EXAM_LOOKUP: {
+    key: "ex8",
+    panel: "exam",
+    title: "Student Result Lookup",
+    path: "/dashboard/exam/lookup",
+    icon: ClipboardList,
+  },
+  EXAM_DATA_MGMT: {
+    key: "ex9",
+    panel: "exam",
+    title: "Data Management",
+    path: "/dashboard/exam/data-management",
+    icon: ClipboardList,
+  },
 
-  // Student Panel
-  "/dashboard/student/admin/student/all": "All Students",
-  "/dashboard/student/student-enrollment": "Enroll Student",
-  "/dashboard/student/ers/student": "Finance",
-  "/dashboard/student/student-admit/registry": "Admit Card Registry",
-  "/dashboard/student/invoices/student": "All Invoices",
-  "/dashboard/student/transaction/student": "All Transactions",
+  // Student Panel (s1, s2, s3...)
+  STUDENT_ALL: {
+    key: "s1",
+    panel: "student",
+    title: "All Students",
+    path: "/dashboard/student/admin/student/all",
+    icon: Users,
+  },
+  STUDENT_ENROLL: {
+    key: "s2",
+    panel: "student",
+    title: "Enroll Student",
+    path: "/dashboard/student/student-enrollment",
+    icon: FileEdit,
+  },
+  STUDENT_FINANCE: {
+    key: "s3",
+    panel: "student",
+    title: "Finance",
+    path: "/dashboard/student/ers/student",
+    icon: DollarSign,
+  },
+  STUDENT_ADMIT_REGISTRY: {
+    key: "s4",
+    panel: "student",
+    title: "Admit Card Registry",
+    path: "/dashboard/student/student-admit/registry",
+    icon: Receipt,
+  },
+  STUDENT_INVOICES: {
+    key: "s5",
+    panel: "student",
+    title: "All Invoices",
+    path: "/dashboard/student/invoices/student",
+    icon: Receipt,
+  },
+  STUDENT_TRANSACTIONS: {
+    key: "s6",
+    panel: "student",
+    title: "All Transactions",
+    path: "/dashboard/student/transaction/student",
+    icon: Receipt,
+  },
 
-  // Teacher Panel
-  "/dashboard/teacher/admin/add-teacher-class": "Add Teacher Class",
-  "/dashboard/teacher/all-teachers": "All Teachers",
-  "/dashboard/teacher/all/teachers/class": "All Classes",
-  "/dashboard/teacher/request/loan": "Apply For Loan",
+  // Teacher Panel (t1, t2, t3...)
+  TEACHER_ADD_CLASS: {
+    key: "t1",
+    panel: "teacher",
+    title: "Add Teacher Class",
+    path: "/dashboard/teacher/admin/add-teacher-class",
+    icon: BookOpen,
+  },
+  TEACHER_ALL: {
+    key: "t2",
+    panel: "teacher",
+    title: "All Teachers",
+    path: "/dashboard/teacher/all-teachers",
+    icon: Users,
+  },
+  TEACHER_CLASSES: {
+    key: "t3",
+    panel: "teacher",
+    title: "All Classes",
+    path: "/dashboard/teacher/all/teachers/class",
+    icon: School,
+  },
+  TEACHER_LOAN: {
+    key: "t4",
+    panel: "teacher",
+    title: "Apply For Loan",
+    path: "/dashboard/teacher/request/loan",
+    icon: HandCoins,
+  },
 
-  // Employee Panel
-  "/dashboard/employee/admin/duties/create": "Add Employee Duty",
-  "/dashboard/employee/admin/employees": "All Employees",
-  "/dashboard/employee/admin/duties/employees": "All Duties",
+  // Employee Panel (e1, e2, e3...)
+  EMPLOYEE_ADD_DUTY: {
+    key: "e1",
+    panel: "employee",
+    title: "Add Employee Duty",
+    path: "/dashboard/employee/admin/duties/create",
+    icon: ListChecks,
+  },
+  EMPLOYEE_ALL: {
+    key: "e2",
+    panel: "employee",
+    title: "All Employees",
+    path: "/dashboard/employee/admin/employees",
+    icon: Users,
+  },
+  EMPLOYEE_DUTIES: {
+    key: "e3",
+    panel: "employee",
+    title: "All Duties",
+    path: "/dashboard/employee/admin/duties/employees",
+    icon: Workflow,
+  },
 
-  // Nursing Panel
-  "/dashboard/nursing/admin/addNursing": "Assign Nursing Duty",
-  "/dashboard/nursing/duties/summary": "All Nursings",
-  "/dashboard/nursing/duties/all": "All Duties",
+  // Nursing Panel (n1, n2, n3...)
+  NURSING_ADD_DUTY: {
+    key: "n1",
+    panel: "nursing",
+    title: "Assign Nursing Duty",
+    path: "/dashboard/nursing/admin/addNursing",
+    icon: ListChecks,
+  },
+  NURSING_SUMMARY: {
+    key: "n2",
+    panel: "nursing",
+    title: "All Nursings",
+    path: "/dashboard/nursing/duties/summary",
+    icon: Users,
+  },
+  NURSING_DUTIES: {
+    key: "n3",
+    panel: "nursing",
+    title: "All Duties",
+    path: "/dashboard/nursing/duties/all",
+    icon: Users,
+  },
 
-  // Announcements Panel
-  "/dashboard/user/admin/announcement/all": "Announcement",
-  "/dashboard/user/admin/routine": "Make Routine",
+  // Announcements Panel (a1, a2...)
+  ANNOUNCEMENT_ALL: {
+    key: "a1",
+    panel: "announcement",
+    title: "Announcement",
+    path: "/dashboard/user/admin/announcement/all",
+    icon: Volume2,
+  },
+  ANNOUNCEMENT_ROUTINE: {
+    key: "a2",
+    panel: "announcement",
+    title: "Make Routine",
+    path: "/dashboard/user/admin/routine",
+    icon: Volume2,
+  },
 
-  // Users Panel
-  "/dashboard/user/all-users": "View All Users",
+  // Users Panel (u1...)
+  USERS_ALL: {
+    key: "u1",
+    panel: "user",
+    title: "View All Users",
+    path: "/dashboard/user/all-users",
+    icon: Users,
+  },
 
-  // Orders Panel
-  "/dashboard/order/admin/order/all": "Orders",
-  "/dashboard/order/admin/product-management": "Product",
-  "/dashboard/order/admin/shipping": "Shipping",
+  // Orders Panel (o1, o2, o3...)
+  ORDER_ALL: {
+    key: "o1",
+    panel: "order",
+    title: "Orders",
+    path: "/dashboard/order/admin/order/all",
+    icon: Users,
+  },
+  ORDER_PRODUCT: {
+    key: "o2",
+    panel: "order",
+    title: "Product",
+    path: "/dashboard/order/admin/product-management",
+    icon: BookOpen,
+  },
+  ORDER_SHIPPING: {
+    key: "o3",
+    panel: "order",
+    title: "Shipping",
+    path: "/dashboard/order/admin/shipping",
+    icon: Truck,
+  },
 
-  // Exam Center
-  "/dashboard/exam-center/admin/exam/center": "Green Card",
-  "/dashboard/exam-center/generate/admit-card": "Admit Card",
+  // Exam Center (ec1, ec2...)
+  EXAM_CENTER_GREEN_CARD: {
+    key: "ec1",
+    panel: "examcenter",
+    title: "Green Card",
+    path: "/dashboard/exam-center/admin/exam/center",
+    icon: Users,
+  },
+  EXAM_CENTER_ADMIT: {
+    key: "ec2",
+    panel: "examcenter",
+    title: "Admit Card",
+    path: "/dashboard/exam-center/generate/admit-card",
+    icon: CardSim,
+  },
 
-  // Control Panel
-  "/dashboard/control/admin/control/course": "Course Management",
-  "/dashboard/control/admin/notice": "Notice Management",
-  "/dashboard/control/admin/billing": "Billing Management",
-  "/dashboard/control/admin/academic/control": "Academic Hub",
-  "/dashboard/control/admin/result": "Result Management",
-  "/dashboard/control/admin/upload/solutionCopy": "Upload Solution Copy",
-  "/dashboard/control/admin/faq": "FAQ Management",
-  "/dashboard/control/admin/add/gallery/image": "Media Management",
-  "/dashboard/control/admin/system-locks": "System Lock",
-  "/dashboard/control/admin/admission-timeline": "Admission Timeline",
-  "/dashboard/control/admin/activity-logs": "Activity Logs",
-  "/dashboard/control/admin/merit-list": "Upload Merit List",
-  "/dashboard/control/admin/combined/merit-list": "Final Merit List",
-  "/dashboard/control/admin/all-merit-list": "All Merit List",
+  // Control Panel / Projects (c1, c2, c3...)
+  CONTROL_COURSE: {
+    key: "c1",
+    panel: "control",
+    title: "Course Management",
+    path: "/dashboard/control/admin/control/course",
+    icon: Megaphone,
+  },
+  CONTROL_NOTICE: {
+    key: "c2",
+    panel: "control",
+    title: "Notice Management",
+    path: "/dashboard/control/admin/notice",
+    icon: Megaphone,
+  },
+  CONTROL_BILLING: {
+    key: "c3",
+    panel: "control",
+    title: "Billing Management",
+    path: "/dashboard/control/admin/billing",
+    icon: Banknote,
+  },
+  CONTROL_ACADEMIC: {
+    key: "c4",
+    panel: "control",
+    title: "Academic Hub",
+    path: "/dashboard/control/admin/academic/control",
+    icon: GraduationCap,
+  },
+  CONTROL_RESULT: {
+    key: "c5",
+    panel: "control",
+    title: "Result Management",
+    path: "/dashboard/control/admin/result",
+    icon: BarChart3,
+  },
+  CONTROL_SOLUTION: {
+    key: "c6",
+    panel: "control",
+    title: "Upload Solution Copy",
+    path: "/dashboard/control/admin/upload/solutionCopy",
+    icon: Upload,
+  },
+  CONTROL_FAQ: {
+    key: "c7",
+    panel: "control",
+    title: "FAQ Management",
+    path: "/dashboard/control/admin/faq",
+    icon: HelpCircle,
+  },
+  CONTROL_MEDIA: {
+    key: "c8",
+    panel: "control",
+    title: "Media Management",
+    path: "/dashboard/control/admin/add/gallery/image",
+    icon: ImagePlus,
+  },
+  CONTROL_LOCK: {
+    key: "c9",
+    panel: "control",
+    title: "System Lock",
+    path: "/dashboard/control/admin/system-locks",
+    icon: Lock,
+  },
+  CONTROL_TIMELINE: {
+    key: "c10",
+    panel: "control",
+    title: "Admission Timeline",
+    path: "/dashboard/control/admin/admission-timeline",
+    icon: LineChart,
+  },
+  CONTROL_LOGS: {
+    key: "c11",
+    panel: "control",
+    title: "Activity Logs",
+    path: "/dashboard/control/admin/activity-logs",
+    icon: Activity,
+  },
+  CONTROL_MERIT_LIST: {
+    key: "c12",
+    panel: "control",
+    title: "Upload Merit List",
+    path: "/dashboard/control/admin/merit-list",
+    icon: FileDigit,
+  },
+  CONTROL_FINAL_MERIT: {
+    key: "c13",
+    panel: "control",
+    title: "Final Merit List",
+    path: "/dashboard/control/admin/combined/merit-list",
+    icon: List,
+  },
+  CONTROL_ALL_MERIT: {
+    key: "c14",
+    panel: "control",
+    title: "All Merit List",
+    path: "/dashboard/control/admin/all-merit-list",
+    icon: List,
+  },
 
-  // Staff Access
-  "/dashboard/create/admission/staff-account": "User Access Control",
+  // Staff Access / Workspaces (w1...)
+  STAFF_ACCESS: {
+    key: "w1",
+    panel: "account",
+    title: "User Access Control",
+    path: "/dashboard/control/create/admission/staff-account",
+    icon: UserCheck,
+  },
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                Sidebar Data                                */
-/* -------------------------------------------------------------------------- */
+export const pageTitles: Record<string, string> = Object.values(
+  APP_ROUTES,
+).reduce(
+  (acc, route) => {
+    acc[route.path] = route.title;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
 
 export const sidebarData: SidebarData = {
   navMain: [
     {
       title: "Overview",
-      url: "/dashboard",
+      url: APP_ROUTES.DASHBOARD.path,
       icon: LayoutDashboard,
       isActive: true,
       items: [
         {
-          title: "Dashboard",
-          url: "/dashboard",
+          title: APP_ROUTES.DASHBOARD.title,
+          url: APP_ROUTES.DASHBOARD.path,
+          routeKey: APP_ROUTES.DASHBOARD.key,
         },
       ],
     },
@@ -176,15 +464,51 @@ export const sidebarData: SidebarData = {
       title: "Exam Management",
       icon: ClipboardList,
       items: [
-        { title: "Exams", url: "/dashboard/exam/all" },
-        { title: "Create Exam", url: "/dashboard/exam/create" },
-        { title: "Marks Entry", url: "/dashboard/exam/marks" },
-        { title: "Results & Merit", url: "/dashboard/exam/results" },
-        { title: "Batch Results", url: "/dashboard/exam/batch-results" },
-        { title: "MCQ Upload", url: "/dashboard/exam/mcq-upload" },
-        { title: "Students", url: "/dashboard/exam/students" },
-        { title: "Student Lookup", url: "/dashboard/exam/lookup" },
-        { title: "Data Management", url: "/dashboard/exam/data-management" },
+        {
+          title: APP_ROUTES.EXAM_ALL.title,
+          url: APP_ROUTES.EXAM_ALL.path,
+          routeKey: APP_ROUTES.EXAM_ALL.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_CREATE.title,
+          url: APP_ROUTES.EXAM_CREATE.path,
+          routeKey: APP_ROUTES.EXAM_CREATE.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_MARKS.title,
+          url: APP_ROUTES.EXAM_MARKS.path,
+          routeKey: APP_ROUTES.EXAM_MARKS.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_RESULTS.title,
+          url: APP_ROUTES.EXAM_RESULTS.path,
+          routeKey: APP_ROUTES.EXAM_RESULTS.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_BATCH_RESULTS.title,
+          url: APP_ROUTES.EXAM_BATCH_RESULTS.path,
+          routeKey: APP_ROUTES.EXAM_BATCH_RESULTS.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_MCQ_UPLOAD.title,
+          url: APP_ROUTES.EXAM_MCQ_UPLOAD.path,
+          routeKey: APP_ROUTES.EXAM_MCQ_UPLOAD.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_STUDENTS.title,
+          url: APP_ROUTES.EXAM_STUDENTS.path,
+          routeKey: APP_ROUTES.EXAM_STUDENTS.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_LOOKUP.title,
+          url: APP_ROUTES.EXAM_LOOKUP.path,
+          routeKey: APP_ROUTES.EXAM_LOOKUP.key,
+        },
+        {
+          title: APP_ROUTES.EXAM_DATA_MGMT.title,
+          url: APP_ROUTES.EXAM_DATA_MGMT.path,
+          routeKey: APP_ROUTES.EXAM_DATA_MGMT.key,
+        },
       ],
     },
     {
@@ -192,33 +516,39 @@ export const sidebarData: SidebarData = {
       icon: Users,
       items: [
         {
-          title: "All Students",
-          url: "student/admin/student/all",
+          title: APP_ROUTES.STUDENT_ALL.title,
+          url: APP_ROUTES.STUDENT_ALL.path,
+          routeKey: APP_ROUTES.STUDENT_ALL.key,
           icon: Users,
         },
         {
-          title: "Enroll Student",
-          url: "student/student-enrollment",
+          title: APP_ROUTES.STUDENT_ENROLL.title,
+          url: APP_ROUTES.STUDENT_ENROLL.path,
+          routeKey: APP_ROUTES.STUDENT_ENROLL.key,
           icon: FileEdit,
         },
         {
-          title: "Finance",
-          url: "student/ers/student",
+          title: APP_ROUTES.STUDENT_FINANCE.title,
+          url: APP_ROUTES.STUDENT_FINANCE.path,
+          routeKey: APP_ROUTES.STUDENT_FINANCE.key,
           icon: DollarSign,
         },
         {
-          title: "Admit Card Registry",
-          url: "student/student-admit/registry",
+          title: APP_ROUTES.STUDENT_ADMIT_REGISTRY.title,
+          url: APP_ROUTES.STUDENT_ADMIT_REGISTRY.path,
+          routeKey: APP_ROUTES.STUDENT_ADMIT_REGISTRY.key,
           icon: Receipt,
         },
         {
-          title: "All Invoices",
-          url: "student/invoices/student",
+          title: APP_ROUTES.STUDENT_INVOICES.title,
+          url: APP_ROUTES.STUDENT_INVOICES.path,
+          routeKey: APP_ROUTES.STUDENT_INVOICES.key,
           icon: Receipt,
         },
         {
-          title: "All Transactions",
-          url: "student/transaction/student",
+          title: APP_ROUTES.STUDENT_TRANSACTIONS.title,
+          url: APP_ROUTES.STUDENT_TRANSACTIONS.path,
+          routeKey: APP_ROUTES.STUDENT_TRANSACTIONS.key,
           icon: Receipt,
         },
       ],
@@ -228,23 +558,27 @@ export const sidebarData: SidebarData = {
       icon: GraduationCap,
       items: [
         {
-          title: "Add Teacher Class",
-          url: "teacher/admin/add-teacher-class",
+          title: APP_ROUTES.TEACHER_ADD_CLASS.title,
+          url: APP_ROUTES.TEACHER_ADD_CLASS.path,
+          routeKey: APP_ROUTES.TEACHER_ADD_CLASS.key,
           icon: BookOpen,
         },
         {
-          title: "All Teachers",
-          url: "teacher/all-teachers",
+          title: APP_ROUTES.TEACHER_ALL.title,
+          url: APP_ROUTES.TEACHER_ALL.path,
+          routeKey: APP_ROUTES.TEACHER_ALL.key,
           icon: Users,
         },
         {
-          title: "All Classes",
-          url: "teacher/all/teachers/class",
+          title: APP_ROUTES.TEACHER_CLASSES.title,
+          url: APP_ROUTES.TEACHER_CLASSES.path,
+          routeKey: APP_ROUTES.TEACHER_CLASSES.key,
           icon: School,
         },
         {
-          title: "Apply For Loan",
-          url: "teacher/request/loan",
+          title: APP_ROUTES.TEACHER_LOAN.title,
+          url: APP_ROUTES.TEACHER_LOAN.path,
+          routeKey: APP_ROUTES.TEACHER_LOAN.key,
           icon: HandCoins,
         },
       ],
@@ -254,18 +588,21 @@ export const sidebarData: SidebarData = {
       icon: Briefcase,
       items: [
         {
-          title: "Add Employee Duty",
-          url: "employee/admin/duties/create",
+          title: APP_ROUTES.EMPLOYEE_ADD_DUTY.title,
+          url: APP_ROUTES.EMPLOYEE_ADD_DUTY.path,
+          routeKey: APP_ROUTES.EMPLOYEE_ADD_DUTY.key,
           icon: ListChecks,
         },
         {
-          title: "All Employees",
-          url: "employee/admin/employees",
+          title: APP_ROUTES.EMPLOYEE_ALL.title,
+          url: APP_ROUTES.EMPLOYEE_ALL.path,
+          routeKey: APP_ROUTES.EMPLOYEE_ALL.key,
           icon: Users,
         },
         {
-          title: "All Duties",
-          url: "employee/admin/duties/employees",
+          title: APP_ROUTES.EMPLOYEE_DUTIES.title,
+          url: APP_ROUTES.EMPLOYEE_DUTIES.path,
+          routeKey: APP_ROUTES.EMPLOYEE_DUTIES.key,
           icon: Workflow,
         },
       ],
@@ -275,18 +612,21 @@ export const sidebarData: SidebarData = {
       icon: UserCheck,
       items: [
         {
-          title: "Assign Nursing Duty",
-          url: "nursing/admin/addNursing",
+          title: APP_ROUTES.NURSING_ADD_DUTY.title,
+          url: APP_ROUTES.NURSING_ADD_DUTY.path,
+          routeKey: APP_ROUTES.NURSING_ADD_DUTY.key,
           icon: ListChecks,
         },
         {
-          title: "All Nursings",
-          url: "nursing/duties/summary",
+          title: APP_ROUTES.NURSING_SUMMARY.title,
+          url: APP_ROUTES.NURSING_SUMMARY.path,
+          routeKey: APP_ROUTES.NURSING_SUMMARY.key,
           icon: Users,
         },
         {
-          title: "All Duties",
-          url: "nursing/duties/all",
+          title: APP_ROUTES.NURSING_DUTIES.title,
+          url: APP_ROUTES.NURSING_DUTIES.path,
+          routeKey: APP_ROUTES.NURSING_DUTIES.key,
           icon: Users,
         },
       ],
@@ -300,13 +640,15 @@ export const sidebarData: SidebarData = {
       icon: Megaphone,
       items: [
         {
-          title: "Announcement",
-          url: "user/admin/announcement/all",
+          title: APP_ROUTES.ANNOUNCEMENT_ALL.title,
+          url: APP_ROUTES.ANNOUNCEMENT_ALL.path,
+          routeKey: APP_ROUTES.ANNOUNCEMENT_ALL.key,
           icon: Volume2,
         },
         {
-          title: "Make Routine",
-          url: "user/admin/routine",
+          title: APP_ROUTES.ANNOUNCEMENT_ROUTINE.title,
+          url: APP_ROUTES.ANNOUNCEMENT_ROUTINE.path,
+          routeKey: APP_ROUTES.ANNOUNCEMENT_ROUTINE.key,
           icon: Volume2,
         },
       ],
@@ -317,8 +659,9 @@ export const sidebarData: SidebarData = {
       icon: UserCog,
       items: [
         {
-          title: "View All Users",
-          url: "user/all-users",
+          title: APP_ROUTES.USERS_ALL.title,
+          url: APP_ROUTES.USERS_ALL.path,
+          routeKey: APP_ROUTES.USERS_ALL.key,
           icon: Users,
         },
       ],
@@ -329,18 +672,21 @@ export const sidebarData: SidebarData = {
       icon: PackageSearch,
       items: [
         {
-          title: "Orders",
-          url: "order/admin/order/all",
+          title: APP_ROUTES.ORDER_ALL.title,
+          url: APP_ROUTES.ORDER_ALL.path,
+          routeKey: APP_ROUTES.ORDER_ALL.key,
           icon: Users,
         },
         {
-          title: "Product",
-          url: "order/admin/product-management",
+          title: APP_ROUTES.ORDER_PRODUCT.title,
+          url: APP_ROUTES.ORDER_PRODUCT.path,
+          routeKey: APP_ROUTES.ORDER_PRODUCT.key,
           icon: BookOpen,
         },
         {
-          title: "Shipping",
-          url: "order/admin/shipping",
+          title: APP_ROUTES.ORDER_SHIPPING.title,
+          url: APP_ROUTES.ORDER_SHIPPING.path,
+          routeKey: APP_ROUTES.ORDER_SHIPPING.key,
           icon: Truck,
         },
       ],
@@ -351,13 +697,15 @@ export const sidebarData: SidebarData = {
       icon: PackageSearch,
       items: [
         {
-          title: "Green Card",
-          url: "exam-center/admin/exam/center",
+          title: APP_ROUTES.EXAM_CENTER_GREEN_CARD.title,
+          url: APP_ROUTES.EXAM_CENTER_GREEN_CARD.path,
+          routeKey: APP_ROUTES.EXAM_CENTER_GREEN_CARD.key,
           icon: Users,
         },
         {
-          title: "Admit Card",
-          url: "exam-center/generate/admit-card",
+          title: APP_ROUTES.EXAM_CENTER_ADMIT.title,
+          url: APP_ROUTES.EXAM_CENTER_ADMIT.path,
+          routeKey: APP_ROUTES.EXAM_CENTER_ADMIT.key,
           icon: CardSim,
         },
       ],
@@ -366,81 +714,96 @@ export const sidebarData: SidebarData = {
 
   projects: [
     {
-      name: "Course Management",
-      url: "control/admin/control/course",
+      title: APP_ROUTES.CONTROL_COURSE.title,
+      url: APP_ROUTES.CONTROL_COURSE.path,
+      routeKey: APP_ROUTES.CONTROL_COURSE.key,
       icon: Megaphone,
     },
     {
-      name: "Notice Management",
-      url: "control/admin/notice",
+      title: APP_ROUTES.CONTROL_NOTICE.title,
+      url: APP_ROUTES.CONTROL_NOTICE.path,
+      routeKey: APP_ROUTES.CONTROL_NOTICE.key,
       icon: Megaphone,
     },
     {
-      name: "Billing Management",
-      url: "control/admin/billing",
+      title: APP_ROUTES.CONTROL_BILLING.title,
+      url: APP_ROUTES.CONTROL_BILLING.path,
+      routeKey: APP_ROUTES.CONTROL_BILLING.key,
       icon: Banknote,
     },
     {
-      name: "Academic Hub",
-      url: "control/admin/academic/control",
+      title: APP_ROUTES.CONTROL_ACADEMIC.title,
+      url: APP_ROUTES.CONTROL_ACADEMIC.path,
+      routeKey: APP_ROUTES.CONTROL_ACADEMIC.key,
       icon: GraduationCap,
     },
     {
-      name: "Result Management",
-      url: "control/admin/result",
+      title: APP_ROUTES.CONTROL_RESULT.title,
+      url: APP_ROUTES.CONTROL_RESULT.path,
+      routeKey: APP_ROUTES.CONTROL_RESULT.key,
       icon: BarChart3,
     },
     {
-      name: "Upload Solution Copy",
-      url: "control/admin/upload/solutionCopy",
+      title: APP_ROUTES.CONTROL_SOLUTION.title,
+      url: APP_ROUTES.CONTROL_SOLUTION.path,
+      routeKey: APP_ROUTES.CONTROL_SOLUTION.key,
       icon: Upload,
     },
     {
-      name: "FAQ Management",
-      url: "control/admin/faq",
+      title: APP_ROUTES.CONTROL_FAQ.title,
+      url: APP_ROUTES.CONTROL_FAQ.path,
+      routeKey: APP_ROUTES.CONTROL_FAQ.key,
       icon: HelpCircle,
     },
     {
-      name: "Media Management",
-      url: "control/admin/add/gallery/image",
+      title: APP_ROUTES.CONTROL_MEDIA.title,
+      url: APP_ROUTES.CONTROL_MEDIA.path,
+      routeKey: APP_ROUTES.CONTROL_MEDIA.key,
       icon: ImagePlus,
     },
     {
-      name: "System Lock",
-      url: "control/admin/system-locks",
+      title: APP_ROUTES.CONTROL_LOCK.title,
+      url: APP_ROUTES.CONTROL_LOCK.path,
+      routeKey: APP_ROUTES.CONTROL_LOCK.key,
       icon: Lock,
     },
     {
-      name: "Admission Timeline",
-      url: "control/admin/admission-timeline",
+      title: APP_ROUTES.CONTROL_TIMELINE.title,
+      url: APP_ROUTES.CONTROL_TIMELINE.path,
+      routeKey: APP_ROUTES.CONTROL_TIMELINE.key,
       icon: LineChart,
     },
     {
-      name: "Activity Logs",
-      url: "control/admin/activity-logs",
+      title: APP_ROUTES.CONTROL_LOGS.title,
+      url: APP_ROUTES.CONTROL_LOGS.path,
+      routeKey: APP_ROUTES.CONTROL_LOGS.key,
       icon: Activity,
     },
     {
-      name: "Upload Merit List",
-      url: "control/admin/merit-list",
+      title: APP_ROUTES.CONTROL_MERIT_LIST.title,
+      url: APP_ROUTES.CONTROL_MERIT_LIST.path,
+      routeKey: APP_ROUTES.CONTROL_MERIT_LIST.key,
       icon: FileDigit,
     },
     {
-      name: "Final Merit List",
-      url: "control/admin/combined/merit-list",
+      title: APP_ROUTES.CONTROL_FINAL_MERIT.title,
+      url: APP_ROUTES.CONTROL_FINAL_MERIT.path,
+      routeKey: APP_ROUTES.CONTROL_FINAL_MERIT.key,
       icon: List,
     },
     {
-      name: "All Merit List",
-      url: "control/admin/all-merit-list",
+      title: APP_ROUTES.CONTROL_ALL_MERIT.title,
+      url: APP_ROUTES.CONTROL_ALL_MERIT.path,
+      routeKey: APP_ROUTES.CONTROL_ALL_MERIT.key,
       icon: List,
     },
   ],
 
   workspaces: [
     {
-      name: "User Access Control",
-      url: "control/create/admission/staff-account",
+      title: APP_ROUTES.STAFF_ACCESS.title,
+      url: APP_ROUTES.STAFF_ACCESS.path,
+      routeKey: APP_ROUTES.STAFF_ACCESS.key,
       icon: UserCheck,
     },
   ],

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
-  LayoutGrid,
+  KeyRound,
+  FileText,
+  Layers,
   Save,
   Loader2,
-  CheckSquare,
-  Square,
-  Layers,
-  FileText,
+  CheckCircle2,
+  UserCheck,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,9 @@ import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -29,178 +29,240 @@ import { useAssignPanelToUserMutation } from "../services/panelAccessApi";
 import { getRoutesForPanel } from "@/lib/PanelAccess.utils";
 import { toast } from "sonner";
 
+interface GrantAccessFormValues {
+  userId: string;
+  selectedPanels: string[];
+  selectedRoutes: string[];
+  panelPassword: string;
+  note?: string;
+}
+
 interface GrantAccessFormProps {
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export function GrantAccessForm({ onSuccess }: GrantAccessFormProps) {
-  const [userId, setUserId] = useState("");
-  const [selectedPanels, setSelectedPanels] = useState<string[]>([]);
-  const [selectedRoutes, setSelectedRoutes] = useState<string[]>([]);
-  const [panelPassword, setPanelPassword] = useState("");
-  const [note, setNote] = useState("");
-
   const [assignPanelToUser, { isLoading }] = useAssignPanelToUserMutation();
 
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<GrantAccessFormValues>({
+    defaultValues: {
+      userId: "",
+      selectedPanels: [],
+      selectedRoutes: [],
+      panelPassword: "",
+      note: "",
+    },
+  });
+
+  const selectedPanels = watch("selectedPanels");
+  const selectedRoutes = watch("selectedRoutes");
+
   const handlePanelToggle = (panel: string) => {
-    setSelectedPanels((prev) => {
-      const exists = prev.includes(panel);
-      if (exists) {
-        const panelRoutes = getRoutesForPanel(panel).map((r) => r.key);
-        setSelectedRoutes((rPrev) =>
-          rPrev.filter((key) => !panelRoutes.includes(key)),
-        );
-        return prev.filter((p) => p !== panel);
-      }
-      return [...prev, panel];
-    });
+    const exists = selectedPanels.includes(panel);
+    let updatedPanels: string[];
+    let updatedRoutes = [...selectedRoutes];
+
+    if (exists) {
+      updatedPanels = selectedPanels.filter((p) => p !== panel);
+      const panelRoutes = getRoutesForPanel(panel).map((r) => r.key);
+      updatedRoutes = updatedRoutes.filter((key) => !panelRoutes.includes(key));
+    } else {
+      updatedPanels = [...selectedPanels, panel];
+    }
+
+    setValue("selectedPanels", updatedPanels, { shouldValidate: true });
+    setValue("selectedRoutes", updatedRoutes);
   };
 
   const handleRouteToggle = (routeKey: string) => {
-    setSelectedRoutes((prev) =>
-      prev.includes(routeKey)
-        ? prev.filter((k) => k !== routeKey)
-        : [...prev, routeKey],
-    );
+    const exists = selectedRoutes.includes(routeKey);
+    const updatedRoutes = exists
+      ? selectedRoutes.filter((k) => k !== routeKey)
+      : [...selectedRoutes, routeKey];
+
+    setValue("selectedRoutes", updatedRoutes);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!userId.trim()) return toast.error("Please enter a User ID");
-    if (selectedPanels.length === 0)
-      return toast.error("Please select at least one panel");
-    if (!panelPassword.trim())
-      return toast.error("Please enter panel password");
+  const onSubmit = async (data: GrantAccessFormValues) => {
+    if (data.selectedPanels.length === 0) {
+      toast.error("Please select at least one panel scope");
+      return;
+    }
 
     try {
       await assignPanelToUser({
-        userId: userId.trim(),
-        panels: selectedPanels,
-        routes: selectedRoutes,
-        panelPassword: panelPassword.trim(),
-        note: note.trim() || undefined,
+        userId: data.userId.trim(),
+        panels: data.selectedPanels,
+        routes: data.selectedRoutes,
+        panelPassword: data.panelPassword.trim(),
+        note: data.note?.trim() || undefined,
       }).unwrap();
 
-      toast.success("Permissions assigned successfully!");
-      setUserId("");
-      setSelectedPanels([]);
-      setSelectedRoutes([]);
-      setPanelPassword("");
-      setNote("");
-      onSuccess();
-    } catch (err: any) {
-      toast.error(err?.data?.message || "Failed to assign panel access");
+      toast.success("Panel access permissions granted securely!");
+      reset();
+      if (onSuccess) onSuccess();
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { message?: string } };
+      toast.error(errorObj?.data?.message || "Failed to assign panel access");
     }
   };
 
   return (
-    <Card>
-      <CardHeader className="border-b bg-muted/40">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <LayoutGrid className="h-5 w-5" />
+    <div className="pb-12">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* LEFT SIDE: Inputs & Panel Selection (Col 6) */}
+          <div className="lg:col-span-6 space-y-6">
+            <Card className="border-slate-200/80 shadow-sm bg-white/90 backdrop-blur-sm">
+              <CardHeader className="border-b bg-gradient-to-r from-slate-50 via-indigo-50/20 to-white pb-4">
+                <CardTitle className="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-indigo-600" /> User
+                  Credentials & Panels
+                </CardTitle>
+                <CardDescription className="text-xs text-slate-500">
+                  Enter target account ID, password, and choose active panel
+                  scopes.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-5 pt-5">
+                {/* User ID */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                    User ID <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    placeholder="e.g. 01742590128"
+                    {...register("userId", { required: "User ID is required" })}
+                    className="font-mono text-sm bg-white border-slate-200 focus-visible:ring-indigo-500"
+                  />
+                  {errors.userId && (
+                    <p className="text-[11px] font-medium text-destructive">
+                      {errors.userId.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Security Key */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                    <KeyRound className="h-3.5 w-3.5 text-indigo-600" />{" "}
+                    Security Key <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••••••"
+                    {...register("panelPassword", {
+                      required: "Security password is required",
+                    })}
+                    className="bg-white border-slate-200 focus-visible:ring-indigo-500"
+                  />
+                  {errors.panelPassword && (
+                    <p className="text-[11px] font-medium text-destructive">
+                      {errors.panelPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Remarks / Note */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5 text-indigo-600" /> Remarks
+                    / Note
+                  </Label>
+                  <Input
+                    placeholder="Optional assignment note"
+                    {...register("note")}
+                    className="bg-white border-slate-200 focus-visible:ring-indigo-500"
+                  />
+                </div>
+
+                {/* Panel Selectors on Left side */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-extrabold uppercase tracking-widest text-slate-700">
+                      Select Panels Scope{" "}
+                      <span className="text-destructive">*</span>
+                    </Label>
+                    <Badge
+                      variant="secondary"
+                      className="bg-indigo-50 text-indigo-700 border border-indigo-200"
+                    >
+                      {selectedPanels.length} Selected
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {ALL_PANELS.map((panel) => {
+                      const isSelected = selectedPanels.includes(panel);
+                      return (
+                        <button
+                          key={panel}
+                          type="button"
+                          onClick={() => handlePanelToggle(panel)}
+                          className={cn(
+                            "group relative flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold capitalize transition-all duration-200 border text-left",
+                            isSelected
+                              ? "border-indigo-600 bg-gradient-to-r from-indigo-50 to-blue-50/50 text-indigo-950 shadow-xs ring-1 ring-indigo-500/20"
+                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+                          )}
+                        >
+                          <span className="truncate">{panel}</span>
+                          <div
+                            className={cn(
+                              "flex h-4 w-4 shrink-0 items-center justify-center rounded transition-colors",
+                              isSelected
+                                ? "bg-indigo-600 text-white"
+                                : "border border-slate-300 bg-slate-50",
+                            )}
+                          >
+                            {isSelected && <CheckCircle2 className="h-3 w-3" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div>
-            <CardTitle className="text-lg">Grant Access Rights</CardTitle>
-            <CardDescription>
-              Assign panels and granular route endpoints to a staff user.
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
 
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Top fields */}
-          <div className="grid grid-cols-1 gap-4 rounded-lg border bg-muted/30 p-4 md:grid-cols-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold uppercase">
-                User ID <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                placeholder="e.g. 891626"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                required
-                className="font-mono text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold uppercase">
-                Security Key <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                type="password"
-                placeholder="Enter Security Password"
-                value={panelPassword}
-                onChange={(e) => setPanelPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="flex items-center gap-1 text-xs font-semibold uppercase">
-                <FileText className="h-3 w-3" /> Remarks / Note
-              </Label>
-              <Input
-                placeholder="Optional note"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Panel selectors */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold uppercase">
-                1. Select Panels <span className="text-destructive">*</span>
-              </Label>
-              <Badge variant="secondary">
-                {selectedPanels.length} Selected
+          {/* RIGHT SIDE: Dynamic Cards (1 Row = 3 Cards layout) (Col 6) */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="flex items-center justify-between rounded-xl bg-slate-900 text-white px-4 py-3 shadow-sm">
+              <span className="text-xs font-extrabold uppercase tracking-widest flex items-center gap-2">
+                <Layers className="h-4 w-4 text-indigo-400" /> Sub-Route
+                Privileges (Keys)
+              </span>
+              <Badge
+                variant="outline"
+                className="border-slate-700 bg-slate-800 text-indigo-300 font-mono text-[11px]"
+              >
+                {selectedRoutes.length} Keys Selected
               </Badge>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
-              {ALL_PANELS.map((panel) => {
-                const isSelected = selectedPanels.includes(panel);
-                return (
-                  <Button
-                    key={panel}
-                    type="button"
-                    variant={isSelected ? "default" : "outline"}
-                    size="sm"
-                    className="justify-between capitalize"
-                    onClick={() => handlePanelToggle(panel)}
-                  >
-                    <span>{panel}</span>
-                    {isSelected ? (
-                      <CheckSquare className="h-4 w-4" />
-                    ) : (
-                      <Square className="h-4 w-4 opacity-40" />
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Route selectors */}
-          {selectedPanels.length > 0 && (
-            <div className="space-y-3 border-t pt-4">
-              <div>
-                <Label className="text-xs font-semibold uppercase">
-                  2. Sub-Route Access Controls
-                </Label>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Select specific sub-routes. If none are selected, full panel
-                  access is granted by default.
+            {selectedPanels.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-12 text-center text-slate-400">
+                <Layers className="h-10 w-10 stroke-1 mb-2 opacity-40" />
+                <p className="text-xs font-semibold uppercase tracking-wider">
+                  No panels selected
+                </p>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Please check at least one panel on the left to configure
+                  sub-route keys.
                 </p>
               </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            ) : (
+              /* 1 Row = 3 Cards grid layout */
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {selectedPanels.map((panel) => {
                   const routes = getRoutesForPanel(panel);
                   if (routes.length === 0) return null;
@@ -208,22 +270,18 @@ export function GrantAccessForm({ onSuccess }: GrantAccessFormProps) {
                   return (
                     <div
                       key={panel}
-                      className="space-y-2.5 rounded-lg border bg-muted/40 p-3.5"
+                      className="flex flex-col rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs hover:shadow-md transition-shadow"
                     >
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <span className="flex items-center gap-1.5 text-xs font-bold uppercase text-primary">
-                          <Layers className="h-3.5 w-3.5" />
-                          {panel} Routes
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-900 truncate">
+                          {panel}
                         </span>
-                        <Badge
-                          variant="outline"
-                          className="font-mono text-[10px]"
-                        >
-                          {routes.length} Available
-                        </Badge>
+                        <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[9px] font-bold text-indigo-600">
+                          {routes.length} keys
+                        </span>
                       </div>
 
-                      <div className="max-h-48 space-y-1 overflow-y-auto pr-1">
+                      <div className="max-h-48 space-y-1 overflow-y-auto pr-1 scrollbar-thin">
                         {routes.map((route) => {
                           const isChecked = selectedRoutes.includes(route.key);
                           return (
@@ -232,21 +290,28 @@ export function GrantAccessForm({ onSuccess }: GrantAccessFormProps) {
                               type="button"
                               onClick={() => handleRouteToggle(route.key)}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs transition-colors",
+                                "flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-[11px] transition-all",
                                 isChecked
-                                  ? "border border-primary/30 bg-primary/10 font-semibold text-primary"
-                                  : "border border-transparent text-muted-foreground hover:bg-muted",
+                                  ? "border border-indigo-200 bg-indigo-50/70 font-semibold text-indigo-950"
+                                  : "border border-transparent text-slate-600 hover:bg-slate-50",
                               )}
                             >
-                              <div className="flex items-center gap-2 truncate">
-                                {isChecked ? (
-                                  <CheckSquare className="h-3.5 w-3.5 shrink-0" />
-                                ) : (
-                                  <Square className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                                )}
+                              <div className="flex items-center gap-1.5 truncate">
+                                <div
+                                  className={cn(
+                                    "flex h-3 w-3 shrink-0 items-center justify-center rounded text-[9px]",
+                                    isChecked
+                                      ? "bg-indigo-600 text-white"
+                                      : "border border-slate-300",
+                                  )}
+                                >
+                                  {isChecked && (
+                                    <CheckCircle2 className="h-2.5 w-2.5" />
+                                  )}
+                                </div>
                                 <span className="truncate">{route.name}</span>
                               </div>
-                              <span className="shrink-0 font-mono text-[10px] opacity-60">
+                              <span className="shrink-0 rounded bg-slate-100 px-1 font-mono text-[9px] font-medium text-slate-600">
                                 {route.key}
                               </span>
                             </button>
@@ -257,26 +322,31 @@ export function GrantAccessForm({ onSuccess }: GrantAccessFormProps) {
                   );
                 })}
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="flex justify-end pt-2">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Assigning...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Grant Access Scope
-                </>
-              )}
-            </Button>
+            {/* Submit Action Button */}
+            <div className="flex justify-end pt-2">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-md shadow-indigo-500/20 px-6 py-2.5 h-auto text-xs font-bold uppercase tracking-wider transition-all w-full md:w-auto"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Granting Access...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Grant Access Permissions
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </div>
   );
 }

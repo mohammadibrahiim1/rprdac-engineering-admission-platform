@@ -105,7 +105,7 @@ export const panelAccessApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["User", "Panels", "User"],
+      invalidatesTags: ["Panels", "User"],
     }),
   }),
 });

@@ -18,6 +18,7 @@ import { OrderPanelRoutes } from "./OrderPanelRoutes";
 import { AdminUserCoreRoutes } from "./AdminUserCoreRoutes";
 import { ExamCenterPanelRoutes } from "./ExamCenterPanelRoutes";
 import NotFound from "@/components/common/NotFound";
+import { PanelAuthGuard } from "./PanelAuthGuard";
 
 const DASHBOARD_PATH = "/dashboard";
 
@@ -25,7 +26,7 @@ export const router = createBrowserRouter([
   // Public Routes
   {
     path: "/",
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/welcome" replace />,
   },
   {
     path: "/login",
@@ -53,44 +54,50 @@ export const router = createBrowserRouter([
         path: DASHBOARD_PATH,
         element: <MainLayout />,
         children: [
+          // ড্যাশবোর্ড হোম
           { index: true, element: <Dashboard /> },
 
+          // সেন্ট্রালাইজড প্যানেল গার্ড (URL থেকে স্বয়ংক্রিয়ভাবে প্যানেলের নাম ধরে নেবে)
           {
-            path: "exam",
-            children: examRoutes,
-          },
-          {
-            path: "exam-center",
-            children: ExamCenterPanelRoutes,
-          },
-
-          {
-            path: "control",
-            children: ControlPanelRoutes,
-          },
-          {
-            path: "student",
-            children: StudentPanelRoutes,
-          },
-          {
-            path: "teacher",
-            children: teacherPanelRoutes,
-          },
-          {
-            path: "employee",
-            children: EmployeePanelRoutes,
-          },
-          {
-            path: "nursing",
-            children: NursingPanelRoutes,
-          },
-          {
-            path: "order",
-            children: OrderPanelRoutes,
-          },
-          {
-            path: "user",
-            children: AdminUserCoreRoutes,
+            element: <PanelAuthGuard />,
+            children: [
+              {
+                path: "exam",
+                children: examRoutes,
+              },
+              {
+                path: "exam-center",
+                children: ExamCenterPanelRoutes,
+              },
+              {
+                path: "control",
+                children: ControlPanelRoutes,
+              },
+              {
+                path: "student",
+                children: StudentPanelRoutes,
+              },
+              {
+                path: "teacher",
+                children: teacherPanelRoutes,
+              },
+              {
+                path: "employee",
+                children: EmployeePanelRoutes,
+              },
+              {
+                path: "nursing",
+                children: NursingPanelRoutes,
+              },
+              {
+                path: "order",
+                children: OrderPanelRoutes,
+              },
+              {
+                path: "user",
+                children: AdminUserCoreRoutes,
+              },
+            ],
           },
         ],
       },

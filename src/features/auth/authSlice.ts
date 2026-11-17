@@ -68,6 +68,7 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.authChecked = true;
       state.accessToken = null;
+      state.panelSession = null;
     },
     clearError: (state: AuthState) => {
       state.error = null;
@@ -202,10 +203,12 @@ const authSlice = createSlice({
       // --- Logout ---
       .addCase(logout.fulfilled, () => ({
         ...initialState,
+        panelSession: null,
         authChecked: true,
       }))
       .addCase(logout.rejected, () => ({
         ...initialState,
+        panelSession: null,
         authChecked: true,
       }))
 
