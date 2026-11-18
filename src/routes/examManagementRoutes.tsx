@@ -1,5 +1,6 @@
 import { ExamMarksEntryForm } from "@/features/ExamManagement/exam-components/ExamMarksEntryForm";
 import { PostExamForm } from "@/features/ExamManagement/exam-components/PostExamForm";
+import ResultSheetList from "@/features/ExamManagement/exam-components/ResultSheetList";
 import { ExamDesk } from "@/features/ExamManagement/pages/ExamDesk";
 
 export const examRoutes = [
@@ -17,7 +18,7 @@ export const examRoutes = [
   },
   {
     path: "results", // Full path: /exam/results
-    element: <div>Results & Merit List Page</div>,
+    element: <ResultSheetList />,
   },
   {
     path: "batch-results", // Full path: /exam/batch-results

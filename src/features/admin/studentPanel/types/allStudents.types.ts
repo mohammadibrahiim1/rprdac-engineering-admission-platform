@@ -71,11 +71,13 @@ export interface Batch {
 
 export interface GetStudentsParams {
   page?: number;
-  limit?: number | string;
+  limit?: number | "all";
   search?: string;
   batch?: string;
   session?: string;
   status?: string;
+  startStudentId?: string;
+  endStudentId?: string;
 }
 
 export interface GetTransactionsParams {

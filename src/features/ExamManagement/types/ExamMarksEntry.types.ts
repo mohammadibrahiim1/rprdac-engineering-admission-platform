@@ -24,9 +24,19 @@ export interface IStudent {
   source: "internal" | "external";
 }
 
+export interface GetStudentsParams {
+  page?: number;
+  limit?: number | "all";
+  search?: string;
+  batch?: string;
+  session?: string;
+  status?: string;
+  startStudentId?: string;
+  endStudentId?: string;
+}
+
 // ==================== ZOD & FORM VALIDATION TYPES ====================
 
-// প্রতিটি স্টুডেন্টের ব্যক্তিগত মার্কস রো এর জন্য Zod Schema
 export const studentMarkRowZodSchema = z.object({
   studentId: z.string().min(1, "Student ID is required"),
   name: z.string().min(1, "Name is required"),

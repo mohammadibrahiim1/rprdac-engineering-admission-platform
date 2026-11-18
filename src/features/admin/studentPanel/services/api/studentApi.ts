@@ -42,7 +42,6 @@ const studentApi = baseApi.injectEndpoints({
     // ── Students List ───────────────────────────────
     getStudents: builder.query<StudentsListResponse, GetStudentsParams | void>({
       query: (params) => {
-        console.log("params", params);
         return { url: "students/all", params: params || {} };
       },
     }),

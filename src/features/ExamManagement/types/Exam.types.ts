@@ -48,7 +48,7 @@ export type ExamSubmitHandler = (
 ) => void | Promise<void>;
 
 export interface UseExamFormReturn {
-  form: UseFormReturn<ExamFormValues, any>; // এখানে Type Argument ঠিক করা হয়েছে
+  form: UseFormReturn<ExamFormValues, any>; //
   batches: ExamBatch[];
   filteredBatches: ExamBatch[];
   editingExamId: string | null;
@@ -99,3 +99,74 @@ export type SidePanel = {
   type: "edit" | "marks" | "results";
   id: string;
 } | null;
+
+export interface StudentMarkPayloadItem {
+  studentId: string;
+  name: string;
+  phone: string;
+  batch: string;
+  department: string;
+  source: "internal" | "external";
+  examId?: string;
+  mcqAnswered: number;
+  mcqCorrect: number;
+  mcqIncorrect: number;
+  mcqMarks: number;
+  writtenMarks: number;
+  fullMarks: number;
+}
+
+export interface CreateResultSheetRequest {
+  batchId?: string;
+  batch: string;
+  examId: string;
+  fullMarks: number;
+  studentsMarks: StudentMarkPayloadItem[];
+}
+
+export interface CreateResultSheetResponse {
+  success: boolean;
+  message: string;
+  meta: {
+    totalProcessed: number;
+    insertedCount: number;
+    updatedCount: number;
+  };
+  data: any[];
+}
+
+export interface IResultSheet {
+  _id: string;
+  studentId: string;
+  name: string;
+  phone: string;
+  batch: string;
+  department: string;
+  source: "internal" | "external";
+  mcqAnswered: number;
+  mcqCorrect: number;
+  mcqIncorrect: number;
+  mcqMarks: number;
+  writtenMarks: number;
+  totalObtainedMarks: number;
+  fullMarks: number;
+  percentage: number;
+  meritPosition: number | null;
+  remarks: string;
+  createdAt: string;
+}
+
+export interface IMeta {
+  page: number;
+  limit: number | string;
+  total: number;
+  totalPages: number;
+}
+
+export interface IResultResponse {
+  success: boolean;
+  message: string;
+  examId: string;
+  meta: IMeta;
+  data: IResultSheet[];
+}

@@ -1,9 +1,14 @@
-import { ExamFormValues, ExamRecord } from "../types/Exam.types";
+import {
+  CreateResultSheetRequest,
+  CreateResultSheetResponse,
+  ExamFormValues,
+  ExamRecord,
+  IResultResponse,
+} from "../types/Exam.types";
 import { baseApi } from "@/api/baseApi";
 
 export const examApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // ১. সব এক্সাম ফেচ করার জন্য (GET /api/exams/all)
     getExams: builder.query<
       { success: boolean; results: number; data: ExamRecord[] },
       void
@@ -51,6 +56,43 @@ export const examApi = baseApi.injectEndpoints({
       ],
     }),
 
+    createResultSheets: builder.mutation<
+      CreateResultSheetResponse,
+      CreateResultSheetRequest
+    >({
+      query: (payload) => ({
+        url: "result-sheets/bulk",
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["ResultSheets"],
+    }),
+
+    getResultSheets: builder.query<
+      IResultResponse,
+      {
+        studentId?: string;
+        batch?: string;
+        page?: number;
+        limit?: number | string;
+      }
+    >({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params.studentId) queryParams.append("studentId", params.studentId);
+        if (params.batch && params.batch !== "all")
+          queryParams.append("batch", params.batch);
+        if (params.page) queryParams.append("page", String(params.page));
+        if (params.limit) queryParams.append("limit", String(params.limit));
+
+        return {
+          url: `result-sheets/all?${queryParams.toString()}`,
+          method: "GET",
+        };
+      },
+      providesTags: ["ResultSheets"],
+    }),
+
     // ৫. সিঙ্গেল বা বাল্ক ডিলিটের জন্য (DELETE /api/exams/delete)
     deleteExams: builder.mutation<
       { success: boolean; message: string },
@@ -69,7 +111,9 @@ export const examApi = baseApi.injectEndpoints({
 export const {
   useGetExamsQuery,
   useGetExamByIdQuery,
+  useGetResultSheetsQuery,
   useCreateExamMutation,
+  useCreateResultSheetsMutation,
   useUpdateExamMutation,
   useDeleteExamsMutation,
 } = examApi;

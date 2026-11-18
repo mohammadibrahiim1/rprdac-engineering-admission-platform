@@ -54,10 +54,8 @@ export const router = createBrowserRouter([
         path: DASHBOARD_PATH,
         element: <MainLayout />,
         children: [
-          // ড্যাশবোর্ড হোম
           { index: true, element: <Dashboard /> },
 
-          // সেন্ট্রালাইজড প্যানেল গার্ড (URL থেকে স্বয়ংক্রিয়ভাবে প্যানেলের নাম ধরে নেবে)
           {
             element: <PanelAuthGuard />,
             children: [

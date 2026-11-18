@@ -11,19 +11,25 @@ import {
 } from "../types/ExamMarksEntry.types";
 import { useGetBatchesQuery } from "@/features/control-panel/control-panel-services/batch/batchApi";
 import { useGetStudentsQuery } from "@/features/admin/studentPanel/services/api/studentApi";
-import { useGetExamsQuery } from "../services/examApi";
+import {
+  useGetExamsQuery,
+  useCreateResultSheetsMutation,
+} from "../services/examApi";
 
 export function useExamMarksEntry() {
   const [examBatchSearch, setExamBatchSearch] = useState<string>("");
   const [studentSearchQuery, setStudentSearchQuery] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isBatchDropdownOpen, setIsBatchDropdownOpen] = useState(false);
+  const [startStudentId, setStartStudentId] = useState<string>("");
+  const [endStudentId, setEndStudentId] = useState<string>("");
+  // const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isBatchDropdownOpen, setIsBatchDropdownOpen] =
+    useState<boolean>(false);
 
   // 1. Live Batch Search (Backend filtered)
   const { data: batches = [], isLoading: isBatchLoading } =
     useGetBatchesQuery(examBatchSearch);
 
-  // Form
+  // Form Setup
   const form = useForm<BulkExamMarksFormValues>({
     resolver: zodResolver(bulkExamMarksZodSchema),
     defaultValues: {
@@ -43,18 +49,33 @@ export function useExamMarksEntry() {
 
   const selectedBatch = useMemo(() => {
     if (!selectedBatchId) return "";
-    const foundBatch = batches.find((btc) => btc?._id === selectedBatchId);
+    const foundBatch = batches.find(
+      (btc: any) => String(btc?._id) === String(selectedBatchId),
+    );
     return foundBatch?.title || "";
   }, [selectedBatchId, batches]);
 
-  // 2. Fetch Students ONLY when batch is selected (Backend filtered by batch)
-  const { data: studentsResponse, isLoading: isStudentLoading } =
-    useGetStudentsQuery({
+  // 2. Fetch Students ONLY when batch is selected (Filtered by batch + Student ID Range)
+  // Note: Do NOT pass studentSearchQuery here so typing in search box never resets form marks!
+  const {
+    data: studentsResponse,
+    isLoading: isStudentLoading,
+    isFetching: isStudentFetching,
+  } = useGetStudentsQuery(
+    {
       batch: selectedBatch.toLowerCase(),
-      search: studentSearchQuery,
-    });
+      limit: "all",
+      ...(startStudentId.trim()
+        ? { startStudentId: startStudentId.trim() }
+        : {}),
+      ...(endStudentId.trim() ? { endStudentId: endStudentId.trim() } : {}),
+    },
+    {
+      skip: !selectedBatchId || !selectedBatch,
+    },
+  );
 
-  // 3. Fetch Exams ONLY when batch is selected (Backend filtered by batch)
+  // 3. Fetch Exams ONLY when batch is selected
   const {
     data: examsResponse,
     isLoading: isLoadingExams,
@@ -63,8 +84,11 @@ export function useExamMarksEntry() {
     skip: !selectedBatchId,
   });
 
-  // Normalize Students
-  const students: IStudent[] = useMemo(() => {
+  const [createResultSheets, { isLoading: isSubmitting }] =
+    useCreateResultSheetsMutation();
+
+  // Normalize Raw Students from API
+  const rawStudents: IStudent[] = useMemo(() => {
     if (!studentsResponse) return [];
     if (Array.isArray(studentsResponse)) return studentsResponse;
     if (Array.isArray((studentsResponse as any)?.data))
@@ -74,7 +98,7 @@ export function useExamMarksEntry() {
     return [];
   }, [studentsResponse]);
 
-  // Normalize Exams
+  // Normalize Exams from API
   const exams: IExam[] = useMemo(() => {
     if (!examsResponse) return [];
     if (Array.isArray(examsResponse)) return examsResponse;
@@ -90,14 +114,14 @@ export function useExamMarksEntry() {
     return exams.find((e) => String(e._id) === String(selectedExamId)) || null;
   }, [exams, selectedExamId]);
 
-  // Load students of selected batch into form
+  // Sync fetched students into React Hook Form `fields`
   useEffect(() => {
     if (!selectedBatchId) {
       replace([]);
       return;
     }
 
-    const formattedMarks = students.map((s: IStudent) => ({
+    const formattedMarks = rawStudents.map((s: IStudent) => ({
       studentId: s.studentId,
       name: s.name,
       phone: s.phone || "",
@@ -112,9 +136,27 @@ export function useExamMarksEntry() {
     }));
 
     replace(formattedMarks);
-  }, [selectedBatchId, students, replace]);
+  }, [selectedBatchId, rawStudents, replace]);
 
-  // ===================== Excel Upload Logic (kept intact + improved) =====================
+  // Client-side filtered students with preserved `_formIndex` (Bug-free!)
+  const filteredStudents = useMemo(() => {
+    const indexedFields = fields.map((field, index) => ({
+      ...field,
+      _formIndex: index,
+    }));
+
+    const query = studentSearchQuery.trim().toLowerCase();
+    if (!query) return indexedFields;
+
+    return indexedFields.filter((student) => {
+      const nameMatch = student.name?.toLowerCase().includes(query);
+      const idMatch = student.studentId?.toLowerCase().includes(query);
+      const phoneMatch = student.phone?.toLowerCase().includes(query);
+      return nameMatch || idMatch || phoneMatch;
+    });
+  }, [fields, studentSearchQuery]);
+
+  // ===================== Excel Upload Logic =====================
 
   type ExcelMarkRecord = {
     studentId: string;
@@ -437,7 +479,7 @@ export function useExamMarksEntry() {
     reader.readAsArrayBuffer(file);
   };
 
-  // Reset Form
+  // Reset Form & Filters
   const handleClearForm = () => {
     form.reset({
       batchId: "",
@@ -446,38 +488,97 @@ export function useExamMarksEntry() {
     });
     replace([]);
     setStudentSearchQuery("");
+    setStartStudentId("");
+    setEndStudentId("");
     setExamBatchSearch("");
     setIsBatchDropdownOpen(false);
     toast.info("Form cleared successfully.");
   };
 
-  // Submit Handler
+  // ===================== RTK Query Submit Controller =====================
   const handleFormSubmit = async (values: BulkExamMarksFormValues) => {
-    try {
-      setIsSubmitting(true);
-      const fullMarks = selectedExam?.fullMarks || 100;
+    if (!values.batchId || !values.examId) {
+      toast.error("Please select both a batch and an exam.");
+      return;
+    }
 
-      const payload = {
+    if (!values.studentsMarks || values.studentsMarks.length === 0) {
+      toast.error("No student records available to submit.");
+      return;
+    }
+
+    const fullMarks = Number(selectedExam?.fullMarks) || 100;
+    const maxMcq = Number(selectedExam?.mcqFullMarks) ?? fullMarks;
+    const maxWritten = Number(selectedExam?.writtenFullMarks) ?? fullMarks;
+
+    // Validate & Format each student's data to strictly match backend Zod schema
+    const formattedStudentsMarks = [];
+
+    for (let i = 0; i < values.studentsMarks.length; i++) {
+      const s = values.studentsMarks[i];
+      const mcqMarks = Math.max(0, Number(s.mcqMarks) || 0);
+      const writtenMarks = Math.max(0, Number(s.writtenMarks) || 0);
+
+      if (mcqMarks > maxMcq) {
+        toast.error(
+          `${s.name} (${s.studentId}): MCQ marks (${mcqMarks}) cannot exceed max (${maxMcq}).`,
+        );
+        return;
+      }
+
+      if (writtenMarks > maxWritten) {
+        toast.error(
+          `${s.name} (${s.studentId}): Written marks (${writtenMarks}) cannot exceed max (${maxWritten}).`,
+        );
+        return;
+      }
+
+      if (mcqMarks + writtenMarks > fullMarks) {
+        toast.error(
+          `${s.name} (${s.studentId}): Total marks (${mcqMarks + writtenMarks}) exceed full marks (${fullMarks}).`,
+        );
+        return;
+      }
+
+      formattedStudentsMarks.push({
+        studentId: String(s.studentId).trim(),
+        name: String(s.name).trim(),
+        phone: String(s.phone || "N/A").trim(),
+        batch: String(s.batch || selectedBatch).trim(),
+        department: String(s.department || "N/A").trim(),
+        source: (s.source === "external" ? "external" : "internal") as
+          | "internal"
+          | "external",
+        examId: values.examId,
+        mcqAnswered: Math.max(0, Number(s.mcqAnswered) || 0),
+        mcqCorrect: Math.max(0, Number(s.mcqCorrect) || 0),
+        mcqIncorrect: Math.max(0, Number(s.mcqIncorrect) || 0),
+        mcqMarks,
+        writtenMarks,
+        fullMarks,
+      });
+    }
+
+    try {
+      const response = await createResultSheets({
         batchId: values.batchId,
+        batch: selectedBatch,
         examId: values.examId,
         fullMarks,
-        studentsMarks: values.studentsMarks,
-      };
+        studentsMarks: formattedStudentsMarks,
+      }).unwrap();
 
-      const res = await fetch("/api/result-sheets/bulk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Submission failed");
-
-      toast.success("Exam result sheet created and marks saved successfully!");
+      toast.success(
+        response?.message ||
+          `Result sheets saved for ${formattedStudentsMarks.length} student(s)!`,
+      );
     } catch (err: any) {
-      toast.error(err.message || "Error submitting marks");
-    } finally {
-      setIsSubmitting(false);
+      const errorMessage =
+        err?.data?.errors?.[0]?.message ||
+        err?.data?.message ||
+        err?.message ||
+        "Failed to submit exam marks.";
+      toast.error(errorMessage);
     }
   };
 
@@ -485,18 +586,22 @@ export function useExamMarksEntry() {
     form,
     fields,
     allFieldsLength: fields.length,
-    students,
+    students: filteredStudents,
     batches,
     exams,
     selectedExam,
     isBatchLoading,
-    isStudentLoading,
+    isStudentLoading: isStudentLoading || isStudentFetching,
     isLoadingExams,
     isSubmitting,
     examBatchSearch,
     setExamBatchSearch,
     studentSearchQuery,
     setStudentSearchQuery,
+    startStudentId,
+    setStartStudentId,
+    endStudentId,
+    setEndStudentId,
     isBatchDropdownOpen,
     setIsBatchDropdownOpen,
     refetchExams,
