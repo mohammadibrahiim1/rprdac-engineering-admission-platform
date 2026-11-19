@@ -185,13 +185,9 @@ export function ExamEditForm({
       setSavedLabels(labels);
       toast.success(`Updated ${labels.join(", ")} successfully.`);
 
-      console.log("Exam ID:", examId);
-      console.log("Sending Patch to Backend:", patch);
-
       // সফলভাবে সেভ হওয়ার পর চাইলে ফর্ম বন্ধ করতে পারেন:
       // onCancel();
     } catch (error: any) {
-      console.log("Update Error:", error);
       // ব্যাকএন্ড থেকে আসা স্পেসিফিক এরর মেসেজ দেখাতে পারেন
       const errorMsg =
         error?.data?.message || "This exam could not be updated.";

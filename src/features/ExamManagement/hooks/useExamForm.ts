@@ -209,9 +209,6 @@ export function useExamForm(): UseExamFormReturn {
   // ----------------------------------
 
   const createExamHandler = async (submissionData: ExamFormValues) => {
-    // RTK Query দিয়ে নতুন এক্সাম তৈরির রিয়েল API কল
-
-    console.log("first", submissionData);
     await createExam(submissionData).unwrap();
   };
 
@@ -261,14 +258,11 @@ export function useExamForm(): UseExamFormReturn {
           // এডিট মোড হলে আপডেট API কল হবে
           await updateExamHandler(editingExamId, submissionData);
         } else {
-          // ক্রিয়েট মোড হলে নতুন এক্সাম তৈরির API কল হবে
-          console.log("data", submissionData);
           await createExamHandler(submissionData);
         }
 
         resetForm();
       } catch (error) {
-        console.log("Exam submission failed:", error);
       } finally {
         setSaving(false);
       }

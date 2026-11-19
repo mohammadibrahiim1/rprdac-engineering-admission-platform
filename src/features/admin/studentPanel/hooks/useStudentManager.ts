@@ -124,8 +124,6 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
     [batchesResponse],
   );
 
-  console.log("allBatches", allBatches);
-
   const filteredBatches: Batch[] = useMemo(() => {
     if (!batchQuery) return allBatches;
     return allBatches.filter((b) =>
@@ -214,7 +212,6 @@ const useStudentManager = (options: UseStudentManagerOptions = {}) => {
       setSelectedIds([]);
       refetch();
     } catch (err: any) {
-      console.log(err);
       toast.error(err?.data?.message || "Delete failed");
     }
   }, [selectedIds, deleteStudents, refetch]);

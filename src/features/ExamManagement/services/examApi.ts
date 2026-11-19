@@ -29,7 +29,6 @@ export const examApi = baseApi.injectEndpoints({
       ExamFormValues
     >({
       query: (newExam) => {
-        console.log("newExam payload:", newExam);
         return {
           url: "exams/create",
           method: "POST",

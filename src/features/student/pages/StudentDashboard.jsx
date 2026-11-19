@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,14 +9,14 @@ import {
   BookOpen,
   Bell,
   Users,
-} from 'lucide-react';
-import { useGetStudentByIdQuery } from '../../../../redux/features/student/studentApi';
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useFetchStudentRoutinesQuery } from '../../../../redux/features/routine/routineApi';
-import { formatDateDMY } from '../../../../constants/dateFormat';
-import { useGetStudentAnnouncementsQuery } from '../../../../redux/features/announcement/announcementApi';
+} from "lucide-react";
+import { useGetStudentByIdQuery } from "../../../../redux/features/student/studentApi";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useFetchStudentRoutinesQuery } from "../../../../redux/features/routine/routineApi";
+import { formatDateDMY } from "../../../../constants/dateFormat";
+import { useGetStudentAnnouncementsQuery } from "../../../../redux/features/announcement/announcementApi";
 
 const StudentDashboard = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -35,14 +35,14 @@ const StudentDashboard = () => {
     batch: student?.batch,
     page: 1,
     limit: 15,
-    type: '',
-    date: '',
+    type: "",
+    date: "",
   });
 
   const { data: routinesResponse } = useFetchStudentRoutinesQuery({
     batch: student?.batch,
-    startDate: '',
-    endDate: '',
+    startDate: "",
+    endDate: "",
   });
 
   const announcements = useMemo(
@@ -51,8 +51,6 @@ const StudentDashboard = () => {
   );
 
   const allRoutines = useMemo(() => routinesResponse || [], [routinesResponse]);
-
-  console.log('routines', allRoutines);
 
   // Filter routines for the selected date
   const selectedDateRoutines = useMemo(() => {
@@ -131,20 +129,20 @@ const StudentDashboard = () => {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="flex-1 text-center lg:text-left space-y-3 w-full"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-medium tracking-wide shadow-sm">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{student.grade || 'Active Scholar'}</span>
+                <span>{student.grade || "Active Scholar"}</span>
                 <span className="text-white/40">•</span>
                 <span className="text-purple-200">Session Active</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-sans">
-                Welcome back,{' '}
+                Welcome back,{" "}
                 <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-white bg-clip-text text-transparent">
-                  {student?.name || 'Explorer'}
+                  {student?.name || "Explorer"}
                 </span>
                 ! ✨
               </h1>
@@ -178,7 +176,7 @@ const StudentDashboard = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
               className="flex items-center justify-center lg:justify-end gap-6 w-full lg:w-auto"
             >
               {/* Animated SVG illustration representing studying / student explorer */}
@@ -191,7 +189,7 @@ const StudentDashboard = () => {
                   transition={{
                     repeat: Infinity,
                     duration: 4,
-                    ease: 'easeInOut',
+                    ease: "easeInOut",
                   }}
                   className="relative z-10 w-full h-full flex items-center justify-center filter drop-shadow-xl"
                 >
@@ -221,7 +219,7 @@ const StudentDashboard = () => {
                       transition={{
                         repeat: Infinity,
                         duration: 3,
-                        ease: 'easeInOut',
+                        ease: "easeInOut",
                       }}
                       d="M100 50L150 70L100 90L50 70L100 50Z"
                       fill="#FBBF24"
@@ -285,7 +283,7 @@ const StudentDashboard = () => {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
                 className="h-full bg-teal-500 rounded-full"
               />
             </div>
@@ -295,7 +293,7 @@ const StudentDashboard = () => {
               <div className="flex justify-between">
                 <span>Admission (Paid / Due):</span>
                 <span className="font-medium text-slate-700">
-                  ৳ {admissionPaid.toLocaleString()} / ৳{' '}
+                  ৳ {admissionPaid.toLocaleString()} / ৳{" "}
                   {admissionDue.toLocaleString()}
                 </span>
               </div>
@@ -326,7 +324,7 @@ const StudentDashboard = () => {
                     {formatDateDMY(r.date)}
                   </p>
                   <p className="text-sm font-medium">
-                    {r.subjects?.[0] || 'Class'}
+                    {r.subjects?.[0] || "Class"}
                   </p>
                   <p className="text-xs text-slate-400">{r.time}</p>
                 </div>
@@ -338,9 +336,9 @@ const StudentDashboard = () => {
         <div className="p-5 bg-white border shadow-sm break-inside-avoid rounded-2xl">
           <div className="flex justify-between mb-4">
             <h3 className="text-sm font-semibold">
-              {currentDate?.toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric',
+              {currentDate?.toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
               })}
             </h3>
 
@@ -373,9 +371,9 @@ const StudentDashboard = () => {
                   onClick={() => setSelectedDate(day?.date)}
                   className={`
         relative text-xs rounded-full w-9 h-9 p-2 transition-all
-        ${isSelected ? 'bg-teal-600 text-white scale-105' : ''}
-        ${!isSelected && 'hover:bg-slate-100'}
-        ${isToday && !isSelected ? 'ring-2 ring-teal-500' : ''}
+        ${isSelected ? "bg-teal-600 text-white scale-105" : ""}
+        ${!isSelected && "hover:bg-slate-100"}
+        ${isToday && !isSelected ? "ring-2 ring-teal-500" : ""}
       `}
                 >
                   {day.date.getDate()}
@@ -426,10 +424,10 @@ const StudentDashboard = () => {
                 📘 My Classes
               </h2>
               <p className="mt-1 text-xs text-slate-500">
-                {selectedDate?.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
+                {selectedDate?.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
                 })}
               </p>
             </div>
@@ -464,7 +462,7 @@ const StudentDashboard = () => {
 
                     {/* Title */}
                     <h3 className="text-sm font-semibold text-slate-800">
-                      {routine?.subjects?.join(', ') || 'General Class'}
+                      {routine?.subjects?.join(", ") || "General Class"}
                     </h3>
 
                     {/* Meta Info */}
