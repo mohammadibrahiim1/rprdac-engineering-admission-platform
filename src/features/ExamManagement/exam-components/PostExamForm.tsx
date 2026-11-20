@@ -106,34 +106,6 @@ export const PostExamForm: FC<PostExamFormProps> = ({
 
   return (
     <div className="min-h-screen font-sans text-slate-900 pb-12">
-      {/* Sticky Glassmorphic Header */}
-      <header className="sticky top-0 z-30 border-b border-blue-100/80 bg-white/80 backdrop-blur-xl">
-        <div className="flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 overflow-x-auto">
-            <Breadcrumb />
-          </div>
-
-          {/* Logged-In User Profile Pill */}
-          <div className="flex shrink-0 items-center gap-3 rounded-full border border-blue-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 py-1 pl-1.5 pr-4 shadow-2xs">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-xs font-bold text-white shadow-xs">
-              {loggedInName.charAt(0).toUpperCase()}
-            </div>
-            <div className="hidden text-left sm:block">
-              <p className="text-xs font-semibold leading-none text-slate-800 capitalize">
-                {loggedInName}
-              </p>
-              <p className="mt-0.5 flex items-center gap-1 text-[10px] font-medium text-indigo-600 capitalize">
-                <ShieldCheck className="h-3 w-3" />
-                {loggedInUserType}
-              </p>
-            </div>
-            <span className="text-xs font-semibold text-slate-800 sm:hidden capitalize">
-              {loggedInName}
-            </span>
-          </div>
-        </div>
-      </header>
-
       {/* Main Container */}
       <main className="max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
         {/* Page Hero Banner */}

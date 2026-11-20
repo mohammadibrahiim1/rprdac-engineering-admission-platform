@@ -2,13 +2,12 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
-
 @custom-variant dark (&:is(.dark *));
 
 /* Custom utility styles or fonts can be declared below */
 @layer base {
   body {
-    background-color: #f8fafc;
+    background-color: #ffffff;
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

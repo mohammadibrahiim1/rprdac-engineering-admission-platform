@@ -144,7 +144,7 @@ export function ExamMarksEntryForm() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto"
+      className="p-4 md:p-6 space-y-6"
     >
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-gradient-to-r from-primary/10 via-indigo-500/5 to-transparent p-5 rounded-xl border border-primary/15">

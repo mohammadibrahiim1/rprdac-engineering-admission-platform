@@ -36,7 +36,7 @@ const BatchSelector = ({
 
   const { data: batchesData } = useGetBatchesQuery(searchTerm);
 
-  const batches: Batch[] = batchesData?.data ?? [];
+  console.log("batches", batchesData);
 
   // Debounced search
   useEffect(() => {
@@ -89,10 +89,10 @@ const BatchSelector = ({
 
   // Filter batches
   const filteredBatches = batchQuery.trim()
-    ? batches.filter((batch) =>
+    ? batchesData?.filter((batch) =>
         batch.title.toLowerCase().includes(batchQuery.trim().toLowerCase()),
       )
-    : batches;
+    : batchesData;
 
   // Select a batch
   const handleSelect = (batch: Batch): void => {
@@ -176,8 +176,8 @@ const BatchSelector = ({
               transition={{ duration: 0.15 }}
               className="absolute z-50 mt-2 max-h-52 w-full overflow-auto rounded-md border bg-white p-1 shadow-lg"
             >
-              {filteredBatches.length > 0 ? (
-                filteredBatches.map((batch) => (
+              {filteredBatches?.length > 0 ? (
+                filteredBatches?.map((batch) => (
                   <li
                     key={batch._id}
                     role="option"

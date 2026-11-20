@@ -129,7 +129,6 @@ const AdminAddTeacherClass = () => {
 
       await postAttendance(payload).unwrap();
       toast.success("Class recorded successfully!");
-      // handleReset();
     } catch (err) {
       toast.error(err?.data?.message || "Something went wrong");
     }
