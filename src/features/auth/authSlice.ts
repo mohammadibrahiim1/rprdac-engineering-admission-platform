@@ -10,11 +10,10 @@ import {
   sendOtp,
   verifyOtp,
 } from "./authThunk";
-import { User } from "../admin/userPanel/types/User.types";
+import { IUser } from "../admin/userPanel/types/User.types";
 
-// Auth State ইন্টারফেস
 export interface AuthState {
-  user: User | null;
+  user: IUser | null;
   accessToken: string | null;
   authChecked: boolean;
   panelSession: any | null;

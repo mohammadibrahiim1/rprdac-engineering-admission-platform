@@ -95,7 +95,7 @@ export function LoginForm() {
                 <TurnstileWidget
                   key={turnstileWidgetKey}
                   siteKey={TURNSTILE_SITE_KEY}
-                  action="admin_login"
+                  action="user_login"
                   onVerify={(token: string) => setTurnstileToken(token)}
                   onSuccess={(token: string) => setTurnstileToken(token)}
                   onExpire={() => setTurnstileToken("")}
